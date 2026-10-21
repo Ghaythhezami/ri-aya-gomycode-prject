@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: riaya-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: riaya
+      POSTGRES_PASSWORD: riaya
+      POSTGRES_DB: riaya
+    ports:
+      - '5432:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U riaya -d riaya']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - riaya_pgdata:/var/lib/postgresql/data
+
+volumes:
+  riaya_pgdata:

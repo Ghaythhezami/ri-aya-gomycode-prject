@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "RI'AYA — Intelligent clinic operations",
+    "description": "RI'AYA helps clinics run calmer days: scheduling, patient flow, and operational clarity in English, Arabic, and French."
+  },
+  "nav": {
+    "platform": "Platform",
+    "solutions": "Solutions",
+    "security": "Security",
+    "signIn": "Sign in",
+    "openWorkspace": "Open workspace",
+    "menu": "Open menu",
+    "close": "Close menu"
+  },
+  "hero": {
+    "badge": "Intelligent clinic operations",
+    "title": "Better care starts with a better flow.",
+    "subtitle": "RI'AYA gives clinical teams a calm, multilingual workspace for appointments, staffing, and daily operations — so patients wait less and teams see more clearly.",
+    "primary": "Open workspace",
+    "secondary": "Explore the platform",
+    "check1": "Role-based access",
+    "check2": "Multilingual",
+    "check3": "Built for clinics",
+    "previewLabel": "Clinic overview preview",
+    "floatUtil": "92% utilization",
+    "floatQueue": "Queue optimized"
+  },
+  "trust": {
+    "title": "Designed for modern clinical teams",
+    "one": "Primary Care",
+    "two": "Specialist Clinics",
+    "three": "Medical Centers",
+    "four": "Outpatient Care"
+  },
+  "features": {
+    "kicker": "Platform",
+    "title": "Everything the front desk and clinicians share",
+    "learn": "Learn more",
+    "s1Title": "Effortless scheduling",
+    "s1Body": "Keep calendars balanced across doctors, rooms, and visit types without the usual back-and-forth.",
+    "s2Title": "Calmer patient flow",
+    "s2Body": "Waiting lists, check-in, and live status stay visible so queues stay honest and quiet.",
+    "s3Title": "Actionable intelligence",
+    "s3Body": "Spot bottlenecks early with utilization, wait time, and cancellation signals you can act on.",
+    "s4Title": "Operational clarity",
+    "s4Body": "One workspace for staff, capacity, and the day ahead — with access limited to the right roles."
+  },
+  "dark": {
+    "title": "Less operational noise. More time for patients.",
+    "body": "RI'AYA surfaces the few numbers that matter on a clinic day. Figures below are sample data for illustration.",
+    "chartTitle": "Weekly appointment volume",
+    "sample": "Sample data"
+  },
+  "footer": {
+    "blurb": "Clinic operations, designed to stay out of the way.",
+    "product": "Product",
+    "company": "Company",
+    "legal": "Legal",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "rights": "© 2026 RI'AYA. All rights reserved."
+  }
+}

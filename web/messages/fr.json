@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "RI'AYA — Opérations cliniques intelligentes",
+    "description": "RI'AYA aide les cliniques à vivre des journées plus calmes : planification, flux patients et clarté opérationnelle en anglais, arabe et français."
+  },
+  "nav": {
+    "platform": "Plateforme",
+    "solutions": "Solutions",
+    "security": "Sécurité",
+    "signIn": "Connexion",
+    "openWorkspace": "Ouvrir l'espace",
+    "menu": "Ouvrir le menu",
+    "close": "Fermer le menu"
+  },
+  "hero": {
+    "badge": "Opérations cliniques intelligentes",
+    "title": "De meilleurs soins commencent par un meilleur flux.",
+    "subtitle": "RI'AYA offre aux équipes un espace calme et multilingue pour les rendez-vous, le personnel et le quotidien — moins d'attente, plus de clarté.",
+    "primary": "Ouvrir l'espace",
+    "secondary": "Découvrir la plateforme",
+    "check1": "Accès par rôle",
+    "check2": "Multilingue",
+    "check3": "Conçu pour les cliniques",
+    "previewLabel": "Aperçu du tableau de bord",
+    "floatUtil": "92 % d'utilisation",
+    "floatQueue": "File optimisée"
+  },
+  "trust": {
+    "title": "Conçu pour les équipes cliniques modernes",
+    "one": "Soins primaires",
+    "two": "Cliniques spécialisées",
+    "three": "Centres médicaux",
+    "four": "Soins ambulatoires"
+  },
+  "features": {
+    "kicker": "Plateforme",
+    "title": "Ce que le secrétariat et les cliniciens partagent",
+    "learn": "En savoir plus",
+    "s1Title": "Planification fluide",
+    "s1Body": "Équilibrez agendas, salles et types de visite sans allers-retours inutiles.",
+    "s2Title": "Flux patients plus calme",
+    "s2Body": "Listes d'attente, accueil et statuts restent visibles pour des files honnêtes.",
+    "s3Title": "Intelligence actionnable",
+    "s3Body": "Repérez les goulets d'étranglement grâce à l'utilisation, l'attente et les annulations.",
+    "s4Title": "Clarté opérationnelle",
+    "s4Body": "Un espace pour le personnel, la capacité et la journée — avec des accès limités aux bons rôles."
+  },
+  "dark": {
+    "title": "Moins de bruit opérationnel. Plus de temps pour les patients.",
+    "body": "RI'AYA met en avant les quelques indicateurs utiles. Les chiffres ci-dessous sont des données d'exemple.",
+    "chartTitle": "Volume hebdomadaire de rendez-vous",
+    "sample": "Données d'exemple"
+  },
+  "footer": {
+    "blurb": "Des opérations cliniques conçues pour rester discrètes.",
+    "product": "Produit",
+    "company": "Entreprise",
+    "legal": "Mentions",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "rights": "© 2026 RI'AYA. Tous droits réservés."
+  }
+}

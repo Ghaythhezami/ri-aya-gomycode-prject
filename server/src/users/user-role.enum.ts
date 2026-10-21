@@ -1,0 +1,8 @@
+export enum UserRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  CLINIC_ADMIN = 'CLINIC_ADMIN',
+  DOCTOR = 'DOCTOR',
+  RECEPTIONIST = 'RECEPTIONIST',
+}
+
+export const ADMIN_ROLES = [UserRole.SUPER_ADMIN, UserRole.CLINIC_ADMIN];
