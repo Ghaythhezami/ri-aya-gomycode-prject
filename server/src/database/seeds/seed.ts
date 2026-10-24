@@ -1,8 +1,11 @@
-import 'reflect-metadata';
+import { PrismaClient } from '@prisma/client';
 import * as argon2 from 'argon2';
-import { AppDataSource } from '../data-source';
-import { User } from '../../users/user.entity';
+import { config as loadEnv } from 'dotenv';
 import { UserRole } from '../../users/user-role.enum';
+
+loadEnv();
+
+const prisma = new PrismaClient();
 
 const DEV_USERS: Array<{
   email: string;
@@ -42,25 +45,23 @@ const DEV_USERS: Array<{
 ];
 
 async function seed() {
-  await AppDataSource.initialize();
-  const repo = AppDataSource.getRepository(User);
-
   for (const item of DEV_USERS) {
-    const existing = await repo.findOne({ where: { email: item.email } });
+    const existing = await prisma.user.findUnique({ where: { email: item.email } });
     if (existing) {
       console.log(`skip ${item.email} (exists)`);
       continue;
     }
-    const user = repo.create({
-      email: item.email,
-      passwordHash: await argon2.hash(item.password),
-      firstName: item.firstName,
-      lastName: item.lastName,
-      role: item.role,
-      preferredLocale: 'en',
-      isActive: true,
+    await prisma.user.create({
+      data: {
+        email: item.email,
+        passwordHash: await argon2.hash(item.password),
+        firstName: item.firstName,
+        lastName: item.lastName,
+        role: item.role,
+        preferredLocale: 'en',
+        isActive: true,
+      },
     });
-    await repo.save(user);
     console.log(`created ${item.role} ${item.email}`);
   }
 
@@ -69,10 +70,11 @@ async function seed() {
     console.log(`  ${item.role.padEnd(14)} ${item.email} / ${item.password}`);
   }
 
-  await AppDataSource.destroy();
+  await prisma.$disconnect();
 }
 
-seed().catch((error) => {
+seed().catch(async (error) => {
   console.error(error);
+  await prisma.$disconnect();
   process.exit(1);
 });

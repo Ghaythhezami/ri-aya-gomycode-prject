@@ -5,6 +5,7 @@ import { useLocale, useTranslations } from 'next-intl';
 import { Menu, X } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
+import { BrandLogo } from './BrandLogo';
 
 const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5173';
 
@@ -15,13 +16,13 @@ export function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-border/80 bg-white/90 backdrop-blur">
-      <div className="mx-auto flex min-h-16 max-w-6xl items-center justify-between gap-4 px-4 lg:px-6">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="" className="h-10 w-10 rounded-xl object-cover" />
-          <span className="text-base font-semibold tracking-tight">RI'AYA</span>
+    <header className="sticky top-0 z-40 border-b border-border/70 bg-white/85 backdrop-blur-md">
+      <div className="mx-auto flex min-h-[72px] max-w-6xl items-center justify-between gap-4 px-4 lg:px-6">
+        <Link href="/" className="flex items-center gap-3">
+          <BrandLogo className="h-12 w-12" />
+          <span className="text-lg font-semibold tracking-tight text-navy">RI'AYA</span>
         </Link>
-        <nav className="hidden items-center gap-8 text-sm text-muted md:flex">
+        <nav className="hidden items-center gap-8 text-sm font-medium text-muted md:flex">
           <a href="#platform">{t('platform')}</a>
           <a href="#solutions">{t('solutions')}</a>
           <a href="#security">{t('security')}</a>
@@ -49,7 +50,7 @@ export function Header() {
           </a>
           <a
             href={workspace}
-            className="inline-flex min-h-11 items-center rounded-[12px] bg-primary px-4 text-sm font-medium text-white"
+            className="inline-flex min-h-11 items-center rounded-[12px] bg-primary px-4 text-sm font-medium text-white shadow-sm"
           >
             {t('openWorkspace')}
           </a>

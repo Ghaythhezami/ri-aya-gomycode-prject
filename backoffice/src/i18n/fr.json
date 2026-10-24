@@ -33,7 +33,18 @@
     "resetSuccess": "Mot de passe mis à jour. Vous pouvez vous connecter.",
     "passwordMismatch": "Les mots de passe ne correspondent pas",
     "weakPassword": "10 caractères min. avec majuscule, minuscule, chiffre et symbole",
-    "invalidToken": "Ce lien est invalide ou a expiré"
+    "invalidToken": "Ce lien est invalide ou a expiré",
+    "noAccount": "Pas encore de compte ?",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "signupTitle": "Créer un accès à l'espace",
+    "signupSubtitle": "Demandez un compte. Un admin de clinique l'active avant la connexion.",
+    "signupSubmit": "Créer un compte",
+    "signupSubmitting": "Création du compte…",
+    "signupPending": "Compte créé. Il attend l'approbation d'un admin, la connexion n'est pas encore possible.",
+    "signupError": "Impossible de créer le compte. Réessayez.",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "nameRequired": "Saisissez votre nom"
   },
   "nav": {
     "overview": "Vue d'ensemble",
@@ -52,6 +63,9 @@
     "newAppointment": "Nouveau rendez-vous",
     "logout": "Déconnexion",
     "comingSoon": "Cette section sera disponible dans une version ultérieure.",
+    "notDeveloped": "Cette page n'est pas encore développée.",
+    "openMenu": "Ouvrir le menu",
+    "closeMenu": "Fermer le menu",
     "greeting": "Bonjour, {{name}}",
     "greetingAfternoon": "Bon après-midi, {{name}}",
     "greetingEvening": "Bonsoir, {{name}}",
@@ -72,6 +86,7 @@
     "modalBody": "Dialogue réutilisable avec titre, contenu et actions.",
     "cancel": "Annuler",
     "confirm": "Appliquer",
-    "sample": "Données d'exemple"
+    "sample": "Données d'exemple",
+    "backHome": "Retour au site"
   }
 }

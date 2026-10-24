@@ -33,7 +33,18 @@
     "resetSuccess": "Password updated. You can sign in now.",
     "passwordMismatch": "Passwords do not match",
     "weakPassword": "Use 10+ characters with upper, lower, number, and symbol",
-    "invalidToken": "This reset link is invalid or has expired"
+    "invalidToken": "This reset link is invalid or has expired",
+    "noAccount": "Don't have an account?",
+    "haveAccount": "Already have an account?",
+    "signupTitle": "Create your workspace access",
+    "signupSubtitle": "Request a staff account. A clinic admin activates it before you can sign in.",
+    "signupSubmit": "Create account",
+    "signupSubmitting": "Creating account…",
+    "signupPending": "Account created. It is still waiting for clinic admin approval, so sign-in is not available yet.",
+    "signupError": "Unable to create the account. Try again.",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "nameRequired": "Enter your name"
   },
   "nav": {
     "overview": "Overview",
@@ -52,6 +63,9 @@
     "newAppointment": "New appointment",
     "logout": "Log out",
     "comingSoon": "This area will be available in a later release.",
+    "notDeveloped": "This page is still not developed yet.",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
     "greeting": "Good morning, {{name}}",
     "greetingAfternoon": "Good afternoon, {{name}}",
     "greetingEvening": "Good evening, {{name}}",
@@ -72,6 +86,7 @@
     "modalBody": "This is a reusable dialog with a title, body, and actions. Use it for confirmations and short forms.",
     "cancel": "Cancel",
     "confirm": "Apply change",
-    "sample": "Sample data"
+    "sample": "Sample data",
+    "backHome": "Back to website"
   }
 }

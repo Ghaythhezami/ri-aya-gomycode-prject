@@ -1,28 +1,37 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import * as argon2 from 'argon2';
-import { User } from './user.entity';
+import { PrismaService } from '../database/prisma.service';
+import { RedisCacheService } from '../cache/redis-cache.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
-import { BadRequestException } from '@nestjs/common';
+import type { UserRecord } from './user.types';
+import { UserRole } from './user-role.enum';
 
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly users: Repository<User>,
+    private readonly prisma: PrismaService,
+    private readonly cache: RedisCacheService,
   ) {}
 
-  findByEmail(email: string) {
-    return this.users.findOne({ where: { email: email.toLowerCase() } });
+  async findByEmail(email: string) {
+    const normalized = email.toLowerCase();
+    const cached = await this.cache.get<UserRecord>(`user:email:${normalized}`);
+    if (cached) return cached;
+    const user = await this.prisma.user.findUnique({ where: { email: normalized } });
+    if (user) await this.cache.set(`user:email:${normalized}`, user, 30);
+    return user;
   }
 
-  findById(id: string) {
-    return this.users.findOne({ where: { id } });
+  async findById(id: string) {
+    const cached = await this.cache.get<UserRecord>(`user:id:${id}`);
+    if (cached) return cached;
+    const user = await this.prisma.user.findUnique({ where: { id } });
+    if (user) await this.cache.set(`user:id:${id}`, user, 30);
+    return user;
   }
 
-  async createStaffUser(dto: CreateUserDto): Promise<User> {
+  async createStaffUser(dto: CreateUserDto): Promise<UserRecord> {
     if (!isStrongPassword(dto.password)) {
       throw new BadRequestException({
         code: 'WEAK_PASSWORD',
@@ -38,19 +47,72 @@ export class UsersService {
       });
     }
 
-    const user = this.users.create({
-      email: dto.email.toLowerCase(),
-      passwordHash: await argon2.hash(dto.password),
-      firstName: dto.firstName,
-      lastName: dto.lastName,
-      role: dto.role,
-      preferredLocale: dto.preferredLocale ?? 'en',
-      isActive: true,
+    return this.prisma.user.create({
+      data: {
+        email: dto.email.toLowerCase(),
+        passwordHash: await argon2.hash(dto.password),
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        role: dto.role,
+        preferredLocale: dto.preferredLocale ?? 'en',
+        isActive: true,
+      },
     });
-    return this.users.save(user);
   }
 
-  save(user: User) {
-    return this.users.save(user);
+  async createSignup(dto: {
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+    preferredLocale?: 'en' | 'ar' | 'fr';
+  }) {
+    if (!isStrongPassword(dto.password)) {
+      throw new BadRequestException({
+        code: 'WEAK_PASSWORD',
+        message: PASSWORD_POLICY_MESSAGE,
+      });
+    }
+    const existing = await this.prisma.user.findUnique({
+      where: { email: dto.email.toLowerCase() },
+    });
+    if (existing) {
+      throw new ConflictException({
+        code: 'EMAIL_TAKEN',
+        message: 'A user with this email already exists',
+      });
+    }
+    return this.prisma.user.create({
+      data: {
+        email: dto.email.toLowerCase(),
+        passwordHash: await argon2.hash(dto.password),
+        firstName: dto.firstName,
+        lastName: dto.lastName,
+        role: UserRole.RECEPTIONIST,
+        preferredLocale: dto.preferredLocale ?? 'en',
+        isActive: false,
+      },
+    });
+  }
+
+  async save(user: UserRecord) {
+    const updated = await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        passwordHash: user.passwordHash,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        isActive: user.isActive,
+        preferredLocale: user.preferredLocale,
+        lastLoginAt: user.lastLoginAt,
+        failedLoginCount: user.failedLoginCount,
+        failedLoginWindowStart: user.failedLoginWindowStart,
+        lockedUntil: user.lockedUntil,
+      },
+    });
+    await this.cache.del(`user:id:${user.id}`);
+    await this.cache.del(`user:email:${user.email}`);
+    return updated;
   }
 }

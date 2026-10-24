@@ -38,12 +38,17 @@ async function bootstrap() {
 
   const swagger = new DocumentBuilder()
     .setTitle("RI'AYA API")
-    .setDescription('Clinic operations API')
+    .setDescription('Clinic operations API with Prisma, Redis caching, and JWT auth')
     .setVersion('0.1.0')
     .addBearerAuth()
+    .addCookieAuth('refresh_token')
+    .addTag('auth', 'Sign in, signup, refresh, and password reset')
+    .addTag('users', 'Staff provisioning')
+    .addTag('health', 'Runtime status')
     .build();
   SwaggerModule.setup('api/docs', app, SwaggerModule.createDocument(app, swagger), {
     useGlobalPrefix: false,
+    swaggerOptions: { persistAuthorization: true },
   });
 
   const port = Number(config.get('PORT') ?? 4000);

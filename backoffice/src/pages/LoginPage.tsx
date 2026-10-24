@@ -34,7 +34,11 @@ export function LoginPage() {
       <div className="w-full max-w-md rounded-[16px] border border-border bg-white p-8 shadow-(--shadow-card)">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src="/logo.png" alt="" className="h-12 w-12 rounded-xl object-cover" />
+            <img
+              src="/logo.png"
+              alt="RI'AYA"
+              className="h-12 w-12 rounded-xl bg-black object-cover"
+            />
             <div>
               <p className="text-xs font-semibold tracking-wide text-primary">{t('app.name')}</p>
               <h1 className="text-xl font-semibold">{t('auth.welcome')}</h1>
@@ -90,6 +94,12 @@ export function LoginPage() {
             {form.formState.isSubmitting ? t('auth.submitting') : t('auth.submit')}
           </Button>
         </form>
+        <p className="mt-6 text-sm text-muted">
+          {t('auth.noAccount')}{' '}
+          <Link className="font-medium text-primary" to="/signup">
+            {t('auth.signupSubmit')}
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -1,27 +1,30 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 import { AuthProvider } from './auth/AuthContext';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { RoleRoute } from './auth/RoleRoute';
 import { AppShell } from './layouts/AppShell';
 import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { OverviewPage } from './pages/OverviewPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 import { DesignSystemPage } from './pages/DesignSystemPage';
-
-const queryClient = new QueryClient();
+import { PublicUiPage } from './pages/PublicUiPage';
 
 export default function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <Provider store={store}>
       <AuthProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/ui" element={<PublicUiPage />} />
             <Route
               element={
                 <ProtectedRoute>
@@ -71,6 +74,6 @@ export default function App() {
           </Routes>
         </BrowserRouter>
       </AuthProvider>
-    </QueryClientProvider>
+    </Provider>
   );
 }

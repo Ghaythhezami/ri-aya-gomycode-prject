@@ -6,7 +6,14 @@ module.exports = {
   transform: {
     '^.+\\.(t|j)s$': 'ts-jest',
   },
-  collectCoverageFrom: ['auth/**/*.ts', '!auth/**/*.spec.ts', '!auth/dto/**'],
+  collectCoverageFrom: [
+    'auth/**/*.ts',
+    'cache/**/*.ts',
+    'common/validators/**/*.ts',
+    '!auth/**/*.spec.ts',
+    '!cache/**/*.spec.ts',
+    '!auth/dto/**',
+  ],
   coverageDirectory: '../coverage',
   coverageThreshold: {
     global: {

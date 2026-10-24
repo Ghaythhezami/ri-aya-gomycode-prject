@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  CLINIC_ADMIN
+  DOCTOR
+  RECEPTIONIST
+}
+
+enum PreferredLocale {
+  en
+  ar
+  fr
+}
+
+model User {
+  id                     String           @id @default(uuid())
+  email                  String           @unique
+  passwordHash           String
+  firstName              String
+  lastName               String
+  role                   UserRole
+  isActive               Boolean          @default(true)
+  preferredLocale        PreferredLocale  @default(en)
+  lastLoginAt            DateTime?
+  failedLoginCount       Int              @default(0)
+  failedLoginWindowStart DateTime?
+  lockedUntil            DateTime?
+  createdAt              DateTime         @default(now())
+  updatedAt              DateTime         @updatedAt
+  refreshTokens          RefreshToken[]
+  passwordResetTokens    PasswordResetToken[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  familyId  String
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  userAgent String?
+  ip        String?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([familyId])
+  @@map("refresh_tokens")
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+  @@map("password_reset_tokens")
+}

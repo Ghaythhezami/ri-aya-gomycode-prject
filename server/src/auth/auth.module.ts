@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
-import { RefreshToken } from './entities/refresh-token.entity';
-import { PasswordResetToken } from './entities/password-reset-token.entity';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
 
@@ -16,7 +13,6 @@ import { MailModule } from '../mail/mail.module';
     UsersModule,
     MailModule,
     PassportModule,
-    TypeOrmModule.forFeature([RefreshToken, PasswordResetToken]),
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

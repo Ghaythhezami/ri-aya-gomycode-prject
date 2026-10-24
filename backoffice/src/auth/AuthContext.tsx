@@ -1,6 +1,14 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, getErrorMessage, setAccessToken, setOnUnauthorized } from '../lib/api';
+import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { getErrorMessage, setAccessToken, setOnUnauthorized } from '../lib/api';
 import type { AuthUser } from '../lib/types';
+import { useAppDispatch, useAppSelector } from '../store/hooks';
+import {
+  clearAuth,
+  setCredentials,
+  setReady,
+  setSessionMessage as setSessionMessageAction,
+} from '../store/authSlice';
+import { useLoginMutation, useLogoutMutation, useRefreshMutation } from '../store/api';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -14,68 +22,63 @@ interface AuthContextValue {
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [ready, setReady] = useState(false);
-  const [sessionMessage, setSessionMessage] = useState<string | null>(null);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.auth.user);
+  const ready = useAppSelector((state) => state.auth.ready);
+  const sessionMessage = useAppSelector((state) => state.auth.sessionMessage);
+  const [loginMut] = useLoginMutation();
+  const [logoutMut] = useLogoutMutation();
+  const [refreshMut] = useRefreshMutation();
 
   useEffect(() => {
     setOnUnauthorized(() => {
-      setUser(null);
       setAccessToken(null);
-      setSessionMessage('auth.sessionExpired');
+      dispatch(clearAuth());
+      dispatch(setSessionMessageAction('auth.sessionExpired'));
     });
     return () => setOnUnauthorized(null);
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const { data } = await api.post<{ accessToken: string; user: AuthUser }>(
-          '/api/auth/refresh',
-        );
+        const data = await refreshMut().unwrap();
         setAccessToken(data.accessToken);
-        if (!cancelled) setUser(data.user);
+        if (!cancelled) dispatch(setCredentials(data));
       } catch {
         setAccessToken(null);
-        if (!cancelled) setUser(null);
+        if (!cancelled) dispatch(clearAuth());
       } finally {
-        if (!cancelled) setReady(true);
+        if (!cancelled) dispatch(setReady(true));
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [dispatch, refreshMut]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       ready,
       sessionMessage,
-      setSessionMessage,
+      setSessionMessage: (message) => dispatch(setSessionMessageAction(message)),
       async login(email: string, password: string) {
-        const { data } = await api.post<{ accessToken: string; user: AuthUser }>(
-          '/api/auth/login',
-          {
-            email,
-            password,
-          },
-        );
+        const data = await loginMut({ email, password }).unwrap();
         setAccessToken(data.accessToken);
-        setUser(data.user);
-        setSessionMessage(null);
+        dispatch(setCredentials(data));
       },
       async logout() {
         try {
-          await api.post('/api/auth/logout');
+          await logoutMut().unwrap();
         } finally {
           setAccessToken(null);
-          setUser(null);
+          dispatch(clearAuth());
         }
       },
     }),
-    [user, ready, sessionMessage],
+    [user, ready, sessionMessage, dispatch, loginMut, logoutMut],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
