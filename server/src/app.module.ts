@@ -7,6 +7,7 @@ import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
 import { PrismaModule } from './database/prisma.module';
 import { RedisCacheModule } from './cache/redis-cache.module';
+import { TenancyModule } from './tenancy/tenancy.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RedisCacheModule } from './cache/redis-cache.module';
     }),
     PrismaModule,
     RedisCacheModule,
+    TenancyModule,
     AuthModule,
     UsersModule,
     HealthModule,

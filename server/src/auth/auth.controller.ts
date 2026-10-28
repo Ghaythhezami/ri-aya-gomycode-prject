@@ -8,6 +8,7 @@ import { SignupDto } from './dto/signup.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SwitchWorkspaceDto } from './dto/switch-workspace.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { UserRecord } from '../users/user.types';
@@ -57,6 +58,31 @@ export class AuthController {
   @ApiOperation({ summary: 'Return the signed-in user' })
   me(@CurrentUser() user: UserRecord) {
     return this.auth.me(user);
+  }
+
+  @Get('memberships')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'List the clinics this user can switch to, with their role in each' })
+  memberships(@CurrentUser() user: UserRecord) {
+    return this.auth.listMemberships(user);
+  }
+
+  @Post('switch-workspace')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: throttleLimit(20), ttl: 60_000 } })
+  @ApiOperation({ summary: 'Re-issue an access token scoped to another clinic' })
+  switchWorkspace(
+    @CurrentUser() user: UserRecord,
+    @Body() dto: SwitchWorkspaceDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.auth.switchWorkspace(user, dto.clinicId, res, {
+      userAgent: req.get('user-agent') ?? undefined,
+      ip: req.ip,
+    });
   }
 
   @Post('change-password')

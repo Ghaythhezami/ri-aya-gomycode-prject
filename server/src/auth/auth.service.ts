@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
@@ -10,10 +16,10 @@ import { PrismaService } from '../database/prisma.service';
 import { MAIL_SERVICE } from '../mail/mail.module';
 import type { MailService } from '../mail/mail.service';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
+import { LoginAttemptService } from '../cache/login-attempt.service';
+import { TenancyService } from '../tenancy/tenancy.service';
+import type { TenantScope } from '../tenancy/tenant-context';
 
-const FAILED_WINDOW_MS = 10 * 60 * 1000;
-const LOCK_MS = 15 * 60 * 1000;
-const MAX_FAILED = 5;
 const RESET_TTL_MS = 30 * 60 * 1000;
 export const REFRESH_COOKIE = 'refresh_token';
 
@@ -24,6 +30,8 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly loginAttempts: LoginAttemptService,
+    private readonly tenancy: TenancyService,
     @Inject(MAIL_SERVICE) private readonly mail: MailService,
   ) {}
 
@@ -74,8 +82,14 @@ export class AuthService {
       this.invalidCredentials();
     }
 
-    if (this.isLocked(user)) {
-      this.accountLocked();
+    // Lockout is Redis-backed (FR-014). A Redis outage throws here, so login
+    // fails closed instead of permitting unlimited attempts (NFR-009).
+    const lockout = await this.loginAttempts.getLockout(user.email);
+    if (lockout.locked) {
+      throw new UnauthorizedException({
+        code: 'ACCOUNT_LOCKED',
+        message: `Account temporarily locked. Try again in ${Math.ceil(lockout.remainingSeconds / 60)} minute(s).`,
+      });
     }
 
     const valid = await argon2.verify(user.passwordHash, password);
@@ -84,17 +98,18 @@ export class AuthService {
       this.invalidCredentials();
     }
 
-    user.failedLoginCount = 0;
-    user.failedLoginWindowStart = null;
-    user.lockedUntil = null;
+    await this.loginAttempts.clear(user.email);
     user.lastLoginAt = new Date();
     await this.users.save(user);
 
-    const accessToken = this.signAccess(user);
+    // Issue a token scoped to the user's active membership (FR-003).
+    const scope = await this.tenancy.resolveDefaultScope(user.id);
+    const accessToken = this.signAccess(user, scope);
     await this.issueRefreshCookie(user, res, meta, randomUUID());
     return {
       accessToken,
       user: this.publicUser(user),
+      scope,
     };
   }
 
@@ -307,9 +322,17 @@ export class AuthService {
     return raw;
   }
 
-  private signAccess(user: UserRecord) {
+  private signAccess(user: UserRecord, scope?: TenantScope | null) {
     return this.jwt.sign(
-      { sub: user.id, email: user.email, role: user.role },
+      {
+        sub: user.id,
+        email: user.email,
+        // Active tenant scope (FR-003). Absent only for a user with no
+        // membership yet, which the strategy rejects on the next request.
+        org_id: scope?.organizationId,
+        clinic_id: scope?.clinicId,
+        role: scope?.role ?? user.role,
+      },
       {
         secret: this.config.get<string>('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-32chars'),
         expiresIn: this.config.get('JWT_ACCESS_EXPIRES', '15m'),
@@ -317,19 +340,41 @@ export class AuthService {
     );
   }
 
+  /**
+   * Re-issue an access token scoped to another clinic the caller belongs to
+   * (FR-011). Rejects with 403 when they hold no ACTIVE membership there
+   * (FR-012, AC-014) — never silently falls back to another clinic.
+   */
+  async switchWorkspace(
+    user: UserRecord,
+    clinicId: string,
+    res: Response,
+    meta: { userAgent?: string; ip?: string },
+  ) {
+    const scope = await this.tenancy.resolveScope(user.id, clinicId);
+    if (!scope) {
+      throw new ForbiddenException({
+        code: 'NO_MEMBERSHIP',
+        message: 'You do not have access to that clinic',
+      });
+    }
+
+    const accessToken = this.signAccess(user, scope);
+    // Rotate the refresh token so the new scope is not tied to the old one.
+    await this.issueRefreshCookie(user, res, meta, randomUUID());
+    return { accessToken, scope };
+  }
+
+  /** Active memberships for the workspace switcher (FR-032). */
+  async listMemberships(user: UserRecord) {
+    return this.tenancy.listMemberships(user.id);
+  }
+
   private async registerFailedLogin(user: UserRecord) {
-    const now = Date.now();
-    const windowStart = user.failedLoginWindowStart?.getTime() ?? 0;
-    if (!windowStart || now - windowStart > FAILED_WINDOW_MS) {
-      user.failedLoginWindowStart = new Date();
-      user.failedLoginCount = 1;
-    } else {
-      user.failedLoginCount += 1;
-    }
-    if (user.failedLoginCount >= MAX_FAILED) {
-      user.lockedUntil = new Date(now + LOCK_MS);
-    }
-    await this.users.save(user);
+    // Lockout state lives in Redis (FR-014). If Redis is unreachable this
+    // throws, and login fails closed rather than allowing unlimited attempts
+    // (NFR-009, AC-031).
+    await this.loginAttempts.registerFailure(user.email);
   }
 
   publicUser(user: UserRecord) {
