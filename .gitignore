@@ -36,3 +36,9 @@ Thumbs.db
 
 # docker volumes
 pgdata
+
+# stray artifacts from a broken sandbox session (path separators stripped).
+# These are not real source; kept ignored so they cannot be re-committed.
+CUsersKENULE-NWINEEDocumentsRi-aya/
+*.t3-probe.tmp
+T3-PROBE.tmp
