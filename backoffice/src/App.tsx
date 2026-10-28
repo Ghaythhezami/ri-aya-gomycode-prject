@@ -13,6 +13,9 @@ import { OverviewPage } from './pages/OverviewPage';
 import { PlaceholderPage } from './pages/PlaceholderPage';
 import { DesignSystemPage } from './pages/DesignSystemPage';
 import { PublicUiPage } from './pages/PublicUiPage';
+import { RegisterPage } from './pages/RegisterPage';
+import { AcceptInvitePage } from './pages/AcceptInvitePage';
+import { StaffDirectoryPage } from './pages/StaffDirectoryPage';
 
 export default function App() {
   return (
@@ -21,6 +24,8 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/accept-invite" element={<AcceptInvitePage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
@@ -43,7 +48,7 @@ export default function App() {
                 path="/staff"
                 element={
                   <RoleRoute roles={['SUPER_ADMIN', 'CLINIC_ADMIN']}>
-                    <PlaceholderPage titleKey="nav.staff" />
+                    <StaffDirectoryPage />
                   </RoleRoute>
                 }
               />

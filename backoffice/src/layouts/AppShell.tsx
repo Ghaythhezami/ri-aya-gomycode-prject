@@ -20,6 +20,7 @@ import { useAuth } from '../auth/AuthContext';
 import { canSee } from '../auth/roles';
 import { Button } from '../common/Button';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
 const items = [
   { to: '/', key: 'overview', icon: LayoutDashboard },
@@ -135,6 +136,7 @@ export function AppShell() {
             aria-label={t('shell.search')}
           />
           <div className="flex items-center gap-3">
+            <WorkspaceSwitcher />
             <LanguageSwitcher />
             <Button>{t('shell.newAppointment')}</Button>
             <div className="relative">

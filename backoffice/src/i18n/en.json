@@ -88,5 +88,60 @@
     "confirm": "Apply change",
     "sample": "Sample data",
     "backHome": "Back to website"
+  },
+  "register": {
+    "title": "Create your clinic",
+    "subtitle": "Set up your account, organization and first clinic.",
+    "progress": "Registration progress",
+    "step1": "Account",
+    "step2": "You",
+    "step3": "Clinic",
+    "email": "Email",
+    "password": "Password",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "organizationName": "Organization name",
+    "clinicName": "Clinic name",
+    "back": "Back",
+    "next": "Next",
+    "create": "Create account",
+    "haveAccount": "Already have an account?",
+    "emailTaken": "An account with this email already exists",
+    "genericError": "Could not create your account. Try again."
+  },
+  "invite": {
+    "title": "Accept your invitation",
+    "subtitle": "Choose a password to join the clinic.",
+    "accept": "Accept invitation",
+    "weakPassword": "Choose a stronger password",
+    "genericError": "Could not accept the invitation. Try again.",
+    "missingTitle": "Invitation link incomplete",
+    "missingBody": "This link is missing its token. Ask an admin to resend the invitation.",
+    "expiredTitle": "Invitation expired",
+    "expiredBody": "This invitation has expired or was already used.",
+    "requestNew": "Ask an admin for a new invitation"
+  },
+  "workspace": {
+    "createOrganization": "+ Create New Organization"
+  },
+  "staff": {
+    "title": "Staff",
+    "subtitle": "Invite staff to this clinic and review pending invitations.",
+    "email": "Email",
+    "role": "Role",
+    "invite": "Send invitation",
+    "invited": "Invitation sent",
+    "inviteError": "Could not send the invitation",
+    "loadError": "Could not load invitations",
+    "pending": "Pending invitations",
+    "empty": "No pending invitations",
+    "expires": "Expires",
+    "noClinic": "No active clinic found"
+  },
+  "roles": {
+    "SUPER_ADMIN": "Super admin",
+    "CLINIC_ADMIN": "Clinic admin",
+    "DOCTOR": "Doctor",
+    "RECEPTIONIST": "Receptionist"
   }
 }

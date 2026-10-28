@@ -88,5 +88,60 @@
     "confirm": "Appliquer",
     "sample": "Données d'exemple",
     "backHome": "Retour au site"
+  },
+  "register": {
+    "title": "Créez votre clinique",
+    "subtitle": "Configurez votre compte, votre organisation et votre première clinique.",
+    "progress": "Progression",
+    "step1": "Compte",
+    "step2": "Vous",
+    "step3": "Clinique",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "organizationName": "Nom de l organisation",
+    "clinicName": "Nom de la clinique",
+    "back": "Retour",
+    "next": "Suivant",
+    "create": "Créer le compte",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "emailTaken": "Un compte existe déjà avec cet e-mail",
+    "genericError": "Impossible de créer votre compte. Réessayez."
+  },
+  "invite": {
+    "title": "Acceptez votre invitation",
+    "subtitle": "Choisissez un mot de passe pour rejoindre la clinique.",
+    "accept": "Accepter l invitation",
+    "weakPassword": "Choisissez un mot de passe plus fort",
+    "genericError": "Impossible d accepter l invitation. Réessayez.",
+    "missingTitle": "Lien d invitation incomplet",
+    "missingBody": "Ce lien n a pas de jeton. Demandez à un administrateur de renvoyer l invitation.",
+    "expiredTitle": "Invitation expirée",
+    "expiredBody": "Cette invitation a expiré ou a déjà été utilisée.",
+    "requestNew": "Demandez une nouvelle invitation"
+  },
+  "workspace": {
+    "createOrganization": "+ Créer une nouvelle organisation"
+  },
+  "staff": {
+    "title": "Personnel",
+    "subtitle": "Invitez du personnel dans cette clinique et consultez les invitations en attente.",
+    "email": "E-mail",
+    "role": "Rôle",
+    "invite": "Envoyer l invitation",
+    "invited": "Invitation envoyée",
+    "inviteError": "Impossible d envoyer l invitation",
+    "loadError": "Impossible de charger les invitations",
+    "pending": "Invitations en attente",
+    "empty": "Aucune invitation en attente",
+    "expires": "Expire le",
+    "noClinic": "Aucune clinique active"
+  },
+  "roles": {
+    "SUPER_ADMIN": "Super administrateur",
+    "CLINIC_ADMIN": "Administrateur de clinique",
+    "DOCTOR": "Médecin",
+    "RECEPTIONIST": "Réceptionniste"
   }
 }

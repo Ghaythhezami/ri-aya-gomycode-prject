@@ -7,12 +7,10 @@ import {
   Param,
   Patch,
   Post,
-  Req,
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
-import { Request } from 'express';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { TenantContext } from './tenant-context';
@@ -70,7 +68,7 @@ export class TenancyController {
   @UseGuards(JwtAuthGuard)
   @Throttle({ default: { limit: throttleLimit(20), ttl: 60_000 } })
   @ApiOperation({ summary: 'Invite a person to the active clinic with a role' })
-  async invite(@CurrentUser() user: UserRecord, @Body() dto: InviteDto, @Req() req: Request) {
+  async invite(@CurrentUser() user: UserRecord, @Body() dto: InviteDto) {
     const scope = this.tenant.get();
     this.onboarding.assertCanInvite(scope.role);
 
