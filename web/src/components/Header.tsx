@@ -20,7 +20,7 @@ export function Header() {
       <div className="mx-auto flex min-h-[72px] max-w-6xl items-center justify-between gap-4 px-4 lg:px-6">
         <Link href="/" className="flex items-center gap-3">
           <BrandLogo className="h-12 w-12" />
-          <span className="text-lg font-semibold tracking-tight text-navy">RI'AYA</span>
+          <span className="text-lg font-semibold tracking-tight text-navy">RI&apos;AYA</span>
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-muted md:flex">
           <a href="#platform">{t('platform')}</a>

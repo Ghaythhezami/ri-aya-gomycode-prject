@@ -1,0 +1,384 @@
+{
+  "projectRoot": "C:\\Users\\KENULE-NWINEE\\Documents\\Ri-aya",
+  "scannedAt": "2026-10-27T17:39:17.212Z",
+  "mode": "brownfield",
+  "workspaces": {
+    "detected": true,
+    "source": "pnpm-workspace.yaml",
+    "patterns": ["web", "server", "backoffice"],
+    "packages": ["backoffice", "server", "web"],
+    "signals": []
+  },
+  "sections": {
+    "manifests": [
+      {
+        "path": "package.json",
+        "present": true,
+        "fileCount": 1
+      },
+      {
+        "path": "requirements.txt",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "pyproject.toml",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "go.mod",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "pubspec.yaml",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "Cargo.toml",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "pom.xml",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "build.gradle",
+        "present": false,
+        "fileCount": 0
+      }
+    ],
+    "docs": [
+      {
+        "path": "README.md",
+        "present": true,
+        "fileCount": 1
+      },
+      {
+        "path": "CONTRIBUTING.md",
+        "present": false,
+        "fileCount": 0
+      }
+    ],
+    "codeRoots": [
+      {
+        "path": "src",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "app",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "lib",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "pages",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "server",
+        "present": true,
+        "fileCount": 196
+      },
+      {
+        "path": "internal",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "cmd",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "pkg",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "api",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "apps",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "packages",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "backoffice",
+        "present": true,
+        "fileCount": 50
+      },
+      {
+        "path": "web",
+        "present": true,
+        "fileCount": 136
+      }
+    ],
+    "ci": [
+      {
+        "path": ".github/workflows",
+        "present": true,
+        "fileCount": 1
+      },
+      {
+        "path": ".gitlab-ci.yml",
+        "present": false,
+        "fileCount": 0
+      }
+    ],
+    "tests": [
+      {
+        "path": "tests",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "__tests__",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "spec",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "test",
+        "present": false,
+        "fileCount": 0
+      }
+    ],
+    "configs": [
+      {
+        "path": "tsconfig.json",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "jsconfig.json",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".eslintrc",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".eslintrc.js",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".eslintrc.json",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".prettierrc",
+        "present": true,
+        "fileCount": 1
+      },
+      {
+        "path": ".prettierrc.js",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".prettierrc.json",
+        "present": false,
+        "fileCount": 0
+      }
+    ],
+    "specdrive": [
+      {
+        "path": ".sdrive/constitution.md",
+        "present": true,
+        "fileCount": 1
+      },
+      {
+        "path": ".sdrive/skills",
+        "present": true,
+        "fileCount": 0
+      },
+      {
+        "path": ".sdrive/specs",
+        "present": true,
+        "fileCount": 0
+      },
+      {
+        "path": ".sdrive/governance",
+        "present": true,
+        "fileCount": 0
+      },
+      {
+        "path": ".sdrive/workflow-state.json",
+        "present": true,
+        "fileCount": 1
+      },
+      {
+        "path": ".sdrive/schemas",
+        "present": true,
+        "fileCount": 8
+      },
+      {
+        "path": ".sdrive/scripts",
+        "present": true,
+        "fileCount": 31
+      },
+      {
+        "path": ".sdrive/commands",
+        "present": true,
+        "fileCount": 6
+      },
+      {
+        "path": ".sdrive/agents",
+        "present": true,
+        "fileCount": 17
+      },
+      {
+        "path": ".sdrive/dashboard",
+        "present": true,
+        "fileCount": 5
+      },
+      {
+        "path": ".sdrive/mcp",
+        "present": true,
+        "fileCount": 2
+      }
+    ],
+    "externalSpecSystems": [
+      {
+        "path": "openspec",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "openspec/specs",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "openspec/changes",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": "openspec/archive",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".specify",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".specify/specs",
+        "present": false,
+        "fileCount": 0
+      },
+      {
+        "path": ".specify/memory",
+        "present": false,
+        "fileCount": 0
+      }
+    ]
+  },
+  "detectedSystems": {
+    "openspec": {
+      "detected": false,
+      "specs": 0,
+      "changes": 0,
+      "archived": 0
+    },
+    "speckit": {
+      "detected": false,
+      "specs": 0,
+      "hasConstitution": false
+    },
+    "frameworks": []
+  },
+  "missing": [
+    "requirements.txt",
+    "pyproject.toml",
+    "go.mod",
+    "pubspec.yaml",
+    "Cargo.toml",
+    "pom.xml",
+    "build.gradle",
+    "CONTRIBUTING.md",
+    "src",
+    "app",
+    "lib",
+    "pages",
+    "internal",
+    "cmd",
+    "pkg",
+    "api",
+    "apps",
+    "packages",
+    ".gitlab-ci.yml",
+    "tests",
+    "__tests__",
+    "spec",
+    "test",
+    "tsconfig.json",
+    "jsconfig.json",
+    ".eslintrc",
+    ".eslintrc.js",
+    ".eslintrc.json",
+    ".prettierrc.js",
+    ".prettierrc.json"
+  ],
+  "present": [
+    "package.json",
+    "README.md",
+    "server",
+    "backoffice",
+    "web",
+    ".github/workflows",
+    ".prettierrc",
+    ".sdrive/constitution.md",
+    ".sdrive/skills",
+    ".sdrive/specs",
+    ".sdrive/governance",
+    ".sdrive/workflow-state.json",
+    ".sdrive/schemas",
+    ".sdrive/scripts",
+    ".sdrive/commands",
+    ".sdrive/agents",
+    ".sdrive/dashboard",
+    ".sdrive/mcp"
+  ],
+  "deferred": [],
+  "projectBrief": {
+    "derivedFrom": "readme",
+    "readmePath": "README.md",
+    "title": "RI'AYA (رعاية)",
+    "description": "Multilingual clinic and appointment platform starter: public landing page, NestJS authentication API, and staff backoffice.",
+    "goals": [],
+    "targetUsers": [],
+    "architecture": ["pnpm", "monorepo (3 packages)"],
+    "readmeQuality": "usable",
+    "templateSignals": [],
+    "needsProductInput": false
+  }
+}

@@ -165,7 +165,7 @@ export function LandingPage() {
           <div className="md:col-span-2">
             <div className="flex items-center gap-3">
               <BrandLogo className="h-12 w-12" />
-              <span className="font-semibold text-navy">RI'AYA</span>
+              <span className="font-semibold text-navy">RI&apos;AYA</span>
             </div>
             <p className="mt-3 max-w-sm text-sm text-muted">{footer('blurb')}</p>
           </div>

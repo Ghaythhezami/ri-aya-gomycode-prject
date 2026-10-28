@@ -45,6 +45,15 @@ const DEV_USERS: Array<{
 ];
 
 async function seed() {
+  try {
+    await prisma.$connect();
+  } catch (error) {
+    console.error(
+      'Database connection failed. Start PostgreSQL and confirm DATABASE_URL/DB_* settings are valid before running the seed script.',
+    );
+    throw error;
+  }
+
   for (const item of DEV_USERS) {
     const existing = await prisma.user.findUnique({ where: { email: item.email } });
     if (existing) {
@@ -74,7 +83,7 @@ async function seed() {
 }
 
 seed().catch(async (error) => {
-  console.error(error);
+  console.error('Seed failed:', error instanceof Error ? error.message : error);
   await prisma.$disconnect();
   process.exit(1);
 });

@@ -12,20 +12,22 @@ import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { UserRecord } from '../users/user.types';
 
+const throttleLimit = (limit: number) => (process.env.NODE_ENV === 'test' ? 1000 : limit);
+
 @ApiTags('auth')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('signup')
-  @Throttle({ default: { limit: 8, ttl: 60_000 } })
+  @Throttle({ default: { limit: throttleLimit(8), ttl: 60_000 } })
   @ApiOperation({ summary: 'Create a pending staff account' })
   signup(@Body() dto: SignupDto) {
     return this.auth.signup(dto);
   }
 
   @Post('login')
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Throttle({ default: { limit: throttleLimit(10), ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in and receive an access token' })
   login(@Body() dto: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return this.auth.login(dto.email, dto.password, res, {
@@ -65,7 +67,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: throttleLimit(5), ttl: 60_000 } })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.auth.forgotPassword(dto.email);
   }
