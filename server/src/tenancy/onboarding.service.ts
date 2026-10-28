@@ -8,6 +8,7 @@ import {
 import { createHash, randomBytes } from 'crypto';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { UserRole } from '../users/user-role.enum';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
 
@@ -32,7 +33,10 @@ export interface RegisterInput {
  */
 @Injectable()
 export class OnboardingService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly audit: AuditService,
+  ) {}
 
   private hashToken(token: string): string {
     return createHash('sha256').update(token).digest('hex');
@@ -105,6 +109,35 @@ export class OnboardingService {
           role: UserRole.SUPER_ADMIN,
           status: 'ACTIVE',
         },
+      });
+
+      // Audit inside the same transaction: a rollback leaves no entry (FR-017).
+      await this.audit.record(tx, {
+        actorUserId: user.id,
+        action: 'create',
+        entity: 'organization',
+        entityId: organization.id,
+        after: { name: organization.name, slug: organization.slug },
+        organizationId: organization.id,
+        clinicId: clinic.id,
+      });
+      await this.audit.record(tx, {
+        actorUserId: user.id,
+        action: 'create',
+        entity: 'clinic',
+        entityId: clinic.id,
+        after: { name: clinic.name },
+        organizationId: organization.id,
+        clinicId: clinic.id,
+      });
+      await this.audit.record(tx, {
+        actorUserId: user.id,
+        action: 'create',
+        entity: 'user_membership',
+        entityId: membership.id,
+        after: { role: membership.role, status: membership.status },
+        organizationId: organization.id,
+        clinicId: clinic.id,
       });
 
       return { user, organization, clinic, membership };
@@ -242,6 +275,16 @@ export class OnboardingService {
       await tx.invitation.update({
         where: { id: invitation.id },
         data: { consumedAt: new Date() },
+      });
+
+      await this.audit.record(tx, {
+        actorUserId: user.id,
+        action: 'create',
+        entity: 'user_membership',
+        entityId: `${user.id}:${invitation.clinicId}`,
+        after: { role: invitation.role, via: 'invitation' },
+        organizationId: invitation.organizationId,
+        clinicId: invitation.clinicId,
       });
 
       return { userId: user.id, clinicId: invitation.clinicId, role: invitation.role };
