@@ -8,7 +8,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-002",
@@ -16,7 +16,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-003",
@@ -24,7 +24,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-004",
@@ -32,7 +32,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-005",
@@ -40,7 +40,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-006",
@@ -48,7 +48,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-007",
@@ -56,7 +56,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-008",
@@ -64,7 +64,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-009",
@@ -72,7 +72,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-010",
@@ -80,7 +80,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-011",
@@ -88,7 +88,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-012",
@@ -96,7 +96,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-013",
@@ -104,7 +104,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-014",
@@ -112,7 +112,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-015",
@@ -120,7 +120,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-016",
@@ -128,7 +128,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-017",
@@ -136,7 +136,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-018",
@@ -144,7 +144,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-019",
@@ -152,7 +152,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-020",
@@ -160,7 +160,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-021",
@@ -168,7 +168,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-022",
@@ -176,7 +176,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-023",
@@ -184,7 +184,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-024",
@@ -192,7 +192,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-025",
@@ -200,7 +200,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-026",
@@ -208,7 +208,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-027",
@@ -216,7 +216,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-028",
@@ -224,7 +224,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-029",
@@ -232,7 +232,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-030",
@@ -240,7 +240,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-031",
@@ -248,7 +248,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-032",
@@ -256,7 +256,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-033",
@@ -264,7 +264,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-034",
@@ -272,7 +272,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "FR-035",
@@ -280,7 +280,7 @@
       "planSection": "Data Model",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-001",
@@ -288,7 +288,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-002",
@@ -296,7 +296,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-003",
@@ -304,7 +304,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-004",
@@ -312,7 +312,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-005",
@@ -320,7 +320,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-006",
@@ -328,7 +328,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-007",
@@ -336,7 +336,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-008",
@@ -344,7 +344,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-009",
@@ -352,7 +352,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-010",
@@ -360,7 +360,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-011",
@@ -368,7 +368,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-012",
@@ -376,7 +376,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-013",
@@ -384,7 +384,7 @@
       "planSection": "Security Considerations",
       "taskIds": [],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     }
   ]
 }

@@ -1,0 +1,680 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "status": "fail",
+  "checkedAt": "2026-10-28T15:24:15.798Z",
+  "summary": {
+    "matched": 0,
+    "missing": 96,
+    "renamed": 7,
+    "extra": 0
+  },
+  "items": {
+    "matched": [],
+    "missing": [
+      {
+        "type": "component",
+        "name": "auth module",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "JWT strategy",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "mail module",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "backoffice auth pages",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "i18n catalogues",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "docker-compose",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/register",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/login",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/refresh",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/auth/me",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/change-password",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/forgot-password",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/reset-password",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/switch-workspace",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/auth/memberships",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/accept-invite",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/organizations",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/invitations",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/invitations",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/users",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id",
+        "action": "create"
+      },
+      {
+        "type": "entity",
+        "name": "User",
+        "action": "update"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "email",
+        "fieldType": "String",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "passwordHash",
+        "fieldType": "String",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "firstName",
+        "fieldType": "String",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "lastName",
+        "fieldType": "String",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "preferredLocale",
+        "fieldType": "PreferredLocale",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "isActive",
+        "fieldType": "Boolean",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "role",
+        "fieldType": "UserRole",
+        "action": "remove"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "lastLoginAt",
+        "fieldType": "DateTime",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "failedLoginCount",
+        "fieldType": "Int",
+        "action": "remove"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "failedLoginWindowStart",
+        "fieldType": "DateTime",
+        "action": "remove"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "lockedUntil",
+        "fieldType": "DateTime",
+        "action": "remove"
+      },
+      {
+        "type": "field",
+        "entity": "User",
+        "name": "memberships",
+        "fieldType": "UserMembership[]",
+        "action": "add"
+      },
+      {
+        "type": "entity",
+        "name": "Organization",
+        "action": "create"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "name",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "slug",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "clinics",
+        "fieldType": "Clinic[]",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Organization",
+        "name": "memberships",
+        "fieldType": "UserMembership[]",
+        "action": "add"
+      },
+      {
+        "type": "entity",
+        "name": "Clinic",
+        "action": "create"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "organizationId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "name",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "timezone",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "currency",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "address",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "entity",
+        "name": "UserMembership",
+        "action": "create"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "userId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "organizationId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "role",
+        "fieldType": "UserRole",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "status",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "entity",
+        "name": "Invitation",
+        "action": "create"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "email",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "role",
+        "fieldType": "UserRole",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "tokenHash",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "expiresAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "consumedAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "invitedById",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "entity",
+        "name": "AuditLog",
+        "action": "create"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "actorUserId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "action",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "entity",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "entityId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "before",
+        "fieldType": "Json",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "after",
+        "fieldType": "Json",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "organizationId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add"
+      },
+      {
+        "type": "field",
+        "entity": "AuditLog",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add"
+      },
+      {
+        "type": "entity",
+        "name": "RefreshToken",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "RefreshToken",
+        "name": "tokenHash",
+        "fieldType": "String",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "RefreshToken",
+        "name": "familyId",
+        "fieldType": "String",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "RefreshToken",
+        "name": "expiresAt",
+        "fieldType": "DateTime",
+        "action": "no_change"
+      },
+      {
+        "type": "field",
+        "entity": "RefreshToken",
+        "name": "revokedAt",
+        "fieldType": "DateTime",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "ioredis",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/throttler",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "argon2",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "class-validator",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "@prisma/client",
+        "action": "update"
+      },
+      {
+        "type": "dependency",
+        "name": "redis",
+        "action": "add"
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/swagger",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "mail module",
+        "action": "no_change"
+      },
+      {
+        "type": "dependency",
+        "name": "RedisCacheService",
+        "action": "update"
+      }
+    ],
+    "renamed": [
+      {
+        "type": "component",
+        "name": "tenancy module",
+        "action": "create",
+        "to": "server/src/tenancy/dto/invitation.dto.ts",
+        "file": "server/src/tenancy/dto/invitation.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "audit module",
+        "action": "create",
+        "to": "server/src/audit/audit.module.ts",
+        "file": "server/src/audit/audit.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "tenant context provider",
+        "action": "create",
+        "to": "server/src/tenancy/dto/invitation.dto.ts",
+        "file": "server/src/tenancy/dto/invitation.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "RedisCacheService",
+        "action": "modify",
+        "to": "server/src/cache/redis-cache.module.ts",
+        "file": "server/src/cache/redis-cache.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "token blacklist store",
+        "action": "create",
+        "to": "server/src/auth/entities/password-reset-token.entity.ts",
+        "file": "server/src/auth/entities/password-reset-token.entity.ts"
+      },
+      {
+        "type": "component",
+        "name": "login attempt store",
+        "action": "create",
+        "to": "server/src/auth/dto/login.dto.ts",
+        "file": "server/src/auth/dto/login.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "RolesGuard",
+        "action": "modify",
+        "to": "server/src/common/decorators/roles.decorator.ts",
+        "file": "server/src/common/decorators/roles.decorator.ts"
+      }
+    ],
+    "extra": []
+  }
+}
