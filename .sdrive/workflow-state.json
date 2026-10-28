@@ -1,5 +1,48 @@
 {
-  "features": [],
+  "features": [
+    {
+      "name": "authentication-onboarding-and-access-control",
+      "branch": "feature/auth-onboarding",
+      "base": "main",
+      "productItems": ["BP-004", "BP-008", "BP-009", "BP-012", "BP-014", "BP-046", "BP-047"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "gate-specification-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "plan-and-tasks-drafted",
+              "by": "specification-agent",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "gate-planning-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    }
+  ],
   "onboarding": {
     "mode": "brownfield",
     "date": "2026-10-27T17:39:17.212Z",

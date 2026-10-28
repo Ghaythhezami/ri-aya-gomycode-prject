@@ -1,0 +1,760 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "title": "Authentication, Onboarding & Access Control",
+  "version": 1,
+  "overview": {
+    "problemStatement": "RI'AYA is multi-tenant, but the database has a flat users table with a single role column, so a person cannot hold different roles in different clinics, no query can be scoped to one clinic, and a new operator cannot self-onboard by creating an account, organization and first clinic. The spec also requires login throttling and token revocation in Redis, while today both live in Postgres.",
+    "proposedSolution": "Add an organizations to clinics to user_memberships hierarchy separating global identity from per-clinic membership, carry org_id, clinic_id and role inside the JWT with guards reading scope only from the token, add a three-step registration wizard, a staff invitation flow, POST /auth/switch-workspace for scoped re-issue, an append-only audit trail, and Redis-backed lockout and refresh-token blacklist.",
+    "targetAudience": "Clinic owners and operators who register and provision clinics, clinic admins who invite staff, doctors and receptionists who belong to one or more clinics, and the platform itself which must enforce tenant isolation.",
+    "assumptions": [
+      "The pasted AUTH section is authoritative and the owner approved widening scope to the whole section.",
+      "A user may hold a different role in each clinic, so role belongs to the membership rather than the identity.",
+      "An organization is the ownership boundary; a clinic is the working workspace.",
+      "Password hashing stays argon2 and access tokens stay 15 minutes.",
+      "Existing auth endpoints are extended rather than rewritten.",
+      "The public /register route needs its own abuse controls because it creates organizations.",
+      "Audit-log retention policy is deferred to BP-035 (settings)."
+    ],
+    "outOfScope": [
+      "Optional patient portal and patient-facing authentication.",
+      "SSO, OAuth providers, social login, SAML and MFA/TOTP.",
+      "Real SMS or WhatsApp delivery of invitation or reset codes.",
+      "Clinic-scoped authorization for patient, doctor, appointment and settings resources (BP-015, BP-016, BP-017, BP-035).",
+      "Front-end route guards and role-based menu hiding (BP-011).",
+      "Billing-related identity concerns.",
+      "Infrastructure-as-code, CD pipelines and deployment topology (BP-040)."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Register a new organization and first clinic",
+      "role": "prospective clinic owner",
+      "want": "create my account, my organization and my first clinic in one guided flow",
+      "benefit": "I can start operating without an administrator provisioning me",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given an unauthenticated visitor, when they complete all three wizard steps with valid data, then identity, organization, clinic and SUPER_ADMIN membership are created and the visitor is signed in."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given the visitor is on step 2 or 3, when they press Back, then previously entered data is retained and no partial records are written."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given the chosen email already exists, when step 1 is submitted, then a field-level error is shown and no organization or clinic is created."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Sign in and stay signed in",
+      "role": "staff member",
+      "want": "sign in with my email and password and remain signed in across reloads",
+      "benefit": "I am not forced to re-authenticate constantly",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-004",
+          "text": "Given valid credentials, when the login form is submitted, then an access token is returned in the body and a refresh token is set in an HttpOnly SameSite=Lax cookie."
+        },
+        {
+          "id": "AC-005",
+          "text": "Given the access token has expired, when the client calls /auth/refresh, then a new access token and a rotated refresh token are returned."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given invalid credentials, when the login form is submitted, then 401 is returned with a generic message that does not reveal which field was wrong."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Sign out",
+      "role": "staff member",
+      "want": "sign out",
+      "benefit": "my session cannot be reused on a shared machine",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-007",
+          "text": "Given a signed-in user, when /auth/logout is called, then the refresh token is revoked, the cookie is cleared, and the token is rejected on reuse."
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Be protected by account lockout",
+      "role": "clinic operator",
+      "want": "repeated failed logins to be throttled",
+      "benefit": "password guessing is impractical",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given five failed logins within ten minutes for one account, when a sixth attempt is made, then the account is locked for fifteen minutes and the attempt is rejected."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given locked-out state is stored in Redis with a TTL, when the API restarts, then the lockout remains in force for the remainder of its TTL."
+        }
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Attach an existing account to an additional clinic",
+      "role": "signed-in staff member",
+      "want": "create a new organization or clinic from the workspace switcher",
+      "benefit": "I can run a second practice without a second account",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-010",
+          "text": "Given a signed-in user, when \"+ Create New Organization\" is chosen, then a new organization and first clinic are created and a membership links the existing identity to them."
+        },
+        {
+          "id": "AC-011",
+          "text": "Given the user belongs to two clinics, when the workspace switcher is opened, then both clinics are listed with the role held in each."
+        },
+        {
+          "id": "AC-012",
+          "text": "Given a different clinic is selected, when the switch completes, then subsequent requests are scoped to that clinic."
+        }
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Switch workspace and receive a scoped token",
+      "role": "staff member who works in more than one clinic",
+      "want": "my session to adopt the selected clinic scope",
+      "benefit": "I cannot accidentally act on the wrong clinic data",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-013",
+          "text": "Given membership in the target clinic, when POST /auth/switch-workspace is called, then the new access token carries org_id, clinic_id and role matching that membership."
+        },
+        {
+          "id": "AC-014",
+          "text": "Given no membership in the target clinic, when POST /auth/switch-workspace is called, then the request is rejected with 403 and no token is issued."
+        }
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "Invite staff instead of letting them self-register",
+      "role": "clinic admin",
+      "want": "invite staff by email with a role",
+      "benefit": "only authorised people join my clinic",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-015",
+          "text": "Given a CLINIC_ADMIN or SUPER_ADMIN, when an email and role are invited, then an invitation with a single-use expiring token is created and an email is sent."
+        },
+        {
+          "id": "AC-016",
+          "text": "Given a valid invitation token, when /accept-invite sets a password, then the account is created or linked, the membership is granted, and the token cannot be reused."
+        },
+        {
+          "id": "AC-017",
+          "text": "Given an expired or already-used invitation token, when it is submitted, then the request is rejected and no membership is granted."
+        }
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Prevent staff self-registration into someone else clinic",
+      "role": "clinic owner",
+      "want": "the public register path to never join an existing clinic",
+      "benefit": "outsiders cannot gain access to my patients data",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-018",
+          "text": "Given an unauthenticated visitor, when the public register route is used, then only a new organization may be created, with the visitor as SUPER_ADMIN; no existing clinic can be joined."
+        }
+      ]
+    },
+    {
+      "id": "US-009",
+      "title": "Audit every create, update and delete",
+      "role": "auditor or clinic admin",
+      "want": "a record of who changed what and when",
+      "benefit": "I can investigate a disputed record",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-019",
+          "text": "Given a create, update or delete on an audited entity, when the mutation succeeds, then an audit row records actor, action, entity, entity id, timestamp and before/after values."
+        },
+        {
+          "id": "AC-020",
+          "text": "Given a mutation fails, when the transaction rolls back, then no audit row is written for it."
+        },
+        {
+          "id": "AC-021",
+          "text": "Given an audit record exists, when a user is suspended, then the audit history is preserved."
+        }
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Suspend or revoke access to one clinic",
+      "role": "clinic admin",
+      "want": "block a user access to a clinic immediately",
+      "benefit": "a departing staff member cannot keep working there",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-022",
+          "text": "Given an active membership, when it is suspended, then the user receives 403 for that clinic and their refresh tokens for that clinic are invalidated."
+        },
+        {
+          "id": "AC-023",
+          "text": "Given a suspended membership, when the user switches to another clinic they still belong to, then that access continues to work."
+        }
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Never see another clinic data",
+      "role": "clinic owner",
+      "want": "tenant isolation enforced server-side",
+      "benefit": "no request can reach another clinic records",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-024",
+          "text": "Given a user of Clinic A, when they request a Clinic B resource, then the response is 403 and no Clinic B data is returned."
+        },
+        {
+          "id": "AC-025",
+          "text": "Given a request whose body or query contains a different clinic_id than the token, when it is processed, then the token clinic_id wins and the supplied value is ignored."
+        }
+      ]
+    },
+    {
+      "id": "US-012",
+      "title": "Set a password from an invitation",
+      "role": "invited staff member",
+      "want": "choose my own password from the invitation link",
+      "benefit": "no one else knows my credentials",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-026",
+          "text": "Given a valid unexpired invitation, when a password passing the strength policy is set, then the account becomes usable and the invitation is consumed."
+        },
+        {
+          "id": "AC-027",
+          "text": "Given a password failing the strength policy, when it is submitted, then a field-level error is returned and the invitation is not consumed."
+        }
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Recover a forgotten password",
+      "role": "staff member",
+      "want": "reset my password by email",
+      "benefit": "I can regain access without an administrator",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-028",
+          "text": "Given a registered email, when a reset is requested, then a single-use expiring token is emailed and the response does not reveal whether the account existed."
+        },
+        {
+          "id": "AC-029",
+          "text": "Given a valid reset token, when a new password is set, then all existing refresh tokens for that user are revoked."
+        }
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Change my own password",
+      "role": "signed-in staff member",
+      "want": "change my password",
+      "benefit": "I can rotate a credential I believe is exposed",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-030",
+          "text": "Given a signed-in user supplying the correct current password, when a new password is set, then the new password works and other sessions refresh tokens are revoked."
+        }
+      ]
+    },
+    {
+      "id": "US-015",
+      "title": "Survive a Redis outage for reads but not for security",
+      "role": "platform operator",
+      "want": "know exactly what happens when Redis is unavailable",
+      "benefit": "a cache outage does not silently disable a security control",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-031",
+          "text": "Given Redis is unavailable, when login is attempted, then the lockout control fails closed rather than allowing unlimited attempts."
+        },
+        {
+          "id": "AC-032",
+          "text": "Given Redis is unavailable, when dashboard cache reads occur, then the API still serves responses from the database."
+        }
+      ]
+    },
+    {
+      "id": "US-016",
+      "title": "Keep the registration flow usable in Arabic",
+      "role": "Arabic-speaking operator",
+      "want": "the registration wizard and invitation screens in Arabic with a mirrored layout",
+      "benefit": "I can complete onboarding in my own language",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-033",
+          "text": "Given locale ar, when any auth screen is opened, then the layout is right-to-left and all labels and validation messages are Arabic."
+        },
+        {
+          "id": "AC-034",
+          "text": "Given locale en or fr, when the same screen is opened, then it renders left-to-right with the matching language."
+        }
+      ]
+    },
+    {
+      "id": "US-017",
+      "title": "Understand why a login failed",
+      "role": "staff member",
+      "want": "errors I can act on",
+      "benefit": "I am not stuck staring at a failure",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-035",
+          "text": "Given a locked account, when login is attempted, then the response states the account is temporarily locked and when it unlocks, without revealing the password."
+        },
+        {
+          "id": "AC-036",
+          "text": "Given an expired invitation link, when it is opened, then the user is offered a way to request a new invitation instead of a dead end."
+        }
+      ]
+    },
+    {
+      "id": "US-018",
+      "title": "Access the auth API documentation",
+      "role": "developer integrating the front end",
+      "want": "the auth contract documented",
+      "benefit": "I can build against it",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-037",
+          "text": "Given Swagger at /api/docs, when it is opened, then every auth, invitation and workspace-switch endpoint is documented with request and response schemas."
+        }
+      ]
+    },
+    {
+      "id": "US-019",
+      "title": "Target the right API version",
+      "role": "client developer",
+      "want": "a stable, versioned auth surface",
+      "benefit": "a future change does not silently break me",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-038",
+          "text": "Given the existing unversioned auth routes, when this feature ships, then pre-existing paths keep working and any new auth routes follow the same scheme with a documented migration note."
+        }
+      ]
+    },
+    {
+      "id": "US-020",
+      "title": "Provision the Redis dependency",
+      "role": "platform operator",
+      "want": "Redis provisioned and wired for security state",
+      "benefit": "lockout and revocation behave correctly",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-039",
+          "text": "Given a clean clone, when docker compose up runs, then a Redis service starts alongside PostgreSQL and the API connects to it."
+        },
+        {
+          "id": "AC-040",
+          "text": "Given Redis is reachable, when a refresh token is revoked, then the revocation is recorded in Redis with an expiry matching the token remaining life."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The system MUST model organizations, clinics and user_memberships as separate tables, with a membership linking one identity to one clinic with one role.",
+      "linkedAcceptanceCriteria": ["AC-010", "AC-013", "AC-025"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The system MUST keep users as global identity (email and password hash) and MUST NOT store a clinic-scoped role on the identity.",
+      "linkedAcceptanceCriteria": ["AC-010", "AC-013"]
+    },
+    {
+      "id": "FR-003",
+      "text": "The system MUST include org_id, clinic_id and role claims in the access token.",
+      "linkedAcceptanceCriteria": ["AC-013", "AC-025"]
+    },
+    {
+      "id": "FR-004",
+      "text": "The system MUST resolve tenant scope for every authorized request exclusively from the access token, never from the request body or query string.",
+      "linkedAcceptanceCriteria": ["AC-024", "AC-025"]
+    },
+    {
+      "id": "FR-005",
+      "text": "The system MUST expose a public registration flow that creates an account, an organization and a first clinic, and grants the creator a SUPER_ADMIN membership.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-018"]
+    },
+    {
+      "id": "FR-006",
+      "text": "The system MUST allow an already-authenticated user to create an additional organization and first clinic from the workspace switcher without creating a duplicate identity.",
+      "linkedAcceptanceCriteria": ["AC-010"]
+    },
+    {
+      "id": "FR-007",
+      "text": "The system MUST allow a CLINIC_ADMIN or SUPER_ADMIN to invite a person by email with a role, producing a single-use, expiring invitation token.",
+      "linkedAcceptanceCriteria": ["AC-015"]
+    },
+    {
+      "id": "FR-008",
+      "text": "The system MUST allow an invited person to set their own password via /accept-invite and MUST NOT allow public self-registration into an existing clinic.",
+      "linkedAcceptanceCriteria": ["AC-016", "AC-018"]
+    },
+    {
+      "id": "FR-009",
+      "text": "The system MUST issue a 15-minute access token and a 7-day refresh token delivered as an HttpOnly, SameSite=Lax cookie.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "FR-010",
+      "text": "The system MUST rotate the refresh token on every successful refresh and MUST revoke the whole token family if a revoked token is presented again.",
+      "linkedAcceptanceCriteria": ["AC-005", "AC-007"]
+    },
+    {
+      "id": "FR-011",
+      "text": "The system MUST expose POST /auth/switch-workspace that re-issues an access token scoped to the selected clinic when the caller holds a membership there.",
+      "linkedAcceptanceCriteria": ["AC-013"]
+    },
+    {
+      "id": "FR-012",
+      "text": "The system MUST reject POST /auth/switch-workspace with 403 when the caller holds no membership in the requested clinic.",
+      "linkedAcceptanceCriteria": ["AC-014"]
+    },
+    {
+      "id": "FR-013",
+      "text": "The system MUST lock an account for 15 minutes after five failed login attempts within 10 minutes.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "FR-014",
+      "text": "The system MUST store the failed-attempt counter and lockout expiry in Redis with an appropriate TTL.",
+      "linkedAcceptanceCriteria": ["AC-008", "AC-009"]
+    },
+    {
+      "id": "FR-015",
+      "text": "The system MUST store revoked refresh tokens in Redis with an expiry matching the token remaining lifetime.",
+      "linkedAcceptanceCriteria": ["AC-007", "AC-040"]
+    },
+    {
+      "id": "FR-016",
+      "text": "The system MUST record an audit entry for every create, update and delete on audited entities, capturing actor, action, entity, entity id, timestamp and before/after values.",
+      "linkedAcceptanceCriteria": ["AC-019"]
+    },
+    {
+      "id": "FR-017",
+      "text": "The system MUST write audit entries inside the same transaction as the mutation they describe.",
+      "linkedAcceptanceCriteria": ["AC-020"]
+    },
+    {
+      "id": "FR-018",
+      "text": "The system MUST allow a CLINIC_ADMIN or SUPER_ADMIN to suspend a membership, immediately denying that clinic resources to the suspended user.",
+      "linkedAcceptanceCriteria": ["AC-022"]
+    },
+    {
+      "id": "FR-019",
+      "text": "The system MUST invalidate the suspended user refresh tokens for the affected clinic on suspension.",
+      "linkedAcceptanceCriteria": ["AC-022", "AC-023"]
+    },
+    {
+      "id": "FR-020",
+      "text": "The system MUST preserve audit history when a membership is suspended or a user deactivated.",
+      "linkedAcceptanceCriteria": ["AC-021"]
+    },
+    {
+      "id": "FR-021",
+      "text": "The system MUST allow a user to request a password reset by email, responding identically whether or not the account exists.",
+      "linkedAcceptanceCriteria": ["AC-028"]
+    },
+    {
+      "id": "FR-022",
+      "text": "The system MUST revoke all refresh tokens for a user after a successful password reset or password change.",
+      "linkedAcceptanceCriteria": ["AC-029", "AC-030"]
+    },
+    {
+      "id": "FR-023",
+      "text": "The system MUST enforce a password strength policy on registration and on accepting an invitation.",
+      "linkedAcceptanceCriteria": ["AC-026", "AC-027"]
+    },
+    {
+      "id": "FR-024",
+      "text": "The system MUST serve every auth error as a stable machine-readable code plus a human-readable message, so the front end can translate it.",
+      "linkedAcceptanceCriteria": ["AC-035", "AC-036"]
+    },
+    {
+      "id": "FR-025",
+      "text": "The system MUST document every auth, invitation and workspace endpoint in Swagger.",
+      "linkedAcceptanceCriteria": ["AC-037"]
+    },
+    {
+      "id": "FR-026",
+      "text": "The system MUST retain the existing unversioned auth route paths so current clients keep working.",
+      "linkedAcceptanceCriteria": ["AC-038"]
+    },
+    {
+      "id": "FR-027",
+      "text": "The system MUST provide a staff directory for the active clinic showing email, role, status and last login.",
+      "linkedAcceptanceCriteria": ["AC-011"]
+    },
+    {
+      "id": "FR-028",
+      "text": "The system MUST allow a user to hold a different role in each clinic and MUST apply the role of the active clinic.",
+      "linkedAcceptanceCriteria": ["AC-011", "AC-013"]
+    },
+    {
+      "id": "FR-029",
+      "text": "The system MUST refuse any operation that would leave an organization with zero SUPER_ADMIN members.",
+      "linkedAcceptanceCriteria": ["AC-022"]
+    },
+    {
+      "id": "FR-030",
+      "text": "The system MUST record the invitation intended clinic and role, and grant exactly that membership on acceptance.",
+      "linkedAcceptanceCriteria": ["AC-016"]
+    },
+    {
+      "id": "FR-031",
+      "text": "The system MUST revoke an invitation token when a newer invitation is issued for the same email and clinic.",
+      "linkedAcceptanceCriteria": ["AC-017"]
+    },
+    {
+      "id": "FR-032",
+      "text": "The system MUST return the caller active memberships and their roles so the workspace switcher can render them.",
+      "linkedAcceptanceCriteria": ["AC-011"]
+    },
+    {
+      "id": "FR-033",
+      "text": "The system MUST keep the public registration route available only for creating new organizations, never for joining an existing one.",
+      "linkedAcceptanceCriteria": ["AC-018"]
+    },
+    {
+      "id": "FR-034",
+      "text": "The system MUST hash passwords with argon2 and MUST NOT store or log plaintext passwords.",
+      "linkedAcceptanceCriteria": ["AC-026"]
+    },
+    {
+      "id": "FR-035",
+      "text": "The system MUST set the refresh cookie Secure attribute from configuration so production uses HTTPS.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "The API MUST set security headers via Helmet on every response, including auth endpoints.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "The API MUST apply a stricter rate limit to the login, register, forgot-password, reset-password and accept-invite endpoints than to general endpoints.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "Every new endpoint MUST validate its input with a class-validator DTO under the global ValidationPipe, rejecting unknown fields.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "The feature MUST NOT introduce raw SQL; all tenant filtering MUST be expressed as Prisma query constraints.",
+      "linkedAcceptanceCriteria": ["AC-024"]
+    },
+    {
+      "id": "NFR-005",
+      "text": "The feature MUST NOT introduce dangerouslySetInnerHTML or unescaped interpolation in invitation and registration UI or email templates.",
+      "linkedAcceptanceCriteria": ["AC-016"]
+    },
+    {
+      "id": "NFR-006",
+      "text": "State-changing auth endpoints MUST remain POST and MUST rely on an explicit CORS allow-list with credentials enabled.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "NFR-007",
+      "text": "New configuration keys MUST be documented in .env.example and MUST NOT be committed with real values.",
+      "linkedAcceptanceCriteria": ["AC-039"]
+    },
+    {
+      "id": "NFR-008",
+      "text": "COOKIE_SECURE MUST be true outside local development and HSTS MUST remain enabled.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "NFR-009",
+      "text": "When Redis is unavailable, the login lockout control MUST fail closed rather than permitting unlimited attempts.",
+      "linkedAcceptanceCriteria": ["AC-031"]
+    },
+    {
+      "id": "NFR-010",
+      "text": "A login request MUST complete within 400 ms p95 under normal load, excluding deliberate lockout waits.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "NFR-011",
+      "text": "Auth screens MUST meet WCAG 2.1 AA for contrast, keyboard access and visible focus, and MUST render correctly in RTL for Arabic.",
+      "linkedAcceptanceCriteria": ["AC-033"]
+    },
+    {
+      "id": "NFR-012",
+      "text": "Every auth screen and email template MUST be available in EN, AR and FR with no hard-coded user-facing strings.",
+      "linkedAcceptanceCriteria": ["AC-033", "AC-034"]
+    },
+    {
+      "id": "NFR-013",
+      "text": "The audit trail MUST be append-only from the application perspective; no endpoint may modify or delete an audit row.",
+      "linkedAcceptanceCriteria": ["AC-019"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "Registration email collides with an existing identity",
+      "expectedBehavior": "Field-level error on step 1; no organization or clinic is created."
+    },
+    {
+      "id": "EC-002",
+      "description": "Session expires mid-wizard",
+      "expectedBehavior": "In-memory input is preserved and re-authentication is prompted rather than discarding the work."
+    },
+    {
+      "id": "EC-003",
+      "description": "Workspace switch requested for a clinic with no membership",
+      "expectedBehavior": "403 returned and the active clinic is unchanged."
+    },
+    {
+      "id": "EC-004",
+      "description": "Membership suspended while the user is mid-session",
+      "expectedBehavior": "The next request for that clinic returns 403 and the client returns to the switcher."
+    },
+    {
+      "id": "EC-005",
+      "description": "Suspending the last SUPER_ADMIN of an organization",
+      "expectedBehavior": "Rejected with a clear error; audit trail stays intact."
+    },
+    {
+      "id": "EC-006",
+      "description": "Invitation token expired or already consumed",
+      "expectedBehavior": "Rejected, with an option to request a new invitation."
+    },
+    {
+      "id": "EC-007",
+      "description": "A second invitation is issued for the same email and clinic",
+      "expectedBehavior": "The earlier token is revoked so only the newest works."
+    },
+    {
+      "id": "EC-008",
+      "description": "Redis unavailable during login",
+      "expectedBehavior": "Lockout fails closed and the attempt is rejected with a retryable error, never silently unlimited."
+    },
+    {
+      "id": "EC-009",
+      "description": "Redis unavailable during a normal read",
+      "expectedBehavior": "The API serves from PostgreSQL as it does today."
+    },
+    {
+      "id": "EC-010",
+      "description": "Two requests race to refresh the same refresh token",
+      "expectedBehavior": "Exactly one succeeds; the family is revoked only if reuse of a rotated token is detected."
+    },
+    {
+      "id": "EC-011",
+      "description": "Refresh token presented after logout",
+      "expectedBehavior": "Rejected; the family revocation is enforced."
+    },
+    {
+      "id": "EC-012",
+      "description": "Request body supplies a clinic_id different from the token",
+      "expectedBehavior": "The token clinic_id wins and the supplied value is ignored."
+    },
+    {
+      "id": "EC-013",
+      "description": "Password change while another session is active",
+      "expectedBehavior": "Other sessions refresh tokens are revoked."
+    },
+    {
+      "id": "EC-014",
+      "description": "Clock skew between Redis TTL and database timestamps",
+      "expectedBehavior": "Redis TTL is authoritative for lockout expiry and is re-checked on read."
+    },
+    {
+      "id": "EC-015",
+      "description": "Arabic locale with a Latin-only email address",
+      "expectedBehavior": "The email input stays LTR while the surrounding layout mirrors."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Redis",
+      "type": "service",
+      "notes": "Required for lockout counters, refresh-token blacklist and rate-limit counters (BP-046). Today it degrades to an in-memory cache, which is unsafe for security state."
+    },
+    {
+      "name": "mail module",
+      "type": "internal",
+      "notes": "Existing server/src/mail must deliver invitation and reset email (BP-047)."
+    },
+    {
+      "name": "Prisma schema and migrations",
+      "type": "internal",
+      "notes": "BP-002 supplies the schema and migration tooling this feature extends."
+    },
+    {
+      "name": "validation pipe, exception filter and CI",
+      "type": "internal",
+      "notes": "BP-003 supplies these; this feature relies on the global ValidationPipe rejecting unknown fields."
+    },
+    {
+      "name": "argon2",
+      "type": "library",
+      "notes": "Already a dependency; continues to hash passwords."
+    },
+    {
+      "name": "class-validator / class-transformer",
+      "type": "library",
+      "notes": "Already dependencies; used by every new DTO."
+    },
+    {
+      "name": "@nestjs/throttler",
+      "type": "library",
+      "notes": "Already a dependency; per-endpoint limits are added on top of the global guard."
+    },
+    {
+      "name": "ioredis",
+      "type": "library",
+      "notes": "Already a dependency; reused directly for lockout and blacklist state."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "Moving role off users into user_memberships touches every path that reads user.role, including RolesGuard, the JWT strategy and the seed script.",
+      "mitigation": "Document a migration path mapping each existing user into a default organization and clinic, and update the seed script in the same change."
+    },
+    {
+      "id": "RISK-002",
+      "description": "Widening to the whole AUTH section makes one large feature spanning three layers.",
+      "mitigation": "Decompose into ordered milestones so each apply pass is independently verifiable; it stays one branch and one review unit per CON-606."
+    },
+    {
+      "id": "RISK-003",
+      "description": "The public /register route creates organizations and is the most attractive abuse target.",
+      "mitigation": "Stricter per-endpoint rate limiting (NFR-002) and the inability to join an existing clinic (FR-033)."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Existing clients use the current unversioned auth paths and could break.",
+      "mitigation": "FR-026 keeps those paths working; any new routes follow the same scheme with a migration note."
+    },
+    {
+      "id": "RISK-005",
+      "description": "Audit-log growth is unbounded.",
+      "mitigation": "Retention policy deferred to BP-035 (settings); recorded as an assumption rather than solved here."
+    }
+  ]
+}

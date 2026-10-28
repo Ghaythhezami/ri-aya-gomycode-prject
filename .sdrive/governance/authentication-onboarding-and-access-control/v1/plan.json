@@ -1,0 +1,714 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 1,
+  "architecture": {
+    "approach": "Extend the existing NestJS auth module into a tenancy-aware authority. A new tenancy layer (organizations, clinics, user_memberships) separates global identity from per-clinic membership. The access token carries org_id, clinic_id and role resolved from the active membership, and a request-scoped tenant context is built only from the verified token so no request body can widen scope. Redis becomes required infrastructure for security state (lockout counters and the refresh-token blacklist) under a strict, fail-closed mode, while ordinary caching keeps its in-memory fallback. Registration, invitation, workspace switching and auditing are added as services behind the existing guards and the global validation pipe.",
+    "components": [
+      {
+        "name": "auth module",
+        "action": "modify",
+        "description": "Adds register, switch-workspace, invitation and tenancy-aware token issuance alongside the existing login, refresh, logout and password routes."
+      },
+      {
+        "name": "tenancy module",
+        "action": "create",
+        "description": "Owns organizations, clinics, memberships, invitations and their services and DTOs."
+      },
+      {
+        "name": "audit module",
+        "action": "create",
+        "description": "Owns the transactional audit writer and the append-only audit log."
+      },
+      {
+        "name": "tenant context provider",
+        "action": "create",
+        "description": "Request-scoped holder populated exclusively from the verified token, read by every scoped query."
+      },
+      {
+        "name": "RedisCacheService",
+        "action": "modify",
+        "description": "Adds a strict mode and atomic counter operations used by security paths; keeps the degraded in-memory path for caching only."
+      },
+      {
+        "name": "token blacklist store",
+        "action": "create",
+        "description": "Redis-backed revocation store keyed by token hash with TTL equal to the token remaining life."
+      },
+      {
+        "name": "login attempt store",
+        "action": "create",
+        "description": "Redis-backed atomic failure counter with TTL backing the lockout policy."
+      },
+      {
+        "name": "RolesGuard",
+        "action": "modify",
+        "description": "Reads the active role from the membership claim instead of the user record."
+      },
+      {
+        "name": "JWT strategy",
+        "action": "modify",
+        "description": "Validates the tenancy claims and rejects tokens whose membership is no longer active."
+      },
+      {
+        "name": "mail module",
+        "action": "modify",
+        "description": "Adds invitation and password-reset templates in EN, AR and FR."
+      },
+      {
+        "name": "backoffice auth pages",
+        "action": "modify",
+        "description": "Adds the registration wizard, accept-invitation screen, workspace switcher and staff directory."
+      },
+      {
+        "name": "i18n catalogues",
+        "action": "modify",
+        "description": "Adds auth strings for EN, AR and FR in both front ends."
+      },
+      {
+        "name": "docker-compose",
+        "action": "modify",
+        "description": "Adds the Redis service the security state depends on."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "FR-011",
+      "FR-012",
+      "FR-013",
+      "FR-014",
+      "FR-015",
+      "FR-016",
+      "FR-017",
+      "FR-018",
+      "FR-019",
+      "FR-020",
+      "FR-021",
+      "FR-022",
+      "FR-023",
+      "FR-024",
+      "FR-025",
+      "FR-026",
+      "FR-027",
+      "FR-028",
+      "FR-029",
+      "FR-030",
+      "FR-031",
+      "FR-032",
+      "FR-033",
+      "FR-034",
+      "FR-035",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004",
+      "NFR-005",
+      "NFR-006",
+      "NFR-007",
+      "NFR-008",
+      "NFR-009",
+      "NFR-010",
+      "NFR-011",
+      "NFR-012",
+      "NFR-013"
+    ]
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "User",
+        "action": "update",
+        "fields": [
+          {
+            "name": "email",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "passwordHash",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "firstName",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "lastName",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "preferredLocale",
+            "type": "PreferredLocale",
+            "action": "no_change"
+          },
+          {
+            "name": "isActive",
+            "type": "Boolean",
+            "action": "no_change"
+          },
+          {
+            "name": "role",
+            "type": "UserRole",
+            "action": "remove"
+          },
+          {
+            "name": "lastLoginAt",
+            "type": "DateTime",
+            "nullable": true,
+            "action": "no_change"
+          },
+          {
+            "name": "failedLoginCount",
+            "type": "Int",
+            "action": "remove"
+          },
+          {
+            "name": "failedLoginWindowStart",
+            "type": "DateTime",
+            "nullable": true,
+            "action": "remove"
+          },
+          {
+            "name": "lockedUntil",
+            "type": "DateTime",
+            "nullable": true,
+            "action": "remove"
+          },
+          {
+            "name": "memberships",
+            "type": "UserMembership[]",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "Organization",
+        "action": "create",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "slug",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "action": "add"
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "action": "add"
+          },
+          {
+            "name": "clinics",
+            "type": "Clinic[]",
+            "action": "add"
+          },
+          {
+            "name": "memberships",
+            "type": "UserMembership[]",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "Clinic",
+        "action": "create",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "organizationId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "timezone",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "currency",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "address",
+            "type": "String",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "action": "add"
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "UserMembership",
+        "action": "create",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "userId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "organizationId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "clinicId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "role",
+            "type": "UserRole",
+            "action": "add"
+          },
+          {
+            "name": "status",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "action": "add"
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "Invitation",
+        "action": "create",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "email",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "clinicId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "role",
+            "type": "UserRole",
+            "action": "add"
+          },
+          {
+            "name": "tokenHash",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "expiresAt",
+            "type": "DateTime",
+            "action": "add"
+          },
+          {
+            "name": "consumedAt",
+            "type": "DateTime",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "invitedById",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "AuditLog",
+        "action": "create",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "actorUserId",
+            "type": "String",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "action",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "entity",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "entityId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "before",
+            "type": "Json",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "after",
+            "type": "Json",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "organizationId",
+            "type": "String",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "clinicId",
+            "type": "String",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "RefreshToken",
+        "action": "no_change",
+        "fields": [
+          {
+            "name": "tokenHash",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "familyId",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "expiresAt",
+            "type": "DateTime",
+            "action": "no_change"
+          },
+          {
+            "name": "revokedAt",
+            "type": "DateTime",
+            "nullable": true,
+            "action": "no_change"
+          }
+        ]
+      }
+    ],
+    "flowDescription": "A registration request opens one transaction that creates the identity, the organization, the first clinic and a SUPER_ADMIN membership, then issues a scoped token. Login verifies the argon2 hash, consults the Redis failure counter and lockout expiry, resolves the active membership, and issues an access token carrying org_id, clinic_id and role plus a rotating refresh token whose hash is stored and whose revocation is mirrored into the Redis blacklist. Switching workspace verifies an active membership for the requested clinic and re-issues a scoped token, rotating the refresh token for the new scope. Invitations are stored as a hashed single-use token; acceptance consumes it and grants exactly the recorded membership. Every create, update and delete writes an audit row inside the same transaction as the mutation."
+  },
+  "apiContracts": [
+    {
+      "method": "POST",
+      "path": "/api/auth/register",
+      "action": "create",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-005", "FR-033"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "action": "modify",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-009", "FR-013", "NFR-009"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "action": "modify",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-010", "FR-015"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/logout",
+      "action": "modify",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-015"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-028", "FR-032"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/change-password",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-022", "FR-034"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/forgot-password",
+      "action": "modify",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-021"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/reset-password",
+      "action": "modify",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-021", "FR-022", "FR-023"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/switch-workspace",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-011", "FR-012"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/memberships",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-032", "FR-027"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/accept-invite",
+      "action": "create",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-008", "FR-023", "FR-030"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/organizations",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-006"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/invitations",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-007", "FR-031"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/invitations",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-027"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-027"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/memberships/:id",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-018", "FR-019", "FR-029"]
+    }
+  ],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-001",
+      "description": "Global Helmet headers remain applied; nothing in this feature disables CSP or HSTS on auth routes."
+    },
+    {
+      "requirementId": "NFR-002",
+      "description": "A stricter named throttler is applied to login, register, forgot-password, reset-password and accept-invite, on top of the existing global limit."
+    },
+    {
+      "requirementId": "NFR-003",
+      "description": "Every new endpoint has a class-validator DTO; the global ValidationPipe with whitelist and forbidNonWhitelisted rejects unknown fields."
+    },
+    {
+      "requirementId": "NFR-004",
+      "description": "All tenant filtering is expressed as Prisma query constraints; no raw SQL is introduced."
+    },
+    {
+      "requirementId": "NFR-005",
+      "description": "No dangerouslySetInnerHTML in auth UI; email templates escape interpolated names."
+    },
+    {
+      "requirementId": "NFR-006",
+      "description": "Auth state changes stay POST behind the explicit CORS allow-list with credentials enabled."
+    },
+    {
+      "requirementId": "NFR-007",
+      "description": "New keys are documented in .env.example only; no real values are committed."
+    },
+    {
+      "requirementId": "NFR-008",
+      "description": "The refresh cookie Secure attribute derives from configuration and must be true outside local development."
+    },
+    {
+      "requirementId": "NFR-009",
+      "description": "Login lockout fails closed: when Redis cannot be reached the attempt is rejected rather than permitted, so an outage cannot disable brute-force protection."
+    },
+    {
+      "requirementId": "NFR-013",
+      "description": "The audit log is append-only from the application perspective; no endpoint updates or deletes audit rows."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-010",
+      "strategy": "Login keeps a constant number of round trips: one indexed membership lookup, one Redis counter operation and one argon2 verification, with the argon2 cost left at its current setting."
+    },
+    {
+      "requirementId": "NFR-010",
+      "strategy": "Membership lookups are indexed on (userId, status) and (clinicId, status) so the guard and the workspace switcher resolve scope without table scans."
+    },
+    {
+      "requirementId": "NFR-013",
+      "strategy": "Audit writes add no extra round trip because they participate in the mutation transaction."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "ioredis",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already present; reused directly for atomic counters and the blacklist."
+    },
+    {
+      "name": "@nestjs/throttler",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already present; a stricter named throttler is configured for auth endpoints."
+    },
+    {
+      "name": "argon2",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already present; continues to hash passwords under the strength policy."
+    },
+    {
+      "name": "class-validator",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already present; used by every new DTO."
+    },
+    {
+      "name": "@prisma/client",
+      "type": "library",
+      "action": "update",
+      "notes": "Regenerated after the tenancy models and migration are added."
+    },
+    {
+      "name": "redis",
+      "type": "service",
+      "action": "add",
+      "notes": "Provisioned via docker-compose as a hard dependency for security state; skill: none (infrastructure, not a code library)."
+    },
+    {
+      "name": "@nestjs/swagger",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already present; new endpoints are decorated for documentation."
+    },
+    {
+      "name": "mail module",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "Reused and extended with invitation and reset templates (BP-047)."
+    },
+    {
+      "name": "RedisCacheService",
+      "type": "internal",
+      "action": "update",
+      "notes": "Reused for caching and extended with strict-mode and counter operations."
+    }
+  ],
+  "risks": [
+    {
+      "description": "Removing the clinic-scoped role from users touches RolesGuard, the JWT strategy and the seed script simultaneously.",
+      "mitigation": "Ship the data migration and the seed update in the same change as the model update, and keep the four existing dev logins working (T2.3, T2.4)."
+    },
+    {
+      "description": "A fail-closed lockout makes Redis a single point of failure for login.",
+      "mitigation": "Health-check Redis at startup, surface a clear retryable error rather than a generic failure, and document the operational dependency (T1.2, T5.5)."
+    },
+    {
+      "description": "The public register route can be abused to create organizations.",
+      "mitigation": "Per-endpoint rate limiting plus the restriction that public registration can never join an existing clinic (T6.6, T4.1)."
+    },
+    {
+      "description": "Existing clients depend on the current unversioned auth routes.",
+      "mitigation": "Route paths are retained and the versioning decision is documented in Swagger (T6.7)."
+    }
+  ]
+}

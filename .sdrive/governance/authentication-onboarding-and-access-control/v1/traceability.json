@@ -1,0 +1,390 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 1,
+  "rows": [
+    {
+      "requirementId": "FR-001",
+      "acceptanceCriteriaIds": ["AC-010", "AC-013", "AC-025"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-002",
+      "acceptanceCriteriaIds": ["AC-010", "AC-013"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-003",
+      "acceptanceCriteriaIds": ["AC-013", "AC-025"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-004",
+      "acceptanceCriteriaIds": ["AC-024", "AC-025"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-005",
+      "acceptanceCriteriaIds": ["AC-001", "AC-018"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-006",
+      "acceptanceCriteriaIds": ["AC-010"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-007",
+      "acceptanceCriteriaIds": ["AC-015"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-008",
+      "acceptanceCriteriaIds": ["AC-016", "AC-018"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-009",
+      "acceptanceCriteriaIds": ["AC-004"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-010",
+      "acceptanceCriteriaIds": ["AC-005", "AC-007"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-011",
+      "acceptanceCriteriaIds": ["AC-013"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-012",
+      "acceptanceCriteriaIds": ["AC-014"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-013",
+      "acceptanceCriteriaIds": ["AC-008"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-014",
+      "acceptanceCriteriaIds": ["AC-008", "AC-009"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-015",
+      "acceptanceCriteriaIds": ["AC-007", "AC-040"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-016",
+      "acceptanceCriteriaIds": ["AC-019"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-017",
+      "acceptanceCriteriaIds": ["AC-020"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-018",
+      "acceptanceCriteriaIds": ["AC-022"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-019",
+      "acceptanceCriteriaIds": ["AC-022", "AC-023"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-020",
+      "acceptanceCriteriaIds": ["AC-021"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-021",
+      "acceptanceCriteriaIds": ["AC-028"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-022",
+      "acceptanceCriteriaIds": ["AC-029", "AC-030"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-023",
+      "acceptanceCriteriaIds": ["AC-026", "AC-027"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-024",
+      "acceptanceCriteriaIds": ["AC-035", "AC-036"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-025",
+      "acceptanceCriteriaIds": ["AC-037"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-026",
+      "acceptanceCriteriaIds": ["AC-038"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-027",
+      "acceptanceCriteriaIds": ["AC-011"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-028",
+      "acceptanceCriteriaIds": ["AC-011", "AC-013"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-029",
+      "acceptanceCriteriaIds": ["AC-022"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-030",
+      "acceptanceCriteriaIds": ["AC-016"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-031",
+      "acceptanceCriteriaIds": ["AC-017"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-032",
+      "acceptanceCriteriaIds": ["AC-011"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-033",
+      "acceptanceCriteriaIds": ["AC-018"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-034",
+      "acceptanceCriteriaIds": ["AC-026"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-035",
+      "acceptanceCriteriaIds": ["AC-004"],
+      "planSection": "Data Model",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-001",
+      "acceptanceCriteriaIds": ["AC-001"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-002",
+      "acceptanceCriteriaIds": ["AC-008"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-003",
+      "acceptanceCriteriaIds": ["AC-003"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-004",
+      "acceptanceCriteriaIds": ["AC-024"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-005",
+      "acceptanceCriteriaIds": ["AC-016"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-006",
+      "acceptanceCriteriaIds": ["AC-004"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-007",
+      "acceptanceCriteriaIds": ["AC-039"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-008",
+      "acceptanceCriteriaIds": ["AC-004"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-009",
+      "acceptanceCriteriaIds": ["AC-031"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-010",
+      "acceptanceCriteriaIds": ["AC-004"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-011",
+      "acceptanceCriteriaIds": ["AC-033"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-012",
+      "acceptanceCriteriaIds": ["AC-033", "AC-034"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-013",
+      "acceptanceCriteriaIds": ["AC-019"],
+      "planSection": "Security Considerations",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    }
+  ]
+}

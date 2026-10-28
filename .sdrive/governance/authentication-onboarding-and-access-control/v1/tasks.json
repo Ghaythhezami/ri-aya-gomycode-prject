@@ -1,0 +1,312 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Redis-backed security state",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Add Redis service to docker-compose",
+          "description": "Add a Redis 7 service with a healthcheck and wired volume to docker-compose.yml so a clean clone starts PostgreSQL and Redis together.",
+          "linkedRequirements": ["FR-014", "NFR-007"],
+          "linkedAcceptanceCriteria": ["AC-039"],
+          "completed": false
+        },
+        {
+          "id": "T1.2",
+          "title": "Add a Redis health probe and hard-fail mode",
+          "description": "Expose a connectivity check on RedisCacheService and a strict mode used by security paths, so lockout and blacklist can fail closed instead of silently using the in-memory map.",
+          "linkedRequirements": ["NFR-009"],
+          "linkedAcceptanceCriteria": ["AC-031"],
+          "completed": false
+        },
+        {
+          "id": "T1.3",
+          "title": "Implement a Redis-backed token blacklist store",
+          "description": "Add a store that records revoked refresh tokens with an expiry equal to the token remaining lifetime, and wire logout and family revocation to it.",
+          "linkedRequirements": ["FR-015"],
+          "linkedAcceptanceCriteria": ["AC-007", "AC-040"],
+          "completed": false
+        },
+        {
+          "id": "T1.4",
+          "title": "Implement a Redis-backed login attempt counter",
+          "description": "Add atomic increment-with-TTL counters for failed logins per account, exposing read, increment and clear operations.",
+          "linkedRequirements": ["FR-013", "FR-014"],
+          "linkedAcceptanceCriteria": ["AC-008", "AC-009"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Tenancy data model",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Add Organization, Clinic and Membership Prisma models",
+          "description": "Add organizations, clinics and user_memberships models with relations, uniqueness constraints and indexes. Membership carries role, status and links user, clinic and organization.",
+          "linkedRequirements": ["FR-001", "FR-002"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T2.2",
+          "title": "Add Invitation and AuditLog Prisma models",
+          "description": "Add an invitations model (email, clinic, role, token hash, expiry, consumed at, invited by) and an append-only audit_logs model (actor, action, entity, entity id, before, after, clinic, organization, created at).",
+          "linkedRequirements": ["FR-007", "FR-016"],
+          "linkedAcceptanceCriteria": ["AC-015", "AC-019"],
+          "completed": false
+        },
+        {
+          "id": "T2.3",
+          "title": "Generate and review the tenancy migration",
+          "description": "Produce the Prisma migration for the new tables plus the data migration that maps every existing user into a default organization, clinic and SUPER_ADMIN membership, then retire the clinic-scoped role column from users.",
+          "linkedRequirements": ["FR-001", "FR-002"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T2.4",
+          "title": "Update the seed script for the tenancy hierarchy",
+          "description": "Extend the idempotent seed so the four existing dev users become memberships of a seeded organization and clinic, keeping the existing login credentials working.",
+          "linkedRequirements": ["FR-001", "FR-028"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Scoped tokens and authorization",
+      "dependencies": ["P2"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Add org_id, clinic_id and role to the access token",
+          "description": "Extend the JWT payload and signing path so an access token always carries the active organization, clinic and role taken from the membership.",
+          "linkedRequirements": ["FR-003"],
+          "linkedAcceptanceCriteria": ["AC-013"],
+          "completed": false
+        },
+        {
+          "id": "T3.2",
+          "title": "Resolve tenant scope from the token only",
+          "description": "Add a request-scoped tenant context built exclusively from the verified token, and make the guard chain populate it, ignoring any clinic or organization identifier supplied in the body or query string.",
+          "linkedRequirements": ["FR-004"],
+          "linkedAcceptanceCriteria": ["AC-024", "AC-025"],
+          "completed": false
+        },
+        {
+          "id": "T3.3",
+          "title": "Re-source the roles guard from membership",
+          "description": "Change RolesGuard and the JWT strategy to read the active role from the membership carried in the token rather than from the user record.",
+          "linkedRequirements": ["FR-028", "FR-002"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": false
+        },
+        {
+          "id": "T3.4",
+          "title": "Enforce memberships listing for the switcher",
+          "description": "Add an endpoint that returns the caller active memberships with clinic name, organization name and per-clinic role.",
+          "linkedRequirements": ["FR-032", "FR-027"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": false
+        },
+        {
+          "id": "T3.5",
+          "title": "Implement POST /auth/switch-workspace",
+          "description": "Re-issue an access token scoped to the requested clinic when the caller holds an active membership there, and reject with 403 when they do not. Rotate the refresh token for the new scope.",
+          "linkedRequirements": ["FR-011", "FR-012"],
+          "linkedAcceptanceCriteria": ["AC-013", "AC-014"],
+          "completed": false
+        },
+        {
+          "id": "T3.6",
+          "title": "Add the last-super-admin invariant",
+          "description": "Refuse any membership change that would leave an organization with zero active SUPER_ADMIN members.",
+          "linkedRequirements": ["FR-029"],
+          "linkedAcceptanceCriteria": ["AC-022"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Registration, switching and invitations",
+      "dependencies": ["P3"],
+      "tasks": [
+        {
+          "id": "T4.1",
+          "title": "Implement transactional registration",
+          "description": "Add a service operation that creates identity, organization, clinic and SUPER_ADMIN membership in one transaction, with the public route limited to creating new organizations only.",
+          "linkedRequirements": ["FR-005", "FR-033"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-018"],
+          "completed": false
+        },
+        {
+          "id": "T4.2",
+          "title": "Implement create-additional-organization for signed-in users",
+          "description": "Allow an authenticated user to create a new organization and first clinic, attaching a membership to the existing identity rather than creating a second account.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T4.3",
+          "title": "Implement the invitation issue endpoint",
+          "description": "Allow a CLINIC_ADMIN or SUPER_ADMIN to invite an email with a role, generating a single-use hashed expiring token and revoking any earlier token for the same email and clinic.",
+          "linkedRequirements": ["FR-007", "FR-030", "FR-031"],
+          "linkedAcceptanceCriteria": ["AC-015", "AC-017"],
+          "completed": false
+        },
+        {
+          "id": "T4.4",
+          "title": "Implement accept-invitation and password setting",
+          "description": "Consume a valid invitation token, create or link the identity, set the password under the strength policy, grant exactly the invited membership, and mark the token consumed.",
+          "linkedRequirements": ["FR-008", "FR-023", "FR-034"],
+          "linkedAcceptanceCriteria": ["AC-016", "AC-026", "AC-027"],
+          "completed": false
+        },
+        {
+          "id": "T4.5",
+          "title": "Add invitation and reset email templates",
+          "description": "Extend the mail module with EN, AR and FR templates for invitations and password resets, escaping interpolated names, and include the expiring link.",
+          "linkedRequirements": ["FR-021", "NFR-012"],
+          "linkedAcceptanceCriteria": ["AC-015", "AC-028"],
+          "completed": false
+        },
+        {
+          "id": "T4.6",
+          "title": "Implement membership suspension and token invalidation",
+          "description": "Allow a CLINIC_ADMIN or SUPER_ADMIN to suspend a membership, denying that clinic immediately and invalidating the user refresh tokens for it while leaving audit history intact.",
+          "linkedRequirements": ["FR-018", "FR-019", "FR-020"],
+          "linkedAcceptanceCriteria": ["AC-022", "AC-023"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Audit trail and password lifecycle",
+      "dependencies": ["P4"],
+      "tasks": [
+        {
+          "id": "T5.1",
+          "title": "Add a transactional audit writer",
+          "description": "Write audit entries inside the same transaction as the mutation they describe, capturing actor, action, entity, entity id, before and after values, organization and clinic, so a rollback leaves no entry.",
+          "linkedRequirements": ["FR-016", "FR-017", "NFR-013"],
+          "linkedAcceptanceCriteria": ["AC-019", "AC-020"],
+          "completed": false
+        },
+        {
+          "id": "T5.2",
+          "title": "Apply auditing to auth and membership mutations",
+          "description": "Wire the audit writer into user, membership, invitation, organization and clinic create, update and delete paths.",
+          "linkedRequirements": ["FR-016", "FR-020"],
+          "linkedAcceptanceCriteria": ["AC-019", "AC-021"],
+          "completed": false
+        },
+        {
+          "id": "T5.3",
+          "title": "Add stable machine-readable auth error codes",
+          "description": "Return a stable code plus a human-readable message for every auth failure so the front end can translate, including a distinguishable account-locked response.",
+          "linkedRequirements": ["FR-024"],
+          "linkedAcceptanceCriteria": ["AC-035"],
+          "completed": false
+        },
+        {
+          "id": "T5.4",
+          "title": "Revoke sessions on password change and reset",
+          "description": "Revoke all refresh tokens for the user after a successful password change or reset, and invalidate the Redis blacklist entries consistently.",
+          "linkedRequirements": ["FR-022"],
+          "linkedAcceptanceCriteria": ["AC-029", "AC-030"],
+          "completed": false
+        },
+        {
+          "id": "T5.5",
+          "title": "Make lockout fail closed and non-enumerable",
+          "description": "Integrate the Redis attempt counter into login, lock for fifteen minutes after five failures in ten minutes, and reject attempts with a retryable error when Redis is unavailable.",
+          "linkedRequirements": ["FR-013", "NFR-009"],
+          "linkedAcceptanceCriteria": ["AC-008", "AC-031"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "Front end, security hardening and contract",
+      "dependencies": ["P5"],
+      "tasks": [
+        {
+          "id": "T6.1",
+          "title": "Build the three-step registration wizard",
+          "description": "Add the public registration UI with a stepper, per-step validation, Back navigation that preserves input, and a final summary. No partial persistence before submit.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-003"],
+          "completed": false
+        },
+        {
+          "id": "T6.2",
+          "title": "Build the accept-invitation screen",
+          "description": "Add /accept-invite that shows the clinic and role being accepted, sets the password, and converts an expired token into a request-a-new-invitation action.",
+          "linkedRequirements": ["FR-008", "FR-024"],
+          "linkedAcceptanceCriteria": ["AC-016", "AC-036"],
+          "completed": false
+        },
+        {
+          "id": "T6.3",
+          "title": "Build the workspace switcher",
+          "description": "Add a switcher listing every membership with the per-clinic role, plus the create-new-organization action, calling switch-workspace and re-scoping the client session.",
+          "linkedRequirements": ["FR-032", "FR-011"],
+          "linkedAcceptanceCriteria": ["AC-011", "AC-012"],
+          "completed": false
+        },
+        {
+          "id": "T6.4",
+          "title": "Build the staff directory with invite and suspend",
+          "description": "Add the active clinic staff directory showing email, role, status and last login, with invite and suspend actions behind confirm dialogs and skeletons while loading.",
+          "linkedRequirements": ["FR-027", "FR-018"],
+          "linkedAcceptanceCriteria": ["AC-011", "AC-022"],
+          "completed": false
+        },
+        {
+          "id": "T6.5",
+          "title": "Localise and mirror every auth screen",
+          "description": "Add EN, AR and FR strings for all auth screens and email templates, with RTL mirroring via logical CSS properties and no hard-coded user-facing text.",
+          "linkedRequirements": ["NFR-012", "NFR-011"],
+          "linkedAcceptanceCriteria": ["AC-033", "AC-034"],
+          "completed": false
+        },
+        {
+          "id": "T6.6",
+          "title": "Apply per-endpoint rate limits and cookie policy",
+          "description": "Add stricter throttling to login, register, forgot-password, reset-password and accept-invite, and set the refresh cookie Secure attribute from configuration while keeping Helmet, CORS and the validation pipe in force.",
+          "linkedRequirements": [
+            "NFR-002",
+            "NFR-008",
+            "NFR-001",
+            "NFR-003",
+            "NFR-004",
+            "NFR-005",
+            "NFR-006"
+          ],
+          "linkedAcceptanceCriteria": ["AC-004", "AC-008"],
+          "completed": false
+        },
+        {
+          "id": "T6.7",
+          "title": "Document the auth contract in Swagger",
+          "description": "Document every auth, invitation, membership and workspace-switch endpoint with request and response schemas, record the unversioned-path decision, and add new configuration keys to .env.example.",
+          "linkedRequirements": ["FR-025", "FR-026", "NFR-007"],
+          "linkedAcceptanceCriteria": ["AC-037", "AC-038", "AC-039"],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
