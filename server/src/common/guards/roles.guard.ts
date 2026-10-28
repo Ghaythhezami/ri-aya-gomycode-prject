@@ -19,7 +19,9 @@ export class RolesGuard implements CanActivate {
 
     const request = context.switchToHttp().getRequest<{ user?: UserRecord }>();
     const user = request.user;
-    if (!user || !roles.includes(user.role)) {
+    // `role` is nullable while it migrates to UserMembership.role (FR-002);
+    // a user with no role can never satisfy a role-gated route.
+    if (!user || !user.role || !roles.includes(user.role)) {
       throw new ForbiddenException({
         code: 'FORBIDDEN',
         message: 'You do not have permission to perform this action',

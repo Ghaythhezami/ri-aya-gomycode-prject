@@ -30,6 +30,35 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return this.inner.passwordResetToken as PrismaClient['passwordResetToken'];
   }
 
+  get organization() {
+    return (this.inner as PrismaClient).organization;
+  }
+
+  get clinic() {
+    return (this.inner as PrismaClient).clinic;
+  }
+
+  get userMembership() {
+    return (this.inner as PrismaClient).userMembership;
+  }
+
+  get invitation() {
+    return (this.inner as PrismaClient).invitation;
+  }
+
+  get auditLog() {
+    return (this.inner as PrismaClient).auditLog;
+  }
+
+  /** Run several operations in one transaction (used by registration and audit). */
+  $transaction<T>(
+    fn: (
+      tx: Omit<PrismaClient, '$connect' | '$disconnect' | '$on' | '$transaction' | '$extends'>,
+    ) => Promise<T>,
+  ): Promise<T> {
+    return (this.inner as PrismaClient).$transaction(fn);
+  }
+
   $queryRawUnsafe(query: string) {
     return this.inner.$queryRawUnsafe(query);
   }

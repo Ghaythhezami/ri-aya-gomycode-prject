@@ -54,30 +54,68 @@ async function seed() {
     throw error;
   }
 
+  // Tenancy baseline: every dev user becomes a member of this organization and
+  // clinic, so the existing logins keep working after role moved off `users`
+  // (T2.3/T2.4). Idempotent: re-running reuses the same rows.
+  const organization = await prisma.organization.upsert({
+    where: { slug: 'riaya-demo' },
+    update: {},
+    create: { name: "RI'AYA Demo Organization", slug: 'riaya-demo' },
+  });
+
+  const clinic = await prisma.clinic.upsert({
+    where: { id: '00000000-0000-4000-8000-000000000001' },
+    update: {},
+    create: {
+      id: '00000000-0000-4000-8000-000000000001',
+      organizationId: organization.id,
+      name: 'Central Clinic',
+      timezone: 'UTC',
+      currency: 'USD',
+      address: '1 Demo Street',
+    },
+  });
+
   for (const item of DEV_USERS) {
     const existing = await prisma.user.findUnique({ where: { email: item.email } });
+    const user =
+      existing ??
+      (await prisma.user.create({
+        data: {
+          email: item.email,
+          passwordHash: await argon2.hash(item.password),
+          firstName: item.firstName,
+          lastName: item.lastName,
+          preferredLocale: 'en',
+          isActive: true,
+        },
+      }));
+
     if (existing) {
       console.log(`skip ${item.email} (exists)`);
-      continue;
+    } else {
+      console.log(`created ${item.role} ${item.email}`);
     }
-    await prisma.user.create({
-      data: {
-        email: item.email,
-        passwordHash: await argon2.hash(item.password),
-        firstName: item.firstName,
-        lastName: item.lastName,
+
+    // Membership carries the clinic-scoped role (FR-001, FR-028).
+    await prisma.userMembership.upsert({
+      where: { userId_clinicId: { userId: user.id, clinicId: clinic.id } },
+      update: { role: item.role, status: 'ACTIVE' },
+      create: {
+        userId: user.id,
+        organizationId: organization.id,
+        clinicId: clinic.id,
         role: item.role,
-        preferredLocale: 'en',
-        isActive: true,
+        status: 'ACTIVE',
       },
     });
-    console.log(`created ${item.role} ${item.email}`);
   }
 
   console.log('\nDev accounts (local only):');
   for (const item of DEV_USERS) {
     console.log(`  ${item.role.padEnd(14)} ${item.email} / ${item.password}`);
   }
+  console.log(`\nWorkspace: ${organization.name} / ${clinic.name} (${clinic.id})`);
 
   await prisma.$disconnect();
 }

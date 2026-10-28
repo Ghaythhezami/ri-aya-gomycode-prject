@@ -8,7 +8,12 @@ export interface UserRecord {
   passwordHash: string;
   firstName: string;
   lastName: string;
-  role: UserRole;
+  /**
+   * @deprecated Clinic-scoped role now lives on UserMembership.role (FR-002).
+   * Nullable because the column is being retired; read the active membership
+   * instead of this field.
+   */
+  role: UserRole | null;
   isActive: boolean;
   preferredLocale: PreferredLocale;
   lastLoginAt: Date | null;
