@@ -16,12 +16,6 @@ export const apiSlice = createApi({
     login: builder.mutation<AuthResponse, { email: string; password: string }>({
       query: (body) => ({ url: '/api/auth/login', method: 'POST', body }),
     }),
-    signup: builder.mutation<
-      { success: boolean; message: string },
-      { email: string; password: string; firstName: string; lastName: string }
-    >({
-      query: (body) => ({ url: '/api/auth/signup', method: 'POST', body }),
-    }),
     logout: builder.mutation<{ success: boolean }, void>({
       query: () => ({ url: '/api/auth/logout', method: 'POST' }),
     }),
@@ -39,7 +33,6 @@ export const apiSlice = createApi({
 
 export const {
   useLoginMutation,
-  useSignupMutation,
   useLogoutMutation,
   useRefreshMutation,
   useForgotPasswordMutation,
