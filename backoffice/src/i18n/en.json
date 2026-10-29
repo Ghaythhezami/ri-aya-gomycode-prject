@@ -110,7 +110,7 @@
     "firstName": "First name",
     "lastName": "Last name",
     "organizationName": "Organization name",
-    "clinicName": "Clinic name",
+    "clinicName": "Clinic name (Workspace)",
     "back": "Back",
     "next": "Next",
     "create": "Create account",
