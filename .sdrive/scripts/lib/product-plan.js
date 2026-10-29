@@ -148,7 +148,14 @@ function parseBacklog(markdown) {
 //   "BP-002 to BP-003"       -> ids ["BP-002", "BP-003"]
 function parseDependencyCell(raw) {
   const text = String(raw == null ? '' : raw).trim();
-  if (!text || /^[-—–]+$/.test(text)) return { ids: [], external: [] };
+
+  // A markdown table uses a dash — frequently mojibake'd on its way through an
+  // editor ("â€"", "ãâ‚¬â€œ") — to mean "no dependencies", as do n/a and none.
+  // Compare on letters and digits only, so every dash encoding is equivalent.
+  const meaningful = text.replace(/[^A-Za-z0-9]/g, '');
+  if (!meaningful || /^(na|none|nil|tbd)$/i.test(meaningful)) {
+    return { ids: [], external: [] };
+  }
 
   const ids = [];
   const external = [];
