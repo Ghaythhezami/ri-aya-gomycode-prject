@@ -5,7 +5,6 @@ import { RedisCacheService } from '../cache/redis-cache.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
 import type { UserRecord } from './user.types';
-import { UserRole } from './user-role.enum';
 
 @Injectable()
 export class UsersService {
@@ -56,41 +55,6 @@ export class UsersService {
         role: dto.role,
         preferredLocale: dto.preferredLocale ?? 'en',
         isActive: true,
-      },
-    });
-  }
-
-  async createSignup(dto: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    preferredLocale?: 'en' | 'ar' | 'fr';
-  }) {
-    if (!isStrongPassword(dto.password)) {
-      throw new BadRequestException({
-        code: 'WEAK_PASSWORD',
-        message: PASSWORD_POLICY_MESSAGE,
-      });
-    }
-    const existing = await this.prisma.user.findUnique({
-      where: { email: dto.email.toLowerCase() },
-    });
-    if (existing) {
-      throw new ConflictException({
-        code: 'EMAIL_TAKEN',
-        message: 'A user with this email already exists',
-      });
-    }
-    return this.prisma.user.create({
-      data: {
-        email: dto.email.toLowerCase(),
-        passwordHash: await argon2.hash(dto.password),
-        firstName: dto.firstName,
-        lastName: dto.lastName,
-        role: UserRole.RECEPTIONIST,
-        preferredLocale: dto.preferredLocale ?? 'en',
-        isActive: false,
       },
     });
   }

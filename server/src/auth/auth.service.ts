@@ -59,20 +59,6 @@ export class AuthService {
     return Boolean(user.lockedUntil && user.lockedUntil.getTime() > Date.now());
   }
 
-  async signup(dto: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    preferredLocale?: 'en' | 'ar' | 'fr';
-  }) {
-    await this.users.createSignup(dto);
-    return {
-      success: true,
-      message: 'Account created. A clinic admin must activate it before you can sign in.',
-    };
-  }
-
   async login(
     email: string,
     password: string,
