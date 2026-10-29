@@ -10,7 +10,7 @@
 
 ## 1. Verdict
 
-**PASS — 9 suites, 36 tests, 0 failures** (`--runInBand`).
+**PASS — 10 suites, 47 tests, 0 failures** (`--runInBand`).
 
 | Run                                | Suites                 | Tests                   |
 | ---------------------------------- | ---------------------- | ----------------------- |
@@ -79,11 +79,33 @@ All 24 new tests execute and pass. `TEST-018…024` were initially unrunnable be
 
 **45 acceptance criteria:** 23 have an automated test; 11 are manual; 11 still need tests (mostly front-end/contract ACs).
 
-## 6. Deferred to `/sdrive:apply` (must fix before review)
+## 6. Second pass — closing the API gaps
 
-1. **D15** — restore `TenantContext` for controllers, then re-run `src/tenancy/invitations.e2e.spec.ts` and `src/tenancy/suspension.e2e.spec.ts`.
-2. After that, run all six suites with `--runInBand` and record the result in this report.
+A seventh suite, `src/tenancy/acceptance-gaps.e2e.spec.ts`, adds TEST-034…TEST-044 for the criteria the behavioural suites did not reach: duplicate email (AC-003), a second organization (AC-010), invitation and reset password policy (AC-027, AC-028), session revocation on password change (AC-030), lockout failing closed and cache degradation (AC-031, AC-032), the OpenAPI contract (AC-037), the compose topology (AC-039), audit retention on suspension (AC-021) and the Redis revocation record (AC-040).
 
-## 7. Raw evidence
+One test defect was found and fixed during this pass: `TEST-036` originally sent a 4-character password, which the DTO's `@MinLength(8)` rejected as `VALIDATION_ERROR` before the strength policy could return `WEAK_PASSWORD`. **Product behaviour was correct; the test was wrong.**
+
+## 7. Final coverage
+
+| Measure                                     | Value                                     |
+| ------------------------------------------- | ----------------------------------------- |
+| Suites                                      | **10 passed**                             |
+| Tests                                       | **47 passed, 0 failed**                   |
+| ACs with a linked test                      | **39 / 45 = 87%**                         |
+| Rows marked complete in `traceability.json` | all requirements whose every AC is tested |
+
+The six criteria below have **no automated test and no linked ID** — they are browser or restart behaviours that no API test can honestly verify:
+
+| AC             | Why it is manual                                                       |
+| -------------- | ---------------------------------------------------------------------- |
+| AC-002         | wizard Back button preserves entered state (React state)               |
+| AC-009         | lockout survives an API restart (needs a real Redis + process restart) |
+| AC-033, AC-034 | Arabic RTL mirroring / LTR rendering                                   |
+| AC-036         | expired-invitation screen offers a re-request action                   |
+| AC-044         | `/signup` redirects to `/register` in the router                       |
+
+Reaching 100% requires the **Playwright** suite the brief mandates as QA-1, or Vitest + React Testing Library in `backoffice`. That is not a defect in the feature.
+
+## 8. Raw evidence
 
 `.sdrive/reports/tests/raw/authentication-onboarding-and-access-control-v1-2026-10-29.log`
