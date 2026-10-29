@@ -106,6 +106,9 @@ const CODE_EXTENSIONS = [
   '.css',
   '.scss',
   '.json',
+  '.prisma',
+  '.yml',
+  '.yaml',
 ];
 
 // Config files that are never feature components, even though they are JSON.
@@ -223,6 +226,17 @@ function detectComponents(files) {
       });
     }
 
+    // Exported symbols are legitimate plan targets outside a components/ folder
+    // too: NestJS services, guards and passport strategies are named that way
+    // ("RolesGuard", "JwtStrategy", "RedisCacheService").
+    const symbolMatches = content.matchAll(
+      /export\s+(?:default\s+)?(?:abstract\s+)?(?:class|function|const)\s+([A-Z][A-Za-z0-9_]*)/g,
+    );
+
+    for (const symbol of symbolMatches) {
+      components.push({ name: symbol[1], file: relative, basename, isPath: false });
+    }
+
     // Every source file is also a valid "component" target when the plan
     // references it by path (e.g. "components/home/hero.tsx"). Plans commonly
     // name files rather than exported symbols, so record the path too.
@@ -232,6 +246,19 @@ function detectComponents(files) {
       basename,
       isPath: true,
     });
+
+    // Plans name NestJS-style modules by human label ("auth module"), which is
+    // the folder directly under src/. Record each such ancestor directory so
+    // those labels resolve instead of being reported as renamed.
+    const segments = relative.split('/');
+    const srcIndex = segments.lastIndexOf('src');
+    const dirSegments = srcIndex >= 0 ? segments.slice(srcIndex + 1, -1) : [];
+
+    if (dirSegments.length > 0) {
+      const dir = dirSegments[dirSegments.length - 1];
+      components.push({ name: dir, file: relative, basename, isPath: true });
+      components.push({ name: `${dir} module`, file: relative, basename, isPath: true });
+    }
   });
 
   return components;
@@ -268,6 +295,28 @@ function detectEndpoints(files) {
         path: match[2],
         file: relative,
       });
+    }
+
+    // NestJS controllers. The class decorator supplies the prefix and each method
+    // decorator supplies the sub-path. The plan records fully prefixed paths, so
+    // emit both the bare form and the /api-prefixed form the API actually serves.
+    const controllerPrefix = /@Controller\(\s*['"`]([^'"`]*)['"`]\s*\)/.exec(content);
+    const nestMatches = content.matchAll(
+      /@(Get|Post|Put|Patch|Delete)\(\s*(?:['"`]([^'"`]*)['"`])?\s*\)/g,
+    );
+
+    for (const match of nestMatches) {
+      const method = match[1].toUpperCase();
+      const subPath = match[2] ?? '';
+      const base = controllerPrefix ? controllerPrefix[1] : '';
+      const joined = [base, subPath].filter(Boolean).join('/');
+      const bare = joined ? `/${joined}` : '/';
+
+      endpoints.push({ method, path: bare, file: relative });
+
+      if (!bare.startsWith('/api')) {
+        endpoints.push({ method, path: `/api${bare === '/' ? '' : bare}`, file: relative });
+      }
     }
 
     // Next.js API routes
@@ -418,16 +467,37 @@ const VIRTUAL_DEPENDENCIES = new Set([
 ]);
 
 function detectDependencies() {
-  const pkgPath = path.join(projectRoot, 'package.json');
-
-  if (!fs.existsSync(pkgPath)) return [];
+  // A pnpm monorepo keeps runtime dependencies in its workspace packages, not in
+  // the root manifest, so read every package.json outside node_modules.
+  const manifests = [path.join(projectRoot, 'package.json')];
 
   try {
-    const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
-    return [...Object.keys(pkg.dependencies || {}), ...Object.keys(pkg.devDependencies || {})];
+    for (const entry of fs.readdirSync(projectRoot, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (IGNORED_DIRS.has(entry.name)) continue;
+
+      const nested = path.join(projectRoot, entry.name, 'package.json');
+      if (fs.existsSync(nested)) manifests.push(nested);
+    }
   } catch (error) {
-    return [];
+    // An unreadable root must not abort dependency detection.
   }
+
+  const names = new Set();
+
+  for (const manifest of manifests) {
+    if (!fs.existsSync(manifest)) continue;
+
+    try {
+      const pkg = JSON.parse(fs.readFileSync(manifest, 'utf8'));
+      Object.keys(pkg.dependencies || {}).forEach((name) => names.add(name));
+      Object.keys(pkg.devDependencies || {}).forEach((name) => names.add(name));
+    } catch (error) {
+      // A malformed manifest must not abort verification of the rest.
+    }
+  }
+
+  return [...names];
 }
 
 function diffPlanAgainstCode(planItems, code) {
@@ -453,8 +523,31 @@ function diffPlanAgainstCode(planItems, code) {
   // A plan item matches a code component when the names are equal, when the
   // plan names the file path directly, or when the plan uses a brace glob that
   // expands to the file path.
+  // Labels differ from identifiers only by punctuation and casing ("JWT strategy"
+  // vs "jwt.strategy"), so compare on a normalised form as well.
+  const normalize = (value) =>
+    String(value)
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, '');
+
   const componentMatches = (item, c) => {
     if (c.name === item.name || c.file === item.name) return true;
+    // Plans often name a file by its basename ("auth.controller.ts") rather than
+    // by the repo-relative path.
+    if (c.basename && item.name === c.basename) return true;
+    if (c.file && c.file.endsWith(`/${item.name}`)) return true;
+
+    const wanted = normalize(item.name);
+    const found = normalize(c.name);
+
+    if (wanted.length >= 4 && found.length >= 4) {
+      if (wanted === found) return true;
+      // "tenant context provider" ~ "TenantContext"; 8 chars avoids matching
+      // short unrelated words like "user" against "users".
+      if (wanted.length >= 8 && found.length >= 8) {
+        if (wanted.startsWith(found) || found.startsWith(wanted)) return true;
+      }
+    }
     if (item.name.includes('{')) {
       return expandBraces(item.name).some((p) => p === c.file || p === c.name);
     }

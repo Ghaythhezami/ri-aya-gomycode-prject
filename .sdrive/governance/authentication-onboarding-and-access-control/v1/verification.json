@@ -1,588 +1,673 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "status": "fail",
-  "checkedAt": "2026-10-29T01:30:11.267Z",
+  "checkedAt": "2026-10-29T09:42:39.902Z",
   "summary": {
-    "matched": 0,
-    "missing": 97,
-    "renamed": 8,
-    "extra": 0
+    "matched": 94,
+    "missing": 8,
+    "renamed": 3,
+    "extra": 20
   },
   "items": {
-    "matched": [],
-    "missing": [
+    "matched": [
       {
         "type": "component",
         "name": "auth module",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "tenancy module",
+        "action": "create",
+        "file": "server/src/tenancy/invitations.e2e.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "audit module",
+        "action": "create",
+        "file": "server/src/audit/audit-trail.e2e.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "tenant context provider",
+        "action": "create",
+        "file": "server/src/tenancy/tenant-context.ts"
+      },
+      {
+        "type": "component",
+        "name": "RedisCacheService",
+        "action": "modify",
+        "file": "server/src/cache/redis-cache.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "RolesGuard",
+        "action": "modify",
+        "file": "server/src/common/guards/roles.guard.ts"
       },
       {
         "type": "component",
         "name": "JWT strategy",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/jwt.strategy.ts"
       },
       {
         "type": "component",
         "name": "mail module",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": "backoffice auth pages",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": "i18n catalogues",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": "docker-compose",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/mail/mail.module.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/register",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/tenancy/tenancy.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/login",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/refresh",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/logout",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "GET",
         "path": "/api/auth/me",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/change-password",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/forgot-password",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/reset-password",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/switch-workspace",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "GET",
         "path": "/api/auth/memberships",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/accept-invite",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/tenancy/tenancy.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/organizations",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/tenancy/tenancy.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/invitations",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/tenancy/tenancy.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "GET",
         "path": "/api/invitations",
-        "action": "create"
-      },
-      {
-        "type": "endpoint",
-        "method": "GET",
-        "path": "/api/users",
-        "action": "create"
-      },
-      {
-        "type": "endpoint",
-        "method": "PATCH",
-        "path": "/api/memberships/:id",
-        "action": "create"
+        "action": "create",
+        "file": "server/src/tenancy/tenancy.controller.ts"
       },
       {
         "type": "endpoint",
         "method": "POST",
         "path": "/api/auth/signup",
-        "action": "modify"
+        "action": "modify",
+        "file": "server/src/auth/auth.controller.ts"
       },
       {
         "type": "entity",
         "name": "User",
-        "action": "update"
+        "action": "update",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "email",
         "fieldType": "String",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "passwordHash",
         "fieldType": "String",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "firstName",
         "fieldType": "String",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "lastName",
         "fieldType": "String",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "preferredLocale",
         "fieldType": "PreferredLocale",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "isActive",
         "fieldType": "Boolean",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "role",
         "fieldType": "UserRole",
-        "action": "remove"
+        "action": "remove",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "lastLoginAt",
         "fieldType": "DateTime",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "failedLoginCount",
         "fieldType": "Int",
-        "action": "remove"
+        "action": "remove",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "failedLoginWindowStart",
         "fieldType": "DateTime",
-        "action": "remove"
+        "action": "remove",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "lockedUntil",
         "fieldType": "DateTime",
-        "action": "remove"
+        "action": "remove",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "User",
         "name": "memberships",
         "fieldType": "UserMembership[]",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "entity",
         "name": "Organization",
-        "action": "create"
+        "action": "create",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "id",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "name",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "slug",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "createdAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "updatedAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "clinics",
         "fieldType": "Clinic[]",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Organization",
         "name": "memberships",
         "fieldType": "UserMembership[]",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "entity",
         "name": "Clinic",
-        "action": "create"
+        "action": "create",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "id",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "organizationId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "name",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "timezone",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "currency",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "address",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "createdAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Clinic",
         "name": "updatedAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "entity",
         "name": "UserMembership",
-        "action": "create"
+        "action": "create",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "id",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "userId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "organizationId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "clinicId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "role",
         "fieldType": "UserRole",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "status",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "createdAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "UserMembership",
         "name": "updatedAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "entity",
         "name": "Invitation",
-        "action": "create"
+        "action": "create",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "id",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "email",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "clinicId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "role",
         "fieldType": "UserRole",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "tokenHash",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "expiresAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "consumedAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "invitedById",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "Invitation",
         "name": "createdAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "entity",
         "name": "AuditLog",
-        "action": "create"
+        "action": "create",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "id",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "actorUserId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "action",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "entity",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "entityId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "before",
         "fieldType": "Json",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "after",
         "fieldType": "Json",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "organizationId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "clinicId",
         "fieldType": "String",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "AuditLog",
         "name": "createdAt",
         "fieldType": "DateTime",
-        "action": "add"
+        "action": "add",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "entity",
         "name": "RefreshToken",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "RefreshToken",
         "name": "tokenHash",
         "fieldType": "String",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "RefreshToken",
         "name": "familyId",
         "fieldType": "String",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "RefreshToken",
         "name": "expiresAt",
         "fieldType": "DateTime",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "field",
         "entity": "RefreshToken",
         "name": "revokedAt",
         "fieldType": "DateTime",
-        "action": "no_change"
+        "action": "no_change",
+        "file": "server/prisma/schema.prisma"
       },
       {
         "type": "dependency",
@@ -611,13 +696,42 @@
       },
       {
         "type": "dependency",
-        "name": "redis",
-        "action": "add"
+        "name": "@nestjs/swagger",
+        "action": "no_change"
+      }
+    ],
+    "missing": [
+      {
+        "type": "component",
+        "name": "backoffice auth pages",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "i18n catalogues",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "docker-compose",
+        "action": "modify"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/users",
+        "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id",
+        "action": "create"
       },
       {
         "type": "dependency",
-        "name": "@nestjs/swagger",
-        "action": "no_change"
+        "name": "redis",
+        "action": "add"
       },
       {
         "type": "dependency",
@@ -633,61 +747,147 @@
     "renamed": [
       {
         "type": "component",
-        "name": "tenancy module",
-        "action": "create",
-        "to": "server/src/tenancy/dto/invitation.dto.ts",
-        "file": "server/src/tenancy/dto/invitation.dto.ts"
-      },
-      {
-        "type": "component",
-        "name": "audit module",
-        "action": "create",
-        "to": "server/src/audit/audit.module.ts",
-        "file": "server/src/audit/audit.module.ts"
-      },
-      {
-        "type": "component",
-        "name": "tenant context provider",
-        "action": "create",
-        "to": "server/src/tenancy/dto/invitation.dto.ts",
-        "file": "server/src/tenancy/dto/invitation.dto.ts"
-      },
-      {
-        "type": "component",
-        "name": "RedisCacheService",
-        "action": "modify",
-        "to": "server/src/cache/redis-cache.module.ts",
-        "file": "server/src/cache/redis-cache.module.ts"
-      },
-      {
-        "type": "component",
         "name": "token blacklist store",
         "action": "create",
-        "to": "server/src/auth/entities/password-reset-token.entity.ts",
+        "to": "PasswordResetToken",
         "file": "server/src/auth/entities/password-reset-token.entity.ts"
       },
       {
         "type": "component",
         "name": "login attempt store",
         "action": "create",
-        "to": "server/src/auth/dto/login.dto.ts",
+        "to": "LoginDto",
         "file": "server/src/auth/dto/login.dto.ts"
-      },
-      {
-        "type": "component",
-        "name": "RolesGuard",
-        "action": "modify",
-        "to": "server/src/common/decorators/roles.decorator.ts",
-        "file": "server/src/common/decorators/roles.decorator.ts"
       },
       {
         "type": "component",
         "name": "registration entry points",
         "action": "modify",
-        "to": "server/src/tenancy/dto/register.dto.ts",
+        "to": "RegisterDto",
         "file": "server/src/tenancy/dto/register.dto.ts"
       }
     ],
-    "extra": []
+    "extra": [
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/signup",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/login",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/refresh",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/logout",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/auth/me",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/auth/memberships",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/switch-workspace",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/change-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/forgot-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/reset-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/health",
+        "file": "server/src/health/health.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/health",
+        "file": "server/src/health/health.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/register",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/accept-invite",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/organizations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/memberships/:id/suspend",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id/suspend",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/users",
+        "file": "server/src/users/users.controller.ts"
+      }
+    ]
   }
 }
