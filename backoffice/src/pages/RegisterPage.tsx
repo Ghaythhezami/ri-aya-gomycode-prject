@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useAuth } from '../auth/AuthContext';
+import { markFirstRun } from '../lib/firstRun';
 import { Button } from '../common/Button';
 import { Field, Input } from '../common/Input';
 
@@ -62,6 +63,8 @@ export function RegisterPage() {
     setError(null);
     try {
       await api.post('/api/auth/register', form);
+      // Mark the session so the new workspace opens with a first-run state (T7.5).
+      markFirstRun();
     } catch (err) {
       const code = (err as { response?: { data?: { code?: string } } }).response?.data?.code;
       if (code === 'EMAIL_TAKEN') {
