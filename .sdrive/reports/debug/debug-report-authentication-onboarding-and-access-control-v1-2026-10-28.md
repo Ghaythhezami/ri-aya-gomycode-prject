@@ -366,3 +366,47 @@ BACKOFFICE_TSC_EXIT=0
 - **Fix (client):** added a `me` query to the RTK slice and made `AuthContext` refine both the login and mount-refresh payloads with `/auth/me`, so the UI never trusts the credential payload for the role. Files: `backoffice/src/store/api.ts`, `backoffice/src/auth/AuthContext.tsx`.
 - **Rejected alternative:** backfilling `users.role` at registration — it would re-introduce an identity-level role, which FR-002 and CON-512 forbid.
 - **Verification:** `npx tsc --noEmit` (server) **passed**. Backoffice `tsc`/`eslint` and a live login **were not run** — the session terminal stopped completing commands. No tests were run; that belongs to `/sdrive:test`.
+
+---
+
+## Addendum — D14: `docker compose` Postgres is silently unreachable (2026-10-29)
+
+- **Symptom:** hours were lost to the contradiction "the seed says the user exists, `psql` says 0 rows". The app also appeared to log in successfully against an "empty" database.
+- **Root cause:** a **native Windows PostgreSQL 17.4** already owns host port `5432` (`Get-NetTCPConnection` reports the owner as `postgres`, not `com.docker.backend`). Docker's published `0.0.0.0:5432->5432` therefore never reaches the container, but the container still reports **healthy** because its healthcheck runs inside its own network namespace. The API connects to the native PG; `docker exec riaya-postgres psql` connects to the container's isolated PG 16.
+- **Evidence:**
+
+  | Probe                                      | Result                                                                                 |
+  | ------------------------------------------ | -------------------------------------------------------------------------------------- |
+  | Container DB `riaya`                       | `users = 0`, `user_memberships = 0`, `organizations = 0`                               |
+  | Same query via `host.docker.internal:5432` | `users = 5`, `PostgreSQL 17.4 on x86_64-windows`                                       |
+  | Login as `admin@riaya.local`               | succeeded, returned user id `825ead6d-…`, which does **not** exist in the container DB |
+  | Owner of port 5432                         | `postgres` (native), while `docker ps` claims the mapping                              |
+
+- **Impact:**
+  1. `docker compose up` does **not** provide the database the application uses, so FND-1's "clean clone in under 5 minutes" acceptance criterion cannot pass on a machine with an existing PostgreSQL.
+  2. Development runs on **PostgreSQL 17**, while the brief mandates **PostgreSQL 16** — a silent version deviation.
+  3. Seed/migration results appear not to apply, because they land in a different database than the one being inspected.
+- **Not fixed here** — this belongs to **BP-001 (FND-1)**, whose scope already covers `docker-compose`. Recommended additions to that scope: use a non-colliding host port (e.g. `5433:5432`) or fail loudly when a published port cannot be bound; pin the image to PostgreSQL 16; and document the host-port strategy in the README/ADR.
+
+---
+
+## Addendum — D15: `TenantContext` is empty inside controllers (P0 regression, found by tests)
+
+- **Symptom:** `POST /api/invitations` and `PATCH /api/memberships/:id/suspend` return **500**, while the same routes pass authentication.
+- **Exact error (captured by the new invitation suite):**
+
+  ```
+  Error: Tenant scope is not set: this route is not authenticated
+      at TenantContext.get (tenant-context.ts:41:13)
+      at TenancyController.invite (tenancy.controller.ts:72:31)
+  ```
+
+- **Root cause:** this is a regression from the **D8 fix**. To stop the request-scoped provider from making `JwtStrategy` request-scoped, `TenantContext` was reimplemented on `AsyncLocalStorage` and populated from `JwtStrategy.validate` via `enterWith()`. `enterWith()` sets the store for the strategy's own async execution, **but Nest continues the request in a different async context**, so `getStore()` returns `undefined` in the controller.
+- **Why it was not caught earlier:** before D8 the request-scoped provider did propagate, so the endpoints worked; after D8 passport worked but no existing test exercised `TenantContext`. The new invitation suite is the first test to touch it.
+- **Blast radius:** every endpoint that reads `TenantContext` — `POST /invitations`, `GET /invitations`, `PATCH /memberships/:id/suspend` (and any future clinic-scoped endpoint).
+- **Recommended fix (Implementation/Debug agent, not the Test agent):** establish the ALS frame once per request and mutate it later, rather than `enterWith` inside the strategy:
+  1. `TenantContext` stores a mutable holder — `AsyncLocalStorage<{ scope: TenantScope | null }>`.
+  2. A Nest middleware calls `storage.run({ scope: null }, next)` for every route, so the whole downstream chain shares one frame.
+  3. `set()` mutates `storage.getStore().scope`; `JwtStrategy.validate` keeps calling `set()`. Mutation on the shared holder is visible to the handler regardless of async boundaries.
+  4. Alternative: populate the context from `JwtAuthGuard.canActivate` (which runs in the router's execution context) instead of from the strategy.
+- **Status:** reproduced by tests, **not fixed** — the Test agent is forbidden from modifying production code.

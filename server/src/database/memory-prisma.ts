@@ -130,7 +130,7 @@ export class MemoryPrisma {
         passwordHash: data.passwordHash,
         firstName: data.firstName ?? '',
         lastName: data.lastName ?? '',
-        role: (data.role as UserRole) ?? UserRole.RECEPTIONIST,
+        role: (data.role as UserRole) ?? null,
         isActive: data.isActive ?? true,
         preferredLocale: (data.preferredLocale as PreferredLocale) ?? 'en',
         lastLoginAt: data.lastLoginAt ?? null,
@@ -442,6 +442,22 @@ export class MemoryPrisma {
       };
       this.auditLogs.set(row.id, row);
       return row;
+    },
+    findMany: async ({
+      where,
+      orderBy,
+    }: {
+      where?: { entity?: string; entityId?: string; actorUserId?: string; clinicId?: string };
+      orderBy?: { createdAt: 'asc' | 'desc' };
+    } = {}) => {
+      const matches = [...this.auditLogs.values()].filter((row) => {
+        if (where?.entity && row.entity !== where.entity) return false;
+        if (where?.entityId && row.entityId !== where.entityId) return false;
+        if (where?.actorUserId && row.actorUserId !== where.actorUserId) return false;
+        if (where?.clinicId && row.clinicId !== where.clinicId) return false;
+        return true;
+      });
+      return this.sortByCreatedAt(matches, orderBy);
     },
   };
 
