@@ -44,7 +44,7 @@ function extractPlanItems(plan) {
   });
 
   (plan.dependencies || []).forEach((dep) => {
-    items.push({ type: 'dependency', name: dep.name, action: dep.action });
+    items.push({ type: 'dependency', name: dep.name, action: dep.action, depType: dep.type });
   });
 
   return items;
@@ -148,10 +148,27 @@ function detectSourceRoots() {
   const fromConstitution = readConstitutionSources();
   const detected = CANDIDATE_ROOTS.filter((r) => fs.existsSync(path.join(projectRoot, r)));
 
+  // Every workspace package is a source root in a monorepo. Without this a plan
+  // that names back-office or public-site components can never be verified,
+  // because only the server package would ever be scanned.
+  const workspacePackages = [];
+
+  try {
+    for (const entry of fs.readdirSync(projectRoot, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (IGNORED_DIRS.has(entry.name)) continue;
+
+      if (fs.existsSync(path.join(projectRoot, entry.name, 'package.json'))) {
+        workspacePackages.push(entry.name);
+      }
+    }
+  } catch (error) {
+    // An unreadable root must not abort root detection.
+  }
+
   // Union the constitution's declared roots with the conventional roots that
-  // actually exist. Relying on the constitution alone misses real source
-  // folders (e.g. lib/, messages/) that the document simply did not list.
-  const roots = [...new Set([...fromConstitution, ...detected])];
+  // actually exist and the workspace packages.
+  const roots = [...new Set([...fromConstitution, ...detected, ...workspacePackages])];
 
   return roots.filter((r) => fs.existsSync(path.join(projectRoot, r)));
 }
@@ -189,6 +206,20 @@ function scanCode() {
   roots.forEach((root) => {
     walkDirectory(path.join(projectRoot, root), files);
   });
+
+  // Repository-level files (docker-compose.yml, Dockerfile, ...) live in no
+  // package root, yet plans name them as components.
+  try {
+    for (const entry of fs.readdirSync(projectRoot, { withFileTypes: true })) {
+      if (!entry.isFile()) continue;
+      if (IGNORED_FILES.has(entry.name)) continue;
+      if (!CODE_EXTENSIONS.some((ext) => entry.name.endsWith(ext))) continue;
+
+      files.push(path.join(projectRoot, entry.name));
+    }
+  } catch (error) {
+    // An unreadable root must not abort scanning.
+  }
 
   console.log(`📄 Found ${files.length} source files.\n`);
 
@@ -536,6 +567,8 @@ function diffPlanAgainstCode(planItems, code) {
     // by the repo-relative path.
     if (c.basename && item.name === c.basename) return true;
     if (c.file && c.file.endsWith(`/${item.name}`)) return true;
+    // A plan may name a directory ("backoffice/src/pages") rather than a file.
+    if (c.file && c.file.startsWith(`${item.name}/`)) return true;
 
     const wanted = normalize(item.name);
     const found = normalize(c.name);
@@ -546,6 +579,18 @@ function diffPlanAgainstCode(planItems, code) {
       // short unrelated words like "user" against "users".
       if (wanted.length >= 8 && found.length >= 8) {
         if (wanted.startsWith(found) || found.startsWith(wanted)) return true;
+
+        // A label and an identifier rarely share a whole suffix ("token blacklist
+        // store" vs "TokenBlacklistService"), but they share a long prefix.
+        let common = 0;
+        while (
+          common < wanted.length &&
+          common < found.length &&
+          wanted[common] === found[common]
+        ) {
+          common += 1;
+        }
+        if (common >= 8) return true;
       }
     }
     if (item.name.includes('{')) {
@@ -607,7 +652,16 @@ function diffPlanAgainstCode(planItems, code) {
     }
 
     if (item.type === 'dependency') {
-      if (
+      // Only PACKAGE dependencies can be proven from a manifest. A service
+      // ("redis") or an internal module ("mail module", "RedisCacheService") is
+      // recorded in plan.json for planning context and must not be reported as a
+      // missing package.
+      const depType = String(item.depType || 'library').toLowerCase();
+      const requiresPackage = depType === 'library' || depType === 'package';
+
+      if (!requiresPackage) {
+        matched.push(item);
+      } else if (
         codeDependencies.includes(item.name) ||
         VIRTUAL_DEPENDENCIES.has(item.name.toLowerCase())
       ) {

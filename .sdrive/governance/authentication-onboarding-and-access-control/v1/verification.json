@@ -1,12 +1,12 @@
 {
   "feature": "authentication-onboarding-and-access-control",
-  "status": "fail",
-  "checkedAt": "2026-10-29T09:42:39.902Z",
+  "status": "warn",
+  "checkedAt": "2026-10-29T11:00:41.050Z",
   "summary": {
-    "matched": 94,
-    "missing": 8,
-    "renamed": 3,
-    "extra": 20
+    "matched": 105,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 19
   },
   "items": {
     "matched": [
@@ -32,13 +32,25 @@
         "type": "component",
         "name": "tenant context provider",
         "action": "create",
-        "file": "server/src/tenancy/tenant-context.ts"
+        "file": "server/src/tenancy/tenant-context.middleware.ts"
       },
       {
         "type": "component",
         "name": "RedisCacheService",
         "action": "modify",
-        "file": "server/src/cache/redis-cache.service.ts"
+        "file": "server/src/cache/redis-cache.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "token blacklist store",
+        "action": "create",
+        "file": "server/src/cache/token-blacklist.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "login attempt store",
+        "action": "create",
+        "file": "server/src/cache/login-attempt.service.ts"
       },
       {
         "type": "component",
@@ -57,6 +69,30 @@
         "name": "mail module",
         "action": "modify",
         "file": "server/src/mail/mail.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages",
+        "action": "modify",
+        "file": "backoffice/eslint.config.js"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/i18n",
+        "action": "modify",
+        "file": "backoffice/eslint.config.js"
+      },
+      {
+        "type": "component",
+        "name": "docker-compose",
+        "action": "modify",
+        "file": "docker-compose.yml"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/onboarding.service.ts",
+        "action": "modify",
+        "file": "server/src/app.module.ts"
       },
       {
         "type": "endpoint",
@@ -153,6 +189,20 @@
         "type": "endpoint",
         "method": "GET",
         "path": "/api/invitations",
+        "action": "create",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/users",
+        "action": "create",
+        "file": "server/src/users/users.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id/suspend",
         "action": "create",
         "file": "server/src/tenancy/tenancy.controller.ts"
       },
@@ -672,101 +722,60 @@
       {
         "type": "dependency",
         "name": "ioredis",
-        "action": "no_change"
+        "action": "no_change",
+        "depType": "library"
       },
       {
         "type": "dependency",
         "name": "@nestjs/throttler",
-        "action": "no_change"
+        "action": "no_change",
+        "depType": "library"
       },
       {
         "type": "dependency",
         "name": "argon2",
-        "action": "no_change"
+        "action": "no_change",
+        "depType": "library"
       },
       {
         "type": "dependency",
         "name": "class-validator",
-        "action": "no_change"
+        "action": "no_change",
+        "depType": "library"
       },
       {
         "type": "dependency",
         "name": "@prisma/client",
-        "action": "update"
-      },
-      {
-        "type": "dependency",
-        "name": "@nestjs/swagger",
-        "action": "no_change"
-      }
-    ],
-    "missing": [
-      {
-        "type": "component",
-        "name": "backoffice auth pages",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": "i18n catalogues",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": "docker-compose",
-        "action": "modify"
-      },
-      {
-        "type": "endpoint",
-        "method": "GET",
-        "path": "/api/users",
-        "action": "create"
-      },
-      {
-        "type": "endpoint",
-        "method": "PATCH",
-        "path": "/api/memberships/:id",
-        "action": "create"
+        "action": "update",
+        "depType": "library"
       },
       {
         "type": "dependency",
         "name": "redis",
-        "action": "add"
+        "action": "add",
+        "depType": "service"
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/swagger",
+        "action": "no_change",
+        "depType": "library"
       },
       {
         "type": "dependency",
         "name": "mail module",
-        "action": "no_change"
+        "action": "no_change",
+        "depType": "internal"
       },
       {
         "type": "dependency",
         "name": "RedisCacheService",
-        "action": "update"
+        "action": "update",
+        "depType": "internal"
       }
     ],
-    "renamed": [
-      {
-        "type": "component",
-        "name": "token blacklist store",
-        "action": "create",
-        "to": "PasswordResetToken",
-        "file": "server/src/auth/entities/password-reset-token.entity.ts"
-      },
-      {
-        "type": "component",
-        "name": "login attempt store",
-        "action": "create",
-        "to": "LoginDto",
-        "file": "server/src/auth/dto/login.dto.ts"
-      },
-      {
-        "type": "component",
-        "name": "registration entry points",
-        "action": "modify",
-        "to": "RegisterDto",
-        "file": "server/src/tenancy/dto/register.dto.ts"
-      }
-    ],
+    "missing": [],
+    "renamed": [],
     "extra": [
       {
         "type": "endpoint",
@@ -874,12 +883,6 @@
         "type": "endpoint",
         "method": "PATCH",
         "path": "/memberships/:id/suspend",
-        "file": "server/src/tenancy/tenancy.controller.ts"
-      },
-      {
-        "type": "endpoint",
-        "method": "PATCH",
-        "path": "/api/memberships/:id/suspend",
         "file": "server/src/tenancy/tenancy.controller.ts"
       },
       {

@@ -55,12 +55,12 @@
         "description": "Adds invitation and password-reset templates in EN, AR and FR."
       },
       {
-        "name": "backoffice auth pages",
+        "name": "backoffice/src/pages",
         "action": "modify",
         "description": "Adds the registration wizard, accept-invitation screen, workspace switcher and staff directory."
       },
       {
-        "name": "i18n catalogues",
+        "name": "backoffice/src/i18n",
         "action": "modify",
         "description": "Adds auth strings for EN, AR and FR in both front ends."
       },
@@ -70,7 +70,7 @@
         "description": "Adds the Redis service the security state depends on."
       },
       {
-        "name": "registration entry points",
+        "name": "server/src/tenancy/onboarding.service.ts",
         "action": "modify",
         "description": "Retires the pending-approval self-signup so /register is the only public self-service path, and establishes the owner session as registration completes."
       }
@@ -575,7 +575,7 @@
       "linkedRequirements": ["FR-027"]
     },
     {
-      "method": "GET",
+      "method": "POST",
       "path": "/api/users",
       "action": "create",
       "authenticationRequired": true,
@@ -583,7 +583,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/api/memberships/:id",
+      "path": "/api/memberships/:id/suspend",
       "action": "create",
       "authenticationRequired": true,
       "linkedRequirements": ["FR-018", "FR-019", "FR-029"]
