@@ -90,6 +90,14 @@
     "sample": "Sample data",
     "backHome": "Back to website"
   },
+  "firstRun": {
+    "title": "Your workspace is ready",
+    "body": "You are signed in as the owner. Two good first steps:",
+    "stepInvite": "Invite your staff so they can sign in",
+    "inviteLink": "Open staff",
+    "stepSettings": "Review your clinic details (name, timezone, currency)",
+    "dismiss": "Got it"
+  },
   "register": {
     "title": "Create your clinic",
     "subtitle": "Set up your account, organization and first clinic.",

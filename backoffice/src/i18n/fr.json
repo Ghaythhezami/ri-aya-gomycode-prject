@@ -90,6 +90,14 @@
     "sample": "Données d'exemple",
     "backHome": "Retour au site"
   },
+  "firstRun": {
+    "title": "Votre espace de travail est prêt",
+    "body": "Vous êtes connecté en tant que propriétaire. Deux premiers pas utiles :",
+    "stepInvite": "Invitez votre personnel pour qu'il puisse se connecter",
+    "inviteLink": "Ouvrir le personnel",
+    "stepSettings": "Vérifiez les informations de votre clinique (nom, fuseau horaire, devise)",
+    "dismiss": "Compris"
+  },
   "register": {
     "title": "Créez votre clinique",
     "subtitle": "Configurez votre compte, votre organisation et votre première clinique.",
