@@ -20,6 +20,7 @@ import { LoginAttemptService } from '../cache/login-attempt.service';
 import { TokenBlacklistService } from '../cache/token-blacklist.service';
 import { TenancyService } from '../tenancy/tenancy.service';
 import type { TenantScope } from '../tenancy/tenant-context';
+import type { UserRole } from '../users/user-role.enum';
 
 const RESET_TTL_MS = 30 * 60 * 1000;
 export const REFRESH_COOKIE = 'refresh_token';
@@ -96,7 +97,7 @@ export class AuthService {
     await this.issueRefreshCookie(user, res, meta, randomUUID());
     return {
       accessToken,
-      user: this.publicUser(user),
+      user: this.publicUser(user, scope?.role ?? null),
       scope,
     };
   }
@@ -148,9 +149,13 @@ export class AuthService {
     await this.revokeToken(existing.tokenHash, existing.expiresAt);
     await this.issueRefreshCookie(user, res, meta, existing.familyId);
 
+    // Report the active membership role rather than the deprecated identity
+    // column, so a refreshed session never reports `role: null` (D13).
+    const scope = await this.tenancy.resolveDefaultScope(user.id);
+
     return {
       accessToken: this.signAccess(user),
-      user: this.publicUser(user),
+      user: this.publicUser(user, scope?.role ?? null),
     };
   }
 
@@ -398,13 +403,16 @@ export class AuthService {
     await this.loginAttempts.registerFailure(user.email);
   }
 
-  publicUser(user: UserRecord) {
+  publicUser(user: UserRecord, role?: UserRole | null) {
     return {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: user.role,
+      // The ACTIVE membership's role is authoritative (FR-028). `user.role` is the
+      // deprecated identity column and is NULL for anyone who self-registered, so
+      // relying on it reported `role: null` for every new owner (D13).
+      role: role ?? user.role,
       preferredLocale: user.preferredLocale,
       isActive: user.isActive,
       lastLoginAt: user.lastLoginAt,

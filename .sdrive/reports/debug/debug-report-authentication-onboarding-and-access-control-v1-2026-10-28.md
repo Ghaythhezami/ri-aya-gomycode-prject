@@ -6,7 +6,7 @@
 - **Auditor:** AI Debug Agent
 - **Feature Version:** v1 (`currentVersion` from `.sdrive/workflow-state.json`, phase `ongoing`, gate `implementation: in_progress`)
 - **Overall Status:** **Defects Found — Partially Fixed** (6 of 8 fixed; 2 blocked by the environment)
-- **Defects Found:** 12 — **LAYOUT 0 / API 3 / RUNTIME 5 / GLITCH 4**
+- **Defects Found:** 13 — **LAYOUT 0 / API 3 / RUNTIME 5 / GLITCH 5**
 
 | ID  | Class   | Defect                                                                                                                              | Status                          |
 | --- | ------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------- |
@@ -21,7 +21,7 @@
 | D9  | RUNTIME | Redis client permanently abandoned on the first connection error; login stayed `SECURITY_STATE_UNAVAILABLE` until the API restarted | **Fixed — not re-verified**     |
 | D10 | GLITCH  | The login screen replaced every server error with "Unable to sign in. Try again."                                                   | **Fixed — verified (tsc)**      |
 | D11 | GLITCH  | VS Code ESLint: `No tsconfigRootDir was set, and multiple candidate TSConfigRootDirs` on every backoffice file                      | **Fixed — needs window reload** |
-| D12 | RUNTIME | Login 500: `The column refresh_tokens.clinicId does not exist` — stale generated Prisma client left behind by the ENOSPC failure    | **Reproduced; fix = 1 command** |
+| D12 | RUNTIME | Login 500: `The column refresh_tokens.clinicId does not exist` — stale generated Prisma client left behind by the ENOSPC failure    | **Fixed — client regenerated**  |
 
 ## 2. Reproduction
 
@@ -232,15 +232,9 @@ Get-ChildItem -LiteralPath 'server\prisma' -Force
   ```
 
 - **Verified state:** `refresh_tokens` has 9 columns and no `clinicId`; `issueRefreshCookie` does **not** pass `clinicId`; yet Prisma still references it — confirming the client artifacts, not the source, are wrong.
-- **Why it could not be fixed here:** `npx prisma generate` now fails with `EPERM: operation not permitted, rename '...query_engine-windows.dll.node'` because a running Node process has the query engine loaded, and the session terminal stopped accepting commands before the owning process could be stopped.
-- **Fix (one command, user-run):**
-
-  ```powershell
-  # 1. Stop the API (Ctrl+C in its terminal) so the engine DLL is released
-  cd server
-  npx prisma generate     # regenerates from the current schema (no clinicId)
-  # 2. Start the API again, then sign in
-  ```
+- **Resolution (2026-10-29):** the earlier `prisma generate` failed with `EPERM: operation not permitted, rename '...query_engine-windows.dll.node'` because the running API held the query engine loaded. Stopping the process bound to port 4000 released it, and `npx prisma generate` then **succeeded** — the generated client's `schema.prisma` copy now lists `RefreshToken` with 9 fields and **no `clinicId`**, matching the database.
+- **Not confirmed:** the resulting `201` could not be observed in this session, because Docker Desktop had stopped by then (PostgreSQL and Redis both unreachable) and the API could not be kept running from this session's terminal.
+- **Root fix for the environment:** start Docker Desktop, `docker compose up -d postgres redis`, then restart the API.
 
 - **Fallback used during triage:** `server/fix-column.cjs` adds the nullable `clinicId` column so the stale client works. It is a temporary bridge only — the column then exists in the database but not in `schema.prisma`, which is schema drift. **Prefer `prisma generate`, and if the column was added, drop it afterwards** (`ALTER TABLE refresh_tokens DROP COLUMN "clinicId"`).
 - **Other defects from the same cause:** the earlier `ENOSPC` also blocked the D3 migration and the D5 column, so one full disk produced three separate symptoms long after space was freed.
@@ -349,3 +343,26 @@ BACKOFFICE_TSC_EXIT=0
 4. **Then run `/sdrive:test`** to author acceptance tests for all 40 ACs, allocate the `TEST-###` IDs, and update `traceability.json` for the affected rows.
 5. **Still-open follow-ups recorded by the implementation report:** drop the deprecated `User.role` column, drop the now-unread Postgres lockout columns, and remove the dead TypeORM leftovers.
 6. **Reviewer note:** the four unversioned `/api/auth/*` routes are retained deliberately (FR-026), so the coexistence of `SignupPage` (pending-approval) and the new `/register` wizard is by design, not a duplicate-UI defect.
+
+---
+
+## Addendum — D13: onboarded owners were not reported as SUPER_ADMIN (2026-10-29)
+
+- **Symptom as reported:** "users after onboarding are not registered as SUPER_ADMIN."
+- **Root cause:** `login()` and `refresh()` built their response from the **retired `users.role` column** instead of the active membership role. `OnboardingService.register` deliberately never writes `users.role` (FR-002 moved the role to `user_memberships`), so every self-registered owner received `role: null` in the credential payload.
+- **Evidence chain:**
+
+  | #   | Location                        | Behaviour                                                                          |
+  | --- | ------------------------------- | ---------------------------------------------------------------------------------- |
+  | 1   | `onboarding.service.ts:80-89`   | `tx.user.create({ ... })` with **no `role`** → `users.role` stays `NULL`           |
+  | 2   | `onboarding.service.ts:104-112` | `tx.userMembership.create({ ..., role: UserRole.SUPER_ADMIN })` → the real grant   |
+  | 3   | `auth.service.ts:99` (pre-fix)  | `user: this.publicUser(user)` — raw DB record                                      |
+  | 4   | `auth.service.ts:407` (pre-fix) | `role: user.role` → the deprecated column, i.e. `null`                             |
+  | 5   | `RoleRoute.tsx:8`               | `roles.includes(user.role)` → `null` fails → `/staff`, `/settings` redirect to `/` |
+  | 6   | `roles.ts:16`                   | `canSee(null, key)` → all nav items hidden                                         |
+
+- **Why it looked intermittent:** `/auth/me` was already correct, because `jwt.strategy.ts:64` returns `{ ...user, role: scope.role }` and `publicUser` then used the overridden role. Only the login/refresh payloads were wrong, so a page that re-hydrated through `/auth/me` appeared to work.
+- **Fix (server):** `publicUser(user, role?)` now returns `role ?? user.role`; `login()` passes `scope?.role`; `refresh()` resolves `resolveDefaultScope` and passes its role. File: `server/src/auth/auth.service.ts`.
+- **Fix (client):** added a `me` query to the RTK slice and made `AuthContext` refine both the login and mount-refresh payloads with `/auth/me`, so the UI never trusts the credential payload for the role. Files: `backoffice/src/store/api.ts`, `backoffice/src/auth/AuthContext.tsx`.
+- **Rejected alternative:** backfilling `users.role` at registration — it would re-introduce an identity-level role, which FR-002 and CON-512 forbid.
+- **Verification:** `npx tsc --noEmit` (server) **passed**. Backoffice `tsc`/`eslint` and a live login **were not run** — the session terminal stopped completing commands. No tests were run; that belongs to `/sdrive:test`.

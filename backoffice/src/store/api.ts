@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, type FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
-import type { AuthResponse } from '../lib/types';
+import type { AuthResponse, AuthUser } from '../lib/types';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -21,6 +21,11 @@ export const apiSlice = createApi({
     }),
     refresh: builder.mutation<AuthResponse, void>({
       query: () => ({ url: '/api/auth/refresh', method: 'POST' }),
+    }),
+    // Authoritative source for the signed-in user's active role (D13): the login
+    // and refresh payloads can lag behind the membership role.
+    me: builder.query<AuthUser, void>({
+      query: () => ({ url: '/api/auth/me' }),
     }),
     forgotPassword: builder.mutation<{ success: boolean; message: string }, { email: string }>({
       query: (body) => ({ url: '/api/auth/forgot-password', method: 'POST', body }),
