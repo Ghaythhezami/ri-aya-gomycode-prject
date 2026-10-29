@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
+import { useAuth } from '../auth/AuthContext';
 import { Button } from '../common/Button';
 import { Field, Input } from '../common/Input';
 
@@ -26,6 +27,12 @@ const EMPTY: WizardState = {
 };
 
 /**
+ * Mirrors the server policy in `server/src/common/validators/password-strength.ts`.
+ * The wizard must not accept a password the API will always reject (WEAK_PASSWORD).
+ */
+const PASSWORD_POLICY = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{10,}$/;
+
+/**
  * Three-step registration wizard: Account -> Organization -> Clinic.
  *
  * Nothing is persisted until the final submit, so pressing Back never leaves a
@@ -35,6 +42,7 @@ const EMPTY: WizardState = {
 export function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { login, setSessionMessage } = useAuth();
   const [step, setStep] = useState<Step>(1);
   const [form, setForm] = useState<WizardState>(EMPTY);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +53,7 @@ export function RegisterPage() {
     setError(null);
   };
 
-  const stepOneValid = form.email.includes('@') && form.password.length >= 8;
+  const stepOneValid = form.email.includes('@') && PASSWORD_POLICY.test(form.password);
   const stepTwoValid = form.firstName.trim() !== '' && form.lastName.trim() !== '';
   const stepThreeValid = form.organizationName.trim() !== '' && form.clinicName.trim() !== '';
 
@@ -54,14 +62,29 @@ export function RegisterPage() {
     setError(null);
     try {
       await api.post('/api/auth/register', form);
-      navigate('/login', { replace: true });
     } catch (err) {
       const code = (err as { response?: { data?: { code?: string } } }).response?.data?.code;
-      setError(code === 'EMAIL_TAKEN' ? t('register.emailTaken') : t('register.genericError'));
-      // A duplicate email is a step-1 problem: send the user back to fix it.
-      if (code === 'EMAIL_TAKEN') setStep(1);
+      if (code === 'EMAIL_TAKEN') {
+        setError(t('register.emailTaken'));
+        setStep(1);
+      } else if (code === 'WEAK_PASSWORD') {
+        setError(t('register.weakPassword'));
+        setStep(1);
+      } else {
+        setError(t('register.genericError'));
+      }
+      return;
     } finally {
       setSubmitting(false);
+    }
+
+    // AC-001: the creator is signed in, not bounced to a bare sign-in form.
+    try {
+      await login(form.email, form.password);
+      navigate('/', { replace: true });
+    } catch {
+      setSessionMessage('register.createdSignIn');
+      navigate('/login', { replace: true });
     }
   }
 
@@ -107,6 +130,7 @@ export function RegisterPage() {
             <Field label={t('register.password')}>
               <Input type="password" value={form.password} onChange={set('password')} required />
             </Field>
+            <p className="text-xs text-[#697586]">{t('register.passwordHint')}</p>
           </>
         )}
 

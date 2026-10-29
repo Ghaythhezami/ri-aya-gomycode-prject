@@ -4,6 +4,7 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../app.module';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
+import { PrismaService } from '../database/prisma.service';
 import { UsersService } from '../users/users.service';
 import { UserRole } from '../users/user-role.enum';
 import { MAIL_SERVICE } from '../mail/mail.module';
@@ -43,19 +44,48 @@ describe('Auth (e2e)', () => {
     await app.init();
 
     const users = app.get(UsersService);
-    await users.createStaffUser({
+    const admin = await users.createStaffUser({
       email: 'admin@riaya.local',
       password: PASSWORD,
       firstName: 'Lina',
       lastName: 'Haddad',
       role: UserRole.SUPER_ADMIN,
     });
-    await users.createStaffUser({
+    const receptionist = await users.createStaffUser({
       email: 'receptionist@riaya.local',
       password: PASSWORD,
       firstName: 'Sara',
       lastName: 'Nasser',
       role: UserRole.RECEPTIONIST,
+    });
+
+    // The clinic-scoped role lives on the membership now (FR-001, FR-002,
+    // FR-028), so an identity alone authorizes nothing. The fixtures need an
+    // organization, a clinic and one ACTIVE membership per user.
+    const prisma = app.get(PrismaService);
+    const organization = await prisma.organization.create({
+      data: { name: 'Fixture Organization', slug: 'fixture-organization' },
+    });
+    const clinic = await prisma.clinic.create({
+      data: { organizationId: organization.id, name: 'Fixture Clinic' },
+    });
+    await prisma.userMembership.create({
+      data: {
+        userId: admin.id,
+        organizationId: organization.id,
+        clinicId: clinic.id,
+        role: UserRole.SUPER_ADMIN,
+        status: 'ACTIVE',
+      },
+    });
+    await prisma.userMembership.create({
+      data: {
+        userId: receptionist.id,
+        organizationId: organization.id,
+        clinicId: clinic.id,
+        role: UserRole.RECEPTIONIST,
+        status: 'ACTIVE',
+      },
     });
   });
 
@@ -111,7 +141,11 @@ describe('Auth (e2e)', () => {
       .post('/api/auth/login')
       .send({ email: 'lockme@riaya.local', password: PASSWORD })
       .expect(401);
-    expect(locked.body.message).toBe('Invalid credentials');
+    // AC-035: a locked account must say so and name the unlock time instead of
+    // falling back to the generic "Invalid credentials".
+    expect(locked.body.code).toBe('ACCOUNT_LOCKED');
+    expect(locked.body.message).toMatch(/temporarily locked/i);
+    expect(locked.body.message).toMatch(/15 minute/);
   });
 
   it('rotates refresh tokens and revokes the family on reuse', async () => {

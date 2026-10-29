@@ -18,6 +18,7 @@
     "invalid": "Invalid credentials",
     "locked": "Invalid credentials",
     "genericError": "Unable to sign in. Try again.",
+    "securityUnavailable": "Sign-in is temporarily unavailable. Please try again shortly.",
     "emailRequired": "Enter a valid email",
     "passwordRequired": "Enter your password",
     "forgotTitle": "Reset your password",
@@ -107,6 +108,9 @@
     "create": "Create account",
     "haveAccount": "Already have an account?",
     "emailTaken": "An account with this email already exists",
+    "weakPassword": "Use at least 10 characters with an uppercase letter, a lowercase letter, a number and a symbol",
+    "passwordHint": "At least 10 characters, including an uppercase letter, a lowercase letter, a number and a symbol.",
+    "createdSignIn": "Your account and clinic were created. Sign in to continue.",
     "genericError": "Could not create your account. Try again."
   },
   "invite": {

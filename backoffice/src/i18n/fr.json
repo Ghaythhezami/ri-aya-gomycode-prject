@@ -18,6 +18,7 @@
     "invalid": "Identifiants invalides",
     "locked": "Identifiants invalides",
     "genericError": "Impossible de se connecter. Réessayez.",
+    "securityUnavailable": "La connexion est temporairement indisponible. Veuillez réessayer dans un instant.",
     "emailRequired": "Saisissez un e-mail valide",
     "passwordRequired": "Saisissez votre mot de passe",
     "forgotTitle": "Réinitialiser le mot de passe",
@@ -107,6 +108,9 @@
     "create": "Créer le compte",
     "haveAccount": "Vous avez déjà un compte ?",
     "emailTaken": "Un compte existe déjà avec cet e-mail",
+    "weakPassword": "Utilisez au moins 10 caractères avec une majuscule, une minuscule, un chiffre et un symbole",
+    "passwordHint": "Au moins 10 caractères, dont une majuscule, une minuscule, un chiffre et un symbole.",
+    "createdSignIn": "Votre compte et votre clinique ont été créés. Connectez-vous pour continuer.",
     "genericError": "Impossible de créer votre compte. Réessayez."
   },
   "invite": {

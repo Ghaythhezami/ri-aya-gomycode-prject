@@ -17,6 +17,7 @@ import { MAIL_SERVICE } from '../mail/mail.module';
 import type { MailService } from '../mail/mail.service';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
 import { LoginAttemptService } from '../cache/login-attempt.service';
+import { TokenBlacklistService } from '../cache/token-blacklist.service';
 import { TenancyService } from '../tenancy/tenancy.service';
 import type { TenantScope } from '../tenancy/tenant-context';
 
@@ -31,6 +32,7 @@ export class AuthService {
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
     private readonly loginAttempts: LoginAttemptService,
+    private readonly blacklist: TokenBlacklistService,
     private readonly tenancy: TenancyService,
     @Inject(MAIL_SERVICE) private readonly mail: MailService,
   ) {}
@@ -128,11 +130,8 @@ export class AuthService {
       throw new UnauthorizedException({ code: 'UNAUTHENTICATED', message: 'Session expired' });
     }
 
-    if (existing.revokedAt) {
-      await this.prisma.refreshToken.updateMany({
-        where: { familyId: existing.familyId, revokedAt: null },
-        data: { revokedAt: new Date() },
-      });
+    if (existing.revokedAt || (await this.blacklist.isRevoked(tokenHash))) {
+      await this.revokeFamily(existing.familyId);
       this.clearRefreshCookie(res);
       throw new UnauthorizedException({
         code: 'TOKEN_REUSE',
@@ -154,10 +153,13 @@ export class AuthService {
       throw new UnauthorizedException({ code: 'UNAUTHENTICATED', message: 'Session expired' });
     }
 
-    await this.prisma.refreshToken.update({
-      where: { id: existing.id },
-      data: { revokedAt: new Date() },
-    });
+    // Rotate: revoke the presented token in both stores before issuing the next
+    // one in the same family (FR-010, FR-015).
+    // Known defect (debug report D5, fix blocked): the new token is issued with
+    // no clinic scope, so a refresh after a workspace switch falls back to the
+    // default clinic. Fixing it needs a `clinicId` column on refresh_tokens
+    // plus `prisma generate` and a migration.
+    await this.revokeToken(existing.tokenHash, existing.expiresAt);
     await this.issueRefreshCookie(user, res, meta, existing.familyId);
 
     return {
@@ -175,6 +177,7 @@ export class AuthService {
           where: { id: existing.id },
           data: { revokedAt: new Date() },
         });
+        await this.revokeToken(existing.tokenHash, existing.expiresAt);
       }
     }
     this.clearRefreshCookie(res);
@@ -201,10 +204,7 @@ export class AuthService {
     }
     user.passwordHash = await argon2.hash(newPassword);
     await this.users.save(user);
-    await this.prisma.refreshToken.updateMany({
-      where: { userId: user.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
+    await this.revokeAllRefreshTokens(user.id);
     return { success: true };
   }
 
@@ -267,10 +267,7 @@ export class AuthService {
       where: { id: record.id },
       data: { usedAt: new Date() },
     });
-    await this.prisma.refreshToken.updateMany({
-      where: { userId: user.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
+    await this.revokeAllRefreshTokens(user.id);
 
     return { success: true };
   }
@@ -368,6 +365,44 @@ export class AuthService {
   /** Active memberships for the workspace switcher (FR-032). */
   async listMemberships(user: UserRecord) {
     return this.tenancy.listMemberships(user.id);
+  }
+
+  /**
+   * Revoke one refresh token. PostgreSQL stays the source of truth for rotation
+   * and family rules; Redis is the shared revocation list whose TTL matches the
+   * token's remaining life (FR-015, AC-040).
+   */
+  private async revokeToken(tokenHash: string, expiresAt: Date): Promise<void> {
+    const remainingSeconds = Math.max(1, Math.ceil((expiresAt.getTime() - Date.now()) / 1000));
+    await this.blacklist.revoke(tokenHash, remainingSeconds);
+  }
+
+  /** Revoke a whole refresh-token family in both stores (FR-010). */
+  private async revokeFamily(familyId: string): Promise<void> {
+    const active = await this.prisma.refreshToken.findMany({
+      where: { familyId, revokedAt: null },
+    });
+    await this.prisma.refreshToken.updateMany({
+      where: { familyId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    for (const token of active) {
+      await this.revokeToken(token.tokenHash, token.expiresAt);
+    }
+  }
+
+  /** Revoke every active refresh token of a user, in both stores (FR-022). */
+  private async revokeAllRefreshTokens(userId: string): Promise<void> {
+    const active = await this.prisma.refreshToken.findMany({
+      where: { userId, revokedAt: null },
+    });
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    for (const token of active) {
+      await this.revokeToken(token.tokenHash, token.expiresAt);
+    }
   }
 
   private async registerFailedLogin(user: UserRecord) {
