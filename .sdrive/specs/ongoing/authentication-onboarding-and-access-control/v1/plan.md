@@ -135,3 +135,50 @@ Verified against the working tree on 2026-10-28.
 ## Out of Scope (planning note)
 
 No test-writing or test-running tasks appear in `tasks.md`. Test authoring and execution belong to `/sdrive:test`; this plan produces production code only.
+
+## P7 — Registration Entry Points and Owner Onboarding
+
+Added 2026-10-29 by `/sdrive:update-propose` to close the gap between the public `/register` wizard and the legacy `/signup` pending-approval screen (US-021, US-022).
+
+### Scope
+
+One public self-service entry point for organization owners, a guarantee that no public path leaves an inert identity behind, and a defined experience for the new owner immediately after registering.
+
+### Decisions
+
+| Decision                                                                       | Rationale                                                                                                                                                                                    |
+| ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/register` is the only public self-service entry point                        | It is the only path that satisfies FR-005 (active SUPER_ADMIN in a new organization) and never needs an approval step (FR-036, AC-043).                                                      |
+| `POST /auth/signup` stays routed but responds `410 Gone` with `SIGNUP_RETIRED` | FR-026 requires existing paths to remain resolvable, while FR-036 forbids creating a pending identity. Keeping the route and retiring the behaviour satisfies both without rewriting FR-026. |
+| The owner is signed in as registration completes                               | AC-041 requires them to land in the workspace; a second login round trip adds a failure point for no benefit (EC-017).                                                                       |
+| The first screen after registration is the workspace with a first-run state    | A generic empty dashboard gives a new owner no next action.                                                                                                                                  |
+
+### Components touched
+
+| Component                              | Action | Role                                                                              |
+| -------------------------------------- | ------ | --------------------------------------------------------------------------------- |
+| `auth.controller.ts`                   | modify | `POST /auth/signup` becomes a `410 SIGNUP_RETIRED` responder that writes nothing. |
+| `auth.service.ts` / `users.service.ts` | modify | Remove the inactive-identity creation path used only by the retired signup.       |
+| registration wizard (backoffice)       | modify | Establish the owner session as the final step.                                    |
+| `/signup` route (backoffice)           | delete | Replaced by a redirect to `/register`; the pending-approval screen is removed.    |
+| first-run workspace state              | create | Names the next actions (invite staff, review clinic settings) for a new owner.    |
+| i18n catalogues (EN/AR/FR)             | modify | New strings for the first-run state and the retirement notice.                    |
+
+### API changes
+
+| Endpoint              | Action | Behaviour                                                                                      |
+| --------------------- | ------ | ---------------------------------------------------------------------------------------------- |
+| `POST /auth/register` | reuse  | Unchanged contract; the owner session is established as part of registration.                  |
+| `POST /auth/signup`   | modify | `410 Gone`, code `SIGNUP_RETIRED`, message pointing at `POST /auth/register`; no rows written. |
+
+### Anti-redundancy (verified against the working tree on 2026-10-29)
+
+| Existing asset                     | Decision | Rationale                                                                                   |
+| ---------------------------------- | -------- | ------------------------------------------------------------------------------------------- |
+| `OnboardingService.register`       | reuse    | Already creates identity + organization + clinic + SUPER_ADMIN in one transaction (FR-005). |
+| `RegisterPage` 3-step wizard       | reuse    | Already implements the wizard; only the completion step changes.                            |
+| `SignupPage` + `POST /auth/signup` | delete   | The only producer of inactive identities; nothing else depends on it.                       |
+| `AuthContext.login`                | reuse    | Maintains the access token and refresh cookie; no new auth client is introduced.            |
+| `WorkspaceSwitcher`                | reuse    | Already lists memberships with roles, so AC-042 needs no new component.                     |
+
+**No new dependencies are introduced by P7.**

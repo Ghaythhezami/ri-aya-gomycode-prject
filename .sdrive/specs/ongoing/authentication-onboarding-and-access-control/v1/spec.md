@@ -3,7 +3,7 @@ title: Authentication, Onboarding & Access Control
 status: backlog
 version: v1
 created: 2026-10-28
-updated: 2026-10-28
+updated: 2026-10-29
 ---
 
 # Authentication, Onboarding & Access Control
@@ -220,6 +220,25 @@ As a platform operator, I want Redis provisioned and wired for security state, s
 - AC-039: Given a clean clone, when `docker compose up` runs, then a Redis service starts alongside PostgreSQL and the API connects to it.
 - AC-040: Given Redis is reachable, when a refresh token is revoked, then the revocation is recorded in Redis with an expiry matching the token's remaining life.
 
+### US-021: Start working immediately as a new organization owner
+
+As a person who was not invited by any clinic, I want to register my own organization and arrive in my workspace already signed in, so that I can begin operating without waiting for an approval nobody is able to grant.
+
+**Acceptance Criteria:**
+
+- AC-041: Given an uninvited visitor, when they complete all three steps of the public `/register` wizard with valid data, then their identity, organization, first clinic and SUPER_ADMIN membership are created and they are signed in and placed in that clinic's workspace, with no pending or awaiting-approval state at any point.
+- AC-042: Given an owner has just registered, when they open the workspace switcher, then the clinic they created during registration is listed as the active workspace with the role `SUPER_ADMIN`.
+
+### US-022: Have exactly one public sign-up path
+
+As a visitor, I want a single, unambiguous way to create an account, so that I am never left waiting for an approval that no one is able to give.
+
+**Acceptance Criteria:**
+
+- AC-043: Given the public surface, when a visitor looks for a way to create an account, then `/register` is the only self-service entry point, and no public route creates an inactive account that waits for a clinic-admin approval.
+- AC-044: Given a visitor opens the legacy `/signup` path, when the page loads, then they are sent to `/register` and no "waiting for clinic admin approval" state is rendered.
+- AC-045: Given a client calls `POST /api/auth/signup`, when the request is well formed, then no identity, organization, clinic or membership is created and the API responds `410 Gone` with the stable code `SIGNUP_RETIRED` and a message directing the caller to `POST /api/auth/register`.
+
 ## Requirements
 
 ### Functional Requirements
@@ -259,6 +278,9 @@ As a platform operator, I want Redis provisioned and wired for security state, s
 - FR-033: The system MUST keep the public registration route available only for creating new organizations, never for joining an existing one.
 - FR-034: The system MUST hash passwords with argon2 and MUST NOT store or log plaintext passwords.
 - FR-035: The system MUST set the refresh cookie's `Secure` attribute from configuration so production uses HTTPS.
+- FR-036: The system MUST NOT create a pending or inactive identity from any public self-registration path; every public self-registration MUST create an active identity holding a SUPER_ADMIN membership in a newly created organization.
+- FR-037: The system MUST redirect the legacy `/signup` path to `/register` and MUST NOT render a self-registration screen that promises a clinic-admin activation step.
+- FR-038: The system MUST keep `POST /auth/signup` registered so the route is not missing, but MUST NOT create any identity from it; it MUST respond `410 Gone` with the stable code `SIGNUP_RETIRED` and a message directing the caller to `POST /auth/register`. This preserves the routing guarantee of FR-026 without permitting the pending-identity behaviour that FR-036 forbids.
 
 ### Non-Functional Requirements
 
@@ -286,6 +308,8 @@ As a platform operator, I want Redis provisioned and wired for security state, s
   - A clear locked-account state on the login screen that names the unlock time without exposing the password.
   - All screens mirrored for Arabic (`dir="rtl"`, logical CSS properties) and translated in EN/AR/FR.
   - Loading skeletons for the directory and switcher; empty states for a user with a single clinic.
+  - The first screen after a successful registration is the new workspace itself, carrying a first-run state that names the next actions (invite staff, review clinic settings) rather than a generic empty dashboard.
+  - `/signup` renders no screen of its own; it redirects to `/register`.
 - **Data**: New persisted entities are `organizations` (name, slug, timestamps), `clinics` (organization id, name, timezone, currency, address, timestamps), `user_memberships` (user id, clinic id, organization id, role, status, timestamps), `invitations` (email, clinic id, role, token hash, expires at, consumed at, invited by), and `audit_logs` (actor user id, action, entity, entity id, before, after, clinic id, organization id, created at). `users` keeps email, password hash, first/last name, preferred locale, `isActive` and login counters; its clinic-scoped `role` column is superseded by membership. Redis holds the refresh-token blacklist, failed-attempt counters, lockout expiries and rate-limit counters.
 
 ## Edge Cases & Error States
@@ -305,6 +329,9 @@ As a platform operator, I want Redis provisioned and wired for security state, s
 - EC-013: Password change while another session is active → other sessions' refresh tokens are revoked.
 - EC-014: Clock skew between Redis TTL and database timestamps → Redis TTL is authoritative for lockout expiry and is re-checked on read.
 - EC-015: Arabic locale with a Latin-only email address → the email input stays LTR while the surrounding layout mirrors.
+- EC-016: A visitor abandons the registration wizard after a step and returns later → nothing is persisted, no inactive identity is left behind, and they can start again or sign in normally if a previous registration completed.
+- EC-017: A visitor signs in immediately after registering → the credential works at once, because registration never leaves the account disabled.
+- EC-018: A legacy client posts to `POST /auth/signup` expecting a pending staff account → it receives `410 Gone` with `SIGNUP_RETIRED`, no row is written, and the caller is pointed at `POST /auth/register`.
 
 ## Out of Scope
 

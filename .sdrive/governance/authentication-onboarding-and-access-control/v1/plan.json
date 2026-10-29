@@ -68,6 +68,11 @@
         "name": "docker-compose",
         "action": "modify",
         "description": "Adds the Redis service the security state depends on."
+      },
+      {
+        "name": "registration entry points",
+        "action": "modify",
+        "description": "Retires the pending-approval self-signup so /register is the only public self-service path, and establishes the owner session as registration completes."
       }
     ],
     "referencedRequirementIds": [
@@ -104,6 +109,9 @@
       "FR-033",
       "FR-034",
       "FR-035",
+      "FR-036",
+      "FR-037",
+      "FR-038",
       "NFR-001",
       "NFR-002",
       "NFR-003",
@@ -579,6 +587,13 @@
       "action": "create",
       "authenticationRequired": true,
       "linkedRequirements": ["FR-018", "FR-019", "FR-029"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/signup",
+      "action": "modify",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-036", "FR-038"]
     }
   ],
   "securityConsiderations": [

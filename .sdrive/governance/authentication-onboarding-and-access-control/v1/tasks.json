@@ -307,6 +307,61 @@
           "completed": true
         }
       ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Registration entry points and owner onboarding",
+      "dependencies": ["P6"],
+      "tasks": [
+        {
+          "id": "T7.1",
+          "title": "Retire POST /auth/signup with 410 SIGNUP_RETIRED",
+          "description": "Keep the route registered so it remains resolvable, but make it write nothing and respond 410 Gone with the stable code SIGNUP_RETIRED and a message pointing callers at POST /auth/register.",
+          "linkedRequirements": ["FR-038", "FR-026"],
+          "linkedAcceptanceCriteria": ["AC-045"],
+          "completed": false
+        },
+        {
+          "id": "T7.2",
+          "title": "Remove the inactive-identity creation path",
+          "description": "Delete the pending-account creation used only by the retired self-signup so no public path can leave an identity that waits for an approval nobody can grant.",
+          "linkedRequirements": ["FR-036"],
+          "linkedAcceptanceCriteria": ["AC-043"],
+          "completed": false
+        },
+        {
+          "id": "T7.3",
+          "title": "Establish the owner session as registration completes",
+          "description": "Make the registration completion land the creator in their new workspace already authenticated, reusing the existing login strategy so the access token and refresh cookie are issued once.",
+          "linkedRequirements": ["FR-036", "FR-005"],
+          "linkedAcceptanceCriteria": ["AC-041"],
+          "completed": false
+        },
+        {
+          "id": "T7.4",
+          "title": "Replace the /signup screen with a redirect to /register",
+          "description": "Remove the pending-approval screen from the backoffice router and redirect the legacy path to the three-step wizard.",
+          "linkedRequirements": ["FR-037"],
+          "linkedAcceptanceCriteria": ["AC-044"],
+          "completed": false
+        },
+        {
+          "id": "T7.5",
+          "title": "Add the first-run workspace state for a new owner",
+          "description": "Render a first-run state in the new workspace naming the next actions (invite staff, review clinic settings) instead of a generic empty dashboard.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-041", "AC-042"],
+          "completed": false
+        },
+        {
+          "id": "T7.6",
+          "title": "Localise the new first-run and retirement strings",
+          "description": "Add EN, AR and FR entries for the first-run guidance and the SIGNUP_RETIRED notice, with no hard-coded user-facing strings.",
+          "linkedRequirements": ["NFR-012"],
+          "linkedAcceptanceCriteria": ["AC-033"],
+          "completed": false
+        }
+      ]
     }
   ]
 }

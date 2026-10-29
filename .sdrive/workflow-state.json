@@ -12,8 +12,8 @@
           "phase": "ongoing",
           "currentStep": "implementation",
           "gates": {
-            "specification": "approved",
-            "planning": "approved",
+            "specification": "pending",
+            "planning": "pending",
             "implementation": "in_progress",
             "review": "pending"
           },
@@ -47,6 +47,12 @@
               "event": "implementation-started",
               "by": "implementation-agent",
               "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "spec_updated",
+              "by": "update-proposal-agent",
+              "timestamp": "2026-10-29T00:00:00.000Z",
+              "reason": "Added US-021/US-022, AC-041..AC-045, FR-036/FR-037/FR-038, EC-016..EC-018 and plan/tasks phase P7 (T7.1-T7.6) covering organization-owner onboarding after public registration and retirement of the pending-approval /signup path. The specification and planning gates are reset to pending because the added requirements and plan section invalidate their earlier approvals."
             }
           ]
         }

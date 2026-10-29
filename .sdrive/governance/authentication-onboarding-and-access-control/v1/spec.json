@@ -365,6 +365,44 @@
           "text": "Given Redis is reachable, when a refresh token is revoked, then the revocation is recorded in Redis with an expiry matching the token remaining life."
         }
       ]
+    },
+    {
+      "id": "US-021",
+      "title": "Start working immediately as a new organization owner",
+      "role": "uninvited visitor registering their own organization",
+      "want": "to arrive in my new workspace already signed in",
+      "benefit": "I can begin operating without waiting for an approval nobody is able to grant",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-041",
+          "text": "Given an uninvited visitor, when they complete all three steps of the public /register wizard with valid data, then their identity, organization, first clinic and SUPER_ADMIN membership are created and they are signed in and placed in that clinic workspace, with no pending or awaiting-approval state at any point."
+        },
+        {
+          "id": "AC-042",
+          "text": "Given an owner has just registered, when they open the workspace switcher, then the clinic created during registration is listed as the active workspace with the role SUPER_ADMIN."
+        }
+      ]
+    },
+    {
+      "id": "US-022",
+      "title": "Have exactly one public sign-up path",
+      "role": "visitor",
+      "want": "a single unambiguous way to create an account",
+      "benefit": "I am never left waiting for an approval that no one is able to give",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-043",
+          "text": "Given the public surface, when a visitor looks for a way to create an account, then /register is the only self-service entry point, and no public route creates an inactive account that waits for a clinic-admin approval."
+        },
+        {
+          "id": "AC-044",
+          "text": "Given a visitor opens the legacy /signup path, when the page loads, then they are sent to /register and no waiting-for-clinic-admin-approval state is rendered."
+        },
+        {
+          "id": "AC-045",
+          "text": "Given a client calls POST /api/auth/signup, when the request is well formed, then no identity, organization, clinic or membership is created and the API responds 410 Gone with the stable code SIGNUP_RETIRED and a message directing the caller to POST /api/auth/register."
+        }
+      ]
     }
   ],
   "functionalRequirements": [
@@ -542,6 +580,21 @@
       "id": "FR-035",
       "text": "The system MUST set the refresh cookie Secure attribute from configuration so production uses HTTPS.",
       "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "FR-036",
+      "text": "The system MUST NOT create a pending or inactive identity from any public self-registration path; every public self-registration MUST create an active identity holding a SUPER_ADMIN membership in a newly created organization.",
+      "linkedAcceptanceCriteria": ["AC-041", "AC-043"]
+    },
+    {
+      "id": "FR-037",
+      "text": "The system MUST redirect the legacy /signup path to /register and MUST NOT render a self-registration screen that promises a clinic-admin activation step.",
+      "linkedAcceptanceCriteria": ["AC-044"]
+    },
+    {
+      "id": "FR-038",
+      "text": "The system MUST keep POST /auth/signup registered so the route is not missing, but MUST NOT create any identity from it; it MUST respond 410 Gone with the stable code SIGNUP_RETIRED and a message directing the caller to POST /auth/register, preserving FR-026 routing without permitting the pending-identity behaviour FR-036 forbids.",
+      "linkedAcceptanceCriteria": ["AC-045"]
     }
   ],
   "nonFunctionalRequirements": [
@@ -686,6 +739,21 @@
       "id": "EC-015",
       "description": "Arabic locale with a Latin-only email address",
       "expectedBehavior": "The email input stays LTR while the surrounding layout mirrors."
+    },
+    {
+      "id": "EC-016",
+      "description": "A visitor abandons the registration wizard after a step and returns later",
+      "expectedBehavior": "Nothing is persisted, no inactive identity is left behind, and they can start again or sign in normally if a previous registration completed."
+    },
+    {
+      "id": "EC-017",
+      "description": "A visitor signs in immediately after registering",
+      "expectedBehavior": "The credential works at once, because registration never leaves the account disabled."
+    },
+    {
+      "id": "EC-018",
+      "description": "A legacy client posts to POST /auth/signup expecting a pending staff account",
+      "expectedBehavior": "It receives 410 Gone with SIGNUP_RETIRED, no row is written, and the caller is pointed at POST /auth/register."
     }
   ],
   "dependencies": [

@@ -84,3 +84,16 @@ updated: 2026-10-28
 | T6.5 | Localise and mirror every auth screen             | NFR-012, NFR-011                                              | AC-033, AC-034         | [x]  |
 | T6.6 | Apply per-endpoint rate limits and cookie policy  | NFR-002, NFR-008, NFR-001, NFR-003, NFR-004, NFR-005, NFR-006 | AC-004, AC-008         | [x]  |
 | T6.7 | Document the auth contract in Swagger             | FR-025, FR-026, NFR-007                                       | AC-037, AC-038, AC-039 | [x]  |
+
+## P7 — Registration entry points and owner onboarding
+
+**Depends on:** P6
+
+| ID   | Task                                                        | Requirements   | ACs            | Done |
+| ---- | ----------------------------------------------------------- | -------------- | -------------- | ---- |
+| T7.1 | Retire `POST /auth/signup` with `410 SIGNUP_RETIRED`        | FR-038, FR-026 | AC-045         | [ ]  |
+| T7.2 | Remove the inactive-identity creation path                  | FR-036         | AC-043         | [ ]  |
+| T7.3 | Establish the owner session as registration completes       | FR-036, FR-005 | AC-041         | [ ]  |
+| T7.4 | Replace the `/signup` screen with a redirect to `/register` | FR-037         | AC-044         | [ ]  |
+| T7.5 | Add the first-run workspace state for a new owner           | FR-005         | AC-041, AC-042 | [ ]  |
+| T7.6 | Localise the new first-run and retirement strings           | NFR-012        | AC-033         | [ ]  |

@@ -385,6 +385,30 @@
       "taskIds": [],
       "testIds": [],
       "status": "in_progress"
+    },
+    {
+      "requirementId": "FR-036",
+      "acceptanceCriteriaIds": ["AC-041", "AC-043"],
+      "planSection": "API Contracts",
+      "taskIds": ["T7.2", "T7.3"],
+      "testIds": [],
+      "status": "in_progress"
+    },
+    {
+      "requirementId": "FR-037",
+      "acceptanceCriteriaIds": ["AC-044"],
+      "planSection": "API Contracts",
+      "taskIds": ["T7.4"],
+      "testIds": [],
+      "status": "in_progress"
+    },
+    {
+      "requirementId": "FR-038",
+      "acceptanceCriteriaIds": ["AC-045"],
+      "planSection": "API Contracts",
+      "taskIds": ["T7.1"],
+      "testIds": [],
+      "status": "in_progress"
     }
   ]
 }
