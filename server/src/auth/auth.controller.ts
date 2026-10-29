@@ -1,10 +1,9 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, GoneException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService, REFRESH_COOKIE } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { SignupDto } from './dto/signup.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -22,9 +21,17 @@ export class AuthController {
 
   @Post('signup')
   @Throttle({ default: { limit: throttleLimit(8), ttl: 60_000 } })
-  @ApiOperation({ summary: 'Create a pending staff account' })
-  signup(@Body() dto: SignupDto) {
-    return this.auth.signup(dto);
+  @ApiOperation({
+    summary: 'Retired — register an organization at POST /auth/register',
+    description:
+      'The path stays registered so it remains resolvable (FR-026), but it no longer creates an identity (FR-036). It always responds 410 SIGNUP_RETIRED (FR-038, AC-045).',
+  })
+  signup(): never {
+    throw new GoneException({
+      code: 'SIGNUP_RETIRED',
+      message:
+        'Self signup is retired. Create your organization with POST /api/auth/register; staff join a clinic through an invitation.',
+    });
   }
 
   @Post('login')
