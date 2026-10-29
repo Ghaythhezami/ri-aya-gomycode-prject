@@ -391,7 +391,7 @@
       "acceptanceCriteriaIds": ["AC-041", "AC-043"],
       "planSection": "API Contracts",
       "taskIds": ["T7.2", "T7.3"],
-      "testIds": [],
+      "testIds": ["TEST-001", "TEST-004", "TEST-009"],
       "status": "complete"
     },
     {
@@ -407,7 +407,7 @@
       "acceptanceCriteriaIds": ["AC-045"],
       "planSection": "API Contracts",
       "taskIds": ["T7.1"],
-      "testIds": [],
+      "testIds": ["TEST-007", "TEST-008"],
       "status": "complete"
     }
   ]

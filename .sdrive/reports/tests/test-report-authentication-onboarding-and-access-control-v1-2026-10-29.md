@@ -10,14 +10,15 @@
 
 ## 1. Verdict
 
-**FAIL — 1 suite red, blocked by a product defect (D15).**
+**PASS — 9 suites, 36 tests, 0 failures** (`--runInBand`).
 
-| Run                                 | Suites                 | Tests                   |
-| ----------------------------------- | ---------------------- | ----------------------- |
-| Baseline before this pass           | 3 passed               | **12 passed**           |
-| This pass (4 suites, `--runInBand`) | 3 passed, **1 failed** | **13 passed, 4 failed** |
+| Run                                | Suites                 | Tests                   |
+| ---------------------------------- | ---------------------- | ----------------------- |
+| Baseline before this pass          | 3 passed               | **12 passed**           |
+| First pass (before the D15 fix)    | 3 passed, **1 failed** | **13 passed, 4 failed** |
+| **Final pass (after the D15 fix)** | **9 passed**           | **36 passed**           |
 
-The 4 failures are **not test defects**. They expose a real P0 regression: every endpoint that reads `TenantContext` returns 500.
+The 4 failures in the first pass were **not test defects**: they exposed a real P0 regression (D15), now fixed and verified.
 
 ```
 Error: Tenant scope is not set: this route is not authenticated
@@ -31,16 +32,16 @@ Root cause and remediation are recorded as **D15** in `.sdrive/reports/debug/deb
 
 ## 2. Suites written (6 files, TEST-001…TEST-024)
 
-| File                                    | Tests        | ACs                                            | Result                                 |
-| --------------------------------------- | ------------ | ---------------------------------------------- | -------------------------------------- |
-| `src/auth/signup-retired.e2e.spec.ts`   | TEST-007…009 | AC-043, AC-044, AC-045                         | ✅ pass                                |
-| `src/tenancy/registration.e2e.spec.ts`  | TEST-001…006 | AC-001, AC-002, AC-003, AC-018, AC-041, AC-042 | ✅ pass                                |
-| `src/auth/switch-workspace.e2e.spec.ts` | TEST-014…017 | AC-011, AC-012, AC-013, AC-014, AC-024, AC-025 | ✅ pass                                |
-| `src/tenancy/invitations.e2e.spec.ts`   | TEST-010…013 | AC-015, AC-016, AC-017                         | ❌ **500 (D15)**                       |
-| `src/tenancy/suspension.e2e.spec.ts`    | TEST-018…020 | AC-021, AC-022, AC-023                         | ⛔ not yet run — same D15 blast radius |
-| `src/audit/audit-trail.e2e.spec.ts`     | TEST-021…024 | AC-019, AC-020                                 | ⛔ not yet run                         |
+| File                                    | Tests        | ACs                                            | Result              |
+| --------------------------------------- | ------------ | ---------------------------------------------- | ------------------- |
+| `src/auth/signup-retired.e2e.spec.ts`   | TEST-007…009 | AC-043, AC-044, AC-045                         | ✅ pass             |
+| `src/tenancy/registration.e2e.spec.ts`  | TEST-001…006 | AC-001, AC-002, AC-003, AC-018, AC-041, AC-042 | ✅ pass             |
+| `src/auth/switch-workspace.e2e.spec.ts` | TEST-014…017 | AC-011, AC-012, AC-013, AC-014, AC-024, AC-025 | ✅ pass             |
+| `src/tenancy/invitations.e2e.spec.ts`   | TEST-010…013 | AC-015, AC-016, AC-017                         | ✅ pass (after D15) |
+| `src/tenancy/suspension.e2e.spec.ts`    | TEST-018…020 | AC-021, AC-022, AC-023                         | ✅ pass             |
+| `src/audit/audit-trail.e2e.spec.ts`     | TEST-021…024 | AC-019, AC-020                                 | ✅ pass             |
 
-`TEST-018…024` are written but **have no recorded result** — the aggregation run could not complete because the session terminal stopped accepting commands. They must be executed after D15 is fixed.
+All 24 new tests execute and pass. `TEST-018…024` were initially unrunnable because D15 made every `TenantContext` read throw; they pass once the per-request tenant frame was restored.
 
 ---
 
@@ -54,13 +55,13 @@ Root cause and remediation are recorded as **D15** in `.sdrive/reports/debug/deb
 
 ## 4. Defects found by this pass
 
-| ID      | Severity | Finding                                                                                                                                                                                    |
-| ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **D15** | **P0**   | `TenantContext` is empty inside controllers (ALS `enterWith` does not cross into the handler). Breaks `POST/GET /invitations` and `PATCH /memberships/:id/suspend`.                        |
-| **D16** | P2       | `MemoryPrisma.user.create` defaulted the nullable `User.IdentityRole` to `RECEPTIONIST`, misrepresenting the schema and masking FR-002. **Fixed** — now defaults to `null`.                |
-| **D17** | P2       | `MemoryPrisma.auditLog` had no query method, so the audit trail could not be asserted at all. **Fixed** — added `findMany` with `entity`/`entityId`/`actorUserId`/`clinicId` filters.      |
-| **D18** | P3       | Jest reports `A worker process has failed to exit gracefully` on every run — a leaked handle (most likely the `ioredis` client in `redis-cache.service.spec.ts`). Not fixed; CI will warn. |
-| **D19** | P3       | Suites must run with `--runInBand`: three concurrent suites caused `ECONNRESET` on every request (argon2 allocates ~64 MB per hash; parallel workers exhausted the process).               |
+| ID      | Severity | Finding                                                                                                                                                                                                                                                                  |
+| ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **D15** | **P0**   | **Fixed and verified.** `TenantContext` was empty inside controllers (ALS `enterWith` does not cross into the handler), breaking `POST/GET /invitations` and `PATCH /memberships/:id/suspend`. Now a per-request frame opened by middleware and mutated by the strategy. |
+| **D16** | P2       | `MemoryPrisma.user.create` defaulted the nullable `User.IdentityRole` to `RECEPTIONIST`, misrepresenting the schema and masking FR-002. **Fixed** — now defaults to `null`.                                                                                              |
+| **D17** | P2       | `MemoryPrisma.auditLog` had no query method, so the audit trail could not be asserted at all. **Fixed** — added `findMany` with `entity`/`entityId`/`actorUserId`/`clinicId` filters.                                                                                    |
+| **D18** | P3       | Jest reports `A worker process has failed to exit gracefully` on every run — a leaked handle (most likely the `ioredis` client in `redis-cache.service.spec.ts`). Not fixed; CI will warn.                                                                               |
+| **D19** | P3       | Suites must run with `--runInBand`: three concurrent suites caused `ECONNRESET` on every request (argon2 allocates ~64 MB per hash; parallel workers exhausted the process).                                                                                             |
 
 ## 5. Coverage position
 
