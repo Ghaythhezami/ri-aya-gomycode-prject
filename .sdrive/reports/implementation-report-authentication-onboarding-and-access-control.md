@@ -95,3 +95,38 @@ authoring for the 40 acceptance criteria belongs to `/sdrive:test`.
    `password-reset-token.entity.ts`, `data-source.ts`, the TypeORM migration). No `TypeOrmModule`
    is wired; runtime uses Prisma. Removing them is out of this feature's scope.
 6. **`AC-038` (unversioned paths)** was honoured: all existing `/api/auth/*` paths still work.
+
+---
+
+## P7 — Registration entry points and owner onboarding (2026-10-29)
+
+Added by `/sdrive:update-propose`, then implemented by `/sdrive:apply`.
+
+| Task | Outcome                                                                                                                                                                                                                                               |
+| ---- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| T7.1 | `POST /auth/signup` now always responds `410 Gone` with `SIGNUP_RETIRED`; the route stays registered (FR-026) and writes nothing (FR-038, AC-045).                                                                                                    |
+| T7.2 | Removed `AuthService.signup`, `UsersService.createSignup` and `auth/dto/signup.dto.ts` — no public path can create an inactive identity any more (FR-036, AC-043).                                                                                    |
+| T7.3 | Already satisfied: the wizard establishes the owner session by reusing `AuthContext.login` and then navigates to `/`, so the creator lands in the new workspace authenticated (AC-041). No code change required; confirmed by reading `RegisterPage`. |
+| T7.4 | `/signup` redirects to `/register`; `SignupPage.tsx` and its RTK mutation were deleted (FR-037, AC-044).                                                                                                                                              |
+| T7.5 | New `lib/firstRun.ts` plus a first-run card on the workspace overview naming the next actions; the wizard marks the session (AC-041, AC-042).                                                                                                         |
+| T7.6 | New `firstRun.*` strings in EN, AR and FR (NFR-012, AC-033).                                                                                                                                                                                          |
+
+### Checks run
+
+| Check                                                      | Result                                                                                                                                                                                 |
+| ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `npx tsc --noEmit` (server)                                | pass                                                                                                                                                                                   |
+| `npx eslint "src/**/*.ts" --max-warnings=0` (server)       | pass                                                                                                                                                                                   |
+| `tsc --noEmit -p tsconfig.app.json` (backoffice)           | pass                                                                                                                                                                                   |
+| `eslint "src/**/*.{ts,tsx}" --max-warnings=0` (backoffice) | pass                                                                                                                                                                                   |
+| `node .sdrive/scripts/validate-governance.js`              | pass                                                                                                                                                                                   |
+| Secret scan (search patterns)                              | No production secrets. One test-fixture password (`RiayaAdmin123!`) in `auth.e2e.spec.ts`, matching the documented local dev seed.                                                     |
+| `node .sdrive/scripts/verify.js <feature>`                 | **FAIL — tool limitation** (Matched 0 / Missing 97 / Renamed 8). The verifier has no NestJS-decorator or `.prisma` support, so decorator routes and Prisma models are invisible to it. |
+
+### Status
+
+T7.1–T7.6 are implemented. The feature is **NOT** marked complete: the `review` gate stays `pending` and `sdrive verify` fails for the documented tool limitation. No tests were written, edited or run — that belongs to `/sdrive:test`.
+
+### Deferred to `/sdrive:test`
+
+No test-related tasks exist in P7. Acceptance tests for AC-041 through AC-045 belong to `/sdrive:test`.

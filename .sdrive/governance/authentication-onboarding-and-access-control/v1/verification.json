@@ -1,11 +1,11 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "status": "fail",
-  "checkedAt": "2026-10-28T15:24:15.798Z",
+  "checkedAt": "2026-10-29T01:30:11.267Z",
   "summary": {
     "matched": 0,
-    "missing": 96,
-    "renamed": 7,
+    "missing": 97,
+    "renamed": 8,
     "extra": 0
   },
   "items": {
@@ -136,6 +136,12 @@
         "method": "PATCH",
         "path": "/api/memberships/:id",
         "action": "create"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/signup",
+        "action": "modify"
       },
       {
         "type": "entity",
@@ -673,6 +679,13 @@
         "action": "modify",
         "to": "server/src/common/decorators/roles.decorator.ts",
         "file": "server/src/common/decorators/roles.decorator.ts"
+      },
+      {
+        "type": "component",
+        "name": "registration entry points",
+        "action": "modify",
+        "to": "server/src/tenancy/dto/register.dto.ts",
+        "file": "server/src/tenancy/dto/register.dto.ts"
       }
     ],
     "extra": []

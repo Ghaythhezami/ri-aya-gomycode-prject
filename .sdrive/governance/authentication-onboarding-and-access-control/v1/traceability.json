@@ -392,7 +392,7 @@
       "planSection": "API Contracts",
       "taskIds": ["T7.2", "T7.3"],
       "testIds": [],
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "requirementId": "FR-037",
@@ -400,7 +400,7 @@
       "planSection": "API Contracts",
       "taskIds": ["T7.4"],
       "testIds": [],
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "requirementId": "FR-038",
@@ -408,7 +408,7 @@
       "planSection": "API Contracts",
       "taskIds": ["T7.1"],
       "testIds": [],
-      "status": "in_progress"
+      "status": "complete"
     }
   ]
 }

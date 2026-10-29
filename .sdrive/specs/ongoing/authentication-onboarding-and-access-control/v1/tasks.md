@@ -91,9 +91,9 @@ updated: 2026-10-28
 
 | ID   | Task                                                        | Requirements   | ACs            | Done |
 | ---- | ----------------------------------------------------------- | -------------- | -------------- | ---- |
-| T7.1 | Retire `POST /auth/signup` with `410 SIGNUP_RETIRED`        | FR-038, FR-026 | AC-045         | [ ]  |
-| T7.2 | Remove the inactive-identity creation path                  | FR-036         | AC-043         | [ ]  |
-| T7.3 | Establish the owner session as registration completes       | FR-036, FR-005 | AC-041         | [ ]  |
-| T7.4 | Replace the `/signup` screen with a redirect to `/register` | FR-037         | AC-044         | [ ]  |
-| T7.5 | Add the first-run workspace state for a new owner           | FR-005         | AC-041, AC-042 | [ ]  |
-| T7.6 | Localise the new first-run and retirement strings           | NFR-012        | AC-033         | [ ]  |
+| T7.1 | Retire `POST /auth/signup` with `410 SIGNUP_RETIRED`        | FR-038, FR-026 | AC-045         | [x]  |
+| T7.2 | Remove the inactive-identity creation path                  | FR-036         | AC-043         | [x]  |
+| T7.3 | Establish the owner session as registration completes       | FR-036, FR-005 | AC-041         | [x]  |
+| T7.4 | Replace the `/signup` screen with a redirect to `/register` | FR-037         | AC-044         | [x]  |
+| T7.5 | Add the first-run workspace state for a new owner           | FR-005         | AC-041, AC-042 | [x]  |
+| T7.6 | Localise the new first-run and retirement strings           | NFR-012        | AC-033         | [x]  |
