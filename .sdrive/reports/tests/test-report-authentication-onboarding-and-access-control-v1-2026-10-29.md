@@ -85,27 +85,52 @@ A seventh suite, `src/tenancy/acceptance-gaps.e2e.spec.ts`, adds TEST-034…TEST
 
 One test defect was found and fixed during this pass: `TEST-036` originally sent a 4-character password, which the DTO's `@MinLength(8)` rejected as `VALIDATION_ERROR` before the strength policy could return `WEAK_PASSWORD`. **Product behaviour was correct; the test was wrong.**
 
-## 7. Final coverage
+## 7. Third pass — the component harness
 
-| Measure                                     | Value                                     |
-| ------------------------------------------- | ----------------------------------------- |
-| Suites                                      | **10 passed**                             |
-| Tests                                       | **47 passed, 0 failed**                   |
-| ACs with a linked test                      | **39 / 45 = 87%**                         |
-| Rows marked complete in `traceability.json` | all requirements whose every AC is tested |
+A **Vitest + React Testing Library** harness was added to `backoffice` (jsdom environment, jest-dom matchers) and four component suites now cover the criteria no API test could reach:
 
-The six criteria below have **no automated test and no linked ID** — they are browser or restart behaviours that no API test can honestly verify:
+| Test                         | AC             | Result            |
+| ---------------------------- | -------------- | ----------------- |
+| TEST-045 `register-wizard`   | AC-002         | ✅ pass           |
+| TEST-046 `accept-invite`     | AC-036         | ✅ pass (2 tests) |
+| TEST-047 `signup-redirect`   | AC-044         | ✅ pass           |
+| TEST-048/049 `rtl-direction` | AC-033, AC-034 | ✅ pass (3 tests) |
 
-| AC             | Why it is manual                                                       |
-| -------------- | ---------------------------------------------------------------------- |
-| AC-002         | wizard Back button preserves entered state (React state)               |
-| AC-009         | lockout survives an API restart (needs a real Redis + process restart) |
-| AC-033, AC-034 | Arabic RTL mirroring / LTR rendering                                   |
-| AC-036         | expired-invitation screen offers a re-request action                   |
-| AC-044         | `/signup` redirects to `/register` in the router                       |
+```
+Test Files  4 passed (4)
+     Tests  7 passed (7)
+```
 
-Reaching 100% requires the **Playwright** suite the brief mandates as QA-1, or Vitest + React Testing Library in `backoffice`. That is not a defect in the feature.
+One test defect was found and fixed here too: `userEvent.setup()` hangs under jsdom in this project, so the wizard test uses synchronous `fireEvent` instead. **Product behaviour was correct; the test harness interaction was not.**
 
-## 8. Raw evidence
+## 8. Final coverage
+
+| Measure                                     | Value                                      |
+| ------------------------------------------- | ------------------------------------------ |
+| Server suites                               | **10 passed**                              |
+| Server tests                                | **47 passed, 0 failed**                    |
+| Backoffice suites                           | **4 passed**                               |
+| Backoffice tests                            | **7 passed, 0 failed**                     |
+| ACs with a linked test                      | **44 / 45 = 98%**                          |
+| Rows marked complete in `traceability.json` | every requirement whose ACs are all tested |
+
+**One acceptance criterion remains unverified:**
+
+| AC         | Why                                                                                                                                                                                                                                                             |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **AC-009** | "lockout survives an API restart" — needs a live Redis plus a fresh cache instance. `server/src/cache/lockout-persistence.spec.ts` implements it and is gated behind `LOCKOUT_INTEGRATION=1`, so an ordinary run **skips** it rather than pretending it passed. |
+
+Run it with:
+
+```powershell
+cd server
+$env:REDIS_URL='redis://localhost:6379'; $env:LOCKOUT_INTEGRATION='1'
+npx jest src/cache/lockout-persistence.spec.ts --runInBand
+```
+
+**Structural caveat:** AC-033/AC-034 are asserted structurally (`dir="rtl"`, `lang="ar"`, direction switching), which is what jsdom can honestly prove. The visual half of those criteria — no overlapping or clipped text — still requires the **Playwright** suite the brief mandates as QA-1.
+
+## 9. Raw evidence
 
 `.sdrive/reports/tests/raw/authentication-onboarding-and-access-control-v1-2026-10-29.log`
+`.sdrive/reports/tests/raw/vitest-backoffice.log`

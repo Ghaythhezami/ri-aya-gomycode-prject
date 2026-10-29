@@ -36,10 +36,10 @@
     },
     {
       "requirementId": "FR-005",
-      "acceptanceCriteriaIds": ["AC-001", "AC-018"],
+      "acceptanceCriteriaIds": ["AC-001", "AC-002", "AC-003", "AC-018"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-001", "TEST-006"],
+      "testIds": ["TEST-001", "TEST-006", "TEST-034", "TEST-045"],
       "status": "complete"
     },
     {
@@ -191,8 +191,8 @@
       "acceptanceCriteriaIds": ["AC-035", "AC-036"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-028"],
-      "status": "in_progress"
+      "testIds": ["TEST-028", "TEST-046"],
+      "status": "complete"
     },
     {
       "requirementId": "FR-025",
@@ -367,16 +367,16 @@
       "acceptanceCriteriaIds": ["AC-033"],
       "planSection": "Security Considerations",
       "taskIds": [],
-      "testIds": [],
-      "status": "in_progress"
+      "testIds": ["TEST-048"],
+      "status": "complete"
     },
     {
       "requirementId": "NFR-012",
       "acceptanceCriteriaIds": ["AC-033", "AC-034"],
       "planSection": "Security Considerations",
       "taskIds": [],
-      "testIds": [],
-      "status": "in_progress"
+      "testIds": ["TEST-048", "TEST-049"],
+      "status": "complete"
     },
     {
       "requirementId": "NFR-013",
@@ -399,8 +399,8 @@
       "acceptanceCriteriaIds": ["AC-044"],
       "planSection": "API Contracts",
       "taskIds": ["T7.4"],
-      "testIds": [],
-      "status": "in_progress"
+      "testIds": ["TEST-047"],
+      "status": "complete"
     },
     {
       "requirementId": "FR-038",
