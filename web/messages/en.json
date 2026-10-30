@@ -150,5 +150,19 @@
     "rights": "© 2026 Ri’aya. All rights reserved.",
     "madeWith": "Made with care for clinical teams",
     "backToTop": "Back to top"
+  },
+  "support": {
+    "open": "Open support assistant",
+    "close": "Close support assistant",
+    "title": "Ri’aya assistant",
+    "status": "We’re here to help",
+    "greeting": "Hi there 👋 How can we help you today? Pick a topic below to get started.",
+    "topics": "Popular topics",
+    "q1": "How does Ri’aya work?",
+    "q2": "How is clinic data protected?",
+    "q3": "Sign in to my workspace",
+    "q4": "Create a new account",
+    "soon": "Live chat is coming soon",
+    "send": "Send message"
   }
 }

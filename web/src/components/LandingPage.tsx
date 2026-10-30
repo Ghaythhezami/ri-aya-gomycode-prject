@@ -25,13 +25,15 @@ import { BrandMark } from './BrandLogo';
 import { Reveal } from './home/Reveal';
 import { SectionHeading } from './home/SectionHeading';
 import { RolesTabs } from './home/RolesTabs';
+import { SupportWidget } from './home/SupportWidget';
 
 export function LandingPage() {
   return (
     <div id="top" className="min-h-screen overflow-x-clip bg-bg">
-      <div className="brand-bg relative">
+      <Header />
+      {/* Pulled up under the sticky header so the hero backdrop shows through it */}
+      <div className="brand-bg relative -mt-[76px] pt-[76px]">
         <HeroDecor />
-        <Header />
         <Hero />
       </div>
       <main>
@@ -43,6 +45,7 @@ export function LandingPage() {
         <CallToAction />
       </main>
       <Footer />
+      <SupportWidget />
     </div>
   );
 }

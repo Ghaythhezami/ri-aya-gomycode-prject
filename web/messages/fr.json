@@ -150,5 +150,19 @@
     "rights": "© 2026 Ri’aya. Tous droits réservés.",
     "madeWith": "Conçu avec soin pour les équipes cliniques",
     "backToTop": "Haut de page"
+  },
+  "support": {
+    "open": "Ouvrir l’assistant",
+    "close": "Fermer l’assistant",
+    "title": "Assistant Ri’aya",
+    "status": "Nous sommes là pour vous aider",
+    "greeting": "Bonjour 👋 Comment pouvons-nous vous aider aujourd’hui ? Choisissez un sujet ci-dessous.",
+    "topics": "Sujets populaires",
+    "q1": "Comment fonctionne Ri’aya ?",
+    "q2": "Comment les données sont-elles protégées ?",
+    "q3": "Me connecter à mon espace",
+    "q4": "Créer un compte",
+    "soon": "Le chat en direct arrive bientôt",
+    "send": "Envoyer le message"
   }
 }

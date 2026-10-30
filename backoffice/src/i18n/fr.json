@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "RI'AYA",
+    "name": "Ri’aya",
     "workspace": "Espace de travail"
   },
   "auth": {
@@ -81,7 +81,15 @@
     "greetingAfternoon": "Bon après-midi, {{name}}",
     "greetingEvening": "Bonsoir, {{name}}",
     "subtitle": "Voici l'activité de votre clinique aujourd'hui.",
-    "language": "Langue"
+    "language": "Langue",
+    "mainNav": "Navigation principale",
+    "skip": "Aller au contenu",
+    "comingSoonKicker": "Bientôt disponible",
+    "group": {
+      "main": "Quotidien",
+      "clinic": "Clinique",
+      "system": "Système"
+    }
   },
   "ds": {
     "kicker": "Système de design temporaire",

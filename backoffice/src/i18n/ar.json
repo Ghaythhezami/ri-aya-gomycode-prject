@@ -81,7 +81,15 @@
     "greetingAfternoon": "مساء الخير، {{name}}",
     "greetingEvening": "مساء الخير، {{name}}",
     "subtitle": "هذا ما يحدث في عيادتك اليوم.",
-    "language": "اللغة"
+    "language": "اللغة",
+    "mainNav": "التنقل الرئيسي",
+    "skip": "انتقل إلى المحتوى",
+    "comingSoonKicker": "قريبًا",
+    "group": {
+      "main": "العمل اليومي",
+      "clinic": "العيادة",
+      "system": "النظام"
+    }
   },
   "ds": {
     "kicker": "نظام تصميم مؤقت",

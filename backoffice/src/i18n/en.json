@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "RI'AYA",
+    "name": "Ri’aya",
     "workspace": "Workspace"
   },
   "auth": {
@@ -81,7 +81,15 @@
     "greetingAfternoon": "Good afternoon, {{name}}",
     "greetingEvening": "Good evening, {{name}}",
     "subtitle": "Here's what's happening at your clinic today.",
-    "language": "Language"
+    "language": "Language",
+    "mainNav": "Main navigation",
+    "skip": "Skip to content",
+    "comingSoonKicker": "Coming soon",
+    "group": {
+      "main": "Daily work",
+      "clinic": "Clinic",
+      "system": "System"
+    }
   },
   "ds": {
     "kicker": "Temporary design system",
