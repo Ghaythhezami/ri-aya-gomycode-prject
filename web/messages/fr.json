@@ -1,26 +1,29 @@
 {
   "meta": {
-    "title": "RI'AYA — Opérations cliniques intelligentes",
-    "description": "RI'AYA aide les cliniques à vivre des journées plus calmes : planification, flux patients et clarté opérationnelle en anglais, arabe et français."
+    "title": "Ri’aya — Opérations cliniques intelligentes",
+    "description": "Ri’aya aide les cliniques à vivre des journées plus calmes : planification, flux patients et clarté opérationnelle en anglais, arabe et français."
   },
   "nav": {
+    "main": "Navigation principale",
     "platform": "Plateforme",
-    "solutions": "Solutions",
+    "how": "Fonctionnement",
+    "roles": "Pour les équipes",
     "security": "Sécurité",
     "signIn": "Connexion",
-    "openWorkspace": "Ouvrir l'espace",
+    "getStarted": "Commencer",
+    "language": "Langue",
     "menu": "Ouvrir le menu",
     "close": "Fermer le menu"
   },
   "hero": {
     "badge": "Opérations cliniques intelligentes",
-    "title": "De meilleurs soins commencent par un meilleur flux.",
-    "subtitle": "RI'AYA offre aux équipes un espace calme et multilingue pour les rendez-vous, le personnel et le quotidien — moins d'attente, plus de clarté.",
-    "primary": "Ouvrir l'espace",
+    "titleLine1": "De meilleurs soins",
+    "titleLine2": "commencent par un meilleur flux.",
+    "subtitle": "Ri’aya offre aux équipes cliniques un espace calme et multilingue pour les rendez-vous, le personnel et le quotidien — moins d’attente pour les patients, plus de clarté pour les équipes.",
+    "primary": "Créer votre compte",
     "secondary": "Voir comment ça marche",
-    "designSystem": "Explorer le design system",
     "check1": "Accès par rôle",
-    "check2": "Multilingue",
+    "check2": "English · العربية · Français",
     "check3": "Conçu pour les cliniques",
     "previewLabel": "Aperçu du tableau de bord",
     "previewEyebrow": "Clinique centrale",
@@ -46,31 +49,106 @@
   },
   "features": {
     "kicker": "Plateforme",
-    "title": "Ce que le secrétariat et les cliniciens partagent",
-    "learn": "En savoir plus",
+    "title": "Tout ce que l’accueil et les cliniciens partagent",
+    "subtitle": "Un espace de travail serein qui remplace tableurs éparpillés, notes téléphoniques et files papier.",
     "s1Title": "Planification fluide",
     "s1Body": "Équilibrez agendas, salles et types de visite sans allers-retours inutiles.",
-    "s2Title": "Flux patients plus calme",
-    "s2Body": "Listes d'attente, accueil et statuts restent visibles pour des files honnêtes.",
+    "s2Title": "Flux patients apaisé",
+    "s2Body": "Listes d’attente, accueil et statuts en direct restent visibles pour des files claires et calmes.",
     "s3Title": "Intelligence actionnable",
-    "s3Body": "Repérez les goulets d'étranglement grâce à l'utilisation, l'attente et les annulations.",
+    "s3Body": "Repérez tôt les goulets d’étranglement grâce à l’utilisation, l’attente et les annulations.",
     "s4Title": "Clarté opérationnelle",
-    "s4Body": "Un espace pour le personnel, la capacité et la journée — avec des accès limités aux bons rôles."
+    "s4Body": "Un seul endroit pour le personnel, la capacité et la journée — avec une vision nette de chaque garde.",
+    "s5Title": "Vraiment multilingue",
+    "s5Body": "Passez instantanément de l’anglais à l’arabe ou au français, avec une mise en page native de droite à gauche.",
+    "s6Title": "Accès par rôle",
+    "s6Body": "Administrateurs, médecins et secrétaires voient exactement ce dont ils ont besoin — rien de plus."
   },
-  "dark": {
+  "how": {
+    "kicker": "Fonctionnement",
+    "title": "Du premier appel au suivi, en trois étapes sereines",
+    "subtitle": "Ri’aya suit le rythme naturel d’une journée en clinique au lieu d’en imposer un nouveau.",
+    "s1Title": "Réservez en quelques secondes",
+    "s1Body": "Trouvez le bon médecin et le bon créneau, confirmez la visite et gardez les agendas synchronisés.",
+    "s2Title": "Accueillez sans file d’attente",
+    "s2Body": "Enregistrez les patients à leur arrivée et fluidifiez la salle d’attente grâce au statut en direct.",
+    "s3Title": "Apprenez de chaque journée",
+    "s3Body": "Suivez l’attente, l’utilisation et les absences, puis ajustez demain en toute confiance."
+  },
+  "roles": {
+    "kicker": "Pensé pour chaque rôle",
+    "title": "Un espace, la bonne vue pour chaque personne",
+    "subtitle": "Les permissions suivent le rôle : chaque écran reste ciblé et sécurisé.",
+    "clinic": {
+      "title": "Admin. de clinique",
+      "short": "Gère la clinique au quotidien",
+      "headline": "Gardez toute la clinique en équilibre",
+      "body": "Gérez le personnel, les horaires et la capacité depuis un seul endroit, et voyez comment se passe vraiment la journée.",
+      "p1": "Inviter et gérer le personnel",
+      "p2": "Définir salles, horaires et types de visite",
+      "p3": "Suivre l’utilisation et l’attente"
+    },
+    "doctor": {
+      "title": "Médecin",
+      "short": "Se concentre sur les patients",
+      "headline": "Arrivez préparé à chaque consultation",
+      "body": "Consultez votre planning, qui attend et la suite — sans courir après l’accueil.",
+      "p1": "Planning personnel du jour",
+      "p2": "Salle d’attente en direct",
+      "p3": "Moins d’interruptions entre les visites"
+    },
+    "reception": {
+      "title": "Secrétaire",
+      "short": "Tient l’accueil",
+      "headline": "Un accueil qui garde le contrôle",
+      "body": "Réservez, déplacez et enregistrez les patients rapidement, avec une vue claire des disponibilités de chaque médecin.",
+      "p1": "Réservation et report rapides",
+      "p2": "Enregistrement en un clic",
+      "p3": "Liste d’attente en un coup d’œil"
+    },
+    "super": {
+      "title": "Super admin",
+      "short": "Supervise la plateforme",
+      "headline": "Pilotez chaque clinique en confiance",
+      "body": "Créez des cliniques, désignez leurs administrateurs et gardez des accès cohérents dans toute l’organisation.",
+      "p1": "Créer et configurer des cliniques",
+      "p2": "Désigner les administrateurs",
+      "p3": "Accès cohérents par rôle"
+    },
+    "stat1": "Langues, dont l’arabe",
+    "stat2": "Rôles avec accès adaptés",
+    "stat3": "Mise en page native droite-gauche",
+    "stat4": "Installation — tout tourne dans le navigateur"
+  },
+  "security": {
+    "kicker": "Sécurité",
     "title": "Moins de bruit opérationnel. Plus de temps pour les patients.",
-    "body": "RI'AYA met en avant les quelques indicateurs utiles. Les chiffres ci-dessous sont des données d'exemple.",
-    "chartTitle": "Temps d'attente moyen",
+    "body": "Ri’aya met en avant les quelques indicateurs utiles d’une journée en clinique, tout en protégeant les données des patients et du personnel.",
+    "p1": "Mots de passe hachés avec Argon2",
+    "p2": "Sessions courtes avec renouvellement sécurisé",
+    "p3": "Accès limité à chaque rôle",
+    "chartTitle": "Temps d’attente moyen",
     "delta": "↓ 18 % ce mois-ci",
-    "sample": "Données d'exemple"
+    "sample": "Données d’exemple",
+    "days": "Lun,Mar,Mer,Jeu,Ven,Sam,Dim"
+  },
+  "cta": {
+    "title": "Prêt pour une journée plus sereine ?",
+    "body": "Créez votre compte et réunissez planification, flux patients et équipe dans un espace clair.",
+    "primary": "Créer votre compte",
+    "secondary": "Se connecter"
   },
   "footer": {
-    "blurb": "Des opérations cliniques conçues pour rester discrètes.",
+    "blurb": "Des opérations cliniques conçues pour rester discrètes — pour que votre équipe se concentre sur les soins.",
     "product": "Produit",
-    "company": "Entreprise",
+    "workspace": "Espace de travail",
     "legal": "Mentions",
+    "createAccount": "Créer un compte",
+    "designSystem": "Design system",
     "privacy": "Confidentialité",
     "terms": "Conditions",
-    "rights": "© 2026 RI'AYA. Tous droits réservés."
+    "rights": "© 2026 Ri’aya. Tous droits réservés.",
+    "madeWith": "Conçu avec soin pour les équipes cliniques",
+    "backToTop": "Haut de page"
   }
 }

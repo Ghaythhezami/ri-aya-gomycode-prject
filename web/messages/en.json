@@ -1,26 +1,29 @@
 {
   "meta": {
-    "title": "RI'AYA — Intelligent clinic operations",
-    "description": "RI'AYA helps clinics run calmer days: scheduling, patient flow, and operational clarity in English, Arabic, and French."
+    "title": "Ri’aya — Intelligent clinic operations",
+    "description": "Ri’aya helps clinics run calmer days: scheduling, patient flow, and operational clarity in English, Arabic, and French."
   },
   "nav": {
+    "main": "Main navigation",
     "platform": "Platform",
-    "solutions": "Solutions",
+    "how": "How it works",
+    "roles": "For teams",
     "security": "Security",
     "signIn": "Sign in",
-    "openWorkspace": "Open workspace",
+    "getStarted": "Get started",
+    "language": "Language",
     "menu": "Open menu",
     "close": "Close menu"
   },
   "hero": {
     "badge": "Intelligent clinic operations",
-    "title": "Better care starts with a better flow.",
-    "subtitle": "RI'AYA gives clinical teams a calm, multilingual workspace for appointments, staffing, and daily operations — so patients wait less and teams see more clearly.",
-    "primary": "Open workspace",
+    "titleLine1": "Better care starts",
+    "titleLine2": "with a better flow.",
+    "subtitle": "Ri’aya gives clinical teams a calm, multilingual workspace for appointments, staffing and daily operations — so patients wait less and teams see more clearly.",
+    "primary": "Create your account",
     "secondary": "See how it works",
-    "designSystem": "Explore the design system",
     "check1": "Role-based access",
-    "check2": "Multilingual",
+    "check2": "English · العربية · Français",
     "check3": "Built for clinics",
     "previewLabel": "Clinic overview preview",
     "previewEyebrow": "Central Clinic",
@@ -39,38 +42,113 @@
   },
   "trust": {
     "title": "Designed for modern clinical teams",
-    "one": "Primary Care",
-    "two": "Specialist Clinics",
-    "three": "Medical Centers",
-    "four": "Outpatient Care"
+    "one": "Primary care",
+    "two": "Specialist clinics",
+    "three": "Medical centers",
+    "four": "Outpatient care"
   },
   "features": {
     "kicker": "Platform",
     "title": "Everything the front desk and clinicians share",
-    "learn": "Learn more",
+    "subtitle": "One calm workspace that replaces scattered spreadsheets, phone notes and paper queues.",
     "s1Title": "Effortless scheduling",
-    "s1Body": "Keep calendars balanced across doctors, rooms, and visit types without the usual back-and-forth.",
+    "s1Body": "Keep calendars balanced across doctors, rooms and visit types without the usual back-and-forth.",
     "s2Title": "Calmer patient flow",
-    "s2Body": "Waiting lists, check-in, and live status stay visible so queues stay honest and quiet.",
+    "s2Body": "Waiting lists, check-in and live status stay visible, so queues stay honest and quiet.",
     "s3Title": "Actionable intelligence",
-    "s3Body": "Spot bottlenecks early with utilization, wait time, and cancellation signals you can act on.",
+    "s3Body": "Spot bottlenecks early with utilization, wait time and cancellation signals you can act on.",
     "s4Title": "Operational clarity",
-    "s4Body": "One workspace for staff, capacity, and the day ahead — with access limited to the right roles."
+    "s4Body": "One place for staff, capacity and the day ahead — with a clear picture for every shift.",
+    "s5Title": "Truly multilingual",
+    "s5Body": "Switch between English, Arabic and French instantly, with a native right-to-left layout.",
+    "s6Title": "Access by role",
+    "s6Body": "Admins, doctors and receptionists each see exactly what they need — nothing more."
   },
-  "dark": {
+  "how": {
+    "kicker": "How it works",
+    "title": "From first call to follow-up, in three calm steps",
+    "subtitle": "Ri’aya follows the natural rhythm of a clinic day instead of forcing a new one.",
+    "s1Title": "Book in seconds",
+    "s1Body": "Find the right doctor and slot, confirm the visit and keep everyone’s calendar in sync.",
+    "s2Title": "Welcome without the queue",
+    "s2Body": "Check patients in as they arrive and keep the waiting room moving with live status.",
+    "s3Title": "Learn from every day",
+    "s3Body": "See wait times, utilization and no-shows, then adjust tomorrow with confidence."
+  },
+  "roles": {
+    "kicker": "Built for every role",
+    "title": "One workspace, the right view for each person",
+    "subtitle": "Permissions follow the role, so every screen stays focused and safe.",
+    "clinic": {
+      "title": "Clinic admin",
+      "short": "Runs the clinic day to day",
+      "headline": "Keep the whole clinic in balance",
+      "body": "Manage staff, opening hours and capacity from one place, and see how the day is really going.",
+      "p1": "Invite and manage staff",
+      "p2": "Set rooms, hours and visit types",
+      "p3": "Track utilization and wait times"
+    },
+    "doctor": {
+      "title": "Doctor",
+      "short": "Focuses on patients",
+      "headline": "Arrive prepared for every visit",
+      "body": "See your schedule, who is waiting and what comes next — without chasing the front desk.",
+      "p1": "Personal daily schedule",
+      "p2": "Live waiting-room status",
+      "p3": "Fewer interruptions between visits"
+    },
+    "reception": {
+      "title": "Receptionist",
+      "short": "Owns the front desk",
+      "headline": "A front desk that feels in control",
+      "body": "Book, reschedule and check patients in quickly, with a clear view of every doctor’s availability.",
+      "p1": "Fast booking and rescheduling",
+      "p2": "One-click check-in",
+      "p3": "Waiting list at a glance"
+    },
+    "super": {
+      "title": "Super admin",
+      "short": "Oversees the platform",
+      "headline": "Govern every clinic with confidence",
+      "body": "Create clinics, assign administrators and keep access consistent across the whole organisation.",
+      "p1": "Create and configure clinics",
+      "p2": "Assign clinic administrators",
+      "p3": "Consistent role-based access"
+    },
+    "stat1": "Languages, including Arabic",
+    "stat2": "Team roles with tailored access",
+    "stat3": "Native right-to-left layout",
+    "stat4": "Installs — it runs in the browser"
+  },
+  "security": {
+    "kicker": "Security",
     "title": "Less operational noise. More time for patients.",
-    "body": "RI'AYA surfaces the few numbers that matter on a clinic day. Figures below are sample data for illustration.",
+    "body": "Ri’aya surfaces the few numbers that matter on a clinic day, while keeping patient and staff data protected.",
+    "p1": "Passwords hashed with Argon2",
+    "p2": "Short-lived sessions with secure refresh",
+    "p3": "Access scoped to each role",
     "chartTitle": "Average waiting time",
     "delta": "↓ 18% this month",
-    "sample": "Sample data"
+    "sample": "Sample data",
+    "days": "Mon,Tue,Wed,Thu,Fri,Sat,Sun"
+  },
+  "cta": {
+    "title": "Ready for a calmer clinic day?",
+    "body": "Create your account and bring scheduling, patient flow and your team into one clear workspace.",
+    "primary": "Create your account",
+    "secondary": "Sign in"
   },
   "footer": {
-    "blurb": "Clinic operations, designed to stay out of the way.",
+    "blurb": "Clinic operations, designed to stay out of the way — so your team can focus on care.",
     "product": "Product",
-    "company": "Company",
+    "workspace": "Workspace",
     "legal": "Legal",
+    "createAccount": "Create account",
+    "designSystem": "Design system",
     "privacy": "Privacy",
     "terms": "Terms",
-    "rights": "© 2026 RI'AYA. All rights reserved."
+    "rights": "© 2026 Ri’aya. All rights reserved.",
+    "madeWith": "Made with care for clinical teams",
+    "backToTop": "Back to top"
   }
 }
