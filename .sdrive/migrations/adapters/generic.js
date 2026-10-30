@@ -1,10 +1,16 @@
-const path = require('path');
-const { exists, listDirs, findFirst, slugify, relative } = require('../lib/files');
+const path = require("path");
+const {
+  exists,
+  listDirs,
+  findFirst,
+  slugify,
+  relative
+} = require("../lib/files");
 
-const ID = 'generic';
-const NAME = 'Generic spec folders';
+const ID = "generic";
+const NAME = "Generic spec folders";
 
-const ROOTS = ['specs', 'docs/specs', 'documentation/specs'];
+const ROOTS = ["specs", "docs/specs", "documentation/specs"];
 
 function detect(root) {
   const roots = ROOTS.filter((dir) => exists(path.join(root, dir)));
@@ -12,13 +18,13 @@ function detect(root) {
   return {
     id: ID,
     name: NAME,
-    root: roots.join(', '),
+    root: roots.join(", "),
     detected: roots.length > 0,
-    confidence: roots.length > 0 ? 'low' : 'none',
+    confidence: roots.length > 0 ? "low" : "none",
     counts: {
       roots: roots.length,
-      features: roots.reduce((total, dir) => total + listDirs(path.join(root, dir)).length, 0),
-    },
+      features: roots.reduce((total, dir) => total + listDirs(path.join(root, dir)).length, 0)
+    }
   };
 }
 
@@ -31,19 +37,19 @@ function inventory(root) {
 
     for (const name of listDirs(base)) {
       const sourceDir = path.join(base, name);
-      const spec = findFirst(sourceDir, ['spec.md', 'requirements.md', 'README.md']);
-      const plan = findFirst(sourceDir, ['plan.md', 'design.md', 'technical-plan.md']);
-      const tasks = findFirst(sourceDir, ['tasks.md', 'todo.md']);
+      const spec = findFirst(sourceDir, ["spec.md", "requirements.md", "README.md"]);
+      const plan = findFirst(sourceDir, ["plan.md", "design.md", "technical-plan.md"]);
+      const tasks = findFirst(sourceDir, ["tasks.md", "todo.md"]);
 
       if (!spec && !plan && !tasks) continue;
 
       entries.push({
         feature: slugify(name),
         sourceDir: relative(root, sourceDir),
-        lifecycle: 'backlog',
-        kind: 'spec-folder',
+        lifecycle: "backlog",
+        kind: "spec-folder",
         files: { spec, plan, tasks },
-        notes: ['Generic spec folder imported as a backlog draft; confirm the mapping.'],
+        notes: ["Generic spec folder imported as a backlog draft; confirm the mapping."]
       });
     }
   }
@@ -54,8 +60,8 @@ function inventory(root) {
 module.exports = {
   id: ID,
   name: NAME,
-  defaultLifecycle: 'backlog',
+  defaultLifecycle: "backlog",
   roots: ROOTS,
   detect,
-  inventory,
+  inventory
 };

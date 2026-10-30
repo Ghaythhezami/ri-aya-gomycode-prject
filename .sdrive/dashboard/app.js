@@ -8,17 +8,17 @@ async function fetchJson(url) {
 }
 
 function escapeHtml(value) {
-  return String(value == null ? '' : value)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 }
 
 function gateClass(status) {
-  if (status === 'approved') return 'gate approved';
-  if (status === 'in_progress') return 'gate in_progress';
-  return 'gate pending';
+  if (status === "approved") return "gate approved";
+  if (status === "in_progress") return "gate in_progress";
+  return "gate pending";
 }
 
 /* ============================================================
@@ -50,7 +50,7 @@ function paginate(items, key, perPage) {
     pages,
     total,
     start,
-    end: Math.min(start + perPage, total),
+    end: Math.min(start + perPage, total)
   };
 }
 
@@ -63,9 +63,9 @@ function pageNumbers(page, pages) {
   const out = [1];
   const from = Math.max(2, page - 1);
   const to = Math.min(pages - 1, page + 1);
-  if (from > 2) out.push('…');
+  if (from > 2) out.push("…");
   for (let i = from; i <= to; i++) out.push(i);
-  if (to < pages - 1) out.push('…');
+  if (to < pages - 1) out.push("…");
   out.push(pages);
   return out;
 }
@@ -80,16 +80,16 @@ function renderPager(total, key, perPage, onNavigate) {
   const start = (page - 1) * perPage + 1;
   const end = Math.min(page * perPage, total);
 
-  const wrap = document.createElement('div');
-  wrap.className = 'pager';
+  const wrap = document.createElement("div");
+  wrap.className = "pager";
 
-  const summary = document.createElement('div');
-  summary.className = 'pager-summary';
+  const summary = document.createElement("div");
+  summary.className = "pager-summary";
   summary.innerHTML = `Showing <strong>${start}–${end}</strong> of <strong>${total}</strong>`;
   wrap.appendChild(summary);
 
-  const controls = document.createElement('div');
-  controls.className = 'pager-controls';
+  const controls = document.createElement("div");
+  controls.className = "pager-controls";
 
   const goTo = (next) => {
     if (next < 1 || next > pages || next === page) return;
@@ -98,33 +98,29 @@ function renderPager(total, key, perPage, onNavigate) {
   };
 
   const makeBtn = (label, target, opts = {}) => {
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'pager-btn' + (opts.active ? ' is-active' : '');
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "pager-btn" + (opts.active ? " is-active" : "");
     btn.textContent = label;
     if (opts.title) btn.title = opts.title;
-    if (opts.ariaLabel) btn.setAttribute('aria-label', opts.ariaLabel);
-    if (opts.active) btn.setAttribute('aria-current', 'page');
+    if (opts.ariaLabel) btn.setAttribute("aria-label", opts.ariaLabel);
+    if (opts.active) btn.setAttribute("aria-current", "page");
     btn.disabled = !!opts.disabled;
     if (!opts.disabled && !opts.active) {
-      btn.addEventListener('click', () => goTo(target));
+      btn.addEventListener("click", () => goTo(target));
     }
     return btn;
   };
 
   controls.appendChild(
-    makeBtn('‹', page - 1, {
-      disabled: page === 1,
-      ariaLabel: 'Previous page',
-      title: 'Previous page',
-    }),
+    makeBtn("‹", page - 1, { disabled: page === 1, ariaLabel: "Previous page", title: "Previous page" })
   );
 
   pageNumbers(page, pages).forEach((n) => {
-    if (n === '…') {
-      const gap = document.createElement('span');
-      gap.className = 'pager-ellipsis';
-      gap.textContent = '…';
+    if (n === "…") {
+      const gap = document.createElement("span");
+      gap.className = "pager-ellipsis";
+      gap.textContent = "…";
       controls.appendChild(gap);
     } else {
       controls.appendChild(makeBtn(String(n), n, { active: n === page, ariaLabel: `Page ${n}` }));
@@ -132,11 +128,7 @@ function renderPager(total, key, perPage, onNavigate) {
   });
 
   controls.appendChild(
-    makeBtn('›', page + 1, {
-      disabled: page === pages,
-      ariaLabel: 'Next page',
-      title: 'Next page',
-    }),
+    makeBtn("›", page + 1, { disabled: page === pages, ariaLabel: "Next page", title: "Next page" })
   );
 
   wrap.appendChild(controls);
@@ -146,72 +138,72 @@ function renderPager(total, key, perPage, onNavigate) {
 // Human-readable gate metadata. Gates are approval checkpoints a feature must
 // clear before it can advance; without a label users mistake them for metrics.
 const GATE_DEFS = [
-  { key: 'specification', label: 'Spec', hint: 'Specification approved' },
-  { key: 'planning', label: 'Plan', hint: 'Plan approved' },
-  { key: 'implementation', label: 'Impl', hint: 'Implementation approved' },
-  { key: 'review', label: 'Review', hint: 'Review approved' },
+  { key: "specification", label: "Spec", hint: "Specification approved" },
+  { key: "planning", label: "Plan", hint: "Plan approved" },
+  { key: "implementation", label: "Impl", hint: "Implementation approved" },
+  { key: "review", label: "Review", hint: "Review approved" }
 ];
 
 function gateStatusMeta(status) {
-  if (status === 'approved') return { icon: '✓', text: 'approved' };
-  if (status === 'in_progress') return { icon: '●', text: 'in progress' };
-  return { icon: '○', text: 'pending' };
+  if (status === "approved") return { icon: "✓", text: "approved" };
+  if (status === "in_progress") return { icon: "●", text: "in progress" };
+  return { icon: "○", text: "pending" };
 }
 
 function phaseTone(phase) {
-  if (phase === 'completed') return 'green';
-  if (phase === 'ongoing') return 'blue';
-  if (phase === 'blocked') return 'red';
-  return 'amber';
+  if (phase === "completed") return "green";
+  if (phase === "ongoing") return "blue";
+  if (phase === "blocked") return "red";
+  return "amber";
 }
 
 function verificationTone(status) {
-  if (status === 'pass') return 'green';
-  if (status === 'warn') return 'amber';
-  if (status === 'fail') return 'red';
-  return 'slate';
+  if (status === "pass") return "green";
+  if (status === "warn") return "amber";
+  if (status === "fail") return "red";
+  return "slate";
 }
 
 function initials(name) {
-  return String(name || '?')
+  return String(name || "?")
     .trim()
     .split(/[\s-_]+/)
     .map((w) => w[0])
     .slice(0, 2)
-    .join('')
+    .join("")
     .toUpperCase();
 }
 
 function formatDate(iso) {
-  if (!iso) return '—';
+  if (!iso) return "—";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleDateString(undefined, {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
+    year: "numeric",
+    month: "short",
+    day: "numeric"
   });
 }
 
 function formatDateTime(iso) {
-  if (!iso) return '—';
+  if (!iso) return "—";
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   return d.toLocaleString(undefined, {
-    month: 'short',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
   });
 }
 
 function getFilterValues() {
   return {
-    search: document.getElementById('filter-search').value.trim().toLowerCase(),
-    phase: document.getElementById('filter-phase').value,
-    verification: document.getElementById('filter-verification').value,
-    tests: document.getElementById('filter-tests').value,
-    currentVersionOnly: document.getElementById('filter-current-version').checked,
+    search: document.getElementById("filter-search").value.trim().toLowerCase(),
+    phase: document.getElementById("filter-phase").value,
+    verification: document.getElementById("filter-verification").value,
+    tests: document.getElementById("filter-tests").value,
+    currentVersionOnly: document.getElementById("filter-current-version").checked
   };
 }
 
@@ -226,7 +218,9 @@ function featureMatchesFilters(feature, version, filters, verification, tests) {
 
   if (filters.verification) {
     const status =
-      verification.status === 'not_run' || !verification.status ? 'not_run' : verification.status;
+      verification.status === "not_run" || !verification.status
+        ? "not_run"
+        : verification.status;
 
     if (status !== filters.verification) {
       return false;
@@ -234,7 +228,8 @@ function featureMatchesFilters(feature, version, filters, verification, tests) {
   }
 
   if (filters.tests) {
-    const testStatus = tests.status === 'not_run' || !tests.status ? 'not_run' : tests.status;
+    const testStatus =
+      tests.status === "not_run" || !tests.status ? "not_run" : tests.status;
 
     if (testStatus !== filters.tests) {
       return false;
@@ -248,9 +243,9 @@ function featureMatchesFilters(feature, version, filters, verification, tests) {
    PROJECT INFO
    ============================================================ */
 function renderProjectInfo(project) {
-  const name = (project && project.name) || 'project';
+  const name = (project && project.name) || "project";
 
-  const sidebar = document.getElementById('sidebar-project');
+  const sidebar = document.getElementById("sidebar-project");
   if (sidebar) sidebar.textContent = name;
 
   if (project && project.name) {
@@ -262,12 +257,12 @@ function renderProjectInfo(project) {
    PROJECT SWITCHER
    ============================================================ */
 async function renderProjectSwitcher() {
-  const select = document.getElementById('project-switcher');
+  const select = document.getElementById("project-switcher");
   if (!select) return;
 
   let data;
   try {
-    data = await fetchJson('/api/projects');
+    data = await fetchJson("/api/projects");
   } catch (error) {
     return;
   }
@@ -278,40 +273,41 @@ async function renderProjectSwitcher() {
   select.innerHTML = projects
     .map(
       (project) =>
-        `<option value="${escapeHtml(project.path)}"${project.active ? ' selected' : ''}>${escapeHtml(project.label)}</option>`,
+        `<option value="${escapeHtml(project.path)}"${project.active ? " selected" : ""}>${escapeHtml(project.label)}</option>`
     )
-    .join('');
+    .join("");
 
-  select.title = 'Switch the project this dashboard is showing';
+  select.title = "Switch the project this dashboard is showing";
   select.disabled = projects.length < 2;
-  select.dataset.bound = 'true';
+  select.dataset.bound = "true";
 }
 
 // Switch the server's active project, then land somewhere that exists in the
 // new project. A feature detail route (/features/x) belongs to the old project,
 // so it falls back to the overview; every other page is project-independent.
 async function switchActiveProject(target, destination) {
-  const response = await fetch('/api/switch-project', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ path: target }),
+  const response = await fetch("/api/switch-project", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ path: target })
   });
 
   if (!response.ok) {
     const data = await response.json().catch(() => ({}));
-    throw new Error(data.error || 'Could not switch project');
+    throw new Error(data.error || "Could not switch project");
   }
 
   const { route } = parseLocation();
-  const next = destination || (route === 'feature-detail' ? '/overview' : window.location.pathname);
+  const next =
+    destination || (route === "feature-detail" ? "/overview" : window.location.pathname);
   window.location.assign(next);
 }
 
 function setupProjectSwitcher() {
-  const select = document.getElementById('project-switcher');
+  const select = document.getElementById("project-switcher");
   if (!select) return;
 
-  select.addEventListener('change', async () => {
+  select.addEventListener("change", async () => {
     select.disabled = true;
 
     try {
@@ -330,9 +326,9 @@ function setupProjectSwitcher() {
    switching projects at all.
    ============================================================ */
 const PORTFOLIO_STATUS = {
-  blocked: 'Needs attention',
-  active: 'In progress',
-  idle: 'Idle',
+  blocked: "Needs attention",
+  active: "In progress",
+  idle: "Idle"
 };
 
 function gateLabel(gate) {
@@ -340,25 +336,25 @@ function gateLabel(gate) {
 }
 
 function relativeActivity(iso) {
-  if (!iso) return 'No activity yet';
+  if (!iso) return "No activity yet";
   const then = Date.parse(iso);
-  if (!Number.isFinite(then)) return 'No activity yet';
+  if (!Number.isFinite(then)) return "No activity yet";
 
   const days = Math.floor((Date.now() - then) / 86400000);
-  if (days <= 0) return 'Today';
-  if (days === 1) return 'Yesterday';
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
   if (days < 30) return `${days} days ago`;
   return formatDate(iso);
 }
 
 function renderProjectCard(project) {
   const focus = project.focus;
-  const status = PORTFOLIO_STATUS[project.status] ? project.status : 'idle';
+  const status = PORTFOLIO_STATUS[project.status] ? project.status : "idle";
   const rejected = project.rejectedGates || [];
   const nextGates = project.outstandingGates || [];
 
   return `
-    <article class="portfolio-card${project.active ? ' is-active' : ''}" data-project-path="${escapeHtml(project.path)}" role="button" tabindex="0" aria-label="Open ${escapeHtml(project.name)}">
+    <article class="portfolio-card${project.active ? " is-active" : ""}" data-project-path="${escapeHtml(project.path)}" role="button" tabindex="0" aria-label="Open ${escapeHtml(project.name)}">
       <header class="portfolio-card-head">
         <div class="portfolio-card-identity">
           <h3 class="portfolio-card-name">${escapeHtml(project.name)}</h3>
@@ -376,7 +372,7 @@ function renderProjectCard(project) {
       ${
         focus
           ? `<p class="portfolio-focus">
-               <span class="portfolio-focus-label">${project.live ? 'Working on' : 'Last touched'}</span>
+               <span class="portfolio-focus-label">${project.live ? "Working on" : "Last touched"}</span>
                <span class="portfolio-focus-name">${escapeHtml(focus.feature)}</span>
                <span class="portfolio-focus-meta">${escapeHtml(focus.version)} · ${escapeHtml(focus.step || focus.phase)} · ${focus.approvedGates}/${focus.totalGates} gates</span>
              </p>`
@@ -385,53 +381,53 @@ function renderProjectCard(project) {
 
       ${
         rejected.length
-          ? `<p class="portfolio-blockers">Rejected: ${rejected.map((gate) => escapeHtml(gateLabel(gate))).join(', ')}</p>`
+          ? `<p class="portfolio-blockers">Rejected: ${rejected.map((gate) => escapeHtml(gateLabel(gate))).join(", ")}</p>`
           : nextGates.length
-            ? `<p class="portfolio-next">Next: ${nextGates.map((gate) => escapeHtml(gateLabel(gate))).join(', ')}</p>`
-            : ''
+            ? `<p class="portfolio-next">Next: ${nextGates.map((gate) => escapeHtml(gateLabel(gate))).join(", ")}</p>`
+            : ""
       }
 
       <footer class="portfolio-card-foot">
-        ${project.active ? 'Current project' : `Open ${escapeHtml(project.name)} →`}
+        ${project.active ? "Current project" : `Open ${escapeHtml(project.name)} →`}
       </footer>
     </article>
   `;
 }
 
 async function renderProjects() {
-  const grid = document.getElementById('projects-grid');
+  const grid = document.getElementById("projects-grid");
   if (!grid) return;
 
-  const data = await fetchJson('/api/portfolio');
+  const data = await fetchJson("/api/portfolio");
   const projects = (data && data.projects) || [];
 
   if (projects.length === 0) {
-    grid.className = 'panel-loading';
-    grid.textContent = 'No projects yet. Start a dashboard in a project to register it.';
+    grid.className = "panel-loading";
+    grid.textContent = "No projects yet. Start a dashboard in a project to register it.";
     return;
   }
 
-  grid.className = 'portfolio-grid';
-  grid.innerHTML = projects.map(renderProjectCard).join('');
+  grid.className = "portfolio-grid";
+  grid.innerHTML = projects.map(renderProjectCard).join("");
 
-  grid.querySelectorAll('[data-project-path]').forEach((card) => {
+  grid.querySelectorAll("[data-project-path]").forEach((card) => {
     const open = async () => {
-      if (card.dataset.busy === 'true') return;
-      card.dataset.busy = 'true';
-      card.classList.add('is-busy');
+      if (card.dataset.busy === "true") return;
+      card.dataset.busy = "true";
+      card.classList.add("is-busy");
 
       try {
-        await switchActiveProject(card.dataset.projectPath, '/overview');
+        await switchActiveProject(card.dataset.projectPath, "/overview");
       } catch (error) {
-        card.dataset.busy = 'false';
-        card.classList.remove('is-busy');
+        card.dataset.busy = "false";
+        card.classList.remove("is-busy");
         alert(error.message);
       }
     };
 
-    card.addEventListener('click', open);
-    card.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+    card.addEventListener("click", open);
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         open();
       }
@@ -443,33 +439,36 @@ async function renderProjects() {
    GIT INFO
    ============================================================ */
 function renderGitInfo(git) {
-  const sidebar = document.getElementById('sidebar-git');
-  const chip = document.getElementById('topbar-git');
+  const sidebar = document.getElementById("sidebar-git");
+  const chip = document.getElementById("topbar-git");
 
   renderBranchingModel(git && git.branching);
 
   if (!git || !git.available) {
-    if (sidebar) sidebar.textContent = 'Not a git repository';
-    if (chip) chip.textContent = 'No git';
+    if (sidebar) sidebar.textContent = "Not a git repository";
+    if (chip) chip.textContent = "No git";
     return;
   }
 
   if (sidebar) {
     sidebar.innerHTML = `
       <div><span class="git-branch-name">${escapeHtml(git.branch)}</span></div>
-      <div class="git-meta">${escapeHtml(git.commit)} · ${escapeHtml(git.author || '')}</div>
-      ${git.mergedFrom ? `<div class="git-meta">merged from ${escapeHtml(git.mergedFrom)}</div>` : ''}
+      <div class="git-meta">${escapeHtml(git.commit)} · ${escapeHtml(git.author || "")}</div>
+      ${git.mergedFrom ? `<div class="git-meta">merged from ${escapeHtml(git.mergedFrom)}</div>` : ""}
     `;
   }
 
   if (chip) {
-    const sync = git.ahead || git.behind ? ` · ↑${git.ahead} ↓${git.behind}` : '';
+    const sync =
+      git.ahead || git.behind
+        ? ` · ↑${git.ahead} ↓${git.behind}`
+        : "";
     chip.innerHTML = `
-      <span class="dot ${git.dirty === true ? 'dirty' : git.dirty === null ? 'unknown' : ''}"></span>
+      <span class="dot ${git.dirty === true ? "dirty" : git.dirty === null ? "unknown" : ""}"></span>
       <span class="branch">${escapeHtml(git.branch)}</span>
       <span>${escapeHtml(git.commit)}${sync}</span>
     `;
-    chip.title = `${git.subject || ''}${git.mergedFrom ? `\nMerged from: ${git.mergedFrom}` : ''}`;
+    chip.title = `${git.subject || ""}${git.mergedFrom ? `\nMerged from: ${git.mergedFrom}` : ""}`;
   }
 }
 
@@ -481,25 +480,24 @@ function renderGitInfo(git) {
 // setting, so this display cannot change how a feature is archived - it describes
 // the setup the project already has.
 function renderBranchingModel(branching) {
-  const el = document.getElementById('sidebar-branching');
+  const el = document.getElementById("sidebar-branching");
   if (!el) return;
 
   if (!branching || !branching.label) {
-    el.innerHTML = '';
-    el.removeAttribute('title');
+    el.innerHTML = "";
+    el.removeAttribute("title");
     return;
   }
 
   // The concrete branch is the fact; the model name is the hint. When features land
   // on more than one branch there is no single integration branch to show.
   const target = branching.integration.length
-    ? branching.integration.join(', ')
-    : branching.defaultBranch || 'no default branch';
+    ? branching.integration.join(", ")
+    : branching.defaultBranch || "no default branch";
 
-  const stack =
-    branching.stackedCount && branching.label !== 'Stacked features'
-      ? `<div class="branching-stack">${branching.stackedCount} stacked on a peer branch</div>`
-      : '';
+  const stack = branching.stackedCount && branching.label !== "Stacked features"
+    ? `<div class="branching-stack">${branching.stackedCount} stacked on a peer branch</div>`
+    : "";
 
   el.innerHTML = `
     <div class="branching-model">${escapeHtml(branching.label)}</div>
@@ -516,8 +514,8 @@ function renderBranchingModel(branching) {
    OVERVIEW
    ============================================================ */
 function renderOverview(onboarding, git, product, productType, health) {
-  const wrap = document.createElement('div');
-  wrap.className = 'overview-page';
+  const wrap = document.createElement("div");
+  wrap.className = "overview-page";
 
   const summary = product?.summary || null;
 
@@ -536,7 +534,7 @@ function renderOverview(onboarding, git, product, productType, health) {
    call to action on the page. A score without those two things is a vibe, not a
    measurement. */
 function renderHealthCard(health) {
-  if (!health) return '';
+  if (!health) return "";
 
   if (!health.available) {
     return `
@@ -546,24 +544,24 @@ function renderHealthCard(health) {
         <h3>Project Health</h3>
       </header>
       <div class="ov-panel-body">
-        <div class="ov-empty">${escapeHtml(health.reason || 'Nothing to score yet.')}</div>
+        <div class="ov-empty">${escapeHtml(health.reason || "Nothing to score yet.")}</div>
       </div>
     </section>
     `;
   }
 
-  const tone = health.score >= 80 ? 'green' : health.score >= 55 ? 'amber' : 'red';
+  const tone = health.score >= 80 ? "green" : health.score >= 55 ? "amber" : "red";
 
   const components = health.components
     .map((component) => {
-      const pct = component.percent === null ? 'not scored' : `${component.percent}%`;
+      const pct = component.percent === null ? "not scored" : `${component.percent}%`;
       const width = component.percent === null ? 0 : component.percent;
       const evidence = (component.evidence || [])
         .map((line) => `<li>${escapeHtml(line)}</li>`)
-        .join('');
+        .join("");
       const more = component.evidenceMore
         ? `<li class="muted">and ${component.evidenceMore} more</li>`
-        : '';
+        : "";
       return `
         <details class="health-row">
           <summary>
@@ -573,12 +571,12 @@ function renderHealthCard(health) {
           </summary>
           <div class="health-row-body">
             <p>${escapeHtml(component.detail)}</p>
-            ${evidence || more ? `<ul class="health-evidence">${evidence}${more}</ul>` : ''}
+            ${evidence || more ? `<ul class="health-evidence">${evidence}${more}</ul>` : ""}
           </div>
         </details>
       `;
     })
-    .join('');
+    .join("");
 
   const next = health.nextAction
     ? `
@@ -588,12 +586,12 @@ function renderHealthCard(health) {
         <div class="health-next-command"><code>${escapeHtml(health.nextAction.command)}</code>${
           health.nextAction.points > 0
             ? `<span class="health-next-gain">+${health.nextAction.points}</span>`
-            : ''
+            : ""
         }</div>
         <div class="health-next-reason">${escapeHtml(health.nextAction.reason)}</div>
       </div>
     `
-    : '';
+    : "";
 
   const blockers = health.blockers.length
     ? `
@@ -606,16 +604,16 @@ function renderHealthCard(health) {
                 .map(
                   (blocker, index) =>
                     `<li>${
-                      index === 0 ? `<strong>${escapeHtml(entry.feature)}</strong> - ` : ''
-                    }${escapeHtml(blocker)}</li>`,
+                      index === 0 ? `<strong>${escapeHtml(entry.feature)}</strong> - ` : ""
+                    }${escapeHtml(blocker)}</li>`
                 )
-                .join(''),
+                .join("")
             )
-            .join('')}
+            .join("")}
         </ul>
       </div>
     `
-    : '';
+    : "";
 
   return `
     <section class="ov-panel health-card">
@@ -642,20 +640,20 @@ function renderHealthCard(health) {
 
 /* Hero banner — the product's identity at a glance. */
 function renderOverviewHero(summary, git, productType) {
-  const title = summary?.title || 'Project Overview';
-  const vision = summary?.vision || '';
-  const status = summary?.status || '';
-  const branch = git?.branch || '—';
+  const title = summary?.title || "Project Overview";
+  const vision = summary?.vision || "";
+  const status = summary?.status || "";
+  const branch = git?.branch || "—";
 
   const pt = productType || null;
   const typeBadge = pt
     ? `
-        <span class="ov-type-badge" data-type="${escapeHtml(pt.type)}" title="${escapeHtml(pt.description || '')}">
-          <span class="ov-type-icon">${escapeHtml(pt.icon || '◆')}</span>
+        <span class="ov-type-badge" data-type="${escapeHtml(pt.type)}" title="${escapeHtml(pt.description || "")}">
+          <span class="ov-type-icon">${escapeHtml(pt.icon || "◆")}</span>
           <span class="ov-type-label">${escapeHtml(pt.label)}</span>
-          <span class="ov-type-tagline">${escapeHtml(pt.tagline || '')}</span>
+          <span class="ov-type-tagline">${escapeHtml(pt.tagline || "")}</span>
         </span>`
-    : '';
+    : "";
 
   return `
     <div class="ov-hero">
@@ -664,15 +662,15 @@ function renderOverviewHero(summary, git, productType) {
         <div class="ov-hero-eyebrow">
           <span class="ov-hero-dot"></span>
           <span>Product Overview</span>
-          ${status ? `<span class="ov-hero-status">${escapeHtml(status)}</span>` : ''}
+          ${status ? `<span class="ov-hero-status">${escapeHtml(status)}</span>` : ""}
           ${typeBadge}
         </div>
         <h2 class="ov-hero-title">${escapeHtml(title)}</h2>
-        ${vision ? `<p class="ov-hero-vision">${escapeHtml(vision)}</p>` : ''}
+        ${vision ? `<p class="ov-hero-vision">${escapeHtml(vision)}</p>` : ""}
         <div class="ov-hero-meta">
           <span class="ov-hero-meta-item"><span class="ov-hero-meta-icon">⎇</span>${escapeHtml(branch)}</span>
-          ${git?.commit ? `<span class="ov-hero-meta-item"><span class="ov-hero-meta-icon">◈</span>${escapeHtml(git.commit)}</span>` : ''}
-          ${git?.mergedFrom ? `<span class="ov-hero-meta-item"><span class="ov-hero-meta-icon">⇄</span>merged from ${escapeHtml(git.mergedFrom)}</span>` : ''}
+          ${git?.commit ? `<span class="ov-hero-meta-item"><span class="ov-hero-meta-icon">◈</span>${escapeHtml(git.commit)}</span>` : ""}
+          ${git?.mergedFrom ? `<span class="ov-hero-meta-item"><span class="ov-hero-meta-icon">⇄</span>merged from ${escapeHtml(git.mergedFrom)}</span>` : ""}
         </div>
       </div>
     </div>
@@ -683,17 +681,17 @@ function renderOverviewHero(summary, git, productType) {
 // A drafted brief is NOT an approved plan. The onboarding scan writes a product
 // brief derived from the README, so the page must never report that as approved.
 function isDraftPlan(summary) {
-  return /draft/i.test(summary?.status || '');
+  return /draft/i.test(summary?.status || "");
 }
 
 function productStatusSub(summary) {
-  if (!summary?.title) return 'no product plan';
-  return isDraftPlan(summary) ? 'draft, not confirmed' : 'product plan approved';
+  if (!summary?.title) return "no product plan";
+  return isDraftPlan(summary) ? "draft, not confirmed" : "product plan approved";
 }
 
 function productStatusTone(summary) {
-  if (!summary?.status) return 'slate';
-  return isDraftPlan(summary) ? 'slate' : 'green';
+  if (!summary?.status) return "slate";
+  return isDraftPlan(summary) ? "slate" : "green";
 }
 
 function renderOverviewKpis(onboarding, git, summary) {
@@ -711,51 +709,47 @@ function renderOverviewKpis(onboarding, git, summary) {
 
   const kpis = [
     {
-      label: 'Product Status',
-      value: summary?.status || '—',
+      label: "Product Status",
+      value: summary?.status || "—",
       sub: productStatusSub(summary),
       tone: productStatusTone(summary),
-      icon: '◈',
+      icon: "◈"
     },
     {
-      label: 'Primary Goals',
+      label: "Primary Goals",
       value: String(goals.length),
-      sub: goals.length ? (draft ? 'from README, unconfirmed' : 'confirmed') : 'none recorded',
-      tone: 'blue',
-      icon: '✦',
+      sub: goals.length ? (draft ? "from README, unconfirmed" : "confirmed") : "none recorded",
+      tone: "blue",
+      icon: "✦"
     },
     {
-      label: 'Target Users',
+      label: "Target Users",
       value: String(users.length),
-      sub: users.length ? users.map((u) => u.segment).join(' · ') : 'none recorded',
-      tone: 'blue',
-      icon: '◉',
+      sub: users.length ? users.map((u) => u.segment).join(" · ") : "none recorded",
+      tone: "blue",
+      icon: "◉"
     },
     {
-      label: 'Tech Stack',
+      label: "Tech Stack",
       value: String(arch.length),
-      sub: arch.length
-        ? draft
-          ? 'from manifests, unconfirmed'
-          : 'layers documented'
-        : 'none recorded',
-      tone: 'slate',
-      icon: '⌘',
+      sub: arch.length ? (draft ? "from manifests, unconfirmed" : "layers documented") : "none recorded",
+      tone: "slate",
+      icon: "⌘"
     },
     {
-      label: 'Verified Features',
+      label: "Verified Features",
       value: String(verified.length),
       sub: `${retro.length} retroactive`,
-      tone: 'green',
-      icon: '✓',
+      tone: "green",
+      icon: "✓"
     },
     {
-      label: 'Attention',
+      label: "Attention",
       value: String(missing.length + deferred.length),
-      sub: missing.length ? `${missing.length} missing · ${deferred.length} deferred` : 'all clear',
-      tone: missing.length ? 'red' : deferred.length ? 'amber' : 'green',
-      icon: '!',
-    },
+      sub: missing.length ? `${missing.length} missing · ${deferred.length} deferred` : "all clear",
+      tone: missing.length ? "red" : deferred.length ? "amber" : "green",
+      icon: "!"
+    }
   ];
 
   return `
@@ -768,9 +762,9 @@ function renderOverviewKpis(onboarding, git, summary) {
           <span class="ov-kpi-value">${escapeHtml(k.value)}</span>
           <span class="ov-kpi-label">${escapeHtml(k.label)}</span>
           <span class="ov-kpi-sub">${escapeHtml(k.sub)}</span>
-        </div>`,
+        </div>`
         )
-        .join('')}
+        .join("")}
     </div>
   `;
 }
@@ -782,12 +776,12 @@ function renderOverviewPanels(onboarding, git, summary) {
   if (summary) sidePanels.push(renderOpenQuestionsPanel(summary));
   if (onboarding) sidePanels.push(renderOnboardingPanel(onboarding));
 
-  const mainPanel = summary ? renderProductPlanPanel(summary) : '';
+  const mainPanel = summary ? renderProductPlanPanel(summary) : "";
 
   return `
     <div class="ov-panels">
       <div class="ov-col ov-col-main">${mainPanel}</div>
-      <div class="ov-col ov-col-side">${sidePanels.join('')}</div>
+      <div class="ov-col ov-col-side">${sidePanels.join("")}</div>
     </div>
   `;
 }
@@ -803,25 +797,25 @@ function renderProductPlanPanel(summary) {
     items.length
       ? `<ul class="detail-list">${items
           .map((i) => `<li><span>${icon}</span><span>${escapeHtml(i)}</span></li>`)
-          .join('')}</ul>`
+          .join("")}</ul>`
       : `<div class="ov-empty">None</div>`;
 
   return `
     <section class="ov-panel">
       <header class="ov-panel-head">
         <span class="ov-panel-icon">◇</span>
-        <h3>${isDraftPlan(summary) ? 'Product Brief (draft)' : 'Product Plan'}</h3>
+        <h3>${isDraftPlan(summary) ? "Product Brief (draft)" : "Product Plan"}</h3>
       </header>
       <div class="ov-panel-body">
-        ${summary.problem ? `<div class="ov-callout"><span class="ov-callout-label">Problem</span><p>${escapeHtml(summary.problem)}</p></div>` : ''}
+        ${summary.problem ? `<div class="ov-callout"><span class="ov-callout-label">Problem</span><p>${escapeHtml(summary.problem)}</p></div>` : ""}
         <div class="detail-grid">
           <div>
             <div class="detail-block-label">Goals</div>
-            ${bulletList(goals, '✓')}
+            ${bulletList(goals, "✓")}
           </div>
           <div>
             <div class="detail-block-label">Non-Goals</div>
-            ${bulletList(nonGoals, '✕')}
+            ${bulletList(nonGoals, "✕")}
           </div>
           <div>
             <div class="detail-block-label">Target Users</div>
@@ -831,20 +825,20 @@ function renderProductPlanPanel(summary) {
                     .map(
                       (u) =>
                         `<li><span>◉</span><span><span class="li-key">${escapeHtml(u.segment)}</span>${
-                          u.need ? ` <span class="li-meta">${escapeHtml(u.need)}</span>` : ''
-                        }</span></li>`,
+                          u.need ? ` <span class="li-meta">${escapeHtml(u.need)}</span>` : ""
+                        }</span></li>`
                     )
-                    .join('')}</ul>`
+                    .join("")}</ul>`
                 : `<div class="ov-empty">None</div>`
             }
           </div>
           <div>
             <div class="detail-block-label">Confirmed Guidance</div>
-            ${bulletList(guidance, '▸')}
+            ${bulletList(guidance, "▸")}
           </div>
           <div>
             <div class="detail-block-label">Architecture</div>
-            ${bulletList(arch, '⌘')}
+            ${bulletList(arch, "⌘")}
           </div>
         </div>
       </div>
@@ -854,7 +848,7 @@ function renderProductPlanPanel(summary) {
 
 function renderOpenQuestionsPanel(summary) {
   const openQuestions = summary?.openQuestions || [];
-  if (!openQuestions.length) return '';
+  if (!openQuestions.length) return "";
 
   return `
     <section class="ov-panel">
@@ -867,7 +861,7 @@ function renderOpenQuestionsPanel(summary) {
         <ul class="detail-list">
           ${openQuestions
             .map((q) => `<li><span>?</span><span>${escapeHtml(q)}</span></li>`)
-            .join('')}
+            .join("")}
         </ul>
       </div>
     </section>
@@ -876,20 +870,20 @@ function renderOpenQuestionsPanel(summary) {
 
 function renderRepositoryPanel(git) {
   const rows = [
-    { label: 'Branch', value: git?.branch || '—' },
-    { label: 'Commit', value: git?.commit || '—' },
-    { label: 'Merged From', value: git?.mergedFrom || '—' },
+    { label: "Branch", value: git?.branch || "—" },
+    { label: "Commit", value: git?.commit || "—" },
+    { label: "Merged From", value: git?.mergedFrom || "—" },
     // Three states, not two: git may have been unable to answer at all, and "Clean"
     // would be a claim nobody verified.
     {
-      label: 'Working Tree',
+      label: "Working Tree",
       value:
         git?.dirty === true
-          ? 'Uncommitted changes'
+          ? "Uncommitted changes"
           : git?.dirty === false
-            ? 'Clean'
-            : 'Not checked',
-    },
+            ? "Clean"
+            : "Not checked"
+    }
   ];
 
   return `
@@ -906,9 +900,9 @@ function renderRepositoryPanel(git) {
             <div class="ov-fact">
               <dt>${escapeHtml(r.label)}</dt>
               <dd>${escapeHtml(r.value)}</dd>
-            </div>`,
+            </div>`
             )
-            .join('')}
+            .join("")}
         </dl>
       </div>
     </section>
@@ -923,7 +917,7 @@ function renderOnboardingPanel(onboarding) {
 
   const list = (items, icon, render) =>
     items.length
-      ? `<ul class="detail-list">${items.map((i) => `<li><span>${icon}</span><span>${render(i)}</span></li>`).join('')}</ul>`
+      ? `<ul class="detail-list">${items.map((i) => `<li><span>${icon}</span><span>${render(i)}</span></li>`).join("")}</ul>`
       : `<div class="ov-empty">None</div>`;
 
   return `
@@ -937,34 +931,36 @@ function renderOnboardingPanel(onboarding) {
         <div class="detail-grid">
           <div>
             <div class="detail-block-label">Missing</div>
-            ${list(missing, '✕', (m) => escapeHtml(m))}
+            ${list(missing, "✕", (m) => escapeHtml(m))}
           </div>
           <div>
             <div class="detail-block-label">Deferred</div>
-            ${list(deferred, '⏸', (m) => escapeHtml(m))}
+            ${list(deferred, "⏸", (m) => escapeHtml(m))}
           </div>
           <div>
             <div class="detail-block-label">Migrated Features</div>
-            ${list(migrated, '▸', (m) => {
-              const src =
-                m.from === 'openspec' ? 'OpenSpec' : m.from === 'speckit' ? 'Spec-Kit' : m.from;
-              return `<span class="li-key">${escapeHtml(m.feature)}</span> <span class="li-meta">from ${escapeHtml(src)}</span>`;
-            })}
+            ${list(
+              migrated,
+              "▸",
+              (m) => {
+                const src = m.from === "openspec" ? "OpenSpec" : m.from === "speckit" ? "Spec-Kit" : m.from;
+                return `<span class="li-key">${escapeHtml(m.feature)}</span> <span class="li-meta">from ${escapeHtml(src)}</span>`;
+              }
+            )}
           </div>
           <div>
             <div class="detail-block-label">Skipped Migrations</div>
-            ${list(skipped, '⏭', (s) => {
-              const sys =
-                s.system === 'openspec'
-                  ? 'OpenSpec'
-                  : s.system === 'speckit'
-                    ? 'Spec-Kit'
-                    : s.system;
-              return `<span class="li-key">${escapeHtml(sys)}</span>${s.reason ? ` <span class="li-meta">${escapeHtml(s.reason)}</span>` : ''}`;
-            })}
+            ${list(
+              skipped,
+              "⏭",
+              (s) => {
+                const sys = s.system === "openspec" ? "OpenSpec" : s.system === "speckit" ? "Spec-Kit" : s.system;
+                return `<span class="li-key">${escapeHtml(sys)}</span>${s.reason ? ` <span class="li-meta">${escapeHtml(s.reason)}</span>` : ""}`;
+              }
+            )}
           </div>
         </div>
-        ${onboarding.notes ? `<div class="ov-callout"><span class="ov-callout-label">Notes</span><p>${escapeHtml(onboarding.notes)}</p></div>` : ''}
+        ${onboarding.notes ? `<div class="ov-callout"><span class="ov-callout-label">Notes</span><p>${escapeHtml(onboarding.notes)}</p></div>` : ""}
       </div>
     </section>
   `;
@@ -974,19 +970,19 @@ function renderOnboardingPanel(onboarding) {
    PRODUCT PLAN
    ============================================================ */
 function renderProduct(product, productType) {
-  const div = document.createElement('div');
+  const div = document.createElement("div");
 
   if (!product || !product.exists) {
-    div.className = 'panel-loading';
+    div.className = "panel-loading";
 
     // The product plan is a DEFINITION step: it invents a product overview, mockup,
     // roadmap and backlog for something that does not exist yet. That is the
     // greenfield path. On a project adopted from existing code the content is
     // already in the repository, so pointing at the same command as though nothing
     // were there is misleading.
-    const type = productType?.type || 'unknown';
+    const type = productType?.type || "unknown";
 
-    if (type === 'brownfield') {
+    if (type === "brownfield") {
       div.innerHTML = `
         No product plan yet.<br><br>
         <strong>Product Plan is the greenfield definition step</strong> — it invents a
@@ -1002,7 +998,7 @@ function renderProduct(product, productType) {
       return div;
     }
 
-    if (type === 'greenfield') {
+    if (type === "greenfield") {
       div.innerHTML = `No product plan yet. Run <code>/sdrive:product-plan</code> to create a product overview, conceptual mockup, roadmap, and feature backlog.`;
       return div;
     }
@@ -1015,17 +1011,17 @@ function renderProduct(product, productType) {
   const backlog = (product.backlog || []).slice().sort(compareBacklogItems);
   const counts = { backlog: 0, ongoing: 0, completed: 0 };
   for (const item of backlog) {
-    const status = item.lifecycleStatus || 'backlog';
+    const status = item.lifecycleStatus || "backlog";
     if (counts[status] != null) counts[status] += 1;
   }
 
   function backlogMilestoneRank(value) {
-    const match = String(value || '').match(/\bM(\d+)\b/i);
+    const match = String(value || "").match(/\bM(\d+)\b/i);
     return match ? Number(match[1]) : 999;
   }
 
   function backlogPriorityRank(value) {
-    const match = String(value || '').match(/\bP(\d+)\b/i);
+    const match = String(value || "").match(/\bP(\d+)\b/i);
     return match ? Number(match[1]) : 99;
   }
 
@@ -1039,29 +1035,29 @@ function renderProduct(product, productType) {
   }
 
   function backlogWaveLabel(wave) {
-    return Number(wave) === 0 ? 'start' : `W${Number(wave) || 0}`;
+    return Number(wave) === 0 ? "start" : `W${Number(wave) || 0}`;
   }
 
   const waveOptions = [...new Set(backlog.map((item) => item.wave))].sort((a, b) => a - b);
   const milestoneOptions = [...new Set(backlog.map((item) => item.milestone).filter(Boolean))].sort(
-    (a, b) => backlogMilestoneRank(a) - backlogMilestoneRank(b) || a.localeCompare(b),
+    (a, b) => backlogMilestoneRank(a) - backlogMilestoneRank(b) || a.localeCompare(b)
   );
   const priorityOptions = [...new Set(backlog.map((item) => item.priority).filter(Boolean))].sort(
-    (a, b) => backlogPriorityRank(a) - backlogPriorityRank(b) || a.localeCompare(b),
+    (a, b) => backlogPriorityRank(a) - backlogPriorityRank(b) || a.localeCompare(b)
   );
 
   const backlogRow = (item) => {
-    const lifecycle = item.lifecycleStatus || 'backlog';
-    const tone = lifecycle === 'completed' ? 'green' : lifecycle === 'ongoing' ? 'blue' : '';
+    const lifecycle = item.lifecycleStatus || "backlog";
+    const tone = lifecycle === "completed" ? "green" : lifecycle === "ongoing" ? "blue" : "";
     const statusDetail = item.featureName
-      ? `Feature: ${item.featureName}${item.branch ? ` · ${item.branch}` : ''}`
+      ? `Feature: ${item.featureName}${item.branch ? ` · ${item.branch}` : ""}`
       : item.worktreePath
-        ? `Worktree prepared: ${item.worktreePath}`
-        : 'Not promoted yet';
+      ? `Worktree prepared: ${item.worktreePath}`
+      : "Not promoted yet";
     const planNote =
-      item.planStatus && item.planStatus !== 'backlog'
+      item.planStatus && item.planStatus !== "backlog"
         ? `<div class="backlog-plan-note">plan: ${escapeHtml(item.planStatus)}</div>`
-        : '';
+        : "";
 
     const dependsOn = item.dependsOn || [];
     const external = item.externalDependencies || [];
@@ -1070,25 +1066,27 @@ function renderProduct(product, productType) {
     const wave = Number.isFinite(item.wave) ? item.wave : 0;
     const waveLabel = backlogWaveLabel(wave);
     const waveTitle = parallelWith.length
-      ? `Can be developed in parallel with ${parallelWith.join(', ')}`
-      : 'No other item is at this stage';
+      ? `Can be developed in parallel with ${parallelWith.join(", ")}`
+      : "No other item is at this stage";
 
     return `
         <tr>
           <td class="backlog-id">${escapeHtml(item.id)}</td>
           <td>
             <div class="backlog-feature">${escapeHtml(item.feature)}</div>
-            ${item.userValue ? `<div class="backlog-value">${escapeHtml(item.userValue)}</div>` : ''}
+            ${item.userValue ? `<div class="backlog-value">${escapeHtml(item.userValue)}</div>` : ""}
           </td>
-          <td>${item.milestone ? `<span class="chip">${escapeHtml(item.milestone)}</span>` : '—'}</td>
-          <td>${item.priority ? escapeHtml(item.priority) : '—'}</td>
+          <td>${item.milestone ? `<span class="chip">${escapeHtml(item.milestone)}</span>` : "—"}</td>
+          <td>${item.priority ? escapeHtml(item.priority) : "—"}</td>
           <td>
             <div class="dep-list">
-              ${dependsOn.map((id) => `<span class="dep-chip">${escapeHtml(id)}</span>`).join('')}
+              ${dependsOn
+                .map((id) => `<span class="dep-chip">${escapeHtml(id)}</span>`)
+                .join("")}
               ${external
                 .map((text) => `<span class="dep-external">${escapeHtml(text)}</span>`)
-                .join('')}
-              ${dependsOn.length === 0 && external.length === 0 ? '—' : ''}
+                .join("")}
+              ${dependsOn.length === 0 && external.length === 0 ? "—" : ""}
             </div>
           </td>
           <td>
@@ -1097,13 +1095,13 @@ function renderProduct(product, productType) {
                 baseFor.length
                   ? baseFor
                       .map((id) => `<span class="dep-chip base">${escapeHtml(id)}</span>`)
-                      .join('')
-                  : '—'
+                      .join("")
+                  : "—"
               }
             </div>
           </td>
           <td>
-            <span class="wave-chip${wave === 0 ? ' now' : ''}" title="${escapeHtml(waveTitle)}">${waveLabel}</span>
+            <span class="wave-chip${wave === 0 ? " now" : ""}" title="${escapeHtml(waveTitle)}">${waveLabel}</span>
           </td>
           <td>
             <span class="chip ${tone}" title="${escapeHtml(statusDetail)}">${escapeHtml(lifecycle)}</span>
@@ -1147,10 +1145,10 @@ function renderProduct(product, productType) {
     <div class="product-plan-panel">
       <div class="detail-block-label">Artifacts</div>
       <div class="product-plan-artifacts">
-        ${product.overview ? `<span class="artifact-chip">📄 overview.md</span>` : ''}
-        ${product.mockup ? `<span class="artifact-chip">🗺️ mockup.md</span>` : ''}
-        ${product.designSystem ? `<span class="artifact-chip">🎨 design-system.md</span>` : ''}
-        ${product.roadmap ? `<span class="artifact-chip">🛣️ roadmap.md</span>` : ''}
+        ${product.overview ? `<span class="artifact-chip">📄 overview.md</span>` : ""}
+        ${product.mockup ? `<span class="artifact-chip">🗺️ mockup.md</span>` : ""}
+        ${product.designSystem ? `<span class="artifact-chip">🎨 design-system.md</span>` : ""}
+        ${product.roadmap ? `<span class="artifact-chip">🛣️ roadmap.md</span>` : ""}
       </div>
 
       <div class="filters backlog-filters">
@@ -1169,27 +1167,21 @@ function renderProduct(product, productType) {
           ${waveOptions
             .map(
               (wave) =>
-                `<option value="${escapeHtml(String(wave))}">${escapeHtml(backlogWaveLabel(wave))}</option>`,
+                `<option value="${escapeHtml(String(wave))}">${escapeHtml(backlogWaveLabel(wave))}</option>`
             )
-            .join('')}
+            .join("")}
         </select>
         <select id="backlog-milestone" class="filter-select" aria-label="Filter by milestone">
           <option value="">All milestones</option>
           ${milestoneOptions
-            .map(
-              (milestone) =>
-                `<option value="${escapeHtml(milestone)}">${escapeHtml(milestone)}</option>`,
-            )
-            .join('')}
+            .map((milestone) => `<option value="${escapeHtml(milestone)}">${escapeHtml(milestone)}</option>`)
+            .join("")}
         </select>
         <select id="backlog-priority" class="filter-select" aria-label="Filter by priority">
           <option value="">All priorities</option>
           ${priorityOptions
-            .map(
-              (priority) =>
-                `<option value="${escapeHtml(priority)}">${escapeHtml(priority)}</option>`,
-            )
-            .join('')}
+            .map((priority) => `<option value="${escapeHtml(priority)}">${escapeHtml(priority)}</option>`)
+            .join("")}
         </select>
         <button id="backlog-clear" class="filter-clear" type="button">Clear</button>
         <span id="backlog-result-count" class="backlog-result-count">${backlog.length} items</span>
@@ -1434,16 +1426,16 @@ function renderProduct(product, productType) {
 
   // Re-render only the table body + pager when the page changes, so the
   // stat cards and artifact chips are never rebuilt.
-  const pagerHost = div.querySelector('#backlog-pager');
-  const bodyHost = div.querySelector('#backlog-body');
-  const resultCount = div.querySelector('#backlog-result-count');
+  const pagerHost = div.querySelector("#backlog-pager");
+  const bodyHost = div.querySelector("#backlog-body");
+  const resultCount = div.querySelector("#backlog-result-count");
 
   const readFilters = () => ({
-    search: (div.querySelector('#backlog-search').value || '').trim().toLowerCase(),
-    status: div.querySelector('#backlog-status').value,
-    wave: div.querySelector('#backlog-wave').value,
-    milestone: div.querySelector('#backlog-milestone').value,
-    priority: div.querySelector('#backlog-priority').value,
+    search: (div.querySelector("#backlog-search").value || "").trim().toLowerCase(),
+    status: div.querySelector("#backlog-status").value,
+    wave: div.querySelector("#backlog-wave").value,
+    milestone: div.querySelector("#backlog-milestone").value,
+    priority: div.querySelector("#backlog-priority").value
   });
 
   const matchingBacklog = () => {
@@ -1463,12 +1455,12 @@ function renderProduct(product, productType) {
 
   const repaint = () => {
     const visible = matchingBacklog();
-    const slice = paginate(visible, 'product-backlog', BACKLOG_PER_PAGE);
+    const slice = paginate(visible, "product-backlog", BACKLOG_PER_PAGE);
     bodyHost.innerHTML = visible.length
-      ? slice.items.map(backlogRow).join('')
+      ? slice.items.map(backlogRow).join("")
       : `<tr><td colspan="9" class="product-empty">No backlog items match these filters.</td></tr>`;
-    pagerHost.innerHTML = '';
-    const pager = renderPager(visible.length, 'product-backlog', BACKLOG_PER_PAGE, repaint);
+    pagerHost.innerHTML = "";
+    const pager = renderPager(visible.length, "product-backlog", BACKLOG_PER_PAGE, repaint);
     if (pager) pagerHost.appendChild(pager);
     if (resultCount) {
       resultCount.textContent = `${visible.length} of ${backlog.length} items`;
@@ -1476,26 +1468,26 @@ function renderProduct(product, productType) {
   };
 
   const resetAndRepaint = () => {
-    pagerState['product-backlog'] = 1;
+    pagerState["product-backlog"] = 1;
     repaint();
   };
 
-  div.querySelector('#backlog-search').addEventListener('input', resetAndRepaint);
-  for (const id of ['backlog-status', 'backlog-wave', 'backlog-milestone', 'backlog-priority']) {
-    div.querySelector(`#${id}`).addEventListener('change', resetAndRepaint);
+  div.querySelector("#backlog-search").addEventListener("input", resetAndRepaint);
+  for (const id of ["backlog-status", "backlog-wave", "backlog-milestone", "backlog-priority"]) {
+    div.querySelector(`#${id}`).addEventListener("change", resetAndRepaint);
   }
-  div.querySelector('#backlog-clear').addEventListener('click', () => {
-    div.querySelector('#backlog-search').value = '';
-    for (const id of ['backlog-status', 'backlog-wave', 'backlog-milestone', 'backlog-priority']) {
-      div.querySelector(`#${id}`).value = '';
+  div.querySelector("#backlog-clear").addEventListener("click", () => {
+    div.querySelector("#backlog-search").value = "";
+    for (const id of ["backlog-status", "backlog-wave", "backlog-milestone", "backlog-priority"]) {
+      div.querySelector(`#${id}`).value = "";
     }
     resetAndRepaint();
   });
 
   // One delegated listener survives every page and filter repaint. The drawer
   // itself is a static shell in index.html so its slide animation is not rebuilt.
-  bodyHost.addEventListener('click', (event) => {
-    const trigger = event.target.closest && event.target.closest('[data-backlog-detail]');
+  bodyHost.addEventListener("click", (event) => {
+    const trigger = event.target.closest && event.target.closest("[data-backlog-detail]");
     if (!trigger) return;
     const item = backlog.find((entry) => entry.id === trigger.dataset.backlogDetail);
     if (item) openBacklogDrawer(item, trigger);
@@ -1511,36 +1503,36 @@ function renderProduct(product, productType) {
    ============================================================ */
 function renderVersionBlock(feature, version, isCurrent, traceability, verification, tests) {
   const rows = traceability.rows || [];
-  const completed = rows.filter((r) => r.status === 'complete').length;
+  const completed = rows.filter((r) => r.status === "complete").length;
   const coverage = rows.length === 0 ? 0 : Math.round((completed / rows.length) * 100);
 
-  const vStatus = verification.status || 'not_run';
+  const vStatus = verification.status || "not_run";
   const vTone = verificationTone(vStatus);
   const vLabel =
-    vStatus === 'pass'
+    vStatus === "pass"
       ? `PASS · ${verification.summary?.matched ?? 0} matched`
-      : vStatus === 'warn'
-        ? `WARN · ${verification.summary?.extra ?? 0} extra`
-        : vStatus === 'fail'
-          ? `FAIL · ${verification.summary?.missing ?? 0} missing`
-          : 'NOT RUN';
+      : vStatus === "warn"
+      ? `WARN · ${verification.summary?.extra ?? 0} extra`
+      : vStatus === "fail"
+      ? `FAIL · ${verification.summary?.missing ?? 0} missing`
+      : "NOT RUN";
 
-  const tStatus = tests.status || 'not_run';
-  const tTone = tStatus === 'complete' ? 'green' : tStatus === 'partial' ? 'amber' : 'slate';
+  const tStatus = tests.status || "not_run";
+  const tTone = tStatus === "complete" ? "green" : tStatus === "partial" ? "amber" : "slate";
   const tLabel =
-    tStatus === 'not_run'
-      ? 'NOT RUN'
+    tStatus === "not_run"
+      ? "NOT RUN"
       : `${tests.summary?.coverage ?? 0}% · ${tests.summary?.testedACs ?? 0}/${tests.summary?.totalACs ?? 0} ACs`;
 
-  const history = (version.history || []).filter((h) => h.event.endsWith('_approved'));
+  const history = (version.history || []).filter((h) => h.event.endsWith("_approved"));
 
-  const block = document.createElement('div');
-  block.className = 'version-block' + (isCurrent ? ' current' : '');
+  const block = document.createElement("div");
+  block.className = "version-block" + (isCurrent ? " current" : "");
 
   block.innerHTML = `
     <div class="version-head">
       <span class="version-id">
-        <span class="chip ${isCurrent ? 'accent' : 'slate'}">${isCurrent ? 'current' : 'past'}</span>
+        <span class="chip ${isCurrent ? "accent" : "slate"}">${isCurrent ? "current" : "past"}</span>
         ${escapeHtml(version.id)}
       </span>
       <span class="version-phase">${escapeHtml(version.phase)} · ${escapeHtml(version.currentStep)}</span>
@@ -1556,18 +1548,18 @@ function renderVersionBlock(feature, version, isCurrent, traceability, verificat
           const status = version.gates?.[g.key];
           const meta = gateStatusMeta(status);
           return `<span class="${gateClass(status)}" title="${escapeHtml(
-            g.hint,
+            g.hint
           )}"><span class="gate-icon">${meta.icon}</span>${escapeHtml(
-            g.label,
+            g.label
           )}<span class="gate-status">${meta.text}</span></span>`;
-        }).join('')}
+        }).join("")}
       </div>
     </div>
 
     <div class="metric-row">
       <div class="metric">
         <span class="metric-label">Traceability</span>
-        <span class="metric-bar ${coverage === 100 ? 'green' : coverage > 0 ? 'amber' : 'red'}">
+        <span class="metric-bar ${coverage === 100 ? "green" : coverage > 0 ? "amber" : "red"}">
           <span style="width: ${coverage}%"></span>
         </span>
         <span class="metric-value">${coverage}% (${completed}/${rows.length})</span>
@@ -1588,11 +1580,11 @@ function renderVersionBlock(feature, version, isCurrent, traceability, verificat
             .map(
               (h) =>
                 `<div class="history-item"><span class="tick">✓</span>${escapeHtml(
-                  h.event.replace('_approved', ''),
-                )} approved by ${escapeHtml(h.by || 'unknown')}</div>`,
+                  h.event.replace("_approved", "")
+                )} approved by ${escapeHtml(h.by || "unknown")}</div>`
             )
-            .join('')}</div>`
-        : ''
+            .join("")}</div>`
+        : ""
     }
   `;
 
@@ -1608,7 +1600,7 @@ function featureMembers(feature, team) {
   const seen = new Map();
   const add = (h) => {
     if (h && h.by && !seen.has(h.by)) {
-      seen.set(h.by, byRole[h.by] || 'member');
+      seen.set(h.by, byRole[h.by] || "member");
     }
   };
 
@@ -1623,18 +1615,18 @@ function featureMembers(feature, team) {
 
 function roleFor(username, team) {
   const member = (team.members || []).find((m) => m.username === username);
-  return member ? member.role : 'member';
+  return member ? member.role : "member";
 }
 
 function featureAssigneeEl(feature, team) {
   if (!feature.assignee) return null;
 
   const role = roleFor(feature.assignee, team);
-  const wrap = document.createElement('div');
-  wrap.className = 'feature-assignee';
+  const wrap = document.createElement("div");
+  wrap.className = "feature-assignee";
   wrap.innerHTML = `
     <span class="feature-assignee-avatar role-${escapeHtml(role)}">${escapeHtml(
-      initials(feature.assignee),
+      initials(feature.assignee)
     )}</span>
     <span class="feature-assignee-info">
       <span class="feature-assignee-label">Assigned to</span>
@@ -1645,8 +1637,8 @@ function featureAssigneeEl(feature, team) {
 }
 
 function featureMembersEl(members) {
-  const wrap = document.createElement('div');
-  wrap.className = 'feature-members';
+  const wrap = document.createElement("div");
+  wrap.className = "feature-members";
   wrap.innerHTML = `
     <span class="feature-members-label">Approved by</span>
     <div class="feature-members-avatars">
@@ -1654,10 +1646,10 @@ function featureMembersEl(members) {
         .map(
           (m) =>
             `<span class="feature-member-avatar role-${escapeHtml(m.role)}" title="${escapeHtml(
-              m.username,
-            )} · ${escapeHtml(m.role)}">${escapeHtml(initials(m.username))}</span>`,
+              m.username
+            )} · ${escapeHtml(m.role)}">${escapeHtml(initials(m.username))}</span>`
         )
-        .join('')}
+        .join("")}
     </div>
   `;
   return wrap;
@@ -1677,24 +1669,24 @@ const FEATURES_PER_PAGE = 25;
 async function renderFeatures() {
   const token = ++featureRenderToken;
 
-  const state = await fetchJson('/api/workflow-state');
-  const team = (await fetchJson('/api/team')) || { members: [] };
-  const container = document.getElementById('feature-list');
-  const pagerHost = document.getElementById('feature-pager');
+  const state = await fetchJson("/api/workflow-state");
+  const team = (await fetchJson("/api/team")) || { members: [] };
+  const container = document.getElementById("feature-list");
+  const pagerHost = document.getElementById("feature-pager");
 
   if (token !== featureRenderToken) return;
 
   if (!state || !state.features || state.features.length === 0) {
-    container.className = 'panel-loading';
-    container.textContent = 'No features yet.';
-    if (pagerHost) pagerHost.innerHTML = '';
+    container.className = "panel-loading";
+    container.textContent = "No features yet.";
+    if (pagerHost) pagerHost.innerHTML = "";
     return;
   }
 
   const filters = getFilterValues();
-  container.className = 'feature-grid';
-  container.innerHTML = '';
-  if (pagerHost) pagerHost.innerHTML = '';
+  container.className = "feature-grid";
+  container.innerHTML = "";
+  if (pagerHost) pagerHost.innerHTML = "";
 
   // Build every matching card first, then paginate. Filtering depends on
   // per-version data fetched inside the loop, so we cannot slice the feature
@@ -1702,19 +1694,19 @@ async function renderFeatures() {
   const cards = [];
 
   for (const f of state.features) {
-    const card = document.createElement('div');
-    card.className = 'feature-card';
+    const card = document.createElement("div");
+    card.className = "feature-card";
 
     const members = featureMembers(f, team);
 
-    const head = document.createElement('div');
-    head.className = 'feature-card-head';
+    const head = document.createElement("div");
+    head.className = "feature-card-head";
     head.innerHTML = `
       <div class="feature-card-title">
         <span class="feature-name">${escapeHtml(f.name)}</span>
         <span class="chip accent">${escapeHtml(f.currentVersion)}</span>
       </div>
-      ${f.branch ? `<span class="feature-branch">⎇ ${escapeHtml(f.branch)}</span>` : ''}
+      ${f.branch ? `<span class="feature-branch">⎇ ${escapeHtml(f.branch)}</span>` : ""}
     `;
     const assigneeEl = featureAssigneeEl(f, team);
     if (assigneeEl) {
@@ -1725,8 +1717,8 @@ async function renderFeatures() {
     }
     card.appendChild(head);
 
-    const body = document.createElement('div');
-    body.className = 'feature-card-body';
+    const body = document.createElement("div");
+    body.className = "feature-card-body";
 
     const versions = f.versions || [];
     let versionRendered = 0;
@@ -1738,17 +1730,9 @@ async function renderFeatures() {
         continue;
       }
 
-      const traceability = (await fetchJson(`/api/traceability/${f.name}/${version.id}`)) || {
-        rows: [],
-      };
-      const verification = (await fetchJson(`/api/verification/${f.name}/${version.id}`)) || {
-        status: 'not_run',
-        summary: {},
-      };
-      const tests = (await fetchJson(`/api/tests/${f.name}/${version.id}`)) || {
-        status: 'not_run',
-        summary: {},
-      };
+      const traceability = (await fetchJson(`/api/traceability/${f.name}/${version.id}`)) || { rows: [] };
+      const verification = (await fetchJson(`/api/verification/${f.name}/${version.id}`)) || { status: "not_run", summary: {} };
+      const tests = (await fetchJson(`/api/tests/${f.name}/${version.id}`)) || { status: "not_run", summary: {} };
 
       // A newer render started while we were awaiting — abandon this one.
       if (token !== featureRenderToken) return;
@@ -1757,9 +1741,7 @@ async function renderFeatures() {
         continue;
       }
 
-      body.appendChild(
-        renderVersionBlock(f, version, isCurrent, traceability, verification, tests),
-      );
+      body.appendChild(renderVersionBlock(f, version, isCurrent, traceability, verification, tests));
       versionRendered++;
     }
 
@@ -1768,16 +1750,16 @@ async function renderFeatures() {
 
       // Footer with a "View more" affordance that navigates to the
       // feature's own detail page (/features/<name>).
-      const foot = document.createElement('div');
-      foot.className = 'feature-card-foot';
-      const moreBtn = document.createElement('button');
-      moreBtn.type = 'button';
-      moreBtn.className = 'feature-more-btn';
+      const foot = document.createElement("div");
+      foot.className = "feature-card-foot";
+      const moreBtn = document.createElement("button");
+      moreBtn.type = "button";
+      moreBtn.className = "feature-more-btn";
       moreBtn.innerHTML = `View more <span class="feature-more-arrow">→</span>`;
-      moreBtn.addEventListener('click', () => {
+      moreBtn.addEventListener("click", () => {
         const path = `/features/${encodeURIComponent(f.name)}`;
-        window.history.pushState({ route: 'feature-detail', feature: f.name }, '', path);
-        showRoute('feature-detail');
+        window.history.pushState({ route: "feature-detail", feature: f.name }, "", path);
+        showRoute("feature-detail");
         openFeatureDetail(f.name);
       });
       foot.appendChild(moreBtn);
@@ -1790,21 +1772,21 @@ async function renderFeatures() {
   if (token !== featureRenderToken) return;
 
   if (cards.length === 0) {
-    container.className = 'panel-loading';
-    container.textContent = 'No features match the current filters.';
+    container.className = "panel-loading";
+    container.textContent = "No features match the current filters.";
     return;
   }
 
   // Paint the current page of already-built cards. Re-running this on a page
   // change only moves nodes around — no refetching, no rebuilding.
   const repaint = () => {
-    const slice = paginate(cards, 'features', FEATURES_PER_PAGE);
-    container.innerHTML = '';
+    const slice = paginate(cards, "features", FEATURES_PER_PAGE);
+    container.innerHTML = "";
     slice.items.forEach((card) => container.appendChild(card));
 
     if (!pagerHost) return;
-    pagerHost.innerHTML = '';
-    const pager = renderPager(cards.length, 'features', FEATURES_PER_PAGE, repaint);
+    pagerHost.innerHTML = "";
+    const pager = renderPager(cards.length, "features", FEATURES_PER_PAGE, repaint);
     if (pager) pagerHost.appendChild(pager);
   };
 
@@ -1825,25 +1807,25 @@ let detailRenderToken = 0;
 
 function detailFilters() {
   return {
-    query: (document.getElementById('detail-search')?.value || '').trim().toLowerCase(),
-    status: document.getElementById('detail-status')?.value || '',
-    version: document.getElementById('detail-version')?.value || '',
-    phase: document.getElementById('detail-phase')?.value || '',
+    query: (document.getElementById("detail-search")?.value || "").trim().toLowerCase(),
+    status: document.getElementById("detail-status")?.value || "",
+    version: document.getElementById("detail-version")?.value || "",
+    phase: document.getElementById("detail-phase")?.value || ""
   };
 }
 
 async function openFeatureDetail(featureName) {
-  const state = await fetchJson('/api/workflow-state');
-  const team = (await fetchJson('/api/team')) || { members: [] };
+  const state = await fetchJson("/api/workflow-state");
+  const team = (await fetchJson("/api/team")) || { members: [] };
   const feature = (state?.features || []).find((f) => f.name === featureName);
 
   if (!feature) {
     detailFeature = null;
     detailData = null;
-    const body = document.getElementById('detail-body');
+    const body = document.getElementById("detail-body");
     if (body) {
       body.innerHTML = `<div class="panel-loading">Feature “${escapeHtml(
-        featureName,
+        featureName
       )}” was not found.</div>`;
     }
     return;
@@ -1852,12 +1834,12 @@ async function openFeatureDetail(featureName) {
   detailFeature = feature;
   detailTeam = team;
 
-  const title = document.getElementById('detail-title');
-  const subtitle = document.getElementById('detail-subtitle');
+  const title = document.getElementById("detail-title");
+  const subtitle = document.getElementById("detail-subtitle");
   if (title) title.textContent = feature.name;
   if (subtitle) {
-    subtitle.textContent = `${feature.currentVersion} · ${feature.phase || ''} · ${
-      feature.currentStep || ''
+    subtitle.textContent = `${feature.currentVersion} · ${feature.phase || ""} · ${
+      feature.currentStep || ""
     }`;
   }
 
@@ -1867,7 +1849,7 @@ async function openFeatureDetail(featureName) {
   for (const version of versions) {
     const tasks = (await fetchJson(`/api/tasks/${feature.name}/${version.id}`)) || {
       summary: { total: 0, completed: 0, pending: 0, percent: 0 },
-      phases: [],
+      phases: []
     };
     versionData.push({ version, tasks });
   }
@@ -1889,7 +1871,7 @@ async function openFeatureDetail(featureName) {
    through the generic /api/reports/<feature>/<version> endpoint.
    ============================================================ */
 async function renderDetailReports() {
-  const container = document.getElementById('detail-reports');
+  const container = document.getElementById("detail-reports");
   if (!container || !detailFeature) return;
 
   const version = detailFeature.currentVersion;
@@ -1900,10 +1882,10 @@ async function renderDetailReports() {
     return;
   }
 
-  const present = data.types.filter((t) => t.status === 'present');
-  const missing = data.types.filter((t) => t.status !== 'present');
+  const present = data.types.filter((t) => t.status === "present");
+  const missing = data.types.filter((t) => t.status !== "present");
 
-  setDetailTabCount('reports', present.length);
+  setDetailTabCount("reports", present.length);
 
   const cards = present
     .map((type) => {
@@ -1911,20 +1893,20 @@ async function renderDetailReports() {
         .map((r) => {
           const statusChip = r.status
             ? `<span class="chip ${reportStatusClass(r.status)}">${escapeHtml(r.status)}</span>`
-            : '';
+            : "";
           const scopeChip =
-            r.scope === 'all'
+            r.scope === "all"
               ? `<span class="chip slate" title="Covers every ongoing feature">all features</span>`
-              : '';
+              : "";
           const historyChip =
             r.history > 1
               ? `<span class="chip slate" title="${r.history} reports on file">${r.history} on file</span>`
-              : '';
+              : "";
           return `
             <li class="report-row">
               <div class="report-row-main">
                 <span class="report-file">${escapeHtml(r.file)}</span>
-                ${r.title ? `<span class="report-title">${escapeHtml(r.title)}</span>` : ''}
+                ${r.title ? `<span class="report-title">${escapeHtml(r.title)}</span>` : ""}
               </div>
               <div class="report-row-meta">
                 ${statusChip}
@@ -1935,7 +1917,7 @@ async function renderDetailReports() {
             </li>
           `;
         })
-        .join('');
+        .join("");
 
       return `
         <div class="report-card">
@@ -1947,14 +1929,14 @@ async function renderDetailReports() {
         </div>
       `;
     })
-    .join('');
+    .join("");
 
   const missingNote = missing.length
     ? `<div class="report-missing">
          <span class="report-missing-label">Not yet produced:</span>
-         ${missing.map((t) => `<span class="chip slate">${escapeHtml(t.label)}</span>`).join('')}
+         ${missing.map((t) => `<span class="chip slate">${escapeHtml(t.label)}</span>`).join("")}
        </div>`
-    : '';
+    : "";
 
   container.innerHTML = present.length
     ? `<div class="report-grid">${cards}</div>${missingNote}`
@@ -1962,10 +1944,10 @@ async function renderDetailReports() {
 }
 
 function reportStatusClass(status) {
-  const s = (status || '').toUpperCase();
-  if (s === 'PASS' || s === 'PASSED' || s === 'CLEAN' || s === 'IMPROVED') return 'green';
-  if (s === 'FAIL' || s === 'FAILED' || s === 'REGRESSED') return 'red';
-  return 'slate';
+  const s = (status || "").toUpperCase();
+  if (s === "PASS" || s === "PASSED" || s === "CLEAN" || s === "IMPROVED") return "green";
+  if (s === "FAIL" || s === "FAILED" || s === "REGRESSED") return "red";
+  return "slate";
 }
 
 /* ============================================================
@@ -1978,7 +1960,7 @@ let specFilesData = null;
 let activeSpecDoc = null;
 
 async function renderDetailSpecs() {
-  const container = document.getElementById('detail-specs');
+  const container = document.getElementById("detail-specs");
   if (!container || !detailFeature) return;
 
   const version = detailFeature.currentVersion;
@@ -1986,20 +1968,21 @@ async function renderDetailSpecs() {
   specFilesData = data;
 
   if (!data || !Array.isArray(data.docs) || !data.docs.length) {
-    setDetailTabCount('specs', 0);
+    setDetailTabCount("specs", 0);
     container.innerHTML = `<div class="panel-loading">No spec files found for this feature.</div>`;
     return;
   }
 
-  setDetailTabCount('specs', data.docs.length);
+  setDetailTabCount("specs", data.docs.length);
 
   // Default to the specification, falling back to the first available doc.
-  const initial = data.docs.find((d) => d.id === 'spec') || data.docs[0];
+  const initial =
+    data.docs.find((d) => d.id === "spec") || data.docs[0];
   activeSpecDoc = initial.id;
 
   const stageChip = data.stage
     ? `<span class="chip slate" title="Spec stage">${escapeHtml(data.stage)}</span>`
-    : '';
+    : "";
 
   container.innerHTML = `
     <div class="spec-files">
@@ -2014,7 +1997,7 @@ async function renderDetailSpecs() {
               (d) => `
             <li>
               <button
-                class="spec-doc-btn${d.id === activeSpecDoc ? ' active' : ''}"
+                class="spec-doc-btn${d.id === activeSpecDoc ? " active" : ""}"
                 type="button"
                 data-spec-doc="${escapeHtml(d.id)}"
               >
@@ -2022,9 +2005,9 @@ async function renderDetailSpecs() {
                 <span class="spec-doc-meta">${d.lines} lines</span>
               </button>
             </li>
-          `,
+          `
             )
-            .join('')}
+            .join("")}
         </ul>
       </aside>
       <div class="spec-files-view">
@@ -2066,18 +2049,18 @@ async function renderDetailSpecs() {
     </div>
   `;
 
-  container.querySelectorAll('[data-spec-doc]').forEach((btn) => {
-    btn.addEventListener('click', () => selectSpecDoc(btn.dataset.specDoc));
+  container.querySelectorAll("[data-spec-doc]").forEach((btn) => {
+    btn.addEventListener("click", () => selectSpecDoc(btn.dataset.specDoc));
   });
 
-  const copyBtn = document.getElementById('spec-copy-btn');
+  const copyBtn = document.getElementById("spec-copy-btn");
   if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
+    copyBtn.addEventListener("click", () => {
       const doc = currentSpecDoc();
       if (!doc || !navigator.clipboard) return;
       navigator.clipboard.writeText(doc.content).then(() => {
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => (copyBtn.textContent = 'Copy'), 900);
+        copyBtn.textContent = "Copied!";
+        setTimeout(() => (copyBtn.textContent = "Copy"), 900);
       });
     });
   }
@@ -2096,14 +2079,14 @@ function selectSpecDoc(id) {
   if (!doc) return;
   activeSpecDoc = id;
 
-  document.querySelectorAll('[data-spec-doc]').forEach((btn) => {
-    btn.classList.toggle('active', btn.dataset.specDoc === id);
+  document.querySelectorAll("[data-spec-doc]").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.specDoc === id);
   });
 
-  const pathEl = document.getElementById('spec-files-path');
+  const pathEl = document.getElementById("spec-files-path");
   if (pathEl) pathEl.textContent = doc.path;
 
-  const md = document.getElementById('spec-markdown');
+  const md = document.getElementById("spec-markdown");
   if (md) md.innerHTML = renderMarkdown(doc.content);
 
   // Re-apply the active search to the newly rendered document, and re-bind the path
@@ -2129,20 +2112,20 @@ function looksLikePathReference(text) {
   const value = text.trim();
   if (!value || value.length > 240) return false;
   if (/\s/.test(value)) return false;
-  if (value.startsWith('/') || value.startsWith('~')) return false;
+  if (value.startsWith("/") || value.startsWith("~")) return false;
   if (/^[a-z]+:\/\//i.test(value)) return false;
   return SPEC_PATH_SHAPE.test(value);
 }
 
 async function setupSpecFileLinks() {
-  const md = document.getElementById('spec-markdown');
+  const md = document.getElementById("spec-markdown");
   if (!md) return;
 
-  const candidates = Array.from(md.querySelectorAll('code')).filter(
+  const candidates = Array.from(md.querySelectorAll("code")).filter(
     (code) =>
-      !code.closest('.spec-code') &&
+      !code.closest(".spec-code") &&
       !code.dataset.fileLink &&
-      looksLikePathReference(code.textContent),
+      looksLikePathReference(code.textContent)
   );
   if (!candidates.length) return;
 
@@ -2153,24 +2136,24 @@ async function setupSpecFileLinks() {
     candidates.map((code) =>
       fetchJson(`/api/file?check=1&path=${encodeURIComponent(code.textContent.trim())}`)
         .then((result) => Boolean(result && result.found))
-        .catch(() => false),
-    ),
+        .catch(() => false)
+    )
   );
 
   candidates.forEach((code, index) => {
     // A different document may have rendered while we were awaiting.
     if (!exists[index] || !md.contains(code)) return;
 
-    code.dataset.fileLink = '1';
-    code.classList.add('spec-file-link');
-    code.setAttribute('role', 'button');
-    code.setAttribute('tabindex', '0');
+    code.dataset.fileLink = "1";
+    code.classList.add("spec-file-link");
+    code.setAttribute("role", "button");
+    code.setAttribute("tabindex", "0");
     code.title = `Open ${code.textContent.trim()}`;
 
     const open = () => openFileModal(code.textContent.trim());
-    code.addEventListener('click', open);
-    code.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
+    code.addEventListener("click", open);
+    code.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
         event.preventDefault();
         open();
       }
@@ -2180,15 +2163,15 @@ async function setupSpecFileLinks() {
 
 let fileModalMatches = [];
 let fileModalIndex = -1;
-let fileModalContent = '';
+let fileModalContent = "";
 
 function ensureFileModal() {
-  let overlay = document.getElementById('file-modal');
+  let overlay = document.getElementById("file-modal");
   if (overlay) return overlay;
 
-  overlay = document.createElement('div');
-  overlay.id = 'file-modal';
-  overlay.className = 'file-modal';
+  overlay = document.createElement("div");
+  overlay.id = "file-modal";
+  overlay.className = "file-modal";
   overlay.innerHTML = `
     <div class="file-modal-backdrop" data-file-modal-close></div>
     <div class="file-modal-panel" role="dialog" aria-modal="true" aria-labelledby="file-modal-path">
@@ -2214,73 +2197,73 @@ function ensureFileModal() {
   `;
   document.body.appendChild(overlay);
 
-  overlay.querySelector('#file-modal-close').addEventListener('click', closeFileModal);
-  overlay.querySelectorAll('[data-file-modal-close]').forEach((el) => {
-    el.addEventListener('click', closeFileModal);
+  overlay.querySelector("#file-modal-close").addEventListener("click", closeFileModal);
+  overlay.querySelectorAll("[data-file-modal-close]").forEach((el) => {
+    el.addEventListener("click", closeFileModal);
   });
 
-  const copyBtn = overlay.querySelector('#file-modal-copy');
-  copyBtn.addEventListener('click', () => {
+  const copyBtn = overlay.querySelector("#file-modal-copy");
+  copyBtn.addEventListener("click", () => {
     if (!navigator.clipboard) return;
     navigator.clipboard.writeText(fileModalContent).then(() => {
-      copyBtn.textContent = 'Copied!';
-      setTimeout(() => (copyBtn.textContent = 'Copy'), 900);
+      copyBtn.textContent = "Copied!";
+      setTimeout(() => (copyBtn.textContent = "Copy"), 900);
     });
   });
 
-  const input = overlay.querySelector('#file-modal-search');
-  input.addEventListener('input', runFileModalSearch);
-  input.addEventListener('keydown', (event) => {
-    if (event.key === 'Enter') {
+  const input = overlay.querySelector("#file-modal-search");
+  input.addEventListener("input", runFileModalSearch);
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
       event.preventDefault();
       stepFileModalMatch(event.shiftKey ? -1 : 1);
     }
-    if (event.key === 'Escape') closeFileModal();
+    if (event.key === "Escape") closeFileModal();
   });
 
-  overlay.querySelector('#file-modal-prev').addEventListener('click', () => stepFileModalMatch(-1));
-  overlay.querySelector('#file-modal-next').addEventListener('click', () => stepFileModalMatch(1));
-  overlay.querySelector('#file-modal-clear').addEventListener('click', () => {
-    input.value = '';
+  overlay.querySelector("#file-modal-prev").addEventListener("click", () => stepFileModalMatch(-1));
+  overlay.querySelector("#file-modal-next").addEventListener("click", () => stepFileModalMatch(1));
+  overlay.querySelector("#file-modal-clear").addEventListener("click", () => {
+    input.value = "";
     runFileModalSearch();
     input.focus();
   });
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && document.getElementById('file-modal')) closeFileModal();
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && document.getElementById("file-modal")) closeFileModal();
   });
 
   return overlay;
 }
 
 function closeFileModal() {
-  const overlay = document.getElementById('file-modal');
+  const overlay = document.getElementById("file-modal");
   if (overlay) overlay.remove();
   fileModalMatches = [];
   fileModalIndex = -1;
 }
 
 function updateFileModalCount() {
-  const count = document.getElementById('file-modal-count');
-  const input = document.getElementById('file-modal-search');
+  const count = document.getElementById("file-modal-count");
+  const input = document.getElementById("file-modal-search");
   if (!count || !input) return;
 
   if (input.value.trim().length < 2) {
-    count.textContent = '';
+    count.textContent = "";
     return;
   }
   if (!fileModalMatches.length) {
-    count.textContent = 'no matches';
+    count.textContent = "no matches";
     return;
   }
   count.textContent = `${fileModalIndex + 1} of ${fileModalMatches.length}`;
 }
 
 function stripFileModalMarks() {
-  const body = document.getElementById('file-modal-body');
+  const body = document.getElementById("file-modal-body");
   if (!body) return;
 
-  body.querySelectorAll('mark.spec-hit').forEach((mark) => {
+  body.querySelectorAll("mark.spec-hit").forEach((mark) => {
     const parent = mark.parentNode;
     parent.replaceChild(document.createTextNode(mark.textContent), mark);
     parent.normalize();
@@ -2288,11 +2271,11 @@ function stripFileModalMarks() {
 }
 
 function runFileModalSearch() {
-  const body = document.getElementById('file-modal-body');
-  const input = document.getElementById('file-modal-search');
-  const clear = document.getElementById('file-modal-clear');
-  const prev = document.getElementById('file-modal-prev');
-  const next = document.getElementById('file-modal-next');
+  const body = document.getElementById("file-modal-body");
+  const input = document.getElementById("file-modal-search");
+  const clear = document.getElementById("file-modal-clear");
+  const prev = document.getElementById("file-modal-prev");
+  const next = document.getElementById("file-modal-next");
   if (!body || !input) return;
 
   stripFileModalMarks();
@@ -2318,8 +2301,8 @@ function runFileModalSearch() {
       let cursor = 0;
       while (at !== -1) {
         if (at > cursor) frag.appendChild(document.createTextNode(text.slice(cursor, at)));
-        const mark = document.createElement('mark');
-        mark.className = 'spec-hit';
+        const mark = document.createElement("mark");
+        mark.className = "spec-hit";
         mark.textContent = text.slice(at, at + query.length);
         frag.appendChild(mark);
         fileModalMatches.push(mark);
@@ -2337,8 +2320,8 @@ function runFileModalSearch() {
 
   if (has) {
     fileModalIndex = 0;
-    fileModalMatches[0].classList.add('active');
-    fileModalMatches[0].scrollIntoView({ block: 'center', behavior: 'smooth' });
+    fileModalMatches[0].classList.add("active");
+    fileModalMatches[0].scrollIntoView({ block: "center", behavior: "smooth" });
   }
 
   updateFileModalCount();
@@ -2347,26 +2330,196 @@ function runFileModalSearch() {
 function stepFileModalMatch(direction) {
   if (!fileModalMatches.length) return;
 
-  fileModalMatches.forEach((mark) => mark.classList.remove('active'));
-  fileModalIndex = (fileModalIndex + direction + fileModalMatches.length) % fileModalMatches.length;
+  fileModalMatches.forEach((mark) => mark.classList.remove("active"));
+  fileModalIndex =
+    (fileModalIndex + direction + fileModalMatches.length) % fileModalMatches.length;
 
   const active = fileModalMatches[fileModalIndex];
-  active.classList.add('active');
-  active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  active.classList.add("active");
+  active.scrollIntoView({ block: "center", behavior: "smooth" });
   updateFileModalCount();
+}
+
+/* ============================================================
+   CODE CARD — VS Code editor look for the file viewer
+   A plain <pre> was readable but not familiar. This renders the
+   file as an editor pane: a tab strip with the file name, a line
+   number gutter, and VS Code Dark+ token colours. Display only —
+   the text is escaped token by token, so a file cannot inject
+   markup into the dashboard.
+   ============================================================ */
+const CODE_LANG_BY_EXT = {
+  js: "js", mjs: "js", cjs: "js", jsx: "js", ts: "js", tsx: "js",
+  json: "json",
+  css: "css", scss: "css", less: "css",
+  html: "html", htm: "html", xml: "html", svg: "html",
+  rs: "rs",
+  py: "py",
+  go: "go",
+  sh: "sh", bash: "sh", zsh: "sh", ps1: "sh",
+  yml: "yaml", yaml: "yaml",
+  toml: "toml",
+  md: "md", markdown: "md"
+};
+
+const CODE_KEYWORDS = {
+  js: "import from export default const let var function class extends implements interface type enum namespace as async await return if else for while do switch case break continue try catch finally throw new typeof instanceof in of this super yield delete void static public private protected readonly get set true false null undefined",
+  rs: "use pub fn let mut const static struct enum trait impl mod crate self super match if else for while loop return break continue where as dyn move ref type unsafe extern in true false",
+  py: "import from as def class return if elif else for while break continue try except finally raise with yield lambda pass global nonlocal assert del in is not and or None True False async await",
+  go: "package import func type struct interface var const return if else for range switch case break continue go defer map chan select nil true false",
+  sh: "if then else elif fi for while do done case esac function return exit export local echo set",
+  css: "",
+  html: "",
+  json: "true false null",
+  yaml: "true false null",
+  toml: "true false",
+  md: ""
+};
+
+function codeLanguageFor(relPath) {
+  const ext = String(relPath).split(".").pop().toLowerCase();
+  return CODE_LANG_BY_EXT[ext] || "text";
+}
+
+function codeFileGlyph(relPath) {
+  const ext = String(relPath).split(".").pop().toLowerCase();
+
+  if (["ts", "tsx"].includes(ext)) return "TS";
+  if (["js", "mjs", "cjs", "jsx"].includes(ext)) return "JS";
+  if (ext === "json") return "{}";
+  if (["html", "htm", "xml", "svg"].includes(ext)) return "<>";
+  if (["css", "scss", "less"].includes(ext)) return "#";
+  if (ext === "rs") return "RS";
+  if (ext === "py") return "PY";
+  if (ext === "go") return "GO";
+  if (ext === "md") return "M";
+
+  return "·";
+}
+
+// One pattern per language: comments, strings, numbers, identifiers. Anything the
+// pattern does not match is punctuation and is emitted as plain text. The third
+// comment alternative catches an unterminated block, so a JSDoc header that spans
+// several lines is one comment rather than scattered punctuation.
+function codePatternFor(lang) {
+  const hashComments = ["py", "sh", "yaml", "toml"].includes(lang) ? "|#[^\\n]*" : "";
+
+  return new RegExp(
+    `(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/|\\/\\*[\\s\\S]*${hashComments})` +
+      `|('(?:\\\\.|[^'\\\\])*'|"(?:\\\\.|[^"\\\\])*"|\`(?:\\\\.|[^\`\\\\])*\`)` +
+      `|\\b(0x[\\da-fA-F]+|\\d+(?:\\.\\d+)?)\\b` +
+      `|\\b([A-Za-z_$][\\w$]*)\\b`,
+    "g"
+  );
+}
+
+function highlightCodeLines(lines, lang) {
+  const pattern = codePatternFor(lang);
+  const keywords = new Set((CODE_KEYWORDS[lang] || "").split(" ").filter(Boolean));
+  let inBlockComment = false;
+
+  return lines.map((line) => {
+    let source = line;
+    let html = "";
+
+    // A `/* ... */` block that started on an earlier line swallows this one whole.
+    if (inBlockComment) {
+      const end = source.indexOf("*/");
+
+      if (end === -1) {
+        return `<span class="tok-comment">${escapeHtml(source)}</span>`;
+      }
+
+      html += `<span class="tok-comment">${escapeHtml(source.slice(0, end + 2))}</span>`;
+      source = source.slice(end + 2);
+      inBlockComment = false;
+    }
+
+    pattern.lastIndex = 0;
+
+    let last = 0;
+    let match;
+
+    while ((match = pattern.exec(source))) {
+      if (match.index > last) html += escapeHtml(source.slice(last, match.index));
+
+      if (match[1]) {
+        // An unterminated `/*` continues on the next line.
+        if (match[1].startsWith("/*") && !match[1].endsWith("*/")) {
+          html += `<span class="tok-comment">${escapeHtml(source.slice(match.index))}</span>`;
+          inBlockComment = true;
+          last = source.length;
+          break;
+        }
+        html += `<span class="tok-comment">${escapeHtml(match[1])}</span>`;
+      } else if (match[2]) {
+        html += `<span class="tok-string">${escapeHtml(match[2])}</span>`;
+      } else if (match[3]) {
+        html += `<span class="tok-number">${escapeHtml(match[3])}</span>`;
+      } else {
+        const word = match[4];
+        const className = keywords.has(word)
+          ? "tok-keyword"
+          : /^[A-Z]/.test(word)
+            ? "tok-type"
+            : "";
+
+        html += className
+          ? `<span class="${className}">${escapeHtml(word)}</span>`
+          : escapeHtml(word);
+      }
+
+      last = pattern.lastIndex;
+    }
+
+    if (last < source.length) html += escapeHtml(source.slice(last));
+
+    return html;
+  });
+}
+
+function renderCodeCard(content, relPath) {
+  const lines = content.replace(/\r\n?/g, "\n").split("\n");
+
+  if (lines.length > 1 && lines[lines.length - 1] === "") lines.pop();
+
+  const name = String(relPath).split("/").pop();
+  const highlighted = highlightCodeLines(lines, codeLanguageFor(relPath));
+  const gutter = `${lines.length}`.length;
+
+  const rows = highlighted
+    .map(
+      (html, index) =>
+        `<div class="code-line"><span class="code-ln" style="min-width:${gutter}ch">${
+          index + 1
+        }</span><span class="code-src">${html || " "}</span></div>`
+    )
+    .join("");
+
+  return `<div class="code-card">
+      <div class="code-tabs">
+        <div class="code-tab is-active">
+          <span class="code-tab-icon">${escapeHtml(codeFileGlyph(relPath))}</span>
+          <span class="code-tab-name">${escapeHtml(name)}</span>
+        </div>
+        <span class="code-tabs-path">${escapeHtml(relPath)}</span>
+      </div>
+      <div class="code-scroll"><div class="code-body">${rows}</div></div>
+    </div>`;
 }
 
 async function openFileModal(relPath) {
   const overlay = ensureFileModal();
-  const pathEl = overlay.querySelector('#file-modal-path');
-  const metaEl = overlay.querySelector('#file-modal-meta');
-  const body = overlay.querySelector('#file-modal-body');
-  const input = overlay.querySelector('#file-modal-search');
+  const pathEl = overlay.querySelector("#file-modal-path");
+  const metaEl = overlay.querySelector("#file-modal-meta");
+  const body = overlay.querySelector("#file-modal-body");
+  const input = overlay.querySelector("#file-modal-search");
 
   pathEl.textContent = relPath;
-  metaEl.textContent = 'loading…';
+  metaEl.textContent = "loading…";
+  body.classList.remove("is-code");
   body.innerHTML = `<div class="panel-loading">Loading…</div>`;
-  input.value = '';
+  input.value = "";
   fileModalMatches = [];
   fileModalIndex = -1;
   updateFileModalCount();
@@ -2374,9 +2527,9 @@ async function openFileModal(relPath) {
   const data = await fetchJson(`/api/file?path=${encodeURIComponent(relPath)}`);
 
   if (!data || !data.found) {
-    metaEl.textContent = '';
+    metaEl.textContent = "";
     body.innerHTML = `<div class="panel-loading">Cannot open <code>${escapeHtml(relPath)}</code>: ${escapeHtml(
-      (data && data.reason) || 'not found',
+      (data && data.reason) || "not found"
     )}</div>`;
     return;
   }
@@ -2388,11 +2541,13 @@ async function openFileModal(relPath) {
   }
 
   fileModalContent = data.content;
-  metaEl.textContent = `${data.lines} lines · ${data.bytes} bytes${data.truncated ? ' · truncated' : ''}`;
+  metaEl.textContent = `${data.lines} lines · ${data.bytes} bytes${data.truncated ? " · truncated" : ""}`;
+
+  body.classList.toggle("is-code", !data.markdown);
 
   body.innerHTML = data.markdown
     ? `<article class="spec-markdown">${renderMarkdown(data.content)}</article>`
-    : `<pre>${escapeHtml(data.content)}</pre>`;
+    : renderCodeCard(data.content, relPath);
 
   input.focus();
 }
@@ -2406,34 +2561,34 @@ let specSearchMatches = [];
 let specSearchIndex = -1;
 
 function setupSpecSearch() {
-  const input = document.getElementById('spec-search-input');
-  const prev = document.getElementById('spec-search-prev');
-  const next = document.getElementById('spec-search-next');
-  const close = document.getElementById('spec-search-close');
+  const input = document.getElementById("spec-search-input");
+  const prev = document.getElementById("spec-search-prev");
+  const next = document.getElementById("spec-search-next");
+  const close = document.getElementById("spec-search-close");
   if (!input) return;
 
-  input.addEventListener('input', () => {
+  input.addEventListener("input", () => {
     runSpecSearch();
   });
 
-  input.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
+  input.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
       e.preventDefault();
       stepSpecSearch(e.shiftKey ? -1 : 1);
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       e.preventDefault();
       clearSpecSearch();
     }
   });
 
-  if (prev) prev.addEventListener('click', () => stepSpecSearch(-1));
-  if (next) next.addEventListener('click', () => stepSpecSearch(1));
-  if (close) close.addEventListener('click', clearSpecSearch);
+  if (prev) prev.addEventListener("click", () => stepSpecSearch(-1));
+  if (next) next.addEventListener("click", () => stepSpecSearch(1));
+  if (close) close.addEventListener("click", clearSpecSearch);
 }
 
 function clearSpecSearch() {
-  const input = document.getElementById('spec-search-input');
-  if (input) input.value = '';
+  const input = document.getElementById("spec-search-input");
+  if (input) input.value = "";
   runSpecSearch();
   if (input) input.focus();
 }
@@ -2443,16 +2598,16 @@ function clearSpecSearch() {
    Text nodes are visited in document order, so match order matches reading
    order. Existing highlights are unwrapped first so re-running is idempotent. */
 function runSpecSearch() {
-  const input = document.getElementById('spec-search-input');
-  const countEl = document.getElementById('spec-search-count');
-  const prev = document.getElementById('spec-search-prev');
-  const next = document.getElementById('spec-search-next');
-  const close = document.getElementById('spec-search-close');
-  const md = document.getElementById('spec-markdown');
+  const input = document.getElementById("spec-search-input");
+  const countEl = document.getElementById("spec-search-count");
+  const prev = document.getElementById("spec-search-prev");
+  const next = document.getElementById("spec-search-next");
+  const close = document.getElementById("spec-search-close");
+  const md = document.getElementById("spec-markdown");
   if (!input || !md) return;
 
   // Remove any previous highlights and restore the original text.
-  md.querySelectorAll('mark.spec-hit').forEach((mark) => {
+  md.querySelectorAll("mark.spec-hit").forEach((mark) => {
     const parent = mark.parentNode;
     if (!parent) return;
     parent.replaceChild(document.createTextNode(mark.textContent), mark);
@@ -2466,7 +2621,7 @@ function runSpecSearch() {
   if (close) close.hidden = !query;
 
   if (!query) {
-    if (countEl) countEl.textContent = '';
+    if (countEl) countEl.textContent = "";
     if (prev) prev.disabled = true;
     if (next) next.disabled = true;
     return;
@@ -2479,7 +2634,7 @@ function runSpecSearch() {
     acceptNode(node) {
       if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
       const tag = node.parentNode && node.parentNode.nodeName;
-      if (tag === 'SCRIPT' || tag === 'STYLE') return NodeFilter.FILTER_REJECT;
+      if (tag === "SCRIPT" || tag === "STYLE") return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     },
   });
@@ -2501,8 +2656,8 @@ function runSpecSearch() {
       if (idx > cursor) {
         frag.appendChild(document.createTextNode(text.slice(cursor, idx)));
       }
-      const mark = document.createElement('mark');
-      mark.className = 'spec-hit';
+      const mark = document.createElement("mark");
+      mark.className = "spec-hit";
       mark.textContent = text.slice(idx, idx + query.length);
       frag.appendChild(mark);
       specSearchMatches.push(mark);
@@ -2518,8 +2673,8 @@ function runSpecSearch() {
 
   const total = specSearchMatches.length;
   if (countEl) {
-    countEl.textContent = total ? `1 of ${total}` : 'No results';
-    countEl.classList.toggle('empty', total === 0);
+    countEl.textContent = total ? `1 of ${total}` : "No results";
+    countEl.classList.toggle("empty", total === 0);
   }
   if (prev) prev.disabled = total === 0;
   if (next) next.disabled = total === 0;
@@ -2534,18 +2689,19 @@ function runSpecSearch() {
    view. The active mark gets a distinct class so it stands out from the rest. */
 function stepSpecSearch(delta) {
   if (!specSearchMatches.length) return;
-  specSearchIndex = (specSearchIndex + delta + specSearchMatches.length) % specSearchMatches.length;
+  specSearchIndex =
+    (specSearchIndex + delta + specSearchMatches.length) % specSearchMatches.length;
   focusSpecMatch();
 }
 
 function focusSpecMatch() {
-  const countEl = document.getElementById('spec-search-count');
+  const countEl = document.getElementById("spec-search-count");
   specSearchMatches.forEach((mark, i) => {
-    mark.classList.toggle('active', i === specSearchIndex);
+    mark.classList.toggle("active", i === specSearchIndex);
   });
   const active = specSearchMatches[specSearchIndex];
   if (active) {
-    active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    active.scrollIntoView({ block: "center", behavior: "smooth" });
   }
   if (countEl && specSearchMatches.length) {
     countEl.textContent = `${specSearchIndex + 1} of ${specSearchMatches.length}`;
@@ -2559,28 +2715,28 @@ function focusSpecMatch() {
 function renderMarkdown(src) {
   if (!src) return `<p class="spec-empty">This document is empty.</p>`;
 
-  const lines = src.replace(/\r\n/g, '\n').split('\n');
+  const lines = src.replace(/\r\n/g, "\n").split("\n");
   const out = [];
   let i = 0;
 
   const safeHref = (href) => {
-    const value = String(href || '').trim();
+    const value = String(href || "").trim();
 
     // Relative links and the three schemes the dashboard has any use for.
     // Everything else (notably javascript:) becomes inert.
     if (/^(https?:\/\/|mailto:|\/|\.{0,2}\/|#)/i.test(value)) return value;
-    return '#';
+    return "#";
   };
 
   const inline = (text) =>
     escapeHtml(text)
-      .replace(/`([^`]+)`/g, '<code>$1</code>')
-      .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-      .replace(/(^|[^*])\*([^*]+)\*/g, '$1<em>$2</em>')
+      .replace(/`([^`]+)`/g, "<code>$1</code>")
+      .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+      .replace(/(^|[^*])\*([^*]+)\*/g, "$1<em>$2</em>")
       .replace(
         /\[([^\]]+)\]\(([^)]+)\)/g,
         (match, label, href) =>
-          `<a href="${safeHref(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`,
+          `<a href="${safeHref(href)}" target="_blank" rel="noopener noreferrer">${label}</a>`
       );
 
   while (i < lines.length) {
@@ -2597,9 +2753,9 @@ function renderMarkdown(src) {
       }
       i++; // closing fence
       out.push(
-        `<pre class="spec-code"><code${lang ? ` data-lang="${escapeHtml(lang)}"` : ''}>${escapeHtml(
-          buf.join('\n'),
-        )}</code></pre>`,
+        `<pre class="spec-code"><code${lang ? ` data-lang="${escapeHtml(lang)}"` : ""}>${escapeHtml(
+          buf.join("\n")
+        )}</code></pre>`
       );
       continue;
     }
@@ -2628,9 +2784,9 @@ function renderMarkdown(src) {
     ) {
       const parseRow = (row) =>
         row
-          .replace(/^\s*\|/, '')
-          .replace(/\|\s*$/, '')
-          .split('|')
+          .replace(/^\s*\|/, "")
+          .replace(/\|\s*$/, "")
+          .split("|")
           .map((c) => c.trim());
       const headers = parseRow(line);
       i += 2;
@@ -2642,10 +2798,10 @@ function renderMarkdown(src) {
       out.push(`
         <div class="spec-table-wrap">
           <table class="spec-table">
-            <thead><tr>${headers.map((h) => `<th>${inline(h)}</th>`).join('')}</tr></thead>
+            <thead><tr>${headers.map((h) => `<th>${inline(h)}</th>`).join("")}</tr></thead>
             <tbody>${rows
-              .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join('')}</tr>`)
-              .join('')}</tbody>
+              .map((r) => `<tr>${r.map((c) => `<td>${inline(c)}</td>`).join("")}</tr>`)
+              .join("")}</tbody>
           </table>
         </div>
       `);
@@ -2656,10 +2812,10 @@ function renderMarkdown(src) {
     if (/^\s*>\s?/.test(line)) {
       const buf = [];
       while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
-        buf.push(lines[i].replace(/^\s*>\s?/, ''));
+        buf.push(lines[i].replace(/^\s*>\s?/, ""));
         i++;
       }
-      out.push(`<blockquote class="spec-quote">${inline(buf.join(' '))}</blockquote>`);
+      out.push(`<blockquote class="spec-quote">${inline(buf.join(" "))}</blockquote>`);
       continue;
     }
 
@@ -2667,10 +2823,10 @@ function renderMarkdown(src) {
     if (/^\s*[-*+]\s+/.test(line)) {
       const items = [];
       while (i < lines.length && /^\s*[-*+]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\s*[-*+]\s+/, ''));
+        items.push(lines[i].replace(/^\s*[-*+]\s+/, ""));
         i++;
       }
-      out.push(`<ul class="spec-ul">${items.map((t) => `<li>${inline(t)}</li>`).join('')}</ul>`);
+      out.push(`<ul class="spec-ul">${items.map((t) => `<li>${inline(t)}</li>`).join("")}</ul>`);
       continue;
     }
 
@@ -2678,10 +2834,10 @@ function renderMarkdown(src) {
     if (/^\s*\d+[.)]\s+/.test(line)) {
       const items = [];
       while (i < lines.length && /^\s*\d+[.)]\s+/.test(lines[i])) {
-        items.push(lines[i].replace(/^\s*\d+[.)]\s+/, ''));
+        items.push(lines[i].replace(/^\s*\d+[.)]\s+/, ""));
         i++;
       }
-      out.push(`<ol class="spec-ol">${items.map((t) => `<li>${inline(t)}</li>`).join('')}</ol>`);
+      out.push(`<ol class="spec-ol">${items.map((t) => `<li>${inline(t)}</li>`).join("")}</ol>`);
       continue;
     }
 
@@ -2702,15 +2858,15 @@ function renderMarkdown(src) {
       buf.push(lines[i]);
       i++;
     }
-    out.push(`<p class="spec-p">${inline(buf.join(' '))}</p>`);
+    out.push(`<p class="spec-p">${inline(buf.join(" "))}</p>`);
   }
 
-  return out.join('\n');
+  return out.join("\n");
 }
 
 function populateDetailFilters(versionData) {
-  const versionSelect = document.getElementById('detail-version');
-  const phaseSelect = document.getElementById('detail-phase');
+  const versionSelect = document.getElementById("detail-version");
+  const phaseSelect = document.getElementById("detail-phase");
   if (!versionSelect || !phaseSelect) return;
 
   const prevVersion = versionSelect.value;
@@ -2719,11 +2875,8 @@ function populateDetailFilters(versionData) {
   versionSelect.innerHTML =
     `<option value="">All versions</option>` +
     versionData
-      .map(
-        ({ version }) =>
-          `<option value="${escapeHtml(version.id)}">${escapeHtml(version.id)}</option>`,
-      )
-      .join('');
+      .map(({ version }) => `<option value="${escapeHtml(version.id)}">${escapeHtml(version.id)}</option>`)
+      .join("");
 
   const phaseIds = new Set();
   versionData.forEach(({ tasks }) => {
@@ -2733,7 +2886,7 @@ function populateDetailFilters(versionData) {
     `<option value="">All phases</option>` +
     Array.from(phaseIds)
       .map((id) => `<option value="${escapeHtml(id)}">${escapeHtml(id)}</option>`)
-      .join('');
+      .join("");
 
   if (Array.from(versionSelect.options).some((o) => o.value === prevVersion)) {
     versionSelect.value = prevVersion;
@@ -2744,7 +2897,7 @@ function populateDetailFilters(versionData) {
 }
 
 async function renderDetailEvidence() {
-  const container = document.getElementById('detail-evidence');
+  const container = document.getElementById("detail-evidence");
   if (!container || !detailFeature) return;
 
   const version = detailFeature.currentVersion;
@@ -2754,14 +2907,14 @@ async function renderDetailEvidence() {
     fetchJson(`/api/test-evidence/${encodeURIComponent(feature)}/${encodeURIComponent(version)}`),
     fetchJson(`/api/review/${encodeURIComponent(feature)}/${encodeURIComponent(version)}`),
     fetchJson(`/api/archive-check/${encodeURIComponent(feature)}`),
-    fetchJson('/api/git-info'),
+    fetchJson("/api/git-info")
   ]);
 
   const cards = [];
   let count = 0;
 
   const evidenceValue = evidence && evidence.found ? evidence.evidence : null;
-  const head = git && git.commit ? git.commit : '';
+  const head = git && git.commit ? git.commit : "";
 
   if (evidenceValue) {
     count += 1;
@@ -2772,11 +2925,11 @@ async function renderDetailEvidence() {
       <div class="card quality-card">
         <div class="detail-block-label">Test evidence</div>
         <div class="detail-list">
-          <div><span class="chip ${passed ? 'green' : 'red'}">${passed ? 'passing' : 'failing'}</span>
-            <span class="chip ${stale ? 'amber' : 'slate'}">${stale ? 'stale' : 'current'}</span></div>
-          <div class="li-meta"><strong>Command:</strong> ${escapeHtml(evidenceValue.command || '')}</div>
+          <div><span class="chip ${passed ? "green" : "red"}">${passed ? "passing" : "failing"}</span>
+            <span class="chip ${stale ? "amber" : "slate"}">${stale ? "stale" : "current"}</span></div>
+          <div class="li-meta"><strong>Command:</strong> ${escapeHtml(evidenceValue.command || "")}</div>
           <div class="li-meta"><strong>Counts:</strong> ${Number(summary.passed || 0)} passed · ${Number(summary.failed || 0)} failed · ${Number(summary.skipped || 0)} skipped</div>
-          <div class="li-meta"><strong>Commit:</strong> ${escapeHtml(String(evidenceValue.commit || 'unknown').slice(0, 8))}${stale ? ` (HEAD ${escapeHtml(head.slice(0, 8))})` : ''}</div>
+          <div class="li-meta"><strong>Commit:</strong> ${escapeHtml(String(evidenceValue.commit || "unknown").slice(0, 8))}${stale ? ` (HEAD ${escapeHtml(head.slice(0, 8))})` : ""}</div>
           <div class="li-meta"><strong>Duration:</strong> ${Number(evidenceValue.durationMs || 0)} ms</div>
         </div>
       </div>
@@ -2799,22 +2952,20 @@ async function renderDetailEvidence() {
       <div class="card quality-card">
         <div class="detail-block-label">Structured review</div>
         <div class="detail-list">
-          <div><span class="chip ${reviewValue.status === 'PASS' ? 'green' : 'red'}">${escapeHtml(reviewValue.status || 'unknown')}</span>
+          <div><span class="chip ${reviewValue.status === "PASS" ? "green" : "red"}">${escapeHtml(reviewValue.status || "unknown")}</span>
             <span class="chip slate">${Number(reviewValue.coverage || 0)}% coverage</span></div>
-          <div class="li-meta"><strong>Reviewer:</strong> ${escapeHtml(reviewValue.reviewedBy || 'unknown')}</div>
-          <div class="li-meta"><strong>Commit:</strong> ${escapeHtml(String(reviewValue.commit || 'unknown').slice(0, 8))}</div>
+          <div class="li-meta"><strong>Reviewer:</strong> ${escapeHtml(reviewValue.reviewedBy || "unknown")}</div>
+          <div class="li-meta"><strong>Commit:</strong> ${escapeHtml(String(reviewValue.commit || "unknown").slice(0, 8))}</div>
           <div class="li-meta"><strong>Findings:</strong> ${findings.length}</div>
-          ${
-            findings.length
-              ? `<ul class="detail-list">${findings
-                  .slice(0, 8)
-                  .map(
-                    (finding) =>
-                      `<li><span class="chip ${finding.severity === 'high' ? 'red' : finding.severity === 'medium' ? 'amber' : 'slate'}">${escapeHtml(finding.severity || 'info')}</span> ${escapeHtml(finding.issue || '')} <span class="li-meta">${escapeHtml(finding.location || '')}</span></li>`,
-                  )
-                  .join('')}</ul>`
-              : ''
-          }
+          ${findings.length
+            ? `<ul class="detail-list">${findings
+                .slice(0, 8)
+                .map(
+                  (finding) =>
+                    `<li><span class="chip ${finding.severity === "high" ? "red" : finding.severity === "medium" ? "amber" : "slate"}">${escapeHtml(finding.severity || "info")}</span> ${escapeHtml(finding.issue || "")} <span class="li-meta">${escapeHtml(finding.location || "")}</span></li>`
+                )
+                .join("")}</ul>`
+            : ""}
         </div>
       </div>
     `);
@@ -2833,64 +2984,57 @@ async function renderDetailEvidence() {
     <div class="card quality-card">
       <div class="detail-block-label">Archive readiness</div>
       <div class="detail-list">
-        <div><span class="chip ${archive && archive.ok ? 'green' : 'amber'}">${archive && archive.ok ? 'archivable' : 'blocked'}</span></div>
+        <div><span class="chip ${archive && archive.ok ? "green" : "amber"}">${archive && archive.ok ? "archivable" : "blocked"}</span></div>
         ${
           blockers.length
-            ? `<ul class="detail-list">${blockers.map((blocker) => `<li>${escapeHtml(blocker)}</li>`).join('')}</ul>`
+            ? `<ul class="detail-list">${blockers.map((blocker) => `<li>${escapeHtml(blocker)}</li>`).join("")}</ul>`
             : `<div class="li-meta">All recorded gates and evidence are present.</div>`
         }
       </div>
     </div>
   `);
 
-  container.innerHTML = cards.join('');
-  setDetailTabCount('evidence', count);
+  container.innerHTML = cards.join("");
+  setDetailTabCount("evidence", count);
 }
 
 async function renderQuality() {
-  const container = document.getElementById('quality-panel');
+  const container = document.getElementById("quality-panel");
   if (!container) return;
 
   const [validation, migration] = await Promise.all([
-    fetchJson('/api/validate'),
-    fetchJson('/api/migrations'),
+    fetchJson("/api/validate"),
+    fetchJson("/api/migrations")
   ]);
 
   const results = validation?.results || [];
-  const invalid = results.filter((result) => result.status === 'invalid');
-  const valid = results.filter((result) => result.status === 'valid');
-  const skipped = results.filter((result) => result.status === 'skipped');
+  const invalid = results.filter((result) => result.status === "invalid");
+  const valid = results.filter((result) => result.status === "valid");
+  const skipped = results.filter((result) => result.status === "skipped");
   const detections = migration?.detections || [];
   const runs = migration?.runs || [];
 
   container.innerHTML = `
     <div class="card quality-card">
       <div class="detail-block-label">Schema validation
-        <span class="chip ${validation?.ok ? 'green' : 'red'}">${validation?.ok ? 'valid' : 'invalid'}</span>
+        <span class="chip ${validation?.ok ? "green" : "red"}">${validation?.ok ? "valid" : "invalid"}</span>
       </div>
       ${
         validation?.error
           ? `<div class="panel-loading">Validation could not run: ${escapeHtml(validation.error)}</div>`
           : `<div class="detail-list">
               <div class="li-meta">${valid.length} valid · ${invalid.length} invalid · ${skipped.length} skipped</div>
-              ${
-                invalid.length
-                  ? `<ul class="detail-list">${invalid
-                      .map(
-                        (result) =>
-                          `<li><strong>${escapeHtml(result.file)}</strong><ul class="detail-list">${(
-                            result.errors || []
-                          )
-                            .slice(0, 6)
-                            .map(
-                              (error) =>
-                                `<li class="li-meta">${escapeHtml(typeof error === 'string' ? error : JSON.stringify(error))}</li>`,
-                            )
-                            .join('')}</ul></li>`,
-                      )
-                      .join('')}</ul>`
-                  : `<div class="li-meta">No schema errors.</div>`
-              }
+              ${invalid.length
+                ? `<ul class="detail-list">${invalid
+                    .map(
+                      (result) =>
+                        `<li><strong>${escapeHtml(result.file)}</strong><ul class="detail-list">${(result.errors || [])
+                          .slice(0, 6)
+                          .map((error) => `<li class="li-meta">${escapeHtml(typeof error === "string" ? error : JSON.stringify(error))}</li>`)
+                          .join("")}</ul></li>`
+                    )
+                    .join("")}</ul>`
+                : `<div class="li-meta">No schema errors.</div>`}
             </div>`
       }
     </div>
@@ -2903,9 +3047,9 @@ async function renderQuality() {
             ? detections
                 .map(
                   (entry) =>
-                    `<div><span class="chip blue">${escapeHtml(entry.id)}</span> ${escapeHtml(entry.name)} — ${escapeHtml(entry.root || '')}</div>`,
+                    `<div><span class="chip blue">${escapeHtml(entry.id)}</span> ${escapeHtml(entry.name)} — ${escapeHtml(entry.root || "")}</div>`
                 )
-                .join('')
+                .join("")
             : `<div class="li-meta">No supported external framework detected.</div>`
         }
       </div>
@@ -2916,9 +3060,9 @@ async function renderQuality() {
             ? runs
                 .map(
                   (run) =>
-                    `<div><span class="chip slate">${escapeHtml(run.framework || '')}</span> ${escapeHtml(run.id)} — imported ${Number(run.counts?.imported || 0)}, skipped ${Number(run.counts?.skipped || 0)}, failed ${Number(run.counts?.failed || 0)}</div>`,
+                    `<div><span class="chip slate">${escapeHtml(run.framework || "")}</span> ${escapeHtml(run.id)} — imported ${Number(run.counts?.imported || 0)}, skipped ${Number(run.counts?.skipped || 0)}, failed ${Number(run.counts?.failed || 0)}</div>`
                 )
-                .join('')
+                .join("")
             : `<div class="li-meta">No migration runs yet. Plan one with <code>sdrive migrate:plan &lt;framework&gt;</code>.</div>`
         }
       </div>
@@ -2927,7 +3071,7 @@ async function renderQuality() {
 }
 
 function renderDetailSummary() {
-  const container = document.getElementById('detail-summary');
+  const container = document.getElementById("detail-summary");
   if (!container || !detailData) return;
 
   let total = 0;
@@ -2960,17 +3104,17 @@ function renderDetailSummary() {
 }
 
 function detailTaskMatches(task, filters) {
-  if (filters.status === 'pending' && task.completed) return false;
-  if (filters.status === 'completed' && !task.completed) return false;
+  if (filters.status === "pending" && task.completed) return false;
+  if (filters.status === "completed" && !task.completed) return false;
   if (filters.query) {
-    const haystack = `${task.id || ''} ${task.title || ''} ${task.description || ''}`.toLowerCase();
+    const haystack = `${task.id || ""} ${task.title || ""} ${task.description || ""}`.toLowerCase();
     if (!haystack.includes(filters.query)) return false;
   }
   return true;
 }
 
 function renderDetailBody() {
-  const container = document.getElementById('detail-body');
+  const container = document.getElementById("detail-body");
   if (!container || !detailData) return;
 
   const filters = detailFilters();
@@ -3007,8 +3151,8 @@ function renderDetailBody() {
             ${visible
               .map(
                 (t) => `
-              <li class="detail-task ${t.completed ? 'done' : 'pending'}">
-                <span class="detail-task-check">${t.completed ? '✓' : '○'}</span>
+              <li class="detail-task ${t.completed ? "done" : "pending"}">
+                <span class="detail-task-check">${t.completed ? "✓" : "○"}</span>
                 <div class="detail-task-body">
                   <div class="detail-task-title">
                     <span class="detail-task-id">${escapeHtml(t.id)}</span>
@@ -3017,25 +3161,26 @@ function renderDetailBody() {
                   ${
                     t.description
                       ? `<div class="detail-task-desc">${escapeHtml(t.description)}</div>`
-                      : ''
+                      : ""
                   }
                   ${
-                    (t.linkedRequirements || []).length || (t.linkedAcceptanceCriteria || []).length
+                    (t.linkedRequirements || []).length ||
+                    (t.linkedAcceptanceCriteria || []).length
                       ? `<div class="detail-task-links">
                           ${(t.linkedRequirements || [])
                             .map((r) => `<span class="chip blue">${escapeHtml(r)}</span>`)
-                            .join('')}
+                            .join("")}
                           ${(t.linkedAcceptanceCriteria || [])
                             .map((a) => `<span class="chip slate">${escapeHtml(a)}</span>`)
-                            .join('')}
+                            .join("")}
                         </div>`
-                      : ''
+                      : ""
                   }
                 </div>
               </li>
-            `,
+            `
               )
-              .join('')}
+              .join("")}
           </ul>
         </div>
       `);
@@ -3045,12 +3190,12 @@ function renderDetailBody() {
 
     totalVisible += versionTaskCount;
 
-    const section = document.createElement('div');
-    section.className = 'detail-version' + (isCurrent ? ' current' : '');
+    const section = document.createElement("div");
+    section.className = "detail-version" + (isCurrent ? " current" : "");
     section.innerHTML = `
       <div class="detail-version-head">
         <span class="version-id">
-          <span class="chip ${isCurrent ? 'accent' : 'slate'}">${isCurrent ? 'current' : 'past'}</span>
+          <span class="chip ${isCurrent ? "accent" : "slate"}">${isCurrent ? "current" : "past"}</span>
           ${escapeHtml(version.id)}
         </span>
         <span class="detail-version-counts">
@@ -3059,43 +3204,43 @@ function renderDetailBody() {
           <span class="chip slate">${s.percent}%</span>
         </span>
       </div>
-      ${phaseBlocks.join('')}
+      ${phaseBlocks.join("")}
     `;
     frag.appendChild(section);
     renderedVersions++;
   }
 
-  container.innerHTML = '';
+  container.innerHTML = "";
   if (renderedVersions === 0) {
     container.innerHTML = `<div class="panel-loading">No tasks match the current filters.</div>`;
-    setDetailTabCount('tasks', 0);
+    setDetailTabCount("tasks", 0);
     return;
   }
   container.appendChild(frag);
-  setDetailTabCount('tasks', totalVisible);
+  setDetailTabCount("tasks", totalVisible);
 }
 
 function setupFeatureDetail() {
-  const back = document.getElementById('detail-back');
+  const back = document.getElementById("detail-back");
   if (back) {
-    back.addEventListener('click', () => {
-      window.history.pushState({ route: 'features' }, '', '/features');
-      showRoute('features');
+    back.addEventListener("click", () => {
+      window.history.pushState({ route: "features" }, "", "/features");
+      showRoute("features");
     });
   }
 
   [
-    { id: 'detail-search', event: 'input' },
-    { id: 'detail-status', event: 'change' },
-    { id: 'detail-version', event: 'change' },
-    { id: 'detail-phase', event: 'change' },
+    { id: "detail-search", event: "input" },
+    { id: "detail-status", event: "change" },
+    { id: "detail-version", event: "change" },
+    { id: "detail-phase", event: "change" }
   ].forEach(({ id, event }) => {
     const el = document.getElementById(id);
     if (el) el.addEventListener(event, renderDetailBody);
   });
 
-  document.querySelectorAll('[data-detail-tab]').forEach((tab) => {
-    tab.addEventListener('click', () => showDetailTab(tab.dataset.detailTab));
+  document.querySelectorAll("[data-detail-tab]").forEach((tab) => {
+    tab.addEventListener("click", () => showDetailTab(tab.dataset.detailTab));
   });
 }
 
@@ -3103,43 +3248,43 @@ function setupFeatureDetail() {
    detail page. Reports used to sit below the task list, which meant scrolling
    past every task to reach them. */
 function showDetailTab(name) {
-  const target = ['evidence', 'reports', 'specs'].includes(name) ? name : 'tasks';
+  const target = ["evidence", "reports", "specs"].includes(name) ? name : "tasks";
 
-  document.querySelectorAll('[data-detail-tab]').forEach((tab) => {
+  document.querySelectorAll("[data-detail-tab]").forEach((tab) => {
     const active = tab.dataset.detailTab === target;
-    tab.classList.toggle('active', active);
-    tab.setAttribute('aria-selected', active ? 'true' : 'false');
+    tab.classList.toggle("active", active);
+    tab.setAttribute("aria-selected", active ? "true" : "false");
   });
 
-  document.querySelectorAll('.detail-panel').forEach((panel) => {
-    panel.classList.toggle('active', panel.id === `detail-panel-${target}`);
+  document.querySelectorAll(".detail-panel").forEach((panel) => {
+    panel.classList.toggle("active", panel.id === `detail-panel-${target}`);
   });
 }
 
 function setDetailTabCount(tabName, count) {
   const el = document.getElementById(`detail-tab-${tabName}-count`);
   if (!el) return;
-  el.textContent = count > 0 ? String(count) : '';
-  el.classList.toggle('empty', !(count > 0));
+  el.textContent = count > 0 ? String(count) : "";
+  el.classList.toggle("empty", !(count > 0));
 }
 
 /* ============================================================
    TEAM & BRANCH
    ============================================================ */
 async function renderTeam() {
-  const team = await fetchJson('/api/team');
-  const container = document.getElementById('team-list');
+  const team = await fetchJson("/api/team");
+  const container = document.getElementById("team-list");
 
   if (!team || !team.members || team.members.length === 0) {
-    container.className = 'panel-loading';
-    container.textContent = 'No team members.';
+    container.className = "panel-loading";
+    container.textContent = "No team members.";
   } else {
-    container.className = 'team-grid';
-    container.innerHTML = '';
+    container.className = "team-grid";
+    container.innerHTML = "";
 
     team.members.forEach((m) => {
-      const card = document.createElement('div');
-      card.className = 'member-card';
+      const card = document.createElement("div");
+      card.className = "member-card";
       card.innerHTML = `
         <div class="member-avatar role-${escapeHtml(m.role)}">${escapeHtml(initials(m.username))}</div>
         <div class="member-info">
@@ -3152,8 +3297,8 @@ async function renderTeam() {
 
     const rules = team.rules || {};
     if (rules.approval_required || rules.implementation_allowed) {
-      const rulesCard = document.createElement('div');
-      rulesCard.className = 'team-rules';
+      const rulesCard = document.createElement("div");
+      rulesCard.className = "team-rules";
       rulesCard.innerHTML = `
         ${
           rules.approval_required
@@ -3161,9 +3306,9 @@ async function renderTeam() {
                 <div class="rule-block-label">Approval Required</div>
                 <div class="chip-list">${rules.approval_required
                   .map((r) => `<span class="chip green">${escapeHtml(r)}</span>`)
-                  .join('')}</div>
+                  .join("")}</div>
               </div>`
-            : ''
+            : ""
         }
         ${
           rules.implementation_allowed
@@ -3171,9 +3316,9 @@ async function renderTeam() {
                 <div class="rule-block-label">Implementation Allowed</div>
                 <div class="chip-list">${rules.implementation_allowed
                   .map((r) => `<span class="chip blue">${escapeHtml(r)}</span>`)
-                  .join('')}</div>
+                  .join("")}</div>
               </div>`
-            : ''
+            : ""
         }
       `;
       container.appendChild(rulesCard);
@@ -3184,23 +3329,23 @@ async function renderTeam() {
 }
 
 async function renderBranches() {
-  const container = document.getElementById('branch-list');
+  const container = document.getElementById("branch-list");
   if (!container) return;
 
-  const data = await fetchJson('/api/branches');
+  const data = await fetchJson("/api/branches");
 
   if (!data || !data.available || !data.branches || data.branches.length === 0) {
-    container.className = 'panel-loading';
-    container.textContent = 'No git branches found.';
+    container.className = "panel-loading";
+    container.textContent = "No git branches found.";
     return;
   }
 
-  container.className = 'branch-list';
-  container.innerHTML = '';
+  container.className = "branch-list";
+  container.innerHTML = "";
 
   data.branches.forEach((b) => {
-    const row = document.createElement('div');
-    row.className = 'branch-row' + (b.current ? ' is-current' : '');
+    const row = document.createElement("div");
+    row.className = "branch-row" + (b.current ? " is-current" : "");
 
     const statusChip = b.current
       ? `<span class="chip blue">current</span>`
@@ -3214,11 +3359,11 @@ async function renderBranches() {
           <span class="branch-icon">⎇</span>${escapeHtml(b.name)}
           ${statusChip}
         </div>
-        <div class="branch-subject">${escapeHtml(b.subject || '—')}</div>
+        <div class="branch-subject">${escapeHtml(b.subject || "—")}</div>
       </div>
       <div class="branch-meta">
-        <span class="branch-commit">${escapeHtml(b.commit || '')}</span>
-        <span class="branch-author">${escapeHtml(b.author || '')}</span>
+        <span class="branch-commit">${escapeHtml(b.commit || "")}</span>
+        <span class="branch-author">${escapeHtml(b.author || "")}</span>
         <span class="branch-date">${escapeHtml(formatDate(b.committedAt))}</span>
       </div>
     `;
@@ -3230,21 +3375,21 @@ async function renderBranches() {
    ACTIVITY
    ============================================================ */
 function auditTone(event) {
-  if (/approved|merged|completed/i.test(event)) return 'green';
-  if (/created|version/i.test(event)) return 'blue';
-  if (/rejected|failed|blocked/i.test(event)) return 'amber';
-  return '';
+  if (/approved|merged|completed/i.test(event)) return "green";
+  if (/created|version/i.test(event)) return "blue";
+  if (/rejected|failed|blocked/i.test(event)) return "amber";
+  return "";
 }
 
 async function renderAudit() {
-  const data = await fetchJson('/api/activity');
-  const container = document.getElementById('audit-list');
+  const data = await fetchJson("/api/activity");
+  const container = document.getElementById("audit-list");
 
   const events = (data && data.events) || [];
 
   if (events.length === 0) {
-    container.className = 'panel-loading';
-    container.textContent = 'No activity yet.';
+    container.className = "panel-loading";
+    container.textContent = "No activity yet.";
     return;
   }
 
@@ -3252,65 +3397,65 @@ async function renderAudit() {
 
   // The timeline and the pager are siblings, so wrap them in a host element
   // that survives re-renders. The host replaces the timeline as the child.
-  const host = document.createElement('div');
-  host.className = 'activity-host';
+  const host = document.createElement("div");
+  host.className = "activity-host";
 
-  const timeline = document.createElement('div');
-  timeline.className = 'timeline';
+  const timeline = document.createElement("div");
+  timeline.className = "timeline";
 
-  const pagerHost = document.createElement('div');
+  const pagerHost = document.createElement("div");
 
   const timelineItem = (e) => {
-    const item = document.createElement('div');
-    item.className = 'timeline-item';
+    const item = document.createElement("div");
+    item.className = "timeline-item";
 
     const details = e.details || {};
     const detailParts = Object.entries(details)
       .map(([k, v]) => `${k}: ${v}`)
-      .join(' · ');
+      .join(" · ");
 
-    const scope = [e.feature, e.version].filter(Boolean).join(' · ');
+    const scope = [e.feature, e.version].filter(Boolean).join(" · ");
 
     // Actor attribution: older events predate actor capture, so fall back to a
     // muted "unknown" chip rather than hiding the row entirely.
-    const actor = e.actor ? String(e.actor) : '';
+    const actor = e.actor ? String(e.actor) : "";
     const actorChip = actor
       ? `<span class="timeline-actor" title="Performed by ${escapeHtml(actor)}">${escapeHtml(actor)}</span>`
       : `<span class="timeline-actor unknown" title="Actor not recorded for this event">unknown</span>`;
 
-    const sourceLabel = e.source === 'audit-log' ? 'audit log' : 'workflow';
+    const sourceLabel = e.source === "audit-log" ? "audit log" : "workflow";
 
     item.innerHTML = `
       <span class="timeline-dot ${auditTone(e.event)}"></span>
       <div class="timeline-body">
-        <div class="timeline-event">${escapeHtml(String(e.event).replace(/[_-]/g, ' '))}</div>
+        <div class="timeline-event">${escapeHtml(String(e.event).replace(/[_-]/g, " "))}</div>
         <div class="timeline-meta">
           ${actorChip}
           <span class="timeline-time">${escapeHtml(formatDateTime(e.timestamp))}</span>
-          ${scope ? `<span class="timeline-scope">${escapeHtml(scope)}</span>` : ''}
+          ${scope ? `<span class="timeline-scope">${escapeHtml(scope)}</span>` : ""}
           <span class="timeline-source">${escapeHtml(sourceLabel)}</span>
         </div>
-        ${detailParts ? `<div class="timeline-details">${escapeHtml(detailParts)}</div>` : ''}
+        ${detailParts ? `<div class="timeline-details">${escapeHtml(detailParts)}</div>` : ""}
       </div>
     `;
     return item;
   };
 
   const repaint = () => {
-    const slice = paginate(events, 'activity', ACTIVITY_PER_PAGE);
-    timeline.innerHTML = '';
+    const slice = paginate(events, "activity", ACTIVITY_PER_PAGE);
+    timeline.innerHTML = "";
     slice.items.forEach((e) => timeline.appendChild(timelineItem(e)));
 
-    pagerHost.innerHTML = '';
-    const pager = renderPager(events.length, 'activity', ACTIVITY_PER_PAGE, repaint);
+    pagerHost.innerHTML = "";
+    const pager = renderPager(events.length, "activity", ACTIVITY_PER_PAGE, repaint);
     if (pager) pagerHost.appendChild(pager);
   };
 
   host.appendChild(timeline);
   host.appendChild(pagerHost);
 
-  container.className = '';
-  container.innerHTML = '';
+  container.className = "";
+  container.innerHTML = "";
   container.appendChild(host);
 
   repaint();
@@ -3320,16 +3465,15 @@ async function renderAudit() {
    SKILLS
    ============================================================ */
 async function renderSkills() {
-  const data = await fetchJson('/api/skills');
-  const container = document.getElementById('skills-list');
+  const data = await fetchJson("/api/skills");
+  const container = document.getElementById("skills-list");
   if (!container) return;
 
   const skills = (data && data.skills) || [];
 
   if (skills.length === 0) {
-    container.className = 'panel-loading';
-    container.textContent =
-      'No skills provisioned yet. Run /sdrive:skills to discover and install skills.';
+    container.className = "panel-loading";
+    container.textContent = "No skills provisioned yet. Run /sdrive:skills to discover and install skills.";
     return;
   }
 
@@ -3337,37 +3481,37 @@ async function renderSkills() {
 
   // The grid and the pager are siblings, so wrap them in a host element that
   // survives re-renders. The host replaces the grid as the section's child.
-  const host = document.createElement('div');
-  host.className = 'skills-host';
+  const host = document.createElement("div");
+  host.className = "skills-host";
 
-  const grid = document.createElement('div');
-  grid.className = 'skills-grid';
+  const grid = document.createElement("div");
+  grid.className = "skills-grid";
 
-  const pagerHost = document.createElement('div');
+  const pagerHost = document.createElement("div");
 
   const skillCard = (s) => {
-    const card = document.createElement('div');
-    card.className = 'skill-card';
+    const card = document.createElement("div");
+    card.className = "skill-card";
 
     const tags = (s.tags || [])
       .map((t) => `<span class="chip slate">${escapeHtml(t)}</span>`)
-      .join('');
+      .join("");
 
     const meta = [
-      s.version ? `v${s.version}` : '',
-      s.installed ? `installed ${formatDate(s.installed)}` : '',
-      s.lines ? `${s.lines} lines` : '',
-      s.extraFiles ? `${s.extraFiles} extra file${s.extraFiles === 1 ? '' : 's'}` : '',
+      s.version ? `v${s.version}` : "",
+      s.installed ? `installed ${formatDate(s.installed)}` : "",
+      s.lines ? `${s.lines} lines` : "",
+      s.extraFiles ? `${s.extraFiles} extra file${s.extraFiles === 1 ? "" : "s"}` : ""
     ]
       .filter(Boolean)
-      .join(' · ');
+      .join(" · ");
 
     card.innerHTML = `
       <div class="skill-head">
         ${
           s.logo
             ? `<span class="skill-logo"><img src="${escapeHtml(s.logo)}" alt="${escapeHtml(
-                s.name,
+                s.name
               )} logo" loading="lazy" /></span>`
             : `<span class="skill-icon">✦</span>`
         }
@@ -3375,33 +3519,33 @@ async function renderSkills() {
           <div class="skill-name">${escapeHtml(s.name)}</div>
           <div class="skill-folder">.sdrive/skills/${escapeHtml(s.folder)}</div>
         </div>
-        ${s.version ? `<span class="skill-version">v${escapeHtml(s.version)}</span>` : ''}
+        ${s.version ? `<span class="skill-version">v${escapeHtml(s.version)}</span>` : ""}
       </div>
-      <div class="skill-desc">${escapeHtml(s.description || 'No description.')}</div>
-      ${tags ? `<div class="chip-list">${tags}</div>` : ''}
+      <div class="skill-desc">${escapeHtml(s.description || "No description.")}</div>
+      ${tags ? `<div class="chip-list">${tags}</div>` : ""}
       <div class="skill-foot">
         <div class="skill-meta">${escapeHtml(meta)}</div>
-        ${s.source ? `<div class="skill-source">${escapeHtml(s.source)}</div>` : ''}
+        ${s.source ? `<div class="skill-source">${escapeHtml(s.source)}</div>` : ""}
       </div>
     `;
     return card;
   };
 
   const repaint = () => {
-    const slice = paginate(skills, 'skills', SKILLS_PER_PAGE);
-    grid.innerHTML = '';
+    const slice = paginate(skills, "skills", SKILLS_PER_PAGE);
+    grid.innerHTML = "";
     slice.items.forEach((s) => grid.appendChild(skillCard(s)));
 
-    pagerHost.innerHTML = '';
-    const pager = renderPager(skills.length, 'skills', SKILLS_PER_PAGE, repaint);
+    pagerHost.innerHTML = "";
+    const pager = renderPager(skills.length, "skills", SKILLS_PER_PAGE, repaint);
     if (pager) pagerHost.appendChild(pager);
   };
 
   host.appendChild(grid);
   host.appendChild(pagerHost);
 
-  container.className = '';
-  container.innerHTML = '';
+  container.className = "";
+  container.innerHTML = "";
   container.appendChild(host);
 
   repaint();
@@ -3411,43 +3555,42 @@ async function renderSkills() {
    COMMAND REFERENCE
    ============================================================ */
 let commandData = { slash: [], cli: [] };
-let activeCommandTab = 'slash';
-let commandQuery = '';
+let activeCommandTab = "slash";
+let commandQuery = "";
 
 function commandMatches(item) {
   if (!commandQuery) return true;
-  const haystack =
-    `${item.command} ${item.description} ${item.group || ''} ${item.what || ''} ${item.why || ''} ${item.when || ''}`.toLowerCase();
+  const haystack = `${item.command} ${item.description} ${item.group || ""} ${item.what || ""} ${item.why || ""} ${item.when || ""}`.toLowerCase();
   return haystack.includes(commandQuery);
 }
 
 function renderCommandList() {
-  const container = document.getElementById('command-list');
+  const container = document.getElementById("command-list");
   if (!container) return;
 
-  const source = activeCommandTab === 'slash' ? commandData.slash : commandData.cli;
+  const source = activeCommandTab === "slash" ? commandData.slash : commandData.cli;
   const items = source.filter(commandMatches);
 
   if (items.length === 0) {
-    container.className = 'command-list';
+    container.className = "command-list";
     container.innerHTML = `<div class="command-empty">No commands match “${escapeHtml(commandQuery)}”.</div>`;
     return;
   }
 
-  container.className = 'command-list';
-  container.innerHTML = '';
+  container.className = "command-list";
+  container.innerHTML = "";
 
   // Group CLI commands by their group; slash commands render as one table.
-  if (activeCommandTab === 'cli') {
+  if (activeCommandTab === "cli") {
     const groups = {};
     items.forEach((item) => {
-      const g = item.group || 'Other';
+      const g = item.group || "Other";
       (groups[g] = groups[g] || []).push(item);
     });
 
     Object.keys(groups).forEach((groupName) => {
-      const label = document.createElement('div');
-      label.className = 'command-group-label';
+      const label = document.createElement("div");
+      label.className = "command-group-label";
       label.textContent = groupName;
       container.appendChild(label);
       container.appendChild(commandTableEl(groups[groupName]));
@@ -3458,13 +3601,13 @@ function renderCommandList() {
 }
 
 function commandTableEl(items) {
-  const wrap = document.createElement('div');
-  wrap.className = 'table-scroll';
+  const wrap = document.createElement("div");
+  wrap.className = "table-scroll";
 
-  const table = document.createElement('table');
-  table.className = 'command-table';
+  const table = document.createElement("table");
+  table.className = "command-table";
 
-  const head = document.createElement('thead');
+  const head = document.createElement("thead");
   head.innerHTML = `
     <tr>
       <th class="col-command">Command</th>
@@ -3474,7 +3617,7 @@ function commandTableEl(items) {
   `;
   table.appendChild(head);
 
-  const body = document.createElement('tbody');
+  const body = document.createElement("tbody");
   items.forEach((item) => body.appendChild(commandRowEl(item)));
   table.appendChild(body);
 
@@ -3486,28 +3629,23 @@ function commandTableEl(items) {
 // hidden detail row that the "Details" button toggles.
 function commandRowEl(item) {
   const frag = document.createDocumentFragment();
-  const tr = document.createElement('tr');
-  tr.className = 'command-row';
+  const tr = document.createElement("tr");
+  tr.className = "command-row";
 
   const meta = [];
   if (item.acceptsFeature) meta.push(`<span class="chip blue">feature</span>`);
   if (item.acceptsAll) meta.push(`<span class="chip green">--all</span>`);
   if (item.agent) meta.push(`<span class="chip slate">${escapeHtml(item.agent)}</span>`);
-  (item.gates || []).forEach((g) =>
-    meta.push(`<span class="chip amber">gate: ${escapeHtml(g)}</span>`),
-  );
-  if (item.optional)
-    meta.push(
-      `<span class="chip optional-chip" title="${escapeHtml(item.optionalNote || '')}">optional</span>`,
-    );
+  (item.gates || []).forEach((g) => meta.push(`<span class="chip amber">gate: ${escapeHtml(g)}</span>`));
+  if (item.optional) meta.push(`<span class="chip optional-chip" title="${escapeHtml(item.optionalNote || "")}">optional</span>`);
 
   const hasDetail = Boolean(
     item.what ||
-    item.why ||
-    item.when ||
-    item.example ||
-    (item.does || []).length ||
-    (item.produces || []).length,
+      item.why ||
+      item.when ||
+      item.example ||
+      (item.does || []).length ||
+      (item.produces || []).length
   );
   const summary = item.what || item.description;
 
@@ -3515,29 +3653,29 @@ function commandRowEl(item) {
     <td class="col-command"><code class="command-code" title="Click to copy">${escapeHtml(item.command)}</code></td>
     <td>
       <div class="command-desc">${escapeHtml(summary)}</div>
-      ${item.what && item.description ? `<div class="command-sub">${escapeHtml(item.description)}</div>` : ''}
+      ${item.what && item.description ? `<div class="command-sub">${escapeHtml(item.description)}</div>` : ""}
     </td>
     <td class="col-meta">
-      ${meta.length ? `<div class="command-meta">${meta.join('')}</div>` : ''}
-      ${hasDetail ? `<button class="command-toggle" type="button" aria-expanded="false">Details</button>` : ''}
+      ${meta.length ? `<div class="command-meta">${meta.join("")}</div>` : ""}
+      ${hasDetail ? `<button class="command-toggle" type="button" aria-expanded="false">Details</button>` : ""}
     </td>
   `;
 
-  const code = tr.querySelector('.command-code');
-  code.addEventListener('click', () => {
+  const code = tr.querySelector(".command-code");
+  code.addEventListener("click", () => {
     const text = item.command;
     if (navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         const original = code.textContent;
-        code.textContent = 'copied!';
+        code.textContent = "copied!";
         setTimeout(() => (code.textContent = original), 900);
       });
     }
   });
 
   if (hasDetail) {
-    const toggle = tr.querySelector('.command-toggle');
-    toggle.addEventListener('click', () => openCommandDrawer(item));
+    const toggle = tr.querySelector(".command-toggle");
+    toggle.addEventListener("click", () => openCommandDrawer(item));
   }
 
   frag.appendChild(tr);
@@ -3553,10 +3691,10 @@ function commandRowEl(item) {
 let commandDrawerReturnFocus = null;
 
 function openCommandDrawer(item) {
-  const drawer = document.getElementById('command-drawer');
-  const backdrop = document.getElementById('command-drawer-backdrop');
-  const title = document.getElementById('command-drawer-title');
-  const body = document.getElementById('command-drawer-body');
+  const drawer = document.getElementById("command-drawer");
+  const backdrop = document.getElementById("command-drawer-backdrop");
+  const title = document.getElementById("command-drawer-title");
+  const body = document.getElementById("command-drawer-body");
   if (!drawer || !body) return;
 
   commandDrawerReturnFocus = document.activeElement;
@@ -3564,24 +3702,24 @@ function openCommandDrawer(item) {
   if (title) title.textContent = item.command;
   body.innerHTML = commandDrawerBody(item);
 
-  drawer.classList.add('open');
-  drawer.setAttribute('aria-hidden', 'false');
-  if (backdrop) backdrop.classList.add('open');
-  document.body.classList.add('drawer-open');
+  drawer.classList.add("open");
+  drawer.setAttribute("aria-hidden", "false");
+  if (backdrop) backdrop.classList.add("open");
+  document.body.classList.add("drawer-open");
 
-  const close = document.getElementById('command-drawer-close');
+  const close = document.getElementById("command-drawer-close");
   if (close) close.focus();
 }
 
 function closeCommandDrawer() {
-  const drawer = document.getElementById('command-drawer');
-  const backdrop = document.getElementById('command-drawer-backdrop');
-  if (!drawer || !drawer.classList.contains('open')) return;
+  const drawer = document.getElementById("command-drawer");
+  const backdrop = document.getElementById("command-drawer-backdrop");
+  if (!drawer || !drawer.classList.contains("open")) return;
 
-  drawer.classList.remove('open');
-  drawer.setAttribute('aria-hidden', 'true');
-  if (backdrop) backdrop.classList.remove('open');
-  document.body.classList.remove('drawer-open');
+  drawer.classList.remove("open");
+  drawer.setAttribute("aria-hidden", "true");
+  if (backdrop) backdrop.classList.remove("open");
+  document.body.classList.remove("drawer-open");
 
   if (commandDrawerReturnFocus && commandDrawerReturnFocus.focus) {
     commandDrawerReturnFocus.focus();
@@ -3593,17 +3731,17 @@ function commandDrawerBody(item) {
   const sections = [];
 
   const prose = [];
-  if (item.what) prose.push(drawerProse('What it does', item.what));
-  if (item.why) prose.push(drawerProse('Why it matters', item.why));
-  if (item.when) prose.push(drawerProse('When to use it', item.when));
-  if (prose.length) sections.push(`<div class="drawer-prose">${prose.join('')}</div>`);
+  if (item.what) prose.push(drawerProse("What it does", item.what));
+  if (item.why) prose.push(drawerProse("Why it matters", item.why));
+  if (item.when) prose.push(drawerProse("When to use it", item.when));
+  if (prose.length) sections.push(`<div class="drawer-prose">${prose.join("")}</div>`);
 
   if ((item.does || []).length) {
     sections.push(`
       <section class="drawer-section">
         <h3 class="drawer-section-title">What it does, step by step</h3>
         <ol class="drawer-steps">
-          ${item.does.map((d) => `<li>${escapeHtml(d)}</li>`).join('')}
+          ${item.does.map((d) => `<li>${escapeHtml(d)}</li>`).join("")}
         </ol>
       </section>
     `);
@@ -3616,7 +3754,7 @@ function commandDrawerBody(item) {
         <ul class="drawer-paths">
           ${item.produces
             .map((p) => `<li><code class="drawer-path">${escapeHtml(p)}</code></li>`)
-            .join('')}
+            .join("")}
         </ul>
       </section>
     `);
@@ -3629,23 +3767,23 @@ function commandDrawerBody(item) {
         <ul class="drawer-paths drawer-paths-read">
           ${item.reads
             .map((p) => `<li><code class="drawer-path">${escapeHtml(p)}</code></li>`)
-            .join('')}
+            .join("")}
         </ul>
       </section>
     `);
   }
 
   const facts = [];
-  if (item.agent) facts.push(drawerFact('Agent', item.agent));
-  if (item.acceptsFeature) facts.push(drawerFact('Scope', 'Single feature'));
-  if (item.acceptsAll) facts.push(drawerFact('Batch', 'Supports --all'));
-  if ((item.gates || []).length) facts.push(drawerFact('Gates', item.gates.join(', ')));
-  if (item.handsOff) facts.push(drawerFact('Hands off to', item.handsOff));
+  if (item.agent) facts.push(drawerFact("Agent", item.agent));
+  if (item.acceptsFeature) facts.push(drawerFact("Scope", "Single feature"));
+  if (item.acceptsAll) facts.push(drawerFact("Batch", "Supports --all"));
+  if ((item.gates || []).length) facts.push(drawerFact("Gates", item.gates.join(", ")));
+  if (item.handsOff) facts.push(drawerFact("Hands off to", item.handsOff));
   if (facts.length) {
     sections.push(`
       <section class="drawer-section">
         <h3 class="drawer-section-title">At a glance</h3>
-        <dl class="drawer-facts">${facts.join('')}</dl>
+        <dl class="drawer-facts">${facts.join("")}</dl>
       </section>
     `);
   }
@@ -3659,7 +3797,7 @@ function commandDrawerBody(item) {
     `);
   }
 
-  return sections.join('');
+  return sections.join("");
 }
 
 function drawerProse(label, value) {
@@ -3677,13 +3815,13 @@ function drawerFact(label, value) {
 }
 
 function setupCommandDrawer() {
-  const close = document.getElementById('command-drawer-close');
-  const backdrop = document.getElementById('command-drawer-backdrop');
-  if (close) close.addEventListener('click', closeCommandDrawer);
-  if (backdrop) backdrop.addEventListener('click', closeCommandDrawer);
+  const close = document.getElementById("command-drawer-close");
+  const backdrop = document.getElementById("command-drawer-backdrop");
+  if (close) close.addEventListener("click", closeCommandDrawer);
+  if (backdrop) backdrop.addEventListener("click", closeCommandDrawer);
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeCommandDrawer();
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeCommandDrawer();
   });
 }
 
@@ -3697,7 +3835,7 @@ let backlogDrawerReturnFocus = null;
 
 function backlogWaveText(item) {
   const wave = Number(item.wave);
-  return Number.isFinite(wave) ? (wave === 0 ? 'start' : `W${wave}`) : '—';
+  return Number.isFinite(wave) ? (wave === 0 ? "start" : `W${wave}`) : "—";
 }
 
 function backlogDepRow(label, content, emptyText) {
@@ -3709,9 +3847,9 @@ function backlogDepRow(label, content, emptyText) {
 
 function backlogDrawerBody(item) {
   const sections = [];
-  const lifecycle = item.lifecycleStatus || 'backlog';
-  const details = item.details || '';
-  const userValue = item.userValue || '';
+  const lifecycle = item.lifecycleStatus || "backlog";
+  const details = item.details || "";
+  const userValue = item.userValue || "";
   const dependsOn = item.dependsOn || [];
   const external = item.externalDependencies || [];
   const blockedBy = item.blockedBy || [];
@@ -3719,51 +3857,51 @@ function backlogDrawerBody(item) {
   const parallelWith = item.parallelWith || [];
 
   const prose = [];
-  if (details) prose.push(drawerProse('What this feature does', details));
+  if (details) prose.push(drawerProse("What this feature does", details));
   if (userValue) {
-    prose.push(drawerProse(details ? 'Why it matters' : 'What this feature is for', userValue));
+    prose.push(drawerProse(details ? "Why it matters" : "What this feature is for", userValue));
   }
-  if (item.confidence) prose.push(drawerProse('Confidence / source', item.confidence));
-  if (prose.length) sections.push(`<div class="drawer-prose">${prose.join('')}</div>`);
+  if (item.confidence) prose.push(drawerProse("Confidence / source", item.confidence));
+  if (prose.length) sections.push(`<div class="drawer-prose">${prose.join("")}</div>`);
 
   const facts = [];
-  if (item.milestone) facts.push(drawerFact('Milestone', item.milestone));
-  if (item.priority) facts.push(drawerFact('Priority', item.priority));
-  facts.push(drawerFact('Wave', backlogWaveText(item)));
-  facts.push(drawerFact('Lifecycle', lifecycle));
+  if (item.milestone) facts.push(drawerFact("Milestone", item.milestone));
+  if (item.priority) facts.push(drawerFact("Priority", item.priority));
+  facts.push(drawerFact("Wave", backlogWaveText(item)));
+  facts.push(drawerFact("Lifecycle", lifecycle));
   if (item.planStatus && item.planStatus !== lifecycle) {
-    facts.push(drawerFact('Plan status', item.planStatus));
+    facts.push(drawerFact("Plan status", item.planStatus));
   }
-  if (item.featureName) facts.push(drawerFact('Feature', item.featureName));
-  if (item.branch) facts.push(drawerFact('Branch', item.branch));
-  if (item.base) facts.push(drawerFact('Base', item.base));
+  if (item.featureName) facts.push(drawerFact("Feature", item.featureName));
+  if (item.branch) facts.push(drawerFact("Branch", item.branch));
+  if (item.base) facts.push(drawerFact("Base", item.base));
   if (facts.length) {
     sections.push(`
       <section class="drawer-section">
         <h3 class="drawer-section-title">At a glance</h3>
-        <dl class="drawer-facts">${facts.join('')}</dl>
+        <dl class="drawer-facts">${facts.join("")}</dl>
       </section>
     `);
   }
 
-  const chipList = (ids, kind = '') =>
-    ids.map((id) => `<span class="dep-chip ${kind}">${escapeHtml(id)}</span>`).join('');
+  const chipList = (ids, kind = "") =>
+    ids.map((id) => `<span class="dep-chip ${kind}">${escapeHtml(id)}</span>`).join("");
   const externalList = external
     .map((text) => `<span class="dep-external">${escapeHtml(text)}</span>`)
-    .join('');
+    .join("");
 
   sections.push(`
     <section class="drawer-section">
       <h3 class="drawer-section-title">Dependencies &amp; sequencing</h3>
       <div class="backlog-drawer-deps">
         ${backlogDepRow(
-          'Depends on',
+          "Depends on",
           chipList(dependsOn),
-          'Nothing feature-related — this can start now.',
+          "Nothing feature-related — this can start now."
         )}
-        ${backlogDepRow('Outside blockers', externalList, 'None recorded.')}
-        ${baseFor.length ? backlogDepRow('Unlocks', chipList(baseFor, 'base'), '') : ''}
-        ${parallelWith.length ? backlogDepRow('Can run with', chipList(parallelWith), '') : ''}
+        ${backlogDepRow("Outside blockers", externalList, "None recorded.")}
+        ${baseFor.length ? backlogDepRow("Unlocks", chipList(baseFor, "base"), "") : ""}
+        ${parallelWith.length ? backlogDepRow("Can run with", chipList(parallelWith), "") : ""}
       </div>
     </section>
   `);
@@ -3777,30 +3915,30 @@ function backlogDrawerBody(item) {
     `);
   }
 
-  let nextLabel = 'Next step';
-  let nextText = 'Review the plan, then promote this item when it is ready.';
-  if (lifecycle === 'completed') {
-    nextLabel = 'Archived';
-    nextText = 'This version is complete and immutable. New scope requires sdrive version:new.';
+  let nextLabel = "Next step";
+  let nextText = "Review the plan, then promote this item when it is ready.";
+  if (lifecycle === "completed") {
+    nextLabel = "Archived";
+    nextText = "This version is complete and immutable. New scope requires sdrive version:new.";
   } else if (item.featureName) {
     nextText = `Feature ${item.featureName} already exists${
-      item.branch ? ` on ${item.branch}` : ''
+      item.branch ? ` on ${item.branch}` : ""
     }. Continue with /sdrive:propose, /sdrive:apply, or /sdrive:review.`;
   } else if (item.worktreePath) {
-    nextLabel = 'Worktree prepared';
+    nextLabel = "Worktree prepared";
     nextText = `Run /sdrive:propose from ${item.worktreePath}; it will reuse the prepared branch.`;
   } else if (item.eligible) {
-    nextLabel = 'Ready now';
+    nextLabel = "Ready now";
     nextText = `Run /sdrive:worktree to prepare ${item.id}, or /sdrive:propose to plan it directly.`;
   } else if (blockedBy.length) {
-    nextLabel = 'Blocked';
-    nextText = `Finish ${blockedBy.join(', ')} before this item can start.`;
+    nextLabel = "Blocked";
+    nextText = `Finish ${blockedBy.join(", ")} before this item can start.`;
   } else if (external.length) {
-    nextLabel = 'Outside blocker';
-    nextText = `Waiting on ${external.join(', ')}. Clear it before starting this item.`;
-  } else if (item.planStatus && item.planStatus !== 'backlog') {
+    nextLabel = "Outside blocker";
+    nextText = `Waiting on ${external.join(", ")}. Clear it before starting this item.`;
+  } else if (item.planStatus && item.planStatus !== "backlog") {
     nextLabel = `Plan: ${item.planStatus}`;
-    nextText = 'This item is parked. Change its plan status before preparing work.';
+    nextText = "This item is parked. Change its plan status before preparing work.";
   }
   sections.push(`
     <aside class="drawer-note">
@@ -3809,41 +3947,41 @@ function backlogDrawerBody(item) {
     </aside>
   `);
 
-  return sections.join('');
+  return sections.join("");
 }
 
 function openBacklogDrawer(item, trigger) {
-  const drawer = document.getElementById('backlog-drawer');
-  const backdrop = document.getElementById('backlog-drawer-backdrop');
-  const title = document.getElementById('backlog-drawer-title');
-  const eyebrow = document.getElementById('backlog-drawer-eyebrow');
-  const body = document.getElementById('backlog-drawer-body');
+  const drawer = document.getElementById("backlog-drawer");
+  const backdrop = document.getElementById("backlog-drawer-backdrop");
+  const title = document.getElementById("backlog-drawer-title");
+  const eyebrow = document.getElementById("backlog-drawer-eyebrow");
+  const body = document.getElementById("backlog-drawer-body");
   if (!drawer || !body) return;
 
   backlogDrawerReturnFocus = trigger || document.activeElement;
 
   if (title) title.textContent = item.feature || item.id;
-  if (eyebrow) eyebrow.textContent = `${item.id} · ${item.lifecycleStatus || 'backlog'}`;
+  if (eyebrow) eyebrow.textContent = `${item.id} · ${item.lifecycleStatus || "backlog"}`;
   body.innerHTML = backlogDrawerBody(item);
 
-  drawer.classList.add('open');
-  drawer.setAttribute('aria-hidden', 'false');
-  if (backdrop) backdrop.classList.add('open');
-  document.body.classList.add('drawer-open');
+  drawer.classList.add("open");
+  drawer.setAttribute("aria-hidden", "false");
+  if (backdrop) backdrop.classList.add("open");
+  document.body.classList.add("drawer-open");
 
-  const close = document.getElementById('backlog-drawer-close');
+  const close = document.getElementById("backlog-drawer-close");
   if (close) close.focus();
 }
 
 function closeBacklogDrawer() {
-  const drawer = document.getElementById('backlog-drawer');
-  const backdrop = document.getElementById('backlog-drawer-backdrop');
-  if (!drawer || !drawer.classList.contains('open')) return;
+  const drawer = document.getElementById("backlog-drawer");
+  const backdrop = document.getElementById("backlog-drawer-backdrop");
+  if (!drawer || !drawer.classList.contains("open")) return;
 
-  drawer.classList.remove('open');
-  drawer.setAttribute('aria-hidden', 'true');
-  if (backdrop) backdrop.classList.remove('open');
-  document.body.classList.remove('drawer-open');
+  drawer.classList.remove("open");
+  drawer.setAttribute("aria-hidden", "true");
+  if (backdrop) backdrop.classList.remove("open");
+  document.body.classList.remove("drawer-open");
 
   if (backlogDrawerReturnFocus && backlogDrawerReturnFocus.focus) {
     backlogDrawerReturnFocus.focus();
@@ -3852,25 +3990,23 @@ function closeBacklogDrawer() {
 }
 
 function setupBacklogDrawer() {
-  const drawer = document.getElementById('backlog-drawer');
-  const close = document.getElementById('backlog-drawer-close');
-  const backdrop = document.getElementById('backlog-drawer-backdrop');
+  const drawer = document.getElementById("backlog-drawer");
+  const close = document.getElementById("backlog-drawer-close");
+  const backdrop = document.getElementById("backlog-drawer-backdrop");
   if (!drawer) return;
 
-  if (close) close.addEventListener('click', closeBacklogDrawer);
-  if (backdrop) backdrop.addEventListener('click', closeBacklogDrawer);
+  if (close) close.addEventListener("click", closeBacklogDrawer);
+  if (backdrop) backdrop.addEventListener("click", closeBacklogDrawer);
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeBacklogDrawer();
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeBacklogDrawer();
   });
 
-  drawer.addEventListener('keydown', (event) => {
-    if (event.key !== 'Tab') return;
-    const focusables = [
-      ...drawer.querySelectorAll(
-        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-      ),
-    ].filter((element) => !element.disabled && element.offsetParent !== null);
+  drawer.addEventListener("keydown", (event) => {
+    if (event.key !== "Tab") return;
+    const focusables = [...drawer.querySelectorAll(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    )].filter((element) => !element.disabled && element.offsetParent !== null);
     if (!focusables.length) return;
     const first = focusables[0];
     const last = focusables[focusables.length - 1];
@@ -3885,12 +4021,12 @@ function setupBacklogDrawer() {
 }
 
 function renderWorkflowCards() {
-  const container = document.getElementById('workflow-cards');
+  const container = document.getElementById("workflow-cards");
   if (!container) return;
 
   const workflows = (commandData && commandData.workflows) || [];
   if (!workflows.length) {
-    container.innerHTML = '';
+    container.innerHTML = "";
     return;
   }
 
@@ -3899,27 +4035,34 @@ function renderWorkflowCards() {
       (w) => `
     <article class="workflow-card" data-workflow="${escapeHtml(w.id)}">
       <div class="workflow-card-head">
-        <span class="workflow-icon">${escapeHtml(w.icon || '◆')}</span>
+        <span class="workflow-icon">${escapeHtml(w.icon || "◆")}</span>
         <div>
           <h3 class="workflow-name">${escapeHtml(w.name)}</h3>
-          <span class="workflow-tagline">${escapeHtml(w.tagline || '')}</span>
+          <span class="workflow-tagline">${escapeHtml(w.tagline || "")}</span>
         </div>
       </div>
-      <p class="workflow-summary">${escapeHtml(w.summary || '')}</p>
+      <p class="workflow-summary">${escapeHtml(w.summary || "")}</p>
       <ol class="workflow-steps">
         ${(w.steps || [])
           .map((s) => {
             const isOptional = (w.optional || []).includes(s);
-            return `<li${isOptional ? ' class="optional"' : ''}><code>${escapeHtml(s)}</code>${
-              isOptional ? '<span class="step-optional-badge">optional</span>' : ''
+            return `<li${isOptional ? ' class="optional"' : ""}><code>${escapeHtml(s)}</code>${
+              isOptional ? '<span class="step-optional-badge">optional</span>' : ""
             }</li>`;
           })
-          .join('')}
+          .join("")}
         ${(w.iteration || [])
-          .map((s) => `<li class="workflow-iteration-step"><code>${escapeHtml(s)}</code></li>`)
-          .join('')}
+          .map(
+            (s) =>
+              `<li class="workflow-iteration-step"><code>${escapeHtml(s)}</code></li>`
+          )
+          .join("")}
       </ol>
-      ${w.optionalNote ? `<p class="workflow-note">${escapeHtml(w.optionalNote)}</p>` : ''}
+      ${
+        w.optionalNote
+          ? `<p class="workflow-note">${escapeHtml(w.optionalNote)}</p>`
+          : ""
+      }
       ${
         w.migrationNote
           ? `<aside class="workflow-subcard">
@@ -3929,12 +4072,12 @@ function renderWorkflowCards() {
               </div>
               <p class="workflow-subcard-body">${escapeHtml(w.migrationNote.body)}</p>
             </aside>`
-          : ''
+          : ""
       }
     </article>
-  `,
+  `
     )
-    .join('');
+    .join("");
 
   // Optional Commands card — a separate card below the lifecycle cards that
   // groups the genuinely on-demand commands (performance, docs, secure, test).
@@ -3943,17 +4086,17 @@ function renderWorkflowCards() {
   // It spans the full width of the grid row.
   const optional = commandData && commandData.optionalCommands;
   if (optional && (optional.commands || []).length) {
-    const card = document.createElement('article');
-    card.className = 'workflow-card optional-commands-card';
+    const card = document.createElement("article");
+    card.className = "workflow-card optional-commands-card";
     card.innerHTML = `
       <div class="optional-head">
-        <span class="optional-icon">${escapeHtml(optional.icon || '✦')}</span>
+        <span class="optional-icon">${escapeHtml(optional.icon || "✦")}</span>
         <div class="optional-head-text">
           <div class="optional-eyebrow">On demand</div>
-          <h3 class="optional-title">${escapeHtml(optional.title || 'Optional Commands')}</h3>
-          <p class="optional-summary">${escapeHtml(optional.summary || '')}</p>
+          <h3 class="optional-title">${escapeHtml(optional.title || "Optional Commands")}</h3>
+          <p class="optional-summary">${escapeHtml(optional.summary || "")}</p>
         </div>
-        <span class="optional-tagline">${escapeHtml(optional.tagline || '')}</span>
+        <span class="optional-tagline">${escapeHtml(optional.tagline || "")}</span>
       </div>
       <ul class="optional-command-list">
         ${(optional.commands || [])
@@ -3964,16 +4107,16 @@ function renderWorkflowCards() {
               <code class="optional-command-code">${escapeHtml(c.command)}</code>
             </div>
             <div class="optional-command-body">
-              <div class="optional-command-what">${escapeHtml(c.what || '')}</div>
+              <div class="optional-command-what">${escapeHtml(c.what || "")}</div>
               <div class="optional-command-when">
                 <span class="optional-when-label">When</span>
-                <span class="optional-when-text">${escapeHtml(c.when || '')}</span>
+                <span class="optional-when-text">${escapeHtml(c.when || "")}</span>
               </div>
             </div>
           </li>
-        `,
+        `
           )
-          .join('')}
+          .join("")}
       </ul>
     `;
     container.appendChild(card);
@@ -3981,21 +4124,21 @@ function renderWorkflowCards() {
 }
 
 async function renderCommands() {
-  const data = await fetchJson('/api/commands');
+  const data = await fetchJson("/api/commands");
   commandData = data || { slash: [], cli: [], workflows: [] };
 
-  const search = document.getElementById('command-search');
+  const search = document.getElementById("command-search");
   if (search) {
-    search.addEventListener('input', () => {
+    search.addEventListener("input", () => {
       commandQuery = search.value.trim().toLowerCase();
       renderCommandList();
     });
   }
 
-  document.querySelectorAll('.command-tab').forEach((tab) => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.command-tab').forEach((t) => t.classList.remove('active'));
-      tab.classList.add('active');
+  document.querySelectorAll(".command-tab").forEach((tab) => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".command-tab").forEach((t) => t.classList.remove("active"));
+      tab.classList.add("active");
       activeCommandTab = tab.dataset.tab;
       renderCommandList();
     });
@@ -4017,30 +4160,30 @@ async function renderCommands() {
    detail page (task breakdown + filters) for a single feature.
    ============================================================ */
 const ROUTES = [
-  'projects',
-  'overview',
-  'product-plan',
-  'features',
-  'feature-detail',
-  'quality',
-  'skills',
-  'team',
-  'activity',
-  'commands',
+  "projects",
+  "overview",
+  "product-plan",
+  "features",
+  "feature-detail",
+  "quality",
+  "skills",
+  "team",
+  "activity",
+  "commands"
 ];
-const DEFAULT_ROUTE = 'projects';
+const DEFAULT_ROUTE = "projects";
 
 // Returns { route, feature } for the current URL. A path like
 // /features/about-page resolves to { route: "feature-detail", feature: "about-page" }.
 function parseLocation() {
-  const path = window.location.pathname.replace(/\/+$/, '');
-  const parts = path.split('/').filter(Boolean);
+  const path = window.location.pathname.replace(/\/+$/, "");
+  const parts = path.split("/").filter(Boolean);
 
-  if (parts[0] === 'features' && parts.length > 1) {
-    return { route: 'feature-detail', feature: decodeURIComponent(parts[1]) };
+  if (parts[0] === "features" && parts.length > 1) {
+    return { route: "feature-detail", feature: decodeURIComponent(parts[1]) };
   }
 
-  const name = parts[parts.length - 1] || '';
+  const name = parts[parts.length - 1] || "";
   return { route: ROUTES.includes(name) ? name : DEFAULT_ROUTE, feature: null };
 }
 
@@ -4051,34 +4194,34 @@ function currentRoute() {
 function showRoute(route) {
   const target = ROUTES.includes(route) ? route : DEFAULT_ROUTE;
 
-  document.querySelectorAll('.section').forEach((section) => {
-    section.classList.toggle('active', section.id === target);
+  document.querySelectorAll(".section").forEach((section) => {
+    section.classList.toggle("active", section.id === target);
   });
 
   // The sidebar highlights "Features" while viewing a feature detail page.
-  const navTarget = target === 'feature-detail' ? 'features' : target;
-  document.querySelectorAll('.nav-item').forEach((item) => {
-    item.classList.toggle('active', item.dataset.nav === navTarget);
+  const navTarget = target === "feature-detail" ? "features" : target;
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.classList.toggle("active", item.dataset.nav === navTarget);
   });
 
-  const label = target === 'feature-detail' ? 'Feature' : target;
+  const label = target === "feature-detail" ? "Feature" : target;
   document.title = `SpecDrive · ${label.charAt(0).toUpperCase()}${label.slice(1)}`;
-  window.scrollTo({ top: 0, behavior: 'auto' });
+  window.scrollTo({ top: 0, behavior: "auto" });
 
-  if (target === 'quality') renderQuality();
-  if (target === 'projects') renderProjects();
+  if (target === "quality") renderQuality();
+  if (target === "projects") renderProjects();
 }
 
 function setupNav() {
   // Intercept sidebar link clicks so navigation is instant (no full reload)
   // while still updating the URL via the History API.
-  document.querySelectorAll('.nav-item').forEach((item) => {
-    item.addEventListener('click', (event) => {
+  document.querySelectorAll(".nav-item").forEach((item) => {
+    item.addEventListener("click", (event) => {
       const route = item.dataset.nav;
       if (!ROUTES.includes(route)) return;
       event.preventDefault();
       if (currentRoute() !== route) {
-        window.history.pushState({ route }, '', `/${route}`);
+        window.history.pushState({ route }, "", `/${route}`);
       }
       showRoute(route);
       closeSidebarDrawer();
@@ -4086,10 +4229,10 @@ function setupNav() {
   });
 
   // Handle browser back/forward.
-  window.addEventListener('popstate', () => {
+  window.addEventListener("popstate", () => {
     const { route, feature } = parseLocation();
     showRoute(route);
-    if (route === 'feature-detail' && feature) openFeatureDetail(feature);
+    if (route === "feature-detail" && feature) openFeatureDetail(feature);
   });
 
   showRoute(currentRoute());
@@ -4097,39 +4240,39 @@ function setupNav() {
 
 /* Mobile off-canvas drawer (shadcn-style sheet). */
 function openSidebarDrawer() {
-  const sidebar = document.querySelector('.sidebar');
-  const backdrop = document.getElementById('sidebar-backdrop');
-  const toggle = document.getElementById('sidebar-toggle');
-  if (sidebar) sidebar.classList.add('open');
-  if (backdrop) backdrop.classList.add('open');
-  if (toggle) toggle.setAttribute('aria-expanded', 'true');
+  const sidebar = document.querySelector(".sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  const toggle = document.getElementById("sidebar-toggle");
+  if (sidebar) sidebar.classList.add("open");
+  if (backdrop) backdrop.classList.add("open");
+  if (toggle) toggle.setAttribute("aria-expanded", "true");
 }
 
 function closeSidebarDrawer() {
-  const sidebar = document.querySelector('.sidebar');
-  const backdrop = document.getElementById('sidebar-backdrop');
-  const toggle = document.getElementById('sidebar-toggle');
-  if (sidebar) sidebar.classList.remove('open');
-  if (backdrop) backdrop.classList.remove('open');
-  if (toggle) toggle.setAttribute('aria-expanded', 'false');
+  const sidebar = document.querySelector(".sidebar");
+  const backdrop = document.getElementById("sidebar-backdrop");
+  const toggle = document.getElementById("sidebar-toggle");
+  if (sidebar) sidebar.classList.remove("open");
+  if (backdrop) backdrop.classList.remove("open");
+  if (toggle) toggle.setAttribute("aria-expanded", "false");
 }
 
 function setupSidebarDrawer() {
-  const toggle = document.getElementById('sidebar-toggle');
-  const backdrop = document.getElementById('sidebar-backdrop');
+  const toggle = document.getElementById("sidebar-toggle");
+  const backdrop = document.getElementById("sidebar-backdrop");
   if (toggle) {
-    toggle.addEventListener('click', () => {
-      const sidebar = document.querySelector('.sidebar');
-      if (sidebar && sidebar.classList.contains('open')) {
+    toggle.addEventListener("click", () => {
+      const sidebar = document.querySelector(".sidebar");
+      if (sidebar && sidebar.classList.contains("open")) {
         closeSidebarDrawer();
       } else {
         openSidebarDrawer();
       }
     });
   }
-  if (backdrop) backdrop.addEventListener('click', closeSidebarDrawer);
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeSidebarDrawer();
+  if (backdrop) backdrop.addEventListener("click", closeSidebarDrawer);
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeSidebarDrawer();
   });
 }
 
@@ -4137,14 +4280,14 @@ function setupSidebarDrawer() {
    THEME
    ============================================================ */
 
-const THEME_KEY = 'sdrive-theme';
+const THEME_KEY = "sdrive-theme";
 
 /* An inline script in index.html sets <html data-theme> before first paint, so
    this never has to apply the stored theme - it only reacts to clicks and keeps
    the button's own label in step. The stored value is what that script reads. */
 function applyTheme(theme) {
-  const next = theme === 'dark' ? 'dark' : 'light';
-  document.documentElement.setAttribute('data-theme', next);
+  const next = theme === "dark" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", next);
 
   try {
     window.localStorage.setItem(THEME_KEY, next);
@@ -4158,35 +4301,35 @@ function applyTheme(theme) {
 /* The button advertises the theme it switches TO, not the one you are in, so the
    label always describes the action a click will take. */
 function syncThemeToggle(theme) {
-  const current = theme || document.documentElement.getAttribute('data-theme') || 'dark';
-  const button = document.getElementById('theme-toggle');
+  const current = theme || document.documentElement.getAttribute("data-theme") || "dark";
+  const button = document.getElementById("theme-toggle");
   if (!button) return;
 
-  const icon = document.getElementById('theme-toggle-icon');
-  const label = document.getElementById('theme-toggle-label');
-  const nextName = current === 'dark' ? 'light' : 'dark';
+  const icon = document.getElementById("theme-toggle-icon");
+  const label = document.getElementById("theme-toggle-label");
+  const nextName = current === "dark" ? "light" : "dark";
 
-  button.setAttribute('aria-label', `Switch to ${nextName} theme`);
-  button.setAttribute('title', `Switch to ${nextName} theme`);
-  button.setAttribute('aria-pressed', current === 'dark' ? 'true' : 'false');
-  if (label) label.textContent = nextName === 'dark' ? 'Dark' : 'Light';
-  if (icon) icon.textContent = current === 'dark' ? '☀' : '☾';
+  button.setAttribute("aria-label", `Switch to ${nextName} theme`);
+  button.setAttribute("title", `Switch to ${nextName} theme`);
+  button.setAttribute("aria-pressed", current === "dark" ? "true" : "false");
+  if (label) label.textContent = nextName === "dark" ? "Dark" : "Light";
+  if (icon) icon.textContent = current === "dark" ? "☀" : "☾";
 }
 
 function setupThemeToggle() {
-  const button = document.getElementById('theme-toggle');
+  const button = document.getElementById("theme-toggle");
   if (button) {
-    button.addEventListener('click', () => {
-      const current = document.documentElement.getAttribute('data-theme') || 'dark';
-      applyTheme(current === 'dark' ? 'light' : 'dark');
+    button.addEventListener("click", () => {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      applyTheme(current === "dark" ? "light" : "dark");
     });
   }
 
   // Keep in step when the theme changes in another tab. The OS preference is
   // intentionally not watched: dark is the default, and an explicit choice wins.
-  window.addEventListener('storage', (event) => {
-    if (event.key === THEME_KEY && (event.newValue === 'light' || event.newValue === 'dark')) {
-      document.documentElement.setAttribute('data-theme', event.newValue);
+  window.addEventListener("storage", (event) => {
+    if (event.key === THEME_KEY && (event.newValue === "light" || event.newValue === "dark")) {
+      document.documentElement.setAttribute("data-theme", event.newValue);
       syncThemeToggle(event.newValue);
     }
   });
@@ -4210,22 +4353,22 @@ function setupThemeToggle() {
    every sticky offset exact at any width. A ResizeObserver re-measures whenever
    the topbar's box changes (wrap, font load, project name swap). */
 function syncTopbarHeight() {
-  const topbar = document.querySelector('.topbar');
+  const topbar = document.querySelector(".topbar");
   if (!topbar) return;
 
   const apply = () => {
     const height = Math.round(topbar.getBoundingClientRect().height);
     if (height > 0) {
-      document.documentElement.style.setProperty('--topbar-h', `${height}px`);
+      document.documentElement.style.setProperty("--topbar-h", `${height}px`);
     }
   };
 
   apply();
 
-  if (typeof ResizeObserver === 'function') {
+  if (typeof ResizeObserver === "function") {
     new ResizeObserver(apply).observe(topbar);
   } else {
-    window.addEventListener('resize', apply);
+    window.addEventListener("resize", apply);
   }
 }
 
@@ -4238,69 +4381,39 @@ function syncTopbarHeight() {
 // on a machine where git itself is slow. A failed request now leaves its own panel
 // untouched rather than replacing it with a claim the server never made.
 async function loadAndRenderShell() {
-  const data = {
-    onboarding: null,
-    product: null,
-    git: null,
-    project: null,
-    productType: null,
-    health: null,
-  };
+  const data = { onboarding: null, product: null, git: null, project: null, productType: null, health: null };
   const loaded = new Set();
 
   const paintHeader = () => {
-    if (loaded.has('project')) renderProjectInfo(data.project);
-    if (loaded.has('git')) renderGitInfo(data.git);
+    if (loaded.has("project")) renderProjectInfo(data.project);
+    if (loaded.has("git")) renderGitInfo(data.git);
   };
 
   const paintOverview = () => {
-    const container = document.getElementById('overview-panel');
+    const container = document.getElementById("overview-panel");
     if (!container) return;
-    if (!['onboarding', 'product', 'git', 'health'].some((key) => loaded.has(key))) return;
-    container.innerHTML = '';
-    container.appendChild(
-      renderOverview(data.onboarding, data.git, data.product, data.productType, data.health),
-    );
+    if (!["onboarding", "product", "git", "health"].some((key) => loaded.has(key))) return;
+    container.innerHTML = "";
+    container.appendChild(renderOverview(data.onboarding, data.git, data.product, data.productType, data.health));
   };
 
   const paintProduct = () => {
     // Nothing to say until the plan has actually been read: rendering the "no plan"
     // empty state for a failed request would state something the server never said.
-    if (!loaded.has('product')) return;
-    const container = document.getElementById('product-panel');
+    if (!loaded.has("product")) return;
+    const container = document.getElementById("product-panel");
     if (!container) return;
-    container.innerHTML = '';
+    container.innerHTML = "";
     container.appendChild(renderProduct(data.product, data.productType));
   };
 
   const jobs = [
-    ['onboarding', '/api/onboarding', paintOverview],
-    [
-      'product',
-      '/api/product',
-      () => {
-        paintProduct();
-        paintOverview();
-      },
-    ],
-    [
-      'git',
-      '/api/git-info',
-      () => {
-        paintHeader();
-        paintOverview();
-      },
-    ],
-    ['project', '/api/project-info', paintHeader],
-    [
-      'productType',
-      '/api/product-type',
-      () => {
-        paintProduct();
-        paintOverview();
-      },
-    ],
-    ['health', '/api/health', paintOverview],
+    ["onboarding", "/api/onboarding", paintOverview],
+    ["product", "/api/product", () => { paintProduct(); paintOverview(); }],
+    ["git", "/api/git-info", () => { paintHeader(); paintOverview(); }],
+    ["project", "/api/project-info", paintHeader],
+    ["productType", "/api/product-type", () => { paintProduct(); paintOverview(); }],
+    ["health", "/api/health", paintOverview]
   ];
 
   await Promise.all(
@@ -4313,7 +4426,7 @@ async function loadAndRenderShell() {
       } finally {
         if (loaded.has(key)) afterPaint();
       }
-    }),
+    })
   );
 }
 
@@ -4333,7 +4446,7 @@ function setupLiveRefresh(refresh) {
     if (running || document.hidden) return;
     running = true;
     try {
-      const { stamp } = await fetchJson('/api/stamp');
+      const { stamp } = await fetchJson("/api/stamp");
       if (last === null) {
         last = stamp;
       } else if (stamp !== last) {
@@ -4351,7 +4464,7 @@ function setupLiveRefresh(refresh) {
 
   // Returning to a hidden tab should catch up immediately rather than waiting out
   // the rest of the interval.
-  document.addEventListener('visibilitychange', () => {
+  document.addEventListener("visibilitychange", () => {
     if (!document.hidden) tick();
   });
 }
@@ -4371,11 +4484,11 @@ async function main() {
   // twice per change and race against itself (duplicate cards). Text inputs only
   // emit `input`; selects and checkboxes only need `change`.
   [
-    { id: 'filter-search', event: 'input' },
-    { id: 'filter-phase', event: 'change' },
-    { id: 'filter-verification', event: 'change' },
-    { id: 'filter-tests', event: 'change' },
-    { id: 'filter-current-version', event: 'change' },
+    { id: "filter-search", event: "input" },
+    { id: "filter-phase", event: "change" },
+    { id: "filter-verification", event: "change" },
+    { id: "filter-tests", event: "change" },
+    { id: "filter-current-version", event: "change" }
   ].forEach(({ id, event }) => {
     const el = document.getElementById(id);
     if (el) {
@@ -4407,7 +4520,7 @@ async function main() {
 
   // Deep link: /features/<name> loads the detail page directly.
   const { route, feature } = parseLocation();
-  if (route === 'feature-detail' && feature) {
+  if (route === "feature-detail" && feature) {
     await openFeatureDetail(feature);
   }
 }

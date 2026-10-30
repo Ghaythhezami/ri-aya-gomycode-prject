@@ -7,13 +7,13 @@
 // worktree, and record the preparation in workflow-state.json. Keeping the git
 // and eligibility rules here means a model cannot accidentally open a W2 branch
 // while its W1 dependency is still ongoing.
-const fs = require('fs');
-const path = require('path');
-const { execFileSync } = require('child_process');
-const productPlan = require('./lib/product-plan');
+const fs = require("fs");
+const path = require("path");
+const { execFileSync } = require("child_process");
+const productPlan = require("./lib/product-plan");
 
 const projectRoot = process.cwd();
-const sdriveRoot = path.join(projectRoot, '.sdrive');
+const sdriveRoot = path.join(projectRoot, ".sdrive");
 
 function fail(message, code = 1) {
   console.error(`❌ ${message}`);
@@ -21,10 +21,10 @@ function fail(message, code = 1) {
 }
 
 function git(args, cwd = projectRoot) {
-  return execFileSync('git', args, {
+  return execFileSync("git", args, {
     cwd,
-    encoding: 'utf8',
-    stdio: ['ignore', 'pipe', 'pipe'],
+    encoding: "utf8",
+    stdio: ["ignore", "pipe", "pipe"]
   }).trim();
 }
 
@@ -37,29 +37,29 @@ function tryGit(args, cwd = projectRoot) {
 }
 
 function readBacklog() {
-  const file = path.join(sdriveRoot, 'product', 'backlog.md');
-  if (!fs.existsSync(file)) return '';
-  return fs.readFileSync(file, 'utf8');
+  const file = path.join(sdriveRoot, "product", "backlog.md");
+  if (!fs.existsSync(file)) return "";
+  return fs.readFileSync(file, "utf8");
 }
 
 function resolveIntegrationBranch() {
-  const originHead = tryGit(['symbolic-ref', 'refs/remotes/origin/HEAD', '--short']);
-  if (originHead && originHead.startsWith('origin/')) {
-    return originHead.slice('origin/'.length);
+  const originHead = tryGit(["symbolic-ref", "refs/remotes/origin/HEAD", "--short"]);
+  if (originHead && originHead.startsWith("origin/")) {
+    return originHead.slice("origin/".length);
   }
 
-  for (const candidate of ['main', 'master', 'trunk', 'develop']) {
-    if (tryGit(['rev-parse', '--verify', `${candidate}^{commit}`])) return candidate;
+  for (const candidate of ["main", "master", "trunk", "develop"]) {
+    if (tryGit(["rev-parse", "--verify", `${candidate}^{commit}`])) return candidate;
   }
 
-  return tryGit(['branch', '--show-current']) || 'main';
+  return tryGit(["branch", "--show-current"]) || "main";
 }
 
 function buildPlan() {
   const state = productPlan.readWorkflowState(sdriveRoot);
   const enriched = productPlan.enrichBacklog(
     productPlan.annotateBacklog(productPlan.parseBacklog(readBacklog())),
-    { sdriveRoot, state },
+    { sdriveRoot, state }
   );
   const items = productPlan.sortBacklog(enriched.items);
 
@@ -69,13 +69,13 @@ function buildPlan() {
     if (/deferred|needs discovery/.test(item.planStatus)) {
       return `plan status is ${item.planStatus}`;
     }
-    if (item.blockedBy.length) return `depends on ${item.blockedBy.join(', ')}`;
+    if (item.blockedBy.length) return `depends on ${item.blockedBy.join(", ")}`;
     if ((item.externalDependencies || []).length) {
-      return `outside blocker: ${item.externalDependencies.join(', ')}`;
+      return `outside blocker: ${item.externalDependencies.join(", ")}`;
     }
-    if (item.lifecycleStatus === 'ongoing') return 'already ongoing';
-    if (item.lifecycleStatus === 'completed') return 'already completed';
-    return 'not eligible';
+    if (item.lifecycleStatus === "ongoing") return "already ongoing";
+    if (item.lifecycleStatus === "completed") return "already completed";
+    return "not eligible";
   };
 
   const publicItem = (item) => ({
@@ -91,16 +91,18 @@ function buildPlan() {
     externalDependencies: item.externalDependencies,
     blockedBy: item.blockedBy,
     eligible: item.eligible,
-    reason: item.eligible ? '' : explain(item),
-    suggestions: productPlan.suggestBranchNames(item),
+    reason: item.eligible ? "" : explain(item),
+    suggestions: productPlan.suggestBranchNames(item)
   });
 
   const eligible = items.filter((item) => item.eligible).map(publicItem);
   const waiting = items
-    .filter((item) => item.lifecycleStatus === 'backlog' && !item.eligible)
+    .filter((item) => item.lifecycleStatus === "backlog" && !item.eligible)
     .map(publicItem);
   const unavailable = items.filter((item) => !item.eligible).map(publicItem);
-  const currentWave = eligible.length ? Math.min(...eligible.map((item) => item.wave)) : null;
+  const currentWave = eligible.length
+    ? Math.min(...eligible.map((item) => item.wave))
+    : null;
 
   return {
     projectRoot,
@@ -112,7 +114,7 @@ function buildPlan() {
     eligible,
     waiting,
     unavailable,
-    worktrees: (state.worktrees || []).slice(),
+    worktrees: (state.worktrees || []).slice()
   };
 }
 
@@ -123,45 +125,45 @@ function option(name, fallback) {
 }
 
 function normalizeBranch(value) {
-  const raw = String(value || '').trim();
-  const branch = raw.startsWith('feature/') ? raw : `feature/${raw.replace(/^\/+/, '')}`;
+  const raw = String(value || "").trim();
+  const branch = raw.startsWith("feature/") ? raw : `feature/${raw.replace(/^\/+/, "")}`;
   if (!/^feature\/[A-Za-z0-9][A-Za-z0-9._-]*$/.test(branch)) {
     fail(
-      `Invalid branch "${raw}". Use the form feature/<name>, for example feature/BP-003 or feature/chat.`,
+      `Invalid branch "${raw}". Use the form feature/<name>, for example feature/BP-003 or feature/chat.`
     );
   }
   return branch;
 }
 
 function branchExists(branch) {
-  return Boolean(tryGit(['rev-parse', '--verify', `refs/heads/${branch}`]));
+  return Boolean(tryGit(["rev-parse", "--verify", `refs/heads/${branch}`]));
 }
 
 function writeState(state) {
-  const file = path.join(sdriveRoot, 'workflow-state.json');
+  const file = path.join(sdriveRoot, "workflow-state.json");
   fs.mkdirSync(sdriveRoot, { recursive: true });
-  fs.writeFileSync(file, `${JSON.stringify(state, null, 2)}\n`, 'utf8');
+  fs.writeFileSync(file, `${JSON.stringify(state, null, 2)}\n`, "utf8");
 }
 
 function copyStateToWorktree(worktreePath) {
-  const source = path.join(sdriveRoot, 'workflow-state.json');
-  const destination = path.join(worktreePath, '.sdrive', 'workflow-state.json');
+  const source = path.join(sdriveRoot, "workflow-state.json");
+  const destination = path.join(worktreePath, ".sdrive", "workflow-state.json");
   fs.mkdirSync(path.dirname(destination), { recursive: true });
   fs.copyFileSync(source, destination);
 }
 
 function listCommand() {
   const plan = buildPlan();
-  if (process.argv.includes('--json')) {
+  if (process.argv.includes("--json")) {
     console.log(JSON.stringify(plan, null, 2));
     return;
   }
 
   console.log(`Project: ${plan.projectRoot}`);
   console.log(`Integration branch: ${plan.integrationBranch}`);
-  console.log('');
+  console.log("");
   if (!plan.eligible.length) {
-    console.log('No item is ready for a worktree right now.');
+    console.log("No item is ready for a worktree right now.");
     const next = plan.waves.find((wave) => wave.eligible > 0);
     if (next) console.log(`Next ready wave: ${next.label}`);
     return;
@@ -171,23 +173,21 @@ function listCommand() {
   console.log(`Ready now (${wave}):`);
   for (const item of plan.eligible.filter((entry) => entry.wave === plan.currentWave)) {
     console.log(`  ${item.id}  ${item.feature}`);
-    console.log(
-      `        branch choices: feature/${item.id} or ${item.suggestions.join(', ') || 'a custom name'}`,
-    );
+    console.log(`        branch choices: feature/${item.id} or ${item.suggestions.join(", ") || "a custom name"}`);
   }
 
   const later = plan.eligible.filter((entry) => entry.wave > plan.currentWave);
   if (later.length) {
-    console.log('');
-    console.log('Ready in a later wave (do not create these yet):');
+    console.log("");
+    console.log("Ready in a later wave (do not create these yet):");
     for (const item of later) {
       console.log(`  ${item.id}  ${item.waveLabel}  ${item.feature}`);
     }
   }
 
-  console.log('');
-  console.log('Prepared worktrees:');
-  if (!plan.worktrees.length) console.log('  none');
+  console.log("");
+  console.log("Prepared worktrees:");
+  if (!plan.worktrees.length) console.log("  none");
   else {
     for (const worktree of plan.worktrees) {
       console.log(`  ${worktree.item}  ${worktree.branch}  ${worktree.path}`);
@@ -196,22 +196,22 @@ function listCommand() {
 }
 
 function createCommand() {
-  const itemId = option('--item', '');
-  const branchInput = option('--branch', '');
-  const base = option('--base', '');
-  const customPath = option('--path', '');
-  const json = process.argv.includes('--json');
+  const itemId = option("--item", "");
+  const branchInput = option("--branch", "");
+  const base = option("--base", "");
+  const customPath = option("--path", "");
+  const json = process.argv.includes("--json");
 
-  if (!itemId) fail('Missing --item BP-###.');
-  if (!branchInput) fail('Missing --branch feature/<name>.');
+  if (!itemId) fail("Missing --item BP-###.");
+  if (!branchInput) fail("Missing --branch feature/<name>.");
 
   const plan = buildPlan();
   const item = plan.eligible.find((entry) => entry.id === productPlan.normalizeId(itemId));
   if (!item) {
     const known = [...plan.eligible, ...plan.unavailable].find(
-      (entry) => entry.id === productPlan.normalizeId(itemId),
+      (entry) => entry.id === productPlan.normalizeId(itemId)
     );
-    const reason = known ? known.reason : 'item not found in the product backlog';
+    const reason = known ? known.reason : "item not found in the product backlog";
     fail(`${productPlan.normalizeId(itemId) || itemId} is not ready: ${reason}.`);
   }
 
@@ -222,7 +222,7 @@ function createCommand() {
   if (plan.currentWave != null && item.wave > plan.currentWave) {
     fail(
       `${item.id} is in ${productPlan.waveLabel(item.wave)} but the current wave is ${plan.currentWaveLabel}. ` +
-        `Finish ${plan.currentWaveLabel} first.`,
+        `Finish ${plan.currentWaveLabel} first.`
     );
   }
 
@@ -232,7 +232,7 @@ function createCommand() {
   }
 
   const baseBranch = base || plan.integrationBranch;
-  if (!tryGit(['rev-parse', '--verify', `${baseBranch}^{commit}`])) {
+  if (!tryGit(["rev-parse", "--verify", `${baseBranch}^{commit}`])) {
     fail(`Base branch "${baseBranch}" does not exist.`);
   }
 
@@ -245,20 +245,22 @@ function createCommand() {
     fail(`Worktree path already exists: ${worktreePath}`);
   }
 
-  const statePath = path.join(sdriveRoot, 'workflow-state.json');
+  const statePath = path.join(sdriveRoot, "workflow-state.json");
   const state = productPlan.readWorkflowState(sdriveRoot);
   const duplicate = (state.worktrees || []).find(
-    (worktree) => worktree.item === item.id || worktree.branch === branch,
+    (worktree) => worktree.item === item.id || worktree.branch === branch
   );
   if (duplicate) {
-    fail(`${item.id} already has a prepared worktree at ${duplicate.path} (${duplicate.branch}).`);
+    fail(
+      `${item.id} already has a prepared worktree at ${duplicate.path} (${duplicate.branch}).`
+    );
   }
 
   fs.mkdirSync(path.dirname(worktreePath), { recursive: true });
 
   let created = false;
   try {
-    git(['worktree', 'add', '-b', branch, worktreePath, baseBranch]);
+    git(["worktree", "add", "-b", branch, worktreePath, baseBranch]);
     created = true;
 
     const record = {
@@ -268,7 +270,7 @@ function createCommand() {
       path: worktreePath,
       title: item.feature,
       createdAt: new Date().toISOString(),
-      status: 'prepared',
+      status: "prepared"
     };
 
     const latest = productPlan.readWorkflowState(sdriveRoot);
@@ -278,52 +280,38 @@ function createCommand() {
     copyStateToWorktree(worktreePath);
 
     if (json) {
-      console.log(
-        JSON.stringify(
-          {
-            ok: true,
-            item: item.id,
-            ...record,
-            next: `/sdrive:propose "${item.id} ${item.feature}"`,
-          },
-          null,
-          2,
-        ),
-      );
+      console.log(JSON.stringify({ ok: true, item: item.id, ...record, next: `/sdrive:propose "${item.id} ${item.feature}"` }, null, 2));
     } else {
       console.log(`✅ Prepared ${item.id}: ${item.feature}`);
       console.log(`   Worktree: ${worktreePath}`);
       console.log(`   Branch:   ${branch}`);
       console.log(`   Base:     ${baseBranch}`);
-      console.log('');
-      console.log('Next:');
+      console.log("");
+      console.log("Next:");
       console.log(`   cd "${worktreePath}"`);
       console.log(`   /sdrive:propose "${item.id} ${item.feature}"`);
     }
   } catch (error) {
     if (created) {
       try {
-        git(['worktree', 'remove', '--force', worktreePath]);
+        git(["worktree", "remove", "--force", worktreePath]);
       } catch (cleanupError) {
         // The worktree was created but recording state failed. Leave the path in
         // place and report both facts rather than deleting something the user
         // may already be looking at.
       }
     }
-    const detail =
-      error && error.stderr ? String(error.stderr).trim() : String(error.message || error);
+    const detail = error && error.stderr ? String(error.stderr).trim() : String(error.message || error);
     fail(`Could not prepare the worktree: ${detail}`);
   }
 }
 
 const command = process.argv[2];
-if (command === 'list') listCommand();
-else if (command === 'create') createCommand();
+if (command === "list") listCommand();
+else if (command === "create") createCommand();
 else {
-  console.log('Usage:');
-  console.log('  node .sdrive/scripts/worktree.js list [--json]');
-  console.log(
-    '  node .sdrive/scripts/worktree.js create --item BP-003 --branch feature/BP-003 [--base main] [--path <dir>] [--json]',
-  );
+  console.log("Usage:");
+  console.log("  node .sdrive/scripts/worktree.js list [--json]");
+  console.log("  node .sdrive/scripts/worktree.js create --item BP-003 --branch feature/BP-003 [--base main] [--path <dir>] [--json]");
   process.exit(command ? 1 : 0);
 }

@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const projectRoot = process.cwd();
-const sdriveRoot = path.join(projectRoot, '.sdrive');
+const sdriveRoot = path.join(projectRoot, ".sdrive");
 
 const featureName = process.argv[2];
 const versionA = process.argv[3];
 const versionB = process.argv[4];
 
 if (!featureName || !versionA || !versionB) {
-  console.error('❌ Usage: node diff-version.js <feature> <v1> <v2>');
+  console.error("❌ Usage: node diff-version.js <feature> <v1> <v2>");
   process.exit(1);
 }
 
@@ -26,7 +26,7 @@ function findFile(baseDir, version, fileName) {
 }
 
 function readLines(filePath) {
-  return fs.readFileSync(filePath, 'utf8').split('\n');
+  return fs.readFileSync(filePath, "utf8").split("\n");
 }
 
 function simpleDiff(oldLines, newLines) {
@@ -55,8 +55,8 @@ function simpleDiff(oldLines, newLines) {
 }
 
 function diffFile(fileName, label) {
-  const specA = findFile(path.join(sdriveRoot, 'specs', 'ongoing'), versionA, fileName);
-  const specB = findFile(path.join(sdriveRoot, 'specs', 'ongoing'), versionB, fileName);
+  const specA = findFile(path.join(sdriveRoot, "specs", "ongoing"), versionA, fileName);
+  const specB = findFile(path.join(sdriveRoot, "specs", "ongoing"), versionB, fileName);
 
   if (!specA || !specB) {
     console.log(`\n⚠️  ${label}: not both versions have this file. Skipping.`);
@@ -70,17 +70,17 @@ function diffFile(fileName, label) {
   console.log(`\n📄 ${label} (${versionA} → ${versionB})`);
 
   if (added.length === 0 && removed.length === 0) {
-    console.log('   ✅ No changes.');
+    console.log("   ✅ No changes.");
     return;
   }
 
   if (removed.length > 0) {
-    console.log('   ❌ Removed:');
+    console.log("   ❌ Removed:");
     removed.forEach((line) => console.log(`     - ${line}`));
   }
 
   if (added.length > 0) {
-    console.log('   ✅ Added:');
+    console.log("   ✅ Added:");
     added.forEach((line) => console.log(`     + ${line}`));
   }
 }
@@ -88,9 +88,9 @@ function diffFile(fileName, label) {
 function main() {
   console.log(`\n🔍 Diff: ${featureName} (${versionA} → ${versionB})`);
 
-  diffFile('spec.md', 'Specification');
-  diffFile('plan.md', 'Plan');
-  diffFile('tasks.md', 'Tasks');
+  diffFile("spec.md", "Specification");
+  diffFile("plan.md", "Plan");
+  diffFile("tasks.md", "Tasks");
 }
 
 main();

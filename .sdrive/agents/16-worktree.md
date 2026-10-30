@@ -75,9 +75,8 @@ The Product Plan is a dependency graph. A wave is a build layer, not a deadline.
 </workflow>
 
 <decision_examples>
-
 - "Prepare W1" while BP-005 is still `ongoing`: do not create W1 branches. Say which dependency is still ongoing and which items are ready now.
 - "Prepare all of start": allowed only for the `start` wave items with no open dependency or outside blocker. `deferred` and `needs discovery` items are skipped with their reason shown.
 - "Use feature/chat": allowed for a readable-name branch. If `feature/chat` already exists, ask for another name; do not force.
 - "I already ran /sdrive:worktree for BP-006": show the recorded worktree and tell the user to run `/sdrive:propose` there. Do not prepare a second branch.
-  </decision_examples>
+</decision_examples>

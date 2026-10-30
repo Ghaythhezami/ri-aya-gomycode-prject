@@ -1,17 +1,17 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const projectRoot = process.cwd();
-const teamPath = path.join(projectRoot, '.sdrive', 'team.json');
+const teamPath = path.join(projectRoot, ".sdrive", "team.json");
 
 function loadTeam() {
   if (!fs.existsSync(teamPath)) {
-    console.error('❌ team.json not found. Run `sdrive init` first.');
+    console.error("❌ team.json not found. Run `sdrive init` first.");
     process.exit(1);
   }
 
   try {
-    return JSON.parse(fs.readFileSync(teamPath, 'utf8'));
+    return JSON.parse(fs.readFileSync(teamPath, "utf8"));
   } catch (error) {
     console.error(`❌ Invalid team.json: ${error.message}`);
     process.exit(1);
@@ -110,5 +110,5 @@ module.exports = {
   listMembers,
   addMember,
   removeMember,
-  updateMember,
+  updateMember
 };

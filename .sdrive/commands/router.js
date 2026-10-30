@@ -1,22 +1,22 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
-const { getWorkflowState, saveWorkflowState, isGateApproved } = require('./gates');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
+const { getWorkflowState, saveWorkflowState, isGateApproved } = require("./gates");
 
 const projectRoot = process.cwd();
 
 function checkPermission(command) {
-  const permScript = path.join(projectRoot, '.sdrive', 'scripts', 'check-permission.js');
+  const permScript = path.join(projectRoot, ".sdrive", "scripts", "check-permission.js");
 
   if (!fs.existsSync(permScript)) {
-    console.warn('⚠️  Permission checker not found. Skipping permission check.');
+    console.warn("⚠️  Permission checker not found. Skipping permission check.");
     return true;
   }
 
   try {
-    execSync(`node "${permScript}" slash "${command.command}"`, { stdio: 'pipe' });
+    execSync(`node "${permScript}" slash "${command.command}"`, { stdio: "pipe" });
     return true;
   } catch (error) {
     console.error(`\n❌ Permission denied for ${command.command}`);
@@ -27,14 +27,14 @@ function checkPermission(command) {
 }
 
 function loadManifest() {
-  const manifestPath = path.join(projectRoot, '.sdrive', 'commands', 'manifest.json');
+  const manifestPath = path.join(projectRoot, ".sdrive", "commands", "manifest.json");
 
   if (!fs.existsSync(manifestPath)) {
-    console.error('❌ manifest.json not found. Run `sdrive init` first.');
+    console.error("❌ manifest.json not found. Run `sdrive init` first.");
     process.exit(1);
   }
 
-  return JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+  return JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 }
 
 function findCommand(commandName) {
@@ -50,26 +50,26 @@ function loadAgent(agentFile) {
     process.exit(1);
   }
 
-  return fs.readFileSync(agentPath, 'utf8');
+  return fs.readFileSync(agentPath, "utf8");
 }
 
 function runValidators(validators) {
-  const validatorPath = path.join(projectRoot, '.sdrive', 'scripts', 'validate-governance.js');
+  const validatorPath = path.join(projectRoot, ".sdrive", "scripts", "validate-governance.js");
 
   if (!validators || validators.length === 0) {
     return true;
   }
 
   if (!fs.existsSync(validatorPath)) {
-    console.warn('⚠️  Validator script not found. Skipping validation.');
+    console.warn("⚠️  Validator script not found. Skipping validation.");
     return true;
   }
 
   try {
-    execSync(`node "${validatorPath}"`, { stdio: 'inherit' });
+    execSync(`node "${validatorPath}"`, { stdio: "inherit" });
     return true;
   } catch (error) {
-    console.error('❌ Validation failed.');
+    console.error("❌ Validation failed.");
     return false;
   }
 }
@@ -78,8 +78,8 @@ function toKebabCase(text) {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function main() {
@@ -87,7 +87,7 @@ function main() {
   const rawArgs = process.argv.slice(3);
 
   if (!commandName) {
-    console.error('❌ Usage: node router.js /sdrive:<command> [feature-description] [--all]');
+    console.error("❌ Usage: node router.js /sdrive:<command> [feature-description] [--all]");
     process.exit(1);
   }
 
@@ -99,8 +99,13 @@ function main() {
   }
 
   // Detect the --all flag anywhere in the arguments.
-  const allFlag = rawArgs.includes('--all');
-  const rawFeature = rawArgs.find((arg) => arg !== '--all');
+  const allFlag = rawArgs.includes("--all");
+  const rawFeature = rawArgs.find((arg) => arg !== "--all");
+  // A bracketed argument is a group expression, not a feature name. `[wave1 p2]` selects
+  // backlog items; kebab-casing it would produce the nonsense feature `wave1-p2`, and a
+  // comma list would become one name. It is passed through verbatim so /sdrive:propose can
+  // resolve it and show the user what it selected before creating anything.
+  const rawGroup = rawArgs.find((arg) => /^\[.*\]$/.test(String(arg).trim()));
 
   // Permission check
   if (!checkPermission(command)) {
@@ -117,6 +122,17 @@ function main() {
 
   if (allFlag) {
     console.log(`\n📦 Mode: --all (every ongoing feature)`);
+  } else if (rawGroup) {
+    if (!command.acceptsGroup) {
+      console.error(`❌ ${command.command} does not accept a group expression.`);
+      console.error(
+        `   A group such as [wave1 p2] belongs to /sdrive:propose, which creates the features.`
+      );
+      process.exit(1);
+    }
+
+    featureName = rawGroup.trim();
+    console.log(`\n📦 Group: ${featureName}`);
   } else if (rawFeature) {
     featureName = toKebabCase(rawFeature);
     console.log(`\n📦 Feature: ${featureName}`);
@@ -145,11 +161,9 @@ function main() {
     }
 
     if (allFlag) {
-      console.log(
-        `\n🚧 Required Gates: ${command.gates.join(', ')} (evaluated per feature in --all mode)`,
-      );
+      console.log(`\n🚧 Required Gates: ${command.gates.join(", ")} (evaluated per feature in --all mode)`);
     } else {
-      console.log(`\n🚧 Required Gates: ${command.gates.join(', ')}`);
+      console.log(`\n🚧 Required Gates: ${command.gates.join(", ")}`);
     }
 
     // In --all mode there is no single feature to gate-check here; the agent
@@ -173,12 +187,12 @@ function main() {
   const valid = runValidators(command.validators);
 
   if (!valid) {
-    console.error('\n❌ Command execution blocked due to validation failure.');
+    console.error("\n❌ Command execution blocked due to validation failure.");
     process.exit(1);
   }
 
-  console.log('\n🤖 The AI tool should now read the agent instructions and execute the command.');
-  console.log('⏸️  Remember to stop for human approval after the command completes.\n');
+  console.log("\n🤖 The AI tool should now read the agent instructions and execute the command.");
+  console.log("⏸️  Remember to stop for human approval after the command completes.\n");
 }
 
 main();

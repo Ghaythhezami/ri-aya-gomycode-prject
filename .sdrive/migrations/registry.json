@@ -41,11 +41,7 @@
       "name": "Generic spec folders",
       "roots": ["specs", "docs/specs", "documentation/specs"],
       "defaultLifecycle": "backlog",
-      "mapping": {
-        "spec": "spec.md / requirements.md",
-        "plan": "plan.md / design.md",
-        "tasks": "tasks.md"
-      }
+      "mapping": { "spec": "spec.md / requirements.md", "plan": "plan.md / design.md", "tasks": "tasks.md" }
     }
   ]
 }

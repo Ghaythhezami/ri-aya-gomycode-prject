@@ -49,7 +49,12 @@
             "enum": ["not_started", "in_progress", "complete"]
           }
         },
-        "required": ["requirementId", "acceptanceCriteriaIds", "taskIds", "status"]
+        "required": [
+          "requirementId",
+          "acceptanceCriteriaIds",
+          "taskIds",
+          "status"
+        ]
       }
     }
   },

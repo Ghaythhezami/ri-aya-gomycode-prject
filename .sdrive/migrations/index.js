@@ -1,15 +1,15 @@
-const path = require('path');
-const adapters = require('./adapters');
-const { exists, relative, slugify } = require('./lib/files');
+const path = require("path");
+const adapters = require("./adapters");
+const { exists, relative, slugify } = require("./lib/files");
 
-const VERSION = 'v1';
+const VERSION = "v1";
 
 function listAdapters() {
   return adapters.map((adapter) => ({
     id: adapter.id,
     name: adapter.name,
     roots: adapter.roots,
-    defaultLifecycle: adapter.defaultLifecycle || 'backlog',
+    defaultLifecycle: adapter.defaultLifecycle || "backlog"
   }));
 }
 
@@ -25,25 +25,25 @@ function detectAll(root) {
       return {
         id: adapter.id,
         name: adapter.name,
-        root: adapter.roots.join(', '),
+        root: adapter.roots.join(", "),
         detected: false,
-        confidence: 'none',
+        confidence: "none",
         counts: {},
-        error: error.message,
+        error: error.message
       };
     }
   });
 }
 
 function uniqueFeature(base, seen, kind) {
-  const clean = slugify(base) || 'untitled';
+  const clean = slugify(base) || "untitled";
 
   if (!seen.has(clean)) {
     seen.add(clean);
     return clean;
   }
 
-  const suffixed = `${clean}-${slugify(kind || 'item') || 'item'}`;
+  const suffixed = `${clean}-${slugify(kind || "item") || "item"}`;
   if (!seen.has(suffixed)) {
     seen.add(suffixed);
     return suffixed;
@@ -62,19 +62,14 @@ function uniqueFeature(base, seen, kind) {
 
 function fileMapping(root, source, target) {
   if (!source) {
-    return {
-      kind: path.basename(target).replace(/\.md$/, ''),
-      source: null,
-      target,
-      status: 'placeholder',
-    };
+    return { kind: path.basename(target).replace(/\.md$/, ""), source: null, target, status: "placeholder" };
   }
 
   return {
-    kind: path.basename(target).replace(/\.md$/, ''),
+    kind: path.basename(target).replace(/\.md$/, ""),
     source: relative(root, source),
     target,
-    status: 'mapped',
+    status: "mapped"
   };
 }
 
@@ -82,11 +77,7 @@ function buildPlan(root, adapterId) {
   const adapter = getAdapter(adapterId);
 
   if (!adapter) {
-    throw new Error(
-      `Unknown migration framework "${adapterId}". Available: ${listAdapters()
-        .map((entry) => entry.id)
-        .join(', ')}`,
-    );
+    throw new Error(`Unknown migration framework "${adapterId}". Available: ${listAdapters().map((entry) => entry.id).join(", ")}`);
   }
 
   const detection = adapter.detect(root);
@@ -96,7 +87,7 @@ function buildPlan(root, adapterId) {
 
   for (const entry of entries) {
     const feature = uniqueFeature(entry.feature, seen, entry.kind);
-    const lifecycle = entry.lifecycle || adapter.defaultLifecycle || 'backlog';
+    const lifecycle = entry.lifecycle || adapter.defaultLifecycle || "backlog";
     const targetDir = `.sdrive/specs/${lifecycle}/${feature}/${VERSION}`;
     const governanceDir = `.sdrive/governance/${feature}/${VERSION}`;
     const targetRoot = path.join(root, targetDir);
@@ -104,40 +95,40 @@ function buildPlan(root, adapterId) {
     const files = [
       fileMapping(root, entry.files.spec, `${targetDir}/spec.md`),
       fileMapping(root, entry.files.plan, `${targetDir}/plan.md`),
-      fileMapping(root, entry.files.tasks, `${targetDir}/tasks.md`),
+      fileMapping(root, entry.files.tasks, `${targetDir}/tasks.md`)
     ];
-    const missing = files.filter((file) => file.status === 'placeholder').map((file) => file.kind);
+    const missing = files.filter((file) => file.status === "placeholder").map((file) => file.kind);
 
     features.push({
       feature,
       source: entry.sourceDir,
       sourceLifecycle: entry.lifecycle || null,
       targetLifecycle: lifecycle,
-      kind: entry.kind || 'spec',
-      status: conflict ? 'conflict' : missing.includes('spec') ? 'partial' : 'ready',
+      kind: entry.kind || "spec",
+      status: conflict ? "conflict" : missing.includes("spec") ? "partial" : "ready",
       conflict,
       missing,
       targetDir,
       governanceDir,
       files,
-      notes: entry.notes || [],
+      notes: entry.notes || []
     });
   }
 
   return {
     framework: adapter.id,
     name: adapter.name,
-    root: adapter.roots.join(', '),
+    root: adapter.roots.join(", "),
     detected: detection.detected,
     confidence: detection.confidence,
     generatedAt: new Date().toISOString(),
     features,
     summary: {
       features: features.length,
-      ready: features.filter((feature) => feature.status === 'ready').length,
-      partial: features.filter((feature) => feature.status === 'partial').length,
-      conflicts: features.filter((feature) => feature.status === 'conflict').length,
-    },
+      ready: features.filter((feature) => feature.status === "ready").length,
+      partial: features.filter((feature) => feature.status === "partial").length,
+      conflicts: features.filter((feature) => feature.status === "conflict").length
+    }
   };
 }
 
@@ -146,5 +137,5 @@ module.exports = {
   listAdapters,
   getAdapter,
   detectAll,
-  buildPlan,
+  buildPlan
 };

@@ -12,19 +12,19 @@
 // `addTool`, so tests and `adapters:verify` can reason about the registry
 // without touching the filesystem.
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 // File extension implied by each supported format. `format` is about the file
 // a tool will actually parse, not a style preference.
 const FORMAT_EXTENSION = {
-  md: '.md',
-  mdc: '.mdc',
-  toml: '.toml',
+  md: ".md",
+  mdc: ".mdc",
+  toml: ".toml"
 };
 
 const FORMATS = Object.keys(FORMAT_EXTENSION);
-const KINDS = ['rules', 'command', 'command-set'];
+const KINDS = ["rules", "command", "command-set"];
 
 // How a command-set turns one manifest entry into a file name.
 //
@@ -34,7 +34,7 @@ const KINDS = ['rules', 'command', 'command-set'];
 // The difference is the tool's own namespacing rule, not a preference: Claude
 // Code and Gemini CLI turn a subdirectory into a namespace, Roo Code and
 // OpenCode use the file name as the whole command name.
-const COMMAND_NAMINGS = ['nested', 'prefixed'];
+const COMMAND_NAMINGS = ["nested", "prefixed"];
 
 // The body every adapter carries. Tools differ in where they read instructions
 // from; none of them differ in what SpecDrive tells them to do, so the body is
@@ -67,15 +67,15 @@ Always read the manifest first. Never hardcode the command list.
 // `.goosehints`. Conflating the two is what would force a fake format called
 // "rules", so they stay separate.
 function normalizePath(entry) {
-  const format = String(entry.format || 'md').toLowerCase();
-  const extension = String(entry.extension || FORMAT_EXTENSION[format] || '').toLowerCase();
+  const format = String(entry.format || "md").toLowerCase();
+  const extension = String(entry.extension || FORMAT_EXTENSION[format] || "").toLowerCase();
   return {
-    path: String(entry.path || ''),
+    path: String(entry.path || ""),
     format,
     extension,
-    kind: entry.kind || 'rules',
+    kind: entry.kind || "rules",
     naming: entry.naming || null,
-    frontmatter: entry.frontmatter || null,
+    frontmatter: entry.frontmatter || null
   };
 }
 
@@ -83,20 +83,20 @@ function normalizeTool(tool) {
   const rawPaths = Array.isArray(tool.adapterPaths)
     ? tool.adapterPaths
     : tool.adapterPath
-      ? [{ path: tool.adapterPath, format: 'md', kind: 'rules' }]
-      : [];
+    ? [{ path: tool.adapterPath, format: "md", kind: "rules" }]
+    : [];
 
   return {
-    name: String(tool.name || ''),
-    label: tool.label || tool.name || '',
+    name: String(tool.name || ""),
+    label: tool.label || tool.name || "",
     mcpClient: tool.mcpClient || null,
-    docs: tool.docs || '',
+    docs: tool.docs || "",
     // `verified` records whether the path was checked against the vendor's own
     // documentation. Unverified entries still generate (a best guess beats no
     // adapter) but `adapters:verify` warns about them so they cannot rot quietly
     // while looking as trustworthy as the rest.
     verified: tool.verified !== false,
-    paths: rawPaths.map(normalizePath),
+    paths: rawPaths.map(normalizePath)
   };
 }
 
@@ -106,7 +106,7 @@ function normalizeRegistry(registry) {
 }
 
 function loadRegistry(sdriveRoot) {
-  const registryPath = path.join(sdriveRoot, 'commands', 'tools.json');
+  const registryPath = path.join(sdriveRoot, "commands", "tools.json");
 
   if (!fs.existsSync(registryPath)) {
     throw new Error(`Tool registry not found: ${registryPath}`);
@@ -114,20 +114,20 @@ function loadRegistry(sdriveRoot) {
 
   return {
     registryPath,
-    raw: JSON.parse(fs.readFileSync(registryPath, 'utf8')),
-    tools: normalizeRegistry(JSON.parse(fs.readFileSync(registryPath, 'utf8'))),
+    raw: JSON.parse(fs.readFileSync(registryPath, "utf8")),
+    tools: normalizeRegistry(JSON.parse(fs.readFileSync(registryPath, "utf8")))
   };
 }
 
 // The command list a command-set expands into. Read from the installed manifest
 // so the generated commands always match what the project actually supports.
 function loadCommands(sdriveRoot) {
-  const manifestPath = path.join(sdriveRoot, 'commands', 'manifest.json');
+  const manifestPath = path.join(sdriveRoot, "commands", "manifest.json");
 
   if (!fs.existsSync(manifestPath)) return [];
 
   try {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+    const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
     return (manifest.commands || []).filter((command) => command && command.command);
   } catch (error) {
     return [];
@@ -137,10 +137,10 @@ function loadCommands(sdriveRoot) {
 // ---------- content ----------
 
 function renderFrontmatter(frontmatter) {
-  if (!frontmatter) return '';
+  if (!frontmatter) return "";
 
   const lines = Object.entries(frontmatter).map(([key, value]) => {
-    if (typeof value === 'boolean' || typeof value === 'number') {
+    if (typeof value === "boolean" || typeof value === "number") {
       return `${key}: ${value}`;
     }
     // Glob-ish values such as `**` must stay quoted or YAML reads them as an
@@ -148,7 +148,7 @@ function renderFrontmatter(frontmatter) {
     return `${key}: ${JSON.stringify(String(value))}`;
   });
 
-  return `---\n${lines.join('\n')}\n---\n\n`;
+  return `---\n${lines.join("\n")}\n---\n\n`;
 }
 
 // Gemini CLI custom commands are TOML with a required `prompt` field. A `.md`
@@ -159,26 +159,26 @@ function renderToml(body) {
     'prompt = """',
     body.trimEnd(),
     '"""',
-    '',
-  ].join('\n');
+    ""
+  ].join("\n");
 }
 
 function renderContent(entry) {
-  if (entry.format === 'toml') return renderToml(STUB_BODY);
+  if (entry.format === "toml") return renderToml(STUB_BODY);
   return `${renderFrontmatter(entry.frontmatter)}${STUB_BODY}`;
 }
 
 // ---------- per-command files ----------
 
 function commandSlug(command) {
-  const raw = String(command.command || '');
-  const name = raw.includes(':') ? raw.split(':').pop() : raw.replace(/^\//, '');
-  return name.replace(/[^a-z0-9-]/gi, '-').toLowerCase();
+  const raw = String(command.command || "");
+  const name = raw.includes(":") ? raw.split(":").pop() : raw.replace(/^\//, "");
+  return name.replace(/[^a-z0-9-]/gi, "-").toLowerCase();
 }
 
 function argumentHint(command) {
-  if (command.acceptsAll) return '<feature> | --all';
-  if (command.acceptsFeature) return '<feature>';
+  if (command.acceptsAll) return "<feature> | --all";
+  if (command.acceptsFeature) return "<feature>";
   return null;
 }
 
@@ -188,53 +188,46 @@ function argumentHint(command) {
 function commandBody(command, placeholder) {
   return [
     `# ${command.command}`,
-    '',
-    command.description || '',
-    '',
+    "",
+    command.description || "",
+    "",
     `Run the SpecDrive command \`${command.command}\`.`,
-    '',
-    '1. Read `.sdrive/commands/manifest.json` and find the entry for this command.',
+    "",
+    "1. Read `.sdrive/commands/manifest.json` and find the entry for this command.",
     `2. Read the agent file it names in \`agentFile\` (\`${command.agentFile}\`).`,
     "3. Follow that agent's instructions exactly.",
-    '4. Run the validators the manifest lists for this command.',
-    '5. Stop at every human approval gate the agent defines.',
-    '',
+    "4. Run the validators the manifest lists for this command.",
+    "5. Stop at every human approval gate the agent defines.",
+    "",
     `Arguments: ${placeholder}`,
-    '',
-  ].join('\n');
+    ""
+  ].join("\n");
 }
 
 function renderCommandFile(entry, command) {
-  if (entry.format === 'toml') {
-    const body = commandBody(command, '{{args}}');
-    return [
-      `description = ${JSON.stringify(command.description || command.command)}`,
-      'prompt = """',
-      body.trimEnd(),
-      '"""',
-      '',
-    ].join('\n');
+  if (entry.format === "toml") {
+    const body = commandBody(command, "{{args}}");
+    return [`description = ${JSON.stringify(command.description || command.command)}`, 'prompt = """', body.trimEnd(), '"""', ""].join("\n");
   }
 
   const frontmatter = { description: command.description || command.command };
   const hint = argumentHint(command);
-  if (hint) frontmatter['argument-hint'] = hint;
+  if (hint) frontmatter["argument-hint"] = hint;
   Object.assign(frontmatter, entry.frontmatter || {});
 
-  return `${renderFrontmatter(frontmatter)}${commandBody(command, '$ARGUMENTS')}`;
+  return `${renderFrontmatter(frontmatter)}${commandBody(command, "$ARGUMENTS")}`;
 }
 
 function commandFilePath(entry, command) {
   const slug = commandSlug(command);
-  const fileName =
-    entry.naming === 'nested' ? `${slug}${entry.extension}` : `sdrive-${slug}${entry.extension}`;
+  const fileName = entry.naming === "nested" ? `${slug}${entry.extension}` : `sdrive-${slug}${entry.extension}`;
   return toPosix(path.posix.join(entry.path, fileName));
 }
 
 // ---------- validation ----------
 
 function toPosix(value) {
-  return String(value).split(path.sep).join('/');
+  return String(value).split(path.sep).join("/");
 }
 
 function validateRegistry(tools) {
@@ -245,7 +238,7 @@ function validateRegistry(tools) {
 
   tools.forEach((tool) => {
     if (!tool.name) {
-      errors.push('A tool entry is missing `name`.');
+      errors.push("A tool entry is missing `name`.");
       return;
     }
 
@@ -263,19 +256,19 @@ function validateRegistry(tools) {
     }
 
     tool.paths.forEach((entry) => {
-      const label = `${tool.name} → ${entry.path || '(empty)'}`;
+      const label = `${tool.name} → ${entry.path || "(empty)"}`;
 
       if (!entry.path) {
         errors.push(`${tool.name}: an adapter entry has an empty path.`);
         return;
       }
 
-      if (path.isAbsolute(entry.path) || entry.path.split(/[\\/]/).includes('..')) {
+      if (path.isAbsolute(entry.path) || entry.path.split(/[\\/]/).includes("..")) {
         errors.push(`${label}: adapter paths must be relative and stay inside the project.`);
       }
 
       if (!FORMATS.includes(entry.format)) {
-        errors.push(`${label}: unknown format "${entry.format}" (expected ${FORMATS.join(', ')}).`);
+        errors.push(`${label}: unknown format "${entry.format}" (expected ${FORMATS.join(", ")}).`);
         return;
       }
 
@@ -283,17 +276,15 @@ function validateRegistry(tools) {
 
       // A command-set describes a directory that will hold one file per slash
       // command, so its path must be the directory, not a file name.
-      if (entry.kind === 'command-set') {
+      if (entry.kind === "command-set") {
         if (entry.path.toLowerCase().endsWith(requiredExtension)) {
           errors.push(`${label}: a command-set path is a directory, not a file.`);
         }
         if (!COMMAND_NAMINGS.includes(entry.naming)) {
           errors.push(`${label}: command-set needs "naming": "nested" or "prefixed".`);
         }
-        if (entry.format === 'mdc') {
-          errors.push(
-            `${label}: command-set cannot use .mdc (no per-command frontmatter contract).`,
-          );
+        if (entry.format === "mdc") {
+          errors.push(`${label}: command-set cannot use .mdc (no per-command frontmatter contract).`);
         }
       } else {
         if (!entry.path.toLowerCase().endsWith(requiredExtension)) {
@@ -305,18 +296,18 @@ function validateRegistry(tools) {
       }
 
       if (!KINDS.includes(entry.kind)) {
-        errors.push(`${label}: unknown kind "${entry.kind}" (expected ${KINDS.join(', ')}).`);
+        errors.push(`${label}: unknown kind "${entry.kind}" (expected ${KINDS.join(", ")}).`);
       }
 
-      if (entry.format === 'mdc' && !entry.frontmatter) {
+      if (entry.format === "mdc" && !entry.frontmatter) {
         errors.push(`${label}: .mdc rules require frontmatter (Cursor ignores them otherwise).`);
       }
 
-      if (entry.format === 'toml' && entry.kind === 'rules') {
+      if (entry.format === "toml" && entry.kind === "rules") {
         errors.push(`${label}: .toml adapters are command files; set "kind": "command".`);
       }
 
-      if (entry.frontmatter && typeof entry.frontmatter !== 'object') {
+      if (entry.frontmatter && typeof entry.frontmatter !== "object") {
         errors.push(`${label}: frontmatter must be an object.`);
       }
 
@@ -325,7 +316,7 @@ function validateRegistry(tools) {
       const signature = JSON.stringify({
         format: entry.format,
         kind: entry.kind,
-        frontmatter: entry.frontmatter || null,
+        frontmatter: entry.frontmatter || null
       });
 
       if (pathOwner.has(entry.path)) {
@@ -358,18 +349,18 @@ function planWrites(tools, projectRoot, commands = []) {
 
     byPath.set(relativePath, {
       relativePath,
-      absolutePath: path.join(projectRoot, ...relativePath.split('/')),
+      absolutePath: path.join(projectRoot, ...relativePath.split("/")),
       content,
       format: entry.format,
       kind: entry.kind,
       entryPath: toPosix(entry.path),
-      tools: [tool.name],
+      tools: [tool.name]
     });
   };
 
   tools.forEach((tool) => {
     tool.paths.forEach((entry) => {
-      if (entry.kind === 'command-set') {
+      if (entry.kind === "command-set") {
         commands.forEach((command) => {
           if (!command.agentFile) return;
           add(tool, entry, commandFilePath(entry, command), renderCommandFile(entry, command));
@@ -403,7 +394,7 @@ function writeAdapters(tools, projectRoot, options = {}) {
     if (group.wrote === 0) {
       log(`⚠️  Skipped existing: ${group.path}/ (${group.count} command(s))`);
     } else {
-      const note = group.kept > 0 ? `, ${group.kept} kept` : '';
+      const note = group.kept > 0 ? `, ${group.kept} kept` : "";
       log(`✅ Generated: ${group.path}/ (${group.count} command(s)${note})`);
     }
 
@@ -426,7 +417,7 @@ function writeAdapters(tools, projectRoot, options = {}) {
     if (fs.existsSync(write.absolutePath) && !force) {
       skipped.push(write.relativePath);
 
-      if (write.kind === 'command-set') {
+      if (write.kind === "command-set") {
         openGroup(write);
         group.count += 1;
         group.kept += 1;
@@ -440,7 +431,7 @@ function writeAdapters(tools, projectRoot, options = {}) {
     fs.writeFileSync(write.absolutePath, write.content);
     written.push(write.relativePath);
 
-    if (write.kind === 'command-set') {
+    if (write.kind === "command-set") {
       openGroup(write);
       group.count += 1;
       group.wrote += 1;
@@ -464,10 +455,10 @@ function writeAdapters(tools, projectRoot, options = {}) {
  * entry already owns with a different shape.
  */
 function addTool(sdriveRoot, spec) {
-  const registryPath = path.join(sdriveRoot, 'commands', 'tools.json');
+  const registryPath = path.join(sdriveRoot, "commands", "tools.json");
   const raw = fs.existsSync(registryPath)
-    ? JSON.parse(fs.readFileSync(registryPath, 'utf8'))
-    : { version: '1.0.0', tools: [] };
+    ? JSON.parse(fs.readFileSync(registryPath, "utf8"))
+    : { version: "1.0.0", tools: [] };
 
   const tools = normalizeRegistry(raw);
 
@@ -475,11 +466,11 @@ function addTool(sdriveRoot, spec) {
     throw new Error(`Tool already registered: ${spec.name}`);
   }
 
-  const format = String(spec.format || 'md').toLowerCase();
+  const format = String(spec.format || "md").toLowerCase();
   const entry = {
     path: spec.path,
     format,
-    kind: spec.kind || (format === 'toml' ? 'command' : 'rules'),
+    kind: spec.kind || (format === "toml" ? "command" : "rules")
   };
 
   if (spec.frontmatter) entry.frontmatter = spec.frontmatter;
@@ -490,15 +481,15 @@ function addTool(sdriveRoot, spec) {
     name: spec.name,
     label: spec.label || spec.name,
     mcpClient: spec.mcpClient || null,
-    docs: spec.docs || '',
+    docs: spec.docs || "",
     verified: spec.verified !== false,
-    adapterPaths: [entry],
+    adapterPaths: [entry]
   });
 
   const { errors } = validateRegistry(tools.concat(candidate));
 
   if (errors.length > 0) {
-    throw new Error(errors.join('\n'));
+    throw new Error(errors.join("\n"));
   }
 
   raw.tools = (raw.tools || []).concat({
@@ -514,9 +505,9 @@ function addTool(sdriveRoot, spec) {
         kind: entry.kind,
         ...(entry.extension ? { extension: entry.extension } : {}),
         ...(entry.naming ? { naming: entry.naming } : {}),
-        ...(entry.frontmatter ? { frontmatter: entry.frontmatter } : {}),
-      },
-    ],
+        ...(entry.frontmatter ? { frontmatter: entry.frontmatter } : {})
+      }
+    ]
   });
 
   fs.writeFileSync(registryPath, `${JSON.stringify(raw, null, 2)}\n`);
@@ -542,5 +533,5 @@ module.exports = {
   renderContent,
   toPosix,
   validateRegistry,
-  writeAdapters,
+  writeAdapters
 };

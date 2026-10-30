@@ -9,20 +9,20 @@
 // prints or exits. The CLI at the bottom is a thin wrapper that adds the console output
 // and the exit code. Same checks, same messages, one implementation.
 
-const Ajv = require('ajv');
-const addFormats = require('ajv-formats');
-const fs = require('fs');
-const path = require('path');
+const Ajv = require("ajv");
+const addFormats = require("ajv-formats");
+const fs = require("fs");
+const path = require("path");
 
-const SPEC_STAGES = ['backlog', 'ongoing', 'completed'];
+const SPEC_STAGES = ["backlog", "ongoing", "completed"];
 
 const FEATURE_FILES = [
-  { file: 'spec.json', schema: 'spec.schema.json' },
-  { file: 'plan.json', schema: 'plan.schema.json' },
-  { file: 'tasks.json', schema: 'tasks.schema.json' },
-  { file: 'traceability.json', schema: 'traceability.schema.json' },
-  { file: 'test-evidence.json', schema: 'test-evidence.schema.json' },
-  { file: 'review.json', schema: 'review.schema.json' },
+  { file: "spec.json", schema: "spec.schema.json" },
+  { file: "plan.json", schema: "plan.schema.json" },
+  { file: "tasks.json", schema: "tasks.schema.json" },
+  { file: "traceability.json", schema: "traceability.schema.json" },
+  { file: "test-evidence.json", schema: "test-evidence.schema.json" },
+  { file: "review.json", schema: "review.schema.json" }
 ];
 
 // The installed script lives at <project>/.sdrive/scripts/, so two levels up is the
@@ -31,15 +31,15 @@ const FEATURE_FILES = [
 function defaultRoot() {
   const fromCwd = process.cwd();
 
-  if (fs.existsSync(path.join(fromCwd, '.sdrive'))) {
+  if (fs.existsSync(path.join(fromCwd, ".sdrive"))) {
     return fromCwd;
   }
 
-  return path.join(__dirname, '..', '..');
+  return path.join(__dirname, "..", "..");
 }
 
 function readJson(filePath) {
-  return JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
 
 // Returns null when the document is valid, or the Ajv error list when it is not.
@@ -53,8 +53,8 @@ function checkAgainstSchema(data, schema) {
 
 function discoverFeatures(root) {
   const features = new Set();
-  const governanceDir = path.join(root, '.sdrive', 'governance');
-  const specsDir = path.join(root, '.sdrive', 'specs');
+  const governanceDir = path.join(root, ".sdrive", "governance");
+  const specsDir = path.join(root, ".sdrive", "specs");
 
   if (fs.existsSync(governanceDir)) {
     fs.readdirSync(governanceDir, { withFileTypes: true })
@@ -92,8 +92,8 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
   const only = options.only || null;
   const wants = (name) => !only || only.includes(name);
 
-  const schemaDir = path.join(root, '.sdrive', 'schemas');
-  const governanceDir = path.join(root, '.sdrive', 'governance');
+  const schemaDir = path.join(root, ".sdrive", "schemas");
+  const governanceDir = path.join(root, ".sdrive", "governance");
 
   const results = [];
   const skipped = [];
@@ -102,17 +102,17 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
   const record = (file, label, status, errors = []) => {
     results.push({ file, label, status, errors });
 
-    if (status === 'invalid') {
+    if (status === "invalid") {
       failed = true;
     }
 
-    return status !== 'invalid';
+    return status !== "invalid";
   };
 
   const skip = (file, label, message) => {
     emit(message);
     skipped.push(label);
-    return record(file, label, 'skipped');
+    return record(file, label, "skipped");
   };
 
   // Validate one JSON file against one schema. Absent documents are skipped (a project
@@ -128,8 +128,8 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
       schema = readJson(schemaPath);
     } catch (error) {
       emit(`❌ Schema/file not found: ${schemaPath}`);
-      return record(relativeFile, label, 'invalid', [
-        { message: `Schema not found: ${schemaPath}` },
+      return record(relativeFile, label, "invalid", [
+        { message: `Schema not found: ${schemaPath}` }
       ]);
     }
 
@@ -141,63 +141,63 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
       const errorList = [{ message: `Malformed JSON: ${error.message}` }];
       emit(`❌ ${label} is INVALID:`);
       emit(errorList);
-      return record(relativeFile, label, 'invalid', errorList);
+      return record(relativeFile, label, "invalid", errorList);
     }
 
     const errors = checkAgainstSchema(data, schema);
 
     if (!errors) {
       emit(`✅ ${label} is valid.`);
-      return record(relativeFile, label, 'valid');
+      return record(relativeFile, label, "valid");
     }
 
     emit(`❌ ${label} is INVALID:`);
     emit(errors);
-    return record(relativeFile, label, 'invalid', errors);
+    return record(relativeFile, label, "invalid", errors);
   };
 
-  if (wants('config')) {
-    const configPath = path.join(root, '.sdrive', 'config.json');
-    const configSchemaPath = path.join(schemaDir, 'config.schema.json');
+  if (wants("config")) {
+    const configPath = path.join(root, ".sdrive", "config.json");
+    const configSchemaPath = path.join(schemaDir, "config.schema.json");
 
     if (!fs.existsSync(configPath)) {
-      skip('config.json', 'config.json', '⚠️  config.json not found. Skipping.');
+      skip("config.json", "config.json", "⚠️  config.json not found. Skipping.");
     } else if (!fs.existsSync(configSchemaPath)) {
       skip(
-        'config.json',
-        'config.json',
-        '⚠️  config.schema.json not found. Skipping config validation.',
+        "config.json",
+        "config.json",
+        "⚠️  config.schema.json not found. Skipping config validation."
       );
     } else {
-      validateFile(configPath, configSchemaPath, 'config.json', 'config.json');
+      validateFile(configPath, configSchemaPath, "config.json", "config.json");
     }
   }
 
-  if (wants('workflow-state')) {
-    const workflowStatePath = path.join(root, '.sdrive', 'workflow-state.json');
-    const workflowSchemaPath = path.join(schemaDir, 'workflow-state.schema.json');
+  if (wants("workflow-state")) {
+    const workflowStatePath = path.join(root, ".sdrive", "workflow-state.json");
+    const workflowSchemaPath = path.join(schemaDir, "workflow-state.schema.json");
 
     if (!fs.existsSync(workflowStatePath)) {
       skip(
-        'workflow-state.json',
-        'workflow-state.json',
-        '⚠️  workflow-state.json not found. Skipping.',
+        "workflow-state.json",
+        "workflow-state.json",
+        "⚠️  workflow-state.json not found. Skipping."
       );
     } else {
       validateFile(
         workflowStatePath,
         workflowSchemaPath,
-        'workflow-state.json',
-        'workflow-state.json',
+        "workflow-state.json",
+        "workflow-state.json"
       );
     }
   }
 
-  if (wants('features')) {
+  if (wants("features")) {
     const features = options.feature ? [options.feature] : discoverFeatures(root);
 
     if (features.length === 0) {
-      emit('⚠️  No features found under .sdrive/governance or .sdrive/specs.');
+      emit("⚠️  No features found under .sdrive/governance or .sdrive/specs.");
     }
 
     features.forEach((featureName) => {
@@ -209,7 +209,7 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
         skip(
           path.relative(root, featureDir),
           `${featureName} (governance)`,
-          `⚠️  Feature "${featureName}" has no governance folder. Skipping.`,
+          `⚠️  Feature "${featureName}" has no governance folder. Skipping.`
         );
         return;
       }
@@ -226,7 +226,7 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
         versionDirs.length > 0
           ? versionDirs.map((version) => ({
               label: `${featureName}/${version}`,
-              dir: path.join(featureDir, version),
+              dir: path.join(featureDir, version)
             }))
           : [{ label: featureName, dir: featureDir }];
 
@@ -252,18 +252,18 @@ function validateArtifacts(root = defaultRoot(), options = {}) {
 // ---------- CLI ----------
 
 function main() {
-  console.log('🔍 SpecDrive Governance Validation\n');
+  console.log("🔍 SpecDrive Governance Validation\n");
 
   const { ok } = validateArtifacts(defaultRoot(), { log: (line) => console.log(line) });
 
-  console.log('\n----------------------------------------');
+  console.log("\n----------------------------------------");
 
   if (!ok) {
-    console.log('❌ Validation FAILED. Fix the errors above.');
+    console.log("❌ Validation FAILED. Fix the errors above.");
     process.exit(1);
   }
 
-  console.log('✅ Governance validation complete. All files are valid.');
+  console.log("✅ Governance validation complete. All files are valid.");
   process.exit(0);
 }
 

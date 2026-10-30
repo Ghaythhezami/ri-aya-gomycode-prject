@@ -5,22 +5,7 @@ argument-hint: Specify the feature to review (e.g., "Review user-login"), or use
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'edit',
-    'create',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'ux-ui-library',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'search', 'edit', 'create', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -139,11 +124,12 @@ You operate within the current version folder only.
 2. **Task Completion**: Are all items in `tasks.md` checked `[x]` and `tasks.json` marked `completed: true`?
 3. **Traceability**: Is `traceability.json` complete? Every AC has corresponding task/test and status `complete`.
 4. **Coverage**: Compute and enforce coverage:
-   - `totalACs` from `spec.json`
+   - `totalACs` from `spec.json` — the criteria that are still in scope, i.e. every criterion EXCEPT the ones marked `withdrawn: true`
    - `testedACs` from `traceability.json`
    - `coverage = (testedACs / totalACs) × 100`
    - `passedTests` / `totalTests` from test report
    - Require `coverage === 100` to pass
+   - List every withdrawn criterion and its reason in the report under **Withdrawn Criteria**. Do NOT count a withdrawn criterion as tested, and do NOT silently drop it: say how many were withdrawn and why. If every criterion is withdrawn, fail the review — a feature with nothing in scope is not covered, it is unverified.
 5. **Test Report**: The coverage report exists at `.sdrive/reports/tests/test-report-<feature>-<version>-<date>.md` and is newer than `spec.md` and `plan.md`.
 6. **Test Evidence**: `test-evidence.json` exists, records `exitCode: 0`, zero failures, at least one result, and `commit === HEAD`.
 7. **Change Scope**: The diff against `base` contains only planned files; no other feature's commits; the branch is based on its recorded `base`; the working tree is clean.
@@ -233,7 +219,7 @@ When invoked as `/sdrive:review --all`, review every ongoing feature sequentiall
    - Confirm that other versions were preserved and no merge or lifecycle move happened.
    - If the verdict is PASS, tell the user the exact next command: `/sdrive:archive <feature>`.
    - Commit and push the review artifacts per the `<git-commit-and-push>` rule.
-   </workflow>
+</workflow>
 
 <review-template>
 Use this structure for `review.md`. The YAML frontmatter is what the gate reads
@@ -257,7 +243,6 @@ evidence: .sdrive/governance/[feature]/[version]/test-evidence.json
 # Review Report: [Feature Name] ([version])
 
 ## 1. Audit Summary
-
 - **Status:** [PASS / FAIL]
 - **Date:** [DATE]
 - **Reviewer:** [git user] (independent: [yes/no])
@@ -266,7 +251,6 @@ evidence: .sdrive/governance/[feature]/[version]/test-evidence.json
 - **Branch / base:** [branch] / [base]
 
 ## 2. Evidence
-
 - Test evidence: [path, exit code, passed/failed counts, commit]
 - Test report: [path]
 - Verification: [path, status]
@@ -274,7 +258,6 @@ evidence: .sdrive/governance/[feature]/[version]/test-evidence.json
 - CI: [run URL or "not verified"]
 
 ## 3. Criteria Check
-
 - [ ] Spec Convergence: [Details]
 - [ ] Task Completion: [Details]
 - [ ] Traceability: [Details]
@@ -295,7 +278,6 @@ evidence: .sdrive/governance/[feature]/[version]/test-evidence.json
 - [ ] Reviewer Independence: [Details]
 
 ## 4. Change Scope
-
 - Files changed: [count]
 - Planned files changed: [count]
 - Unplanned files: [list or "none"]
@@ -303,21 +285,17 @@ evidence: .sdrive/governance/[feature]/[version]/test-evidence.json
 - Working tree: [clean/dirty]
 
 ## 5. Issues Found (If any)
-
-| Severity       | Issue         | Location    | AC       | Fix Required |
-| -------------- | ------------- | ----------- | -------- | ------------ |
-| [High/Med/Low] | [Description] | [File:Line] | [AC-###] | [Yes/No]     |
+| Severity | Issue | Location | AC | Fix Required |
+|----------|-------|----------|----|--------------|
+| [High/Med/Low] | [Description] | [File:Line] | [AC-###] | [Yes/No] |
 
 ## 6. Recommendations
-
 - [Non-blocking suggestions]
 
 ## 7. Handoff
-
 - [If PASS] Run `/sdrive:archive [feature]` to merge and archive.
 - [If FAIL] Fix the findings, then re-run `/sdrive:review [feature]`.
 ```
-
 </review-template>
 
 <definition-of-done>
@@ -367,7 +345,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

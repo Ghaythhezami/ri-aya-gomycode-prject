@@ -5,21 +5,7 @@ argument-hint: Specify the target (e.g., "Optimize the dashboard load time", "Au
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'create',
-    'edit',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'search', 'create', 'edit', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -161,7 +147,7 @@ Place generated reports and artifacts in the following standard locations:
    - Generate a versioned `.sdrive/reports/performance/performance-report-{feature-name}-{version}-{date}.md` using the template below.
    - Run validators.
    - Present the report to the user.
-   </workflow>
+</workflow>
 
 <all-mode>
 When invoked as `/sdrive:performance --all`, optimize every ongoing feature sequentially.
@@ -182,7 +168,7 @@ When invoked as `/sdrive:performance --all`, optimize every ongoing feature sequ
 
 4. **Report**
    - Summarize the run and recommend next steps for any skipped or failed feature.
-   </all-mode>
+</all-mode>
 
 <report-template>
 Use this exact structure for the versioned performance report:
@@ -190,7 +176,6 @@ Use this exact structure for the versioned performance report:
 # Performance Optimization Report: [Scope/Feature Name] ([version])
 
 ## 1. Executive Summary
-
 - **Date:** [DATE]
 - **Auditor:** AI Performance Agent
 - **Feature Version:** [version]
@@ -199,45 +184,37 @@ Use this exact structure for the versioned performance report:
 - **Target NFRs:** [List NFR IDs, e.g., NFR-001, NFR-002]
 
 ## 2. Benchmark Methodology
-
 - **Tool Used:** [e.g., Lighthouse, k6, custom script]
 - **Environment:** [e.g., Local dev, CI, Production]
 - **Iterations:** [e.g., 5 runs, discarding highest/lowest]
 
 ## 3. Metrics Comparison
-
-| Metric          | Baseline (Before) | Optimized (After) | NFR Target | Status  |
-| --------------- | ----------------- | ----------------- | ---------- | ------- |
-| [e.g., LCP]     | [Value]           | [Value]           | [Value]    | [✅/❌] |
-| [e.g., API p95] | [Value]           | [Value]           | [Value]    | [✅/❌] |
+| Metric | Baseline (Before) | Optimized (After) | NFR Target | Status |
+|--------|-------------------|-------------------|------------|--------|
+| [e.g., LCP] | [Value] | [Value] | [Value] | [✅/❌] |
+| [e.g., API p95] | [Value] | [Value] | [Value] | [✅/❌] |
 
 ## 4. Changes Applied
-
 - [List specific code changes, e.g., "Added composite index to users table", "Implemented React.memo on UserCard"]
 
 ## 4b. SEO Findings & Fixes
-
 - [List each SEO issue: location, symptom, target, fix. Write "None found." if the SEO audit was clean.]
 - **Detection method:** [Programmatic (Lighthouse SEO / rendered-HTML assertions) / Visual (screenshot) / Not run]
 
 ## 4c. Defects Handed Off
-
 - [Correctness defects found but NOT fixed here — layout, API, runtime, or glitch. Write "None found." if the scan was clean.]
 - [For each: location, symptom, and the instruction to run `/sdrive:debug`.]
 
 ## 4d. Out of Scope Observations
-
 - [Code-quality observations with no performance metric — duplication, extractable components, dead code. Write "None." if there were none. These are handed to `/sdrive:review`, not fixed here.]
 
 ## 5. Regression Verification
-
-- [ ] Functional test suite passed. _(Only checked if actually run)_
-- [ ] No security vulnerabilities introduced. _(Only checked if security scan run)_
-- [ ] Code readability maintained. _(Only checked if linter/static analysis run)_
+- [ ] Functional test suite passed. *(Only checked if actually run)*
+- [ ] No security vulnerabilities introduced. *(Only checked if security scan run)*
+- [ ] Code readability maintained. *(Only checked if linter/static analysis run)*
 - **Limitations:** [State clearly if any of the above were not automatically verified.]
 
 ## 6. Remaining Recommendations
-
 - [List strategic performance improvements for the future, if any]
 </report-template>
 
@@ -284,7 +261,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

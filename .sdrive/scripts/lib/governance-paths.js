@@ -10,11 +10,11 @@
 // Every consumer should resolve paths through these helpers so both layouts
 // keep working.
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 function governanceRoot(projectRoot) {
-  return path.join(projectRoot, '.sdrive', 'governance');
+  return path.join(projectRoot, ".sdrive", "governance");
 }
 
 function featureDir(projectRoot, featureName) {
@@ -33,8 +33,8 @@ function listVersions(projectRoot, featureName) {
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort((a, b) => {
-      const na = parseInt(String(a).replace(/^v/i, ''), 10);
-      const nb = parseInt(String(b).replace(/^v/i, ''), 10);
+      const na = parseInt(String(a).replace(/^v/i, ""), 10);
+      const nb = parseInt(String(b).replace(/^v/i, ""), 10);
       if (Number.isNaN(na) || Number.isNaN(nb)) return a.localeCompare(b);
       return na - nb;
     });
@@ -86,5 +86,5 @@ module.exports = {
   featureDir,
   listVersions,
   resolveGovernanceDir,
-  resolveGovernanceFile,
+  resolveGovernanceFile
 };

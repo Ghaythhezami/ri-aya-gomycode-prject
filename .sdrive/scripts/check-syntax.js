@@ -5,13 +5,13 @@
 // `node --check` in a subprocess is the obvious implementation, but it cannot
 // run where child-process stdio is restricted. Compiling with vm.Script checks
 // the same grammar in-process.
-const fs = require('fs');
-const path = require('path');
-const vm = require('vm');
+const fs = require("fs");
+const path = require("path");
+const vm = require("vm");
 
-const ROOT = path.resolve(__dirname, '..');
-const IGNORED = new Set(['.git', 'node_modules', '.npm-cache', 'coverage', '.sdrive']);
-const EXTENSIONS = new Set(['.js', '.cjs', '.mjs']);
+const ROOT = path.resolve(__dirname, "..");
+const IGNORED = new Set([".git", "node_modules", ".npm-cache", "coverage", ".sdrive"]);
+const EXTENSIONS = new Set([".js", ".cjs", ".mjs"]);
 
 function walk(dir, files = []) {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -30,10 +30,10 @@ const files = walk(ROOT);
 const failures = [];
 
 for (const file of files) {
-  let source = fs.readFileSync(file, 'utf8');
+  let source = fs.readFileSync(file, "utf8");
 
   // Strip a shebang; vm.Script does not accept one.
-  if (source.startsWith('#!')) source = source.replace(/^#![^\n]*\n/, '');
+  if (source.startsWith("#!")) source = source.replace(/^#![^\n]*\n/, "");
 
   try {
     new vm.Script(source, { filename: file });

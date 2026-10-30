@@ -4,14 +4,14 @@
 // edited by anyone with write access, so each entry commits to the previous one:
 // changing an old entry breaks every hash after it. This is tamper-evident, not
 // tamper-proof; teams that need the latter can wrap the chain with an HMAC.
-const crypto = require('crypto');
+const crypto = require("crypto");
 
-const GENESIS = 'GENESIS';
+const GENESIS = "GENESIS";
 
 function canonicalize(value) {
   if (Array.isArray(value)) return value.map(canonicalize);
 
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     const out = {};
     Object.keys(value)
       .sort()
@@ -25,7 +25,7 @@ function canonicalize(value) {
 }
 
 function sha256(text) {
-  return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
+  return crypto.createHash("sha256").update(text, "utf8").digest("hex");
 }
 
 function computeHash(prevHash, event) {
@@ -58,7 +58,7 @@ function verifyChain(log) {
   const events = Array.isArray(log.events) ? log.events : [];
 
   if (events.length === 0) {
-    return { ok: true, checked: 0, legacy: 0, brokenAt: null, reason: 'audit log is empty' };
+    return { ok: true, checked: 0, legacy: 0, brokenAt: null, reason: "audit log is empty" };
   }
 
   let checked = 0;
@@ -81,7 +81,7 @@ function verifyChain(log) {
         checked,
         legacy,
         brokenAt: index,
-        reason: `entry ${index} does not link to the previous hash`,
+        reason: `entry ${index} does not link to the previous hash`
       };
     }
 
@@ -91,7 +91,7 @@ function verifyChain(log) {
         checked,
         legacy,
         brokenAt: index,
-        reason: `entry ${index} has been modified (hash mismatch)`,
+        reason: `entry ${index} has been modified (hash mismatch)`
       };
     }
 
@@ -104,7 +104,7 @@ function verifyChain(log) {
     checked,
     legacy,
     brokenAt: null,
-    reason: `${checked} hashed event(s) verified${legacy ? `, ${legacy} legacy event(s) unhashed` : ''}`,
+    reason: `${checked} hashed event(s) verified${legacy ? `, ${legacy} legacy event(s) unhashed` : ""}`
   };
 }
 
@@ -113,5 +113,5 @@ module.exports = {
   canonicalize,
   computeHash,
   appendEvent,
-  verifyChain,
+  verifyChain
 };

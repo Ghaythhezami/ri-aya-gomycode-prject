@@ -5,20 +5,7 @@ argument-hint: Run to onboard an existing project into SpecDrive
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'create',
-    'edit',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'context7',
-  ]
+tools: ['read', 'search', 'create', 'edit', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'context7']
 agents: []
 ---
 
@@ -84,30 +71,30 @@ You do NOT replace the existing project structure. You layer SpecDrive on top.
 Create or update the following structure as needed, and only with user approval:
 
 .sdrive/
-├── constitution.md # (Only if user approves generation or migration)
-├── workflow-state.json # (Created if missing; extended with onboarding block)
-├── context/ # (Created empty)
-├── schemas/ # (Created)
-├── scripts/ # (Created)
-├── commands/ # (Created)
-├── agents/ # (Created)
-├── dashboard/ # (Created)
-├── mcp/ # (Created)
-├── skills/ # (Created empty)
-├── templates/ # (Created)
+├── constitution.md          # (Only if user approves generation or migration)
+├── workflow-state.json      # (Created if missing; extended with onboarding block)
+├── context/                 # (Created empty)
+├── schemas/                 # (Created)
+├── scripts/                 # (Created)
+├── commands/                # (Created)
+├── agents/                  # (Created)
+├── dashboard/               # (Created)
+├── mcp/                     # (Created)
+├── skills/                  # (Created empty)
+├── templates/               # (Created)
 ├── specs/
-│ ├── backlog/ # (Created empty)
-│ ├── ongoing/ # (May be populated by migration)
-│ └── completed/ # (May be populated by migration)
-├── governance/ # (May be populated by migration)
+│   ├── backlog/             # (Created empty)
+│   ├── ongoing/             # (May be populated by migration)
+│   └── completed/           # (May be populated by migration)
+├── governance/              # (May be populated by migration)
 ├── reports/
-│ ├── security/ # (Created empty)
-│ ├── performance/ # (Created empty)
-│ ├── docs/ # (Created empty)
-│ └── tests/ # (Created empty)
+│   ├── security/            # (Created empty)
+│   ├── performance/         # (Created empty)
+│   ├── docs/                # (Created empty)
+│   └── tests/               # (Created empty)
 └── onboarding/
-├── inventory.json # (Result of the scan)
-└── report.md # (Human-readable summary)
+    ├── inventory.json       # (Result of the scan)
+    └── report.md            # (Human-readable summary)
 </output-structure>
 
 <workflow>
@@ -141,51 +128,49 @@ Create or update the following structure as needed, and only with user approval:
      "Approve this inventory? Do you want to proceed with onboarding?"
 
 2b. **PRODUCT OVERVIEW CHECK (Phase 1.5)**
+   - Read `.sdrive/onboarding/inventory.json` → `projectBrief`, and
+     `onboarding.projectBrief` in `workflow-state.json` if present.
+   - The scan has already judged the README: `readmeQuality` is `"usable"`,
+     `"template"`, or `"missing"`.
+     - `"template"` means the README is generator boilerplate. `templateSignals`
+       names the signature that matched (e.g. `create-next-app`). Such a README is
+       confidently about the framework, not the product: "This is a Next.js project
+       bootstrapped with create-next-app" is true of thousands of unrelated repos.
+     - `"missing"` means there is no README at all.
+   - If `readmeQuality` is `"template"` or `"missing"`, or `needsProductInput` is
+     `true`, STOP and ask via `vscode/askQuestions` before writing anything else:
 
-- Read `.sdrive/onboarding/inventory.json` → `projectBrief`, and
-  `onboarding.projectBrief` in `workflow-state.json` if present.
-- The scan has already judged the README: `readmeQuality` is `"usable"`,
-  `"template"`, or `"missing"`.
-  - `"template"` means the README is generator boilerplate. `templateSignals`
-    names the signature that matched (e.g. `create-next-app`). Such a README is
-    confidently about the framework, not the product: "This is a Next.js project
-    bootstrapped with create-next-app" is true of thousands of unrelated repos.
-  - `"missing"` means there is no README at all.
-- If `readmeQuality` is `"template"` or `"missing"`, or `needsProductInput` is
-  `true`, STOP and ask via `vscode/askQuestions` before writing anything else:
+     > "The README is <create-next-app boilerplate | missing>, so the only thing I
+     > know about this project is its tech stack (<architecture>). What is this
+     > project actually for? I can interview you and write a real product overview,
+     > the same way a greenfield project gets one."
 
-  > "The README is <create-next-app boilerplate | missing>, so the only thing I
-  > know about this project is its tech stack (<architecture>). What is this
-  > project actually for? I can interview you and write a real product overview,
-  > the same way a greenfield project gets one."
-
-  Options:
-  1.  **Interview me now** (recommended)
-  2.  **Keep the draft** and let me edit `.sdrive/product/overview.md` myself
-  3.  **Defer** the overview
-
-- NEVER quote a template README as the product vision, and never report the
-  derived brief as though someone confirmed it. "This is a Next.js project" as
-  the vision is worse than an empty Vision section.
-- If the user chooses **1**:
-  - Run the Product Plan interview from `.sdrive/agents/12-product-plan.md`:
-    problem, target users, core flows, success criteria, explicit non-goals.
-    Ask a few questions at a time; record an answer only when the user gave it.
-  - Write `.sdrive/product/overview.md` with `Status: Approved`, today's date,
-    and `Source: onboarding interview`.
-  - Preserve the derived draft at the bottom under `## Previous draft (derived)`.
-  - Do NOT create feature specs or workflow-state entries here - that is
-    `/sdrive:propose`'s job.
-- If the user chooses **2**: leave the draft in place and tell them the file
-  path and the Open Questions it lists.
-- If the user chooses **3**: record `product/overview.md` under
-  `workflow-state.json` → `onboarding.deferred`, and continue.
-- **When `readmeQuality` is `"usable"`, still confirm it.** Show the derived
-  Vision sentence and ask: "Does this describe the project, or has the README
-  drifted from what the code actually does?" A scan can tell a template README
-  from a real one; it cannot tell a stale real README from an accurate one, so
-  only the user can settle it. If they say it is wrong, offer the same
-  interview as option 1 above.
+     Options:
+     1. **Interview me now** (recommended)
+     2. **Keep the draft** and let me edit `.sdrive/product/overview.md` myself
+     3. **Defer** the overview
+   - NEVER quote a template README as the product vision, and never report the
+     derived brief as though someone confirmed it. "This is a Next.js project" as
+     the vision is worse than an empty Vision section.
+   - If the user chooses **1**:
+     - Run the Product Plan interview from `.sdrive/agents/12-product-plan.md`:
+       problem, target users, core flows, success criteria, explicit non-goals.
+       Ask a few questions at a time; record an answer only when the user gave it.
+     - Write `.sdrive/product/overview.md` with `Status: Approved`, today's date,
+       and `Source: onboarding interview`.
+     - Preserve the derived draft at the bottom under `## Previous draft (derived)`.
+     - Do NOT create feature specs or workflow-state entries here - that is
+       `/sdrive:propose`'s job.
+   - If the user chooses **2**: leave the draft in place and tell them the file
+     path and the Open Questions it lists.
+   - If the user chooses **3**: record `product/overview.md` under
+     `workflow-state.json` → `onboarding.deferred`, and continue.
+   - **When `readmeQuality` is `"usable"`, still confirm it.** Show the derived
+     Vision sentence and ask: "Does this describe the project, or has the README
+     drifted from what the code actually does?" A scan can tell a template README
+     from a real one; it cannot tell a stale real README from an accurate one, so
+     only the user can settle it. If they say it is wrong, offer the same
+     interview as option 1 above.
 
 3. **DECIDE WHAT TO FILL (Phase 2)**
    - For each missing piece, ask the user whether to:
@@ -294,7 +279,7 @@ Create or update the following structure as needed, and only with user approval:
      - Use `/sdrive:propose` for new features.
      - Optionally run `sdrive team:sync` to seed team members.
    - Mark onboarding as complete in `workflow-state.json` with `mode: brownfield`.
-   </workflow>
+</workflow>
 
 <definition-of-done>
 The onboarding phase is NOT complete until:
@@ -340,7 +325,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

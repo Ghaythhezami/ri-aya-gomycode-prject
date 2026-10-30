@@ -15,30 +15,21 @@
 //
 // This module never promotes a gate. An outstanding gate is a refusal, not a shortcut.
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
-const {
-  GATE_ORDER,
-  GATE_APPROVED,
-  SPEC_STAGES,
-  findSpecLocation,
-  checkGateRequirements,
-  resolveVersion,
-  isGateApprovedFor,
-  gateStatusFor,
-} = require('./gates');
+const { GATE_ORDER, GATE_APPROVED, SPEC_STAGES, findSpecLocation, checkGateRequirements, resolveVersion, isGateApprovedFor, gateStatusFor } = require("./gates");
 
 function readJson(file) {
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
     return null;
   }
 }
 
 function loadState(root) {
-  return readJson(path.join(root, '.sdrive', 'workflow-state.json'));
+  return readJson(path.join(root, ".sdrive", "workflow-state.json"));
 }
 
 // checkGateRequirements() repeats a few verdicts this module already reaches on its own
@@ -69,15 +60,16 @@ function findStackingBlocker(state, feature) {
   if (!base) return null;
 
   const peer = (state.features || []).find(
-    (other) => other.name !== feature.name && other.branch === base,
+    (other) => other.name !== feature.name && other.branch === base
   );
 
   if (!peer) return null;
 
   const peerVersions = peer.versions || [];
-  const peerVersion = peerVersions.find((v) => v.id === peer.currentVersion) || peerVersions[0];
+  const peerVersion =
+    peerVersions.find((v) => v.id === peer.currentVersion) || peerVersions[0];
 
-  if (peerVersion && peerVersion.phase === 'completed') {
+  if (peerVersion && peerVersion.phase === "completed") {
     // The parent has landed, so this is historical metadata - not a live blocker.
     return null;
   }
@@ -89,8 +81,9 @@ function findStackingBlocker(state, feature) {
   );
 }
 
-// Read-only verdict. Never writes anything, so it is safe to run over every feature.
-function checkArchivable(root, featureName) {
+// Read-only verdict for ONE feature. Never writes anything, so it is safe to run over every
+// feature. `checkArchivable()` below adds the shared-branch rules on top.
+function checkFeature(root, featureName) {
   const blockers = [];
   const warnings = [];
 
@@ -100,8 +93,8 @@ function checkArchivable(root, featureName) {
     return {
       ok: false,
       alreadyFinalized: false,
-      blockers: ['No readable .sdrive/workflow-state.json - run `sdrive init` first.'],
-      warnings,
+      blockers: ["No readable .sdrive/workflow-state.json - run `sdrive init` first."],
+      warnings
     };
   }
 
@@ -112,7 +105,7 @@ function checkArchivable(root, featureName) {
       ok: false,
       alreadyFinalized: false,
       blockers: [`Feature "${featureName}" is not in workflow-state.json.`],
-      warnings,
+      warnings
     };
   }
 
@@ -123,22 +116,22 @@ function checkArchivable(root, featureName) {
       ok: false,
       alreadyFinalized: false,
       blockers: [`Feature "${featureName}" has no versions.`],
-      warnings,
+      warnings
     };
   }
 
   const location = findSpecLocation(root, featureName, version.id);
-  const completedFeatureDir = path.join(root, '.sdrive', 'specs', 'completed', featureName);
+  const completedFeatureDir = path.join(root, ".sdrive", "specs", "completed", featureName);
   const completedVersionDir = path.join(completedFeatureDir, version.id);
 
   // Already done. Idempotent by design: a re-run must never duplicate history entries.
-  if (version.phase === 'completed' && fs.existsSync(completedVersionDir)) {
+  if (version.phase === "completed" && fs.existsSync(completedVersionDir)) {
     return { ok: true, alreadyFinalized: true, feature, version, location, blockers, warnings };
   }
 
   if (!location) {
     blockers.push(
-      `No spec folder for "${featureName}" ${version.id} under .sdrive/specs/{${SPEC_STAGES.join(', ')}}/.`,
+      `No spec folder for "${featureName}" ${version.id} under .sdrive/specs/{${SPEC_STAGES.join(", ")}}/.`
     );
   }
 
@@ -146,23 +139,23 @@ function checkArchivable(root, featureName) {
   // of the same feature is already released, and versions are archived individually, so
   // the two coexist. The contradiction is when the folder is there but the record does not
   // agree that this version is completed.
-  if (fs.existsSync(completedVersionDir) && version.phase !== 'completed') {
+  if (fs.existsSync(completedVersionDir) && version.phase !== "completed") {
     blockers.push(
-      `specs/completed/${featureName}/${version.id}/ already exists but the version is not marked completed. That state contradicts itself - resolve it by hand.`,
+      `specs/completed/${featureName}/${version.id}/ already exists but the version is not marked completed. That state contradicts itself - resolve it by hand.`
     );
   }
 
-  if (version.phase === 'completed') {
+  if (version.phase === "completed") {
     blockers.push(
-      `Version "${version.id}" is already marked completed but its spec is not in specs/completed/. That state contradicts itself - resolve it by hand.`,
+      `Version "${version.id}" is already marked completed but its spec is not in specs/completed/. That state contradicts itself - resolve it by hand.`
     );
-  } else if (version.phase !== 'ongoing') {
+  } else if (version.phase !== "ongoing") {
     blockers.push(
-      `Version "${version.id}" is in phase "${version.phase}", not "ongoing". Only an in-flight feature can be finalized.`,
+      `Version "${version.id}" is in phase "${version.phase}", not "ongoing". Only an in-flight feature can be finalized.`
     );
   }
 
-  if (location && location.stage !== 'ongoing') {
+  if (location && location.stage !== "ongoing") {
     warnings.push(`Spec lives in specs/${location.stage}/ rather than specs/ongoing/.`);
   }
 
@@ -173,14 +166,14 @@ function checkArchivable(root, featureName) {
 
   outstanding.forEach((gate) => {
     blockers.push(
-      `Gate "${gate}" is "${gateStatusFor(version, gate)}", not "${GATE_APPROVED}" - run \`sdrive approve ${featureName} ${gate}\` first.`,
+      `Gate "${gate}" is "${gateStatusFor(version, gate)}", not "${GATE_APPROVED}" - run \`sdrive approve ${featureName} ${gate}\` first.`
     );
   });
 
   // Re-verify the evidence NOW. An approval granted yesterday is not proof that the
   // evidence still exists today: traceability.json could have been deleted, or
   // review.md edited, between the approval and this moment.
-  const requirements = checkGateRequirements(root, feature, version, 'review');
+  const requirements = checkGateRequirements(root, feature, version, "review");
 
   requirements.blockers
     .filter((blocker) => !isDuplicateVerdict(blocker))
@@ -194,7 +187,7 @@ function checkArchivable(root, featureName) {
   // evidence that the run happened. Enforced here as a blocker because archive is the
   // last moment it can be checked: once the feature is in specs/completed/ it is already
   // on the target branch, and no later gate can pull it back.
-  const reportsDir = path.join(root, '.sdrive', 'reports', 'tests');
+  const reportsDir = path.join(root, ".sdrive", "reports", "tests");
   const reportPrefix = `test-report-${featureName}-${version.id}-`;
   const testReports = fs.existsSync(reportsDir)
     ? fs.readdirSync(reportsDir).filter((file) => file.startsWith(reportPrefix))
@@ -203,7 +196,7 @@ function checkArchivable(root, featureName) {
   if (testReports.length === 0) {
     blockers.push(
       `No test report for ${featureName} ${version.id} (expected ${reportPrefix}<date>.md in .sdrive/reports/tests/) - the tests have not been run. ` +
-        `Run \`/sdrive:test ${featureName}\` first, then re-run \`sdrive archive:check ${featureName}\`.`,
+        `Run \`/sdrive:test ${featureName}\` first, then re-run \`sdrive archive:check ${featureName}\`.`
     );
   }
 
@@ -212,7 +205,7 @@ function checkArchivable(root, featureName) {
   // integration branch, but the fallback is a guess and is reported as one.
   if (!feature.base) {
     warnings.push(
-      `No recorded "base" for ${featureName} - the branch it came from is unknown. The archive agent will fall back to the integration branch. New features record it in /sdrive:propose.`,
+      `No recorded "base" for ${featureName} - the branch it came from is unknown. The archive agent will fall back to the integration branch. New features record it in /sdrive:propose.`
     );
   }
 
@@ -232,8 +225,65 @@ function checkArchivable(root, featureName) {
     version,
     location,
     blockers,
-    warnings,
+    warnings
   };
+}
+
+// ---------- Shared branches: one branch, one review unit ----------
+//
+// Several features may deliberately work on one branch (a wave). The group is DERIVED from
+// `branch` equality rather than stored, so it cannot drift from the value that actually
+// decides the merge. When a branch is shared, the branch is the review unit: it merges once,
+// and only when every feature on it is ready. Archiving one member early would merge the
+// others' unaudited commits, which is exactly what CON-611 forbids.
+function branchSiblings(state, feature) {
+  if (!state || !feature || !feature.branch) return [];
+
+  return (state.features || []).filter(
+    (other) =>
+      other && other.name !== feature.name && other.branch === feature.branch
+  );
+}
+
+function openSiblings(state, feature) {
+  return branchSiblings(state, feature).filter((other) => {
+    const version = resolveVersion(other);
+    return version && version.phase !== "completed";
+  });
+}
+
+// Public verdict: the feature's own readiness plus the shared-branch rules.
+function checkArchivable(root, featureName) {
+  const verdict = checkFeature(root, featureName);
+
+  if (!verdict.ok || verdict.alreadyFinalized || !verdict.feature) return verdict;
+
+  const siblings = openSiblings(loadState(root), verdict.feature);
+
+  if (siblings.length === 0) return verdict;
+
+  verdict.group = {
+    branch: verdict.feature.branch,
+    features: [verdict.feature.name, ...siblings.map((other) => other.name)]
+  };
+
+  for (const sibling of siblings) {
+    const siblingVerdict = checkFeature(root, sibling.name);
+
+    if (siblingVerdict.alreadyFinalized || siblingVerdict.ok) continue;
+
+    verdict.blockers.push(
+      `Branch "${verdict.feature.branch}" also carries "${sibling.name}", which is not ready to archive, so merging now would ship its unaudited commits (CON-611): ${siblingVerdict.blockers.join(" ")}`
+    );
+  }
+
+  verdict.warnings.push(
+    `Branch "${verdict.feature.branch}" is shared by ${verdict.group.features.length} features (${verdict.group.features.join(", ")}). The branch merges once, when every feature on it is ready; the branch is deleted only after the last one is archived.`
+  );
+
+  verdict.ok = verdict.blockers.length === 0;
+
+  return verdict;
 }
 
 // Perform the closure. Only ever called after checkArchivable() returns ok.
@@ -245,18 +295,13 @@ function finalizeArchive(root, featureName, options = {}) {
   }
 
   if (verdict.alreadyFinalized) {
-    return {
-      ok: true,
-      alreadyFinalized: true,
-      version: verdict.version,
-      warnings: verdict.warnings,
-    };
+    return { ok: true, alreadyFinalized: true, version: verdict.version, warnings: verdict.warnings };
   }
 
   const { version, location } = verdict;
   const sourceVersionDir = location.dir;
   const sourceFeatureDir = path.dirname(sourceVersionDir);
-  const destFeatureDir = path.join(root, '.sdrive', 'specs', 'completed', featureName);
+  const destFeatureDir = path.join(root, ".sdrive", "specs", "completed", featureName);
   const destVersionDir = path.join(destFeatureDir, version.id);
 
   fs.mkdirSync(destFeatureDir, { recursive: true });
@@ -271,7 +316,7 @@ function finalizeArchive(root, featureName, options = {}) {
     return {
       ok: false,
       blockers: [`Could not move "${sourceVersionDir}" to "${destVersionDir}": ${error.message}`],
-      warnings: verdict.warnings,
+      warnings: verdict.warnings
     };
   }
 
@@ -291,9 +336,9 @@ function finalizeArchive(root, featureName, options = {}) {
     return {
       ok: false,
       blockers: [
-        'The spec folder did not end up in specs/completed/ as expected. The lifecycle was left unchanged.',
+        "The spec folder did not end up in specs/completed/ as expected. The lifecycle was left unchanged."
       ],
-      warnings: verdict.warnings,
+      warnings: verdict.warnings
     };
   }
 
@@ -308,23 +353,23 @@ function finalizeArchive(root, featureName, options = {}) {
   }
 
   // Only now, with the folder verified in place, is the record written.
-  const statePath = path.join(root, '.sdrive', 'workflow-state.json');
+  const statePath = path.join(root, ".sdrive", "workflow-state.json");
   const state = loadState(root);
   const target = (state.features || []).find((f) => f.name === featureName);
   const targetVersion = (target.versions || []).find((v) => v.id === version.id);
 
-  targetVersion.phase = 'completed';
+  targetVersion.phase = "completed";
   // Gates are deliberately NOT touched here. checkArchivable() already established that
   // all four are approved, so writing them would be a no-op - and writing them anyway is
   // how archive used to manufacture approvals that never happened.
   targetVersion.history = targetVersion.history || [];
   targetVersion.history.push({
-    event: 'feature_archived',
-    by: options.actor || '',
+    event: "feature_archived",
+    by: options.actor || "",
     from: location.stage,
     version: targetVersion.id,
-    mergeCommit: options.mergeCommit || '',
-    timestamp: new Date().toISOString(),
+    mergeCommit: options.mergeCommit || "",
+    timestamp: new Date().toISOString()
   });
 
   // Atomic replace: a crash must not leave a truncated workflow-state.json.
@@ -342,8 +387,8 @@ function finalizeArchive(root, featureName, options = {}) {
     version: targetVersion.id,
     from: location.stage,
     governanceMoved: false,
-    warnings: verdict.warnings,
+    warnings: verdict.warnings
   };
 }
 
-module.exports = { checkArchivable, finalizeArchive };
+module.exports = { checkArchivable, finalizeArchive, branchSiblings };

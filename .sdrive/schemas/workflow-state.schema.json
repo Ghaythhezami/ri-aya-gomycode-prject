@@ -62,7 +62,12 @@
                       "enum": ["pending", "approved", "rejected"]
                     }
                   },
-                  "required": ["specification", "planning", "implementation", "review"]
+                  "required": [
+                    "specification",
+                    "planning",
+                    "implementation",
+                    "review"
+                  ]
                 },
                 "history": {
                   "type": "array",

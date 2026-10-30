@@ -5,22 +5,7 @@ argument-hint: Run to initialize or update the project constitution. You may opt
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'create',
-    'edit',
-    'execute',
-    'web',
-    'vscode/askQuestions',
-    'todo',
-    'exa:search',
-    'exa:fetch',
-    'ux-ui-library',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'search', 'create', 'edit', 'execute', 'web', 'vscode/askQuestions', 'todo', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -89,13 +74,13 @@ You extract prescriptive rules, standards, and constraints from the discovered c
 Create or update the following structure:
 
 .sdrive/
-├── constitution.md # The single source of truth for all project rules
+├── constitution.md          # The single source of truth for all project rules
 └── context/
-├── project-overview.md # Discovered project purpose, stack, and constraints
-├── architecture-context.md # Detected architecture patterns and boundaries
-├── ui-context.md # UI framework, styling, accessibility, Figma-sourced design rules if available
-├── code-standards.md # Observed or standard coding conventions
-└── ai-workflow-rules.md # Git workflow, branch rules, approval gates
+    ├── project-overview.md  # Discovered project purpose, stack, and constraints
+    ├── architecture-context.md # Detected architecture patterns and boundaries
+    ├── ui-context.md        # UI framework, styling, accessibility, Figma-sourced design rules if available
+    ├── code-standards.md    # Observed or standard coding conventions
+    └── ai-workflow-rules.md # Git workflow, branch rules, approval gates
 </output-structure>
 
 <workflow>
@@ -152,7 +137,7 @@ Create or update the following structure:
    - Summarize changes.
    - List missing context files or conflicts.
    - Confirm readiness.
-   </workflow>
+</workflow>
 
 <constitution-template>
 Use this exact structure ONLY when creating a NEW `.sdrive/constitution.md` from scratch:
@@ -161,24 +146,20 @@ Use this exact structure ONLY when creating a NEW `.sdrive/constitution.md` from
 
 > **Version:** 1.0.0  
 > **Last Updated:** [DATE]  
-> **Status:** Active
+> **Status:** Active  
 
 This document is the single source of truth for all project standards, rules, and constraints. All AI agents and developers MUST adhere to these rules.
 
 ## 1. Tech Stack & Architecture (CON-1xx)
-
 - **CON-101:** [Rule text] <!-- source: .sdrive/context/architecture-context.md -->
 
 ## 2. Coding Standards (CON-2xx)
-
 - **CON-201:** [Rule text] <!-- source: .sdrive/context/code-standards.md -->
 
 ## 3. UI/UX Standards (CON-3xx)
-
 - **CON-301:** [Rule text] <!-- source: .sdrive/context/ui-context.md -->
 
 ## 4. Testing & Quality (CON-4xx)
-
 - **CON-401:** Test framework is [FRAMEWORK]. <!-- source: .sdrive/context/code-standards.md -->
 - **CON-402:** Run tests with [COMMAND]. <!-- source: .sdrive/context/code-standards.md -->
 - **CON-403:** Tests live in [FOLDER]. <!-- source: .sdrive/context/code-standards.md -->
@@ -187,7 +168,6 @@ This document is the single source of truth for all project standards, rules, an
 - **CON-406:** Test files MUST be organized by feature, nested under the project's test folder using the framework's own convention: `[TEST_FOLDER]/<feature>/<subfeature>.<test-suffix>.<ext>`. The `<feature>` segment MUST match the SpecDrive feature folder name (kebab-case). The `<test-suffix>` and `<ext>` MUST follow the detected framework (e.g. `.test.tsx` for Jest/Vitest, `.spec.ts` for NestJS, `_test.go` for Go, `test_*.py` for pytest, `*_test.dart` for Flutter). If the project already has an established flat test layout, ask the user before restructuring. <!-- source: SpecDrive -->
 
 ## 5. Security & Compliance (CON-5xx)
-
 - **CON-501:** AI agents MUST NOT read, modify, or commit files containing secrets or private information. <!-- source: Universal Security Default -->
 - **CON-502:** AI agents MUST treat the following file patterns as OFF-LIMITS: `.env`, `.env.*`, `*.pem`, `*.key`, `credentials.json`, `config/secrets/*`, `.git/config`. <!-- source: Universal Security Default -->
 - **CON-503:** AI agents MUST respect `.gitignore` patterns and treat ignored files as private and off-limits. <!-- source: Universal Security Default -->
@@ -198,23 +178,22 @@ This document is the single source of truth for all project standards, rules, an
 
 Every feature that touches authentication, user input, or an HTTP surface MUST address each control below. `/sdrive:propose` expands the REQUIRED controls into concrete tasks; `/sdrive:apply` builds them; `/sdrive:secure` verifies them.
 
-| ID      | Control                      | Status                      | Rationale            |
-| ------- | ---------------------------- | --------------------------- | -------------------- |
-| CON-511 | Authentication               | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-512 | Authorization                | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-513 | Security Headers (Helmet)    | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-514 | Rate Limiting                | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-515 | Input Validation             | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| ID | Control | Status | Rationale |
+|----|---------|--------|-----------|
+| CON-511 | Authentication | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-512 | Authorization | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-513 | Security Headers (Helmet) | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-514 | Rate Limiting | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-515 | Input Validation | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
 | CON-516 | NoSQL / Injection Protection | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-517 | XSS Protection               | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-518 | CSRF Protection              | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-519 | Environment Security         | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
-| CON-520 | HTTPS / HSTS                 | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-517 | XSS Protection | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-518 | CSRF Protection | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-519 | Environment Security | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
+| CON-520 | HTTPS / HSTS | [REQUIRED / NOT APPLICABLE] | [one-line rationale] |
 
 <!-- source: SpecDrive Security Baseline -->
 
 ## 6. Git Workflow & Process (CON-6xx)
-
 - **CON-601:** [Rule text] <!-- source: .sdrive/context/ai-workflow-rules.md -->
 - **CON-602:** No feature may be marked complete unless `sdrive verify <feature>` returns `pass` or `warn`. <!-- source: SpecDrive -->
 - **CON-603:** Every feature MUST have a version folder (`v1`, `v2`, ...) before implementation begins. <!-- source: SpecDrive -->
@@ -222,27 +201,23 @@ Every feature that touches authentication, user input, or an HTTP surface MUST a
 - **CON-605:** All agents MUST operate within the feature's `currentVersion` folder only. Older versions MUST NOT be modified. <!-- source: SpecDrive -->
 
 ### Branching Policy (CON-60x continuation — Enterprise Standard)
-
-- **CON-606:** ONE BRANCH PER FEATURE (non-negotiable). Each feature MUST be implemented on its own dedicated branch. Two features MUST NEVER share a branch, and a feature MUST NEVER be implemented on another feature's branch. <!-- source: SpecDrive Enterprise Branching Policy -->
+- **CON-606:** A feature MUST be implemented on the branch recorded for it. Two features share a branch ONLY by an explicit decision recorded in `workflow-state.json` — the same `branch` value on both, written by `/sdrive:propose` when the user chooses to group them (for example `/sdrive:propose [wave1 p2]`). A feature MUST NEVER be implemented on another feature's branch without that recorded decision, and a shared branch is ONE review unit: it merges only when every feature recording it has passed review. <!-- source: SpecDrive Enterprise Branching Policy -->
 - **CON-607:** The feature branch MUST be named `feature/<feature-name>` using the SpecDrive feature folder name (kebab-case), e.g. `feature/user-login`. If that name is taken, append `-v2`, `-v3`, ... The resolved branch name MUST be reported to the user. <!-- source: SpecDrive Enterprise Branching Policy -->
 - **CON-608:** Agents MUST NEVER implement directly on the repository's default or protected branch. The default branch MUST be resolved dynamically and NEVER assumed to be `main`. Implementing on a protected branch is a blocking violation. <!-- source: SpecDrive Enterprise Branching Policy -->
 - **CON-609:** A feature branch MUST be created from an approved base branch, and the working tree MUST be clean (`git status --porcelain` empty) before any branch switch or creation. A dirty tree MUST block the operation. Creation happens in `/sdrive:propose`, before any spec file is written; `/sdrive:apply` only resumes the recorded branch and MUST NOT create one. <!-- source: SpecDrive Enterprise Branching Policy -->
 - **CON-610:** The feature branch MUST be deleted after its merge is confirmed — locally (`git branch -d`) and on the remote (`git push origin --delete`) — unless the user explicitly declines. The merge target branch MUST NEVER be deleted. <!-- source: SpecDrive Enterprise Branching Policy -->
-- **CON-611:** A branch MUST be merged as a single review unit. `/sdrive:archive` MUST refuse to merge a branch that contains commits belonging to other in-flight features. <!-- source: SpecDrive Enterprise Branching Policy -->
+- **CON-611:** A branch MUST be merged as a single review unit. `/sdrive:archive` MUST refuse to merge a branch that contains commits belonging to another in-flight feature, and MUST refuse while any feature recording that branch has not passed review. When several features deliberately share a branch they land together: one merge, then every member is marked completed, and the branch is deleted only after the last one. <!-- source: SpecDrive Enterprise Branching Policy -->
 - **CON-612:** A feature branch MUST be based on the branch it will eventually merge into, so that `git log <target-branch>..<base-branch>` is empty at creation. The base is chosen from the list of available branches and recorded in `/sdrive:propose`, before the spec exists, so the choice is never made blind. `/sdrive:apply` and `/sdrive:review` MUST read that recorded base and MUST NOT ask for it again; `/sdrive:archive` merges into it. Basing a feature branch on another in-flight feature's branch stacks the two and makes this feature unarchivable until the other one is merged; that must be reported with its consequences and explicitly confirmed, never done silently. Dependent work MUST become a new version of the same feature (`sdrive version:new`), not a stacked feature. <!-- source: SpecDrive Enterprise Branching Policy -->
 
 ## 7. AI Agent Rules (CON-7xx)
-
 - **CON-701:** [Rule text] <!-- source: .sdrive/context/ai-workflow-rules.md -->
 
 ---
 
 ## Changelog
-
-| Version | Date   | Change Summary | Source        |
-| ------- | ------ | -------------- | ------------- |
-| 1.0.0   | [DATE] | Initial merge  | context files |
-
+| Version | Date | Change Summary | Source |
+|---------|------|----------------|--------|
+| 1.0.0   | [DATE] | Initial merge | context files |
 </constitution-template>
 
 <definition-of-done>
@@ -282,7 +257,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

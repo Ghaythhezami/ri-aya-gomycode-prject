@@ -5,22 +5,7 @@ argument-hint: Specify the feature to implement (e.g., "Implement user-login"), 
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'edit',
-    'create',
-    'search',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'ux-ui-library',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'edit', 'create', 'search', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -86,6 +71,11 @@ You operate within the current version folder only.
 - `sdrive verify` is a **static spec-to-code diff only**. It reads `plan.json`, scans source files for components/endpoints/entities/fields/dependencies, and writes `verification.json`. It does NOT run tests and does NOT execute any test runner. Never substitute a test run for `sdrive verify`.
 - If verification fails, do NOT mark the feature as complete. Report failures and stop.
 - Verification results are the source of truth — never override them.
+- **Descoped work is recorded, never faked.** If a task or plan item cannot be performed — partner access never granted, a provider endpoint that does not exist, documentation nobody published — do NOT mark it `completed`, and do NOT delete it. Record a `resolution` on the item in `tasks.json` or `plan.json`:
+  ```json
+  "resolution": { "kind": "deferred", "reason": "<why it cannot be done>", "at": "<ISO date>" }
+  ```
+  `reason` is mandatory (20+ characters) and must name the blocker, not restate the task. Then apply the same change to the specification: an acceptance criterion that the descoped work would have satisfied must be withdrawn (`withdrawn`, `withdrawnReason`, `withdrawnEvidence` in `spec.json`) or it will block review coverage. Never resolve every task, and never resolve a task just because finishing it is inconvenient — `sdrive approve <feature> implementation` names every descoped task in its output, and a reviewer will read it.
 - After implementation, recommend the user run `/sdrive:test <feature>` to generate tests.
 - **`--all` Mode Rule:** If the user invokes this command with `--all` (e.g. `/sdrive:apply --all`), you MUST implement EVERY feature currently in `ongoing/`, one after the other, in a single run. See the `<all-mode>` section for the exact procedure. In `--all` mode, the per-feature rules above still apply to each feature individually — you simply repeat the full workflow for each one. Each feature still gets its OWN branch and its OWN approval gates. **One-branch-per-feature (CON-606) applies in every mode — there is never a shared-branch option.**
 </rules>
@@ -109,7 +99,7 @@ You operate within the current version folder only.
 
 1. **Resume the feature branch (chosen by `/sdrive:propose` — do not create one)**
 
-   Branch creation moved to `/sdrive:propose`, where the base is decided _before_
+   Branch creation moved to `/sdrive:propose`, where the base is decided *before*
    the spec is written. By the time you run, the branch already exists and is
    recorded. Your job is to get onto it and verify it, not to choose it.
 
@@ -270,7 +260,7 @@ When invoked as `/sdrive:apply --all`, implement every ongoing feature sequentia
 4. **Report**
    - Summarize the run: which features are ready for `/sdrive:test`, which failed and why, and the branch name for each.
    - Recommend next steps: `/sdrive:test --all` to test every ongoing feature.
-   </all-mode>
+</all-mode>
 
 <definition-of-done>
 The implementation phase is NOT complete until:
@@ -319,7 +309,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

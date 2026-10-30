@@ -5,21 +5,7 @@ argument-hint: Describe your app idea, or provide existing plans and design refe
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'create',
-    'edit',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'ux-ui-library',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'search', 'create', 'edit', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -102,7 +88,24 @@ Do not require the user to answer every question. Offer to mark unknown items as
 6. **Handoff**
    - Summarize saved files, approved backlog items, deferred questions, and proposed technical choices.
    - Explain that the workflow is optional and that any backlog item can be detailed later with `/sdrive:propose "<feature description>"`.
-   </workflow>
+</workflow>
+
+<skill-readiness>
+The plan is also where the project's stack becomes concrete, so it is the last cheap moment
+to install the skills that stack needs.
+
+1. Read `.sdrive/skills/` and list what is already installed.
+2. Derive the technologies the plan depends on from the stack you just recorded — framework,
+   language, test runner, database, cloud or provider SDK — not from a wish list.
+3. For each technology with no matching skill, run the Discover-skills procedure: audit the
+   existing skills, find a candidate, verify its repository, licence, and recency, and
+   security-scan its `SKILL.md` before proposing it.
+4. Install only what the user approves, as `.sdrive/skills/<skill-name>/SKILL.md`.
+5. Never overwrite a skill marked "Custom / no upstream", and never leave the plan silently
+   dependent on a skill that is neither installed nor recorded as an assumption.
+
+A missing skill is not a blocker. An invented one is.
+</skill-readiness>
 
 <backlog-entry-fields>
 Each approved product-level backlog item should capture, when known:
@@ -114,9 +117,9 @@ Each approved product-level backlog item should capture, when known:
 Use this table shape unless the user already has a compatible backlog:
 
 ```markdown
-| ID     | Feature         | Details                                        | User value               | Milestone       | Priority | Depends on | Status  | Confidence / source   |
-| ------ | --------------- | ---------------------------------------------- | ------------------------ | --------------- | -------- | ---------- | ------- | --------------------- |
-| BP-001 | Example feature | What the feature does in one or two sentences. | The benefit to the user. | M0 - Foundation | P0       | -          | backlog | High / user interview |
+| ID | Feature | Details | User value | Milestone | Priority | Depends on | Status | Confidence / source |
+|---|---|---|---|---|---|---|---|---|
+| BP-001 | Example feature | What the feature does in one or two sentences. | The benefit to the user. | M0 - Foundation | P0 | - | backlog | High / user interview |
 ```
 
 Keep the section heading as the milestone fallback. Use `—` rather than repeating the title when a detail is not known. Do not assign implementation estimates or dates unless the user asks and confirms the assumptions.
@@ -145,7 +148,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

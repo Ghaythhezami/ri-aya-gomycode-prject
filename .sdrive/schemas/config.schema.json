@@ -5,7 +5,14 @@
   "properties": {
     "defaultTemplate": {
       "type": "string",
-      "enum": ["generic", "react-node", "nextjs", "expo", "fastapi", "turborepo"]
+      "enum": [
+        "generic",
+        "react-node",
+        "nextjs",
+        "expo",
+        "fastapi",
+        "turborepo"
+      ]
     },
     "governance": {
       "type": "object",

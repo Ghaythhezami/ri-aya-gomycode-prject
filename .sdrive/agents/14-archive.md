@@ -5,20 +5,7 @@ argument-hint: Specify the feature to archive (e.g., "Archive about-page"), or u
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'edit',
-    'create',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'context7',
-  ]
+tools: ['read', 'search', 'edit', 'create', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'context7']
 agents: []
 ---
 
@@ -149,7 +136,8 @@ When invoked as `/sdrive:archive --all`, archive every ongoing feature that has 
    Run `sdrive archive:check <feature>` for EVERY candidate. It is read-only by construction: it re-verifies the four approvals and the evidence behind them, reports blockers, and writes nothing. Build a plan:
 
    | Feature | Version | Archivable | Blocked by | Merge order |
-   | ------- | ------- | ---------- | ---------- | ----------- |
+   |---------|---------|------------|-----------|-------------|
+
    - Derive the merge order. Prefer the recorded `base` links: a feature whose `base` is another candidate must come AFTER that candidate, and features whose `base` is the integration branch sit at the bottom. If the `base` links contradict each other, STOP and report the cycle — never attempt a merge on a cycle.
    - **When `base` is absent — which is EVERY feature that predates the `base` field — fall back to the CON-611 range check to derive the order**: for each candidate run `git log <integration>..<feature-branch> --oneline`, group those commits by owning feature, and place a feature after every feature whose commits appear in its range. The ranges encode the parent links even when nothing recorded them. Do NOT report "no order derivable", and do NOT guess an order.
    - The `base`-derived order is the PLAN; the CON-611 range check in step 2 of the workflow is the CONFIRMATION at merge time. If the two disagree, trust the range check and STOP — a recorded `base` can be stale or wrong.
@@ -157,7 +145,7 @@ When invoked as `/sdrive:archive --all`, archive every ongoing feature that has 
    - Do NOT merge anything during pre-flight. This step exists because on a stacked set the first merge changes the range for every feature after it, so the order must be known up front — otherwise the run merges feature 1 and only then discovers feature 2 cannot be archived.
 
 3. **Process each feature in order**
-   - For each feature, run the FULL `<workflow>` above (steps 1–5) exactly as if it had been invoked as `/sdrive:archive <feature>`. **All three decisions are asked PER FEATURE: the target branch, the merge yes/no, and the branch deletion.** Never carry one feature's answer silently into the next. You may _offer_ to apply one answer to all remaining features, but only after asking — and only offer the target branch if every remaining feature records the same `feature.base`.
+   - For each feature, run the FULL `<workflow>` above (steps 1–5) exactly as if it had been invoked as `/sdrive:archive <feature>`. **All three decisions are asked PER FEATURE: the target branch, the merge yes/no, and the branch deletion.** Never carry one feature's answer silently into the next. You may *offer* to apply one answer to all remaining features, but only after asking — and only offer the target branch if every remaining feature records the same `feature.base`.
    - Resolve the feature's actual lifecycle location first (Lifecycle Location Rule) — a feature may have moved to `completed/` since enumeration.
    - If a feature has no passing review, skip it and record "no passing review — run /sdrive:review first".
    - If the feature's CURRENT VERSION is already finalized — that version's `phase` is `completed` AND `specs/completed/<feature>/<version>/` exists — skip it and record "already finalized". Check the VERSION, not the feature: a feature can legitimately have a released `v1` in `completed/` while `v2` is still in `ongoing/`, so skipping on "the feature is in completed/" would silently drop `v2`.
@@ -215,7 +203,8 @@ When invoked as `/sdrive:archive --all`, archive every ongoing feature that has 
    - **IF REVIEW DID NOT PASS:**
      1. Notify user: "No passing review found. Run `/sdrive:review <feature>` first."
      2. STOP.
-   - **IF REVIEW PASSED:** 0. Re-check merge permission: `node .sdrive/scripts/check-permission.js slash /sdrive:archive`. If denied, STOP and notify.
+   - **IF REVIEW PASSED:**
+     0. Re-check merge permission: `node .sdrive/scripts/check-permission.js slash /sdrive:archive`. If denied, STOP and notify.
      1. **Ask the merge decision FIRST** via `vscode/askQuestions`: "Review passed. Do you want to merge `<feature>` into a branch now?" Options: (a) Yes, merge it now, (b) No, not now.
         - **If the user chooses NO:** do NOT merge and do NOT finalize. Explain that `/sdrive:archive` closes the lifecycle only after a confirmed merge, so the feature STAYS in `ongoing/` with its passing review intact, and the user can re-run `/sdrive:archive <feature>` whenever they are ready. Then STOP.
           - EXCEPTION: if the merge already happened outside this agent (see the Resume Rule), skip to step 4 and finalize instead.
@@ -263,7 +252,7 @@ When invoked as `/sdrive:archive --all`, archive every ongoing feature that has 
    - Confirm feature version is live, merged, archived.
    - Confirm that other versions were preserved.
    - Provide a summary of the archive, including the source lifecycle folder and the merge commit.
-   </workflow>
+</workflow>
 
 <definition-of-done>
 The archive phase is NOT complete until:

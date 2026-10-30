@@ -1,22 +1,23 @@
-const fs = require('fs');
-const path = require('path');
-const { execFileSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execFileSync } = require("child_process");
+const { isResolved, resolutionOf, describeResolved } = require("../scripts/lib/resolution");
 
 const projectRoot = process.cwd();
 
 function getWorkflowState() {
-  const workflowStatePath = path.join(projectRoot, '.sdrive', 'workflow-state.json');
+  const workflowStatePath = path.join(projectRoot, ".sdrive", "workflow-state.json");
 
   if (!fs.existsSync(workflowStatePath)) {
-    console.error('❌ workflow-state.json not found. Run `sdrive init` first.');
+    console.error("❌ workflow-state.json not found. Run `sdrive init` first.");
     process.exit(1);
   }
 
-  return JSON.parse(fs.readFileSync(workflowStatePath, 'utf8'));
+  return JSON.parse(fs.readFileSync(workflowStatePath, "utf8"));
 }
 
 function saveWorkflowState(state) {
-  const workflowStatePath = path.join(projectRoot, '.sdrive', 'workflow-state.json');
+  const workflowStatePath = path.join(projectRoot, ".sdrive", "workflow-state.json");
   fs.writeFileSync(workflowStatePath, JSON.stringify(state, null, 2));
 }
 
@@ -28,7 +29,9 @@ function resolveVersion(feature) {
     return null;
   }
 
-  return feature.versions.find((v) => v.id === feature.currentVersion) || feature.versions[0];
+  return (
+    feature.versions.find((v) => v.id === feature.currentVersion) || feature.versions[0]
+  );
 }
 
 function findFeature(state, featureName) {
@@ -48,14 +51,14 @@ function getFeature(featureName) {
 // gate record grows a shape (e.g. { status, by, at }) the copies that nobody updated
 // start refusing valid approvals without throwing. Read gates through here.
 
-const GATE_APPROVED = 'approved';
+const GATE_APPROVED = "approved";
 
 function gateStatusFor(version, gate) {
   if (!version) {
-    return 'pending';
+    return "pending";
   }
 
-  return (version.gates && version.gates[gate]) || 'pending';
+  return (version.gates && version.gates[gate]) || "pending";
 }
 
 function isGateApprovedFor(version, gate) {
@@ -75,13 +78,13 @@ function gateStatus(featureName, gate) {
   const feature = getFeature(featureName);
 
   if (!feature) {
-    return 'unknown';
+    return "unknown";
   }
 
   const version = resolveVersion(feature);
 
   if (!version) {
-    return 'unknown';
+    return "unknown";
   }
 
   return gateStatusFor(version, gate);
@@ -112,7 +115,7 @@ function approveGate(featureName, gate) {
   version.history = version.history || [];
   version.history.push({
     event: `${gate}_approved`,
-    timestamp: new Date().toISOString(),
+    timestamp: new Date().toISOString()
   });
 
   saveWorkflowState(state);
@@ -133,15 +136,15 @@ function isGateApproved(featureName, gate) {
 // so a failed check leaves the state file untouched.
 
 // Each gate certifies everything before it, so order matters.
-const GATE_ORDER = ['specification', 'planning', 'implementation', 'review'];
+const GATE_ORDER = ["specification", "planning", "implementation", "review"];
 
 // Specs are lifecycle-partitioned; governance is deliberately not.
-const SPEC_STAGES = ['backlog', 'ongoing', 'completed'];
+const SPEC_STAGES = ["backlog", "ongoing", "completed"];
 
 // Locate where a feature version actually lives under specs/.
 function findSpecLocation(root, featureName, versionId) {
   for (const stage of SPEC_STAGES) {
-    const dir = path.join(root, '.sdrive', 'specs', stage, featureName, versionId);
+    const dir = path.join(root, ".sdrive", "specs", stage, featureName, versionId);
 
     if (fs.existsSync(dir)) {
       return { stage, dir };
@@ -153,7 +156,7 @@ function findSpecLocation(root, featureName, versionId) {
 
 function readJsonIfPresent(file) {
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
     return null;
   }
@@ -165,31 +168,45 @@ function readJsonIfPresent(file) {
 // for new projects, `sdrive config:set governance.requireTestEvidence true`
 // opts an existing one in).
 function testEvidencePolicy(root) {
-  const config = readJsonIfPresent(path.join(root, '.sdrive', 'config.json')) || {};
+  const config = readJsonIfPresent(path.join(root, ".sdrive", "config.json")) || {};
   const governance = config.governance || {};
 
   return {
     required: governance.requireTestEvidence === true,
     allowStale: governance.allowStaleEvidence === true,
-    structuredReview: governance.requireStructuredReview === true,
+    structuredReview: governance.requireStructuredReview === true
   };
 }
 
 function headCommit(root) {
   try {
-    return execFileSync('git', ['rev-parse', 'HEAD'], {
+    return execFileSync("git", ["rev-parse", "HEAD"], {
       cwd: root,
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"]
     }).trim();
   } catch (error) {
-    return '';
+    return "";
   }
 }
 
+// Task counts for the implementation gate.
+//
+// A task is one of three things, not two:
+//   done       `completed: true`
+//   resolved   descoped with a stated reason (`resolution.reason`)
+//   outstanding  everything else
+//
+// Resolved is deliberately its own bucket. Counting a resolved task as incomplete
+// makes a descoped feature unarchivable - the deadlock that has no legitimate exit
+// except implementing the impossible or deleting the record. Counting it as done
+// would put a false completion in the governance record, which is the one thing
+// this gate exists to prevent. So it is neither: it is reported.
 function countTasks(tasksJson) {
   let total = 0;
   let done = 0;
+  let resolved = 0;
+  const resolvedTasks = [];
 
   for (const phase of (tasksJson && tasksJson.phases) || []) {
     for (const task of phase.tasks || []) {
@@ -197,29 +214,104 @@ function countTasks(tasksJson) {
 
       if (task.completed === true) {
         done += 1;
+      } else if (isResolved(task)) {
+        resolved += 1;
+        resolvedTasks.push({ id: task.id, ...resolutionOf(task) });
       }
     }
   }
 
-  return { total, done };
+  return { total, done, resolved, outstanding: total - done - resolved, resolvedTasks };
 }
 
 // Acceptance criteria are declared on the user stories in spec.json. Coverage is
 // always measured against THESE, never against the traceability matrix's own rows —
 // otherwise a criterion that is missing from the matrix would silently stop counting
 // and the feature would look fully covered.
+function eachAcceptanceCriterion(specJson, visit) {
+  for (const story of (specJson && specJson.userStories) || []) {
+    for (const ac of story.acceptanceCriteria || []) {
+      if (ac && ac.id) visit(ac);
+    }
+  }
+}
+
+// Every declared criterion, withdrawn ones included. "What did the spec ask for" and
+// "what is still in scope" are different questions, and answering both with one list
+// is how a criterion changes state without anyone recording that it did.
 function collectAcceptanceCriteria(specJson) {
   const ids = [];
 
-  for (const story of (specJson && specJson.userStories) || []) {
-    for (const ac of story.acceptanceCriteria || []) {
-      if (ac && ac.id && !ids.includes(ac.id)) {
-        ids.push(ac.id);
-      }
+  eachAcceptanceCriterion(specJson, (ac) => {
+    if (!ids.includes(ac.id)) {
+      ids.push(ac.id);
     }
-  }
+  });
 
   return ids;
+}
+
+// A withdrawal only counts when it says why. `spec.schema.json` enforces the same two
+// fields with minimum lengths; this checks presence, because the gate reads `spec.json`
+// directly and cannot assume `sdrive validate` was run first. A bare `{"withdrawn": true}`
+// is therefore NOT a withdrawal: the criterion stays in coverage and is reported.
+function withdrawalIsSubstantiated(ac) {
+  return Boolean(
+    String(ac.withdrawnReason || "").trim() && String(ac.withdrawnEvidence || "").trim()
+  );
+}
+
+// Criteria the specification itself places out of scope (`withdrawn: true`).
+//
+// An acceptance criterion can describe behaviour that does not exist anywhere - a
+// provider endpoint that was never published, a report nobody can query. It cannot be
+// implemented, and deleting it would quietly rewrite a specification that has already
+// been reviewed. Withdrawal keeps the ID, the reason, and a citation in the record,
+// and removes the criterion from coverage instead.
+//
+// It is deliberately NOT a way to clear an untested criterion:
+//   - `spec.schema.json` requires `withdrawnReason` and `withdrawnEvidence` whenever
+//     `withdrawn` is true, so an unnamed withdrawal is not a valid spec;
+//   - an unsubstantiated withdrawal is refused by the review gate, not honoured;
+//   - every consumer that computes coverage reports the withdrawn list;
+//   - the review gate refuses when withdrawing has left nothing in scope.
+function collectWithdrawnAcceptanceCriteria(specJson) {
+  const withdrawn = [];
+
+  eachAcceptanceCriterion(specJson, (ac) => {
+    if (ac.withdrawn !== true) return;
+    if (withdrawn.some((entry) => entry.id === ac.id)) return;
+
+    withdrawn.push({
+      id: ac.id,
+      reason: String(ac.withdrawnReason || ""),
+      evidence: String(ac.withdrawnEvidence || ""),
+      substantiated: withdrawalIsSubstantiated(ac)
+    });
+  });
+
+  return withdrawn;
+}
+
+// The withdrawals that actually take a criterion out of scope.
+function collectSubstantiatedWithdrawals(specJson) {
+  return collectWithdrawnAcceptanceCriteria(specJson).filter((entry) => entry.substantiated);
+}
+
+// The set coverage is actually measured against.
+function collectEffectiveAcceptanceCriteria(specJson) {
+  const excluded = collectSubstantiatedWithdrawals(specJson).map((entry) => entry.id);
+
+  return collectAcceptanceCriteria(specJson).filter((id) => !excluded.includes(id));
+}
+
+// Shared wording, so the planning gate, the review gate, and archive cannot describe
+// the same list three different ways.
+function describeWithdrawnCriteria(withdrawn) {
+  const shown = withdrawn.slice(0, 6).map((entry) => entry.id).join(", ");
+  const suffix = withdrawn.length > 6 ? ", ..." : "";
+
+  return `${withdrawn.length} acceptance criteria are withdrawn and excluded from coverage (${shown}${suffix}). Reasons and evidence are recorded in spec.json.`;
 }
 
 // A criterion counts as tested only when a traceability row links it to at least one
@@ -231,7 +323,7 @@ function collectTestedAcceptanceCriteria(traceJson) {
   for (const row of (traceJson && traceJson.rows) || []) {
     const linkedTests = Array.isArray(row.testIds) ? row.testIds.length : 0;
 
-    if (linkedTests === 0 || row.status !== 'complete') {
+    if (linkedTests === 0 || row.status !== "complete") {
       continue;
     }
 
@@ -252,7 +344,7 @@ function collectTestedAcceptanceCriteria(traceJson) {
 function collectPlannedAcceptanceCriteria(specJson, tasksJson) {
   const acsByRequirement = new Map();
 
-  for (const group of ['functionalRequirements', 'nonFunctionalRequirements']) {
+  for (const group of ["functionalRequirements", "nonFunctionalRequirements"]) {
     for (const requirement of (specJson && specJson[group]) || []) {
       if (requirement && requirement.id) {
         acsByRequirement.set(requirement.id, requirement.linkedAcceptanceCriteria || []);
@@ -286,37 +378,44 @@ function checkGateRequirements(root, feature, version, gate) {
   const warnings = [];
   const gates = version.gates || {};
   const location = findSpecLocation(root, feature.name, version.id);
-  const gov = path.join(root, '.sdrive', 'governance', feature.name, version.id);
+  const gov = path.join(root, ".sdrive", "governance", feature.name, version.id);
   const govFile = (name) => path.join(gov, name);
 
   if (!location) {
     blockers.push(
-      `No spec folder for "${feature.name}" ${version.id} under .sdrive/specs/{${SPEC_STAGES.join(', ')}}/`,
+      `No spec folder for "${feature.name}" ${version.id} under .sdrive/specs/{${SPEC_STAGES.join(", ")}}/`
     );
   }
 
-  if (location && location.stage === 'completed') {
+  if (location && location.stage === "completed") {
     blockers.push(
-      `"${feature.name}" is archived in specs/completed/. Archived features are immutable. Use \`sdrive version:new ${feature.name}\` only for new scope; the completed version stays archived.`,
+      `"${feature.name}" is archived in specs/completed/. Archived features are immutable. Use \`sdrive version:new ${feature.name}\` only for new scope; the completed version stays archived.`
     );
   }
 
-  if (version.phase === 'completed') {
+  if (version.phase === "completed") {
     blockers.push(`Version "${version.id}" is already completed.`);
   }
 
   // Prerequisite gates must already be approved.
-  const gateIndex = GATE_ORDER.indexOf(gate);
+  //
+  // The list is the slice of GATE_ORDER strictly BEFORE `gate`, then filtered against
+  // `gate` itself. The slice already excludes it; the filter is there because the one
+  // refusal that is always wrong is naming the gate being approved as its own unmet
+  // prerequisite. A user cannot satisfy that, since approving the prerequisite IS the
+  // action being refused, so it must be impossible for any ordering of GATE_ORDER to
+  // produce it.
+  const gateIndex = Math.max(GATE_ORDER.indexOf(gate), 0);
+  const prerequisites = GATE_ORDER.slice(0, gateIndex).filter((earlier) => earlier !== gate);
 
-  for (let i = 0; i < gateIndex; i += 1) {
-    const earlier = GATE_ORDER[i];
-
+  prerequisites.forEach((earlier) => {
     if (!isGateApprovedFor(version, earlier)) {
       blockers.push(
-        `Prerequisite gate "${earlier}" is "${gateStatusFor(version, earlier)}", not "approved".`,
+        `Prerequisite gate "${earlier}" is "${gateStatusFor(version, earlier)}", not "approved" ` +
+          `(required before "${gate}"; order: ${GATE_ORDER.join(" -> ")}).`
       );
     }
-  }
+  });
 
   const requireSpecFile = (name, why) => {
     if (location && !fs.existsSync(path.join(location.dir, name))) {
@@ -326,136 +425,156 @@ function checkGateRequirements(root, feature, version, gate) {
 
   const requireGovFile = (name, why) => {
     if (!fs.existsSync(govFile(name))) {
-      blockers.push(
-        `Missing ${name} in .sdrive/governance/${feature.name}/${version.id}/ (${why}).`,
-      );
+      blockers.push(`Missing ${name} in .sdrive/governance/${feature.name}/${version.id}/ (${why}).`);
     }
   };
 
   let tasks = null;
 
-  if (gate === 'specification') {
-    requireSpecFile('spec.md', 'the specification being approved');
-    requireGovFile('spec.json', 'machine-readable specification');
+  if (gate === "specification") {
+    requireSpecFile("spec.md", "the specification being approved");
+    requireGovFile("spec.json", "machine-readable specification");
   }
 
-  if (gate === 'planning') {
-    requireSpecFile('plan.md', 'the technical plan');
-    requireSpecFile('tasks.md', 'the task list');
-    requireGovFile('plan.json', 'machine-readable plan');
-    requireGovFile('tasks.json', 'machine-readable tasks');
-    requireGovFile('traceability.json', 'requirement-to-task traceability');
+  if (gate === "planning") {
+    requireSpecFile("plan.md", "the technical plan");
+    requireSpecFile("tasks.md", "the task list");
+    requireGovFile("plan.json", "machine-readable plan");
+    requireGovFile("tasks.json", "machine-readable tasks");
+    requireGovFile("traceability.json", "requirement-to-task traceability");
 
     // Every acceptance criterion has to be planned for, otherwise the review gate's
     // coverage requirement can never be met and the feature dead-ends at review.
     // Advisory rather than blocking: `linkedAcceptanceCriteria` is optional in the
     // tasks schema, so a plan that links only requirements is warned about, not rejected.
-    const specJson = readJsonIfPresent(govFile('spec.json'));
-    const tasksJson = readJsonIfPresent(govFile('tasks.json'));
+    const specJson = readJsonIfPresent(govFile("spec.json"));
+    const tasksJson = readJsonIfPresent(govFile("tasks.json"));
 
     if (specJson && tasksJson) {
       const planned = collectPlannedAcceptanceCriteria(specJson, tasksJson);
-      const unplanned = collectAcceptanceCriteria(specJson).filter((ac) => !planned.has(ac));
+      const withdrawn = collectWithdrawnAcceptanceCriteria(specJson);
+      const substantiated = withdrawn.filter((entry) => entry.substantiated);
+      const unplanned = collectEffectiveAcceptanceCriteria(specJson).filter((ac) => !planned.has(ac));
 
       if (unplanned.length > 0) {
         warnings.push(
           `${unplanned.length} acceptance criteria are not linked to any task (${unplanned
             .slice(0, 6)
-            .join(
-              ', ',
-            )}${unplanned.length > 6 ? ', ...' : ''}). The review gate needs a passing test for every one of them - plan them explicitly.`,
+            .join(", ")}${unplanned.length > 6 ? ", ..." : ""}). The review gate needs a passing test for every one of them - plan them explicitly.`
+        );
+      }
+
+      // Withdrawal is a decision someone made, so it is always reported - never a
+      // criterion that quietly stopped appearing in the count.
+      if (substantiated.length > 0) {
+        warnings.push(describeWithdrawnCriteria(substantiated));
+      }
+
+      if (withdrawn.length > substantiated.length) {
+        warnings.push(
+          `${withdrawn.length - substantiated.length} acceptance criteria are marked withdrawn without a reason and evidence (${withdrawn
+            .filter((entry) => !entry.substantiated)
+            .slice(0, 6)
+            .map((entry) => entry.id)
+            .join(", ")}). Fill in \`withdrawnReason\` and \`withdrawnEvidence\` in spec.json - the review gate refuses an unexplained withdrawal.`
         );
       }
     }
   }
 
-  if (gate === 'implementation') {
-    const tasksPath = govFile('tasks.json');
+  if (gate === "implementation") {
+    const tasksPath = govFile("tasks.json");
 
     if (!fs.existsSync(tasksPath)) {
-      blockers.push('Missing tasks.json, so finished work cannot be confirmed.');
+      blockers.push("Missing tasks.json, so finished work cannot be confirmed.");
     } else {
       tasks = countTasks(readJsonIfPresent(tasksPath));
 
       if (tasks.total === 0) {
-        blockers.push('tasks.json contains no tasks, so there is no work to certify.');
-      } else if (tasks.done < tasks.total) {
+        blockers.push("tasks.json contains no tasks, so there is no work to certify.");
+      } else if (tasks.outstanding > 0) {
         blockers.push(
-          `${tasks.total - tasks.done} of ${tasks.total} tasks are still incomplete in tasks.json.`,
+          `${tasks.outstanding} of ${tasks.total} tasks are still incomplete in tasks.json` +
+            (tasks.resolved > 0 ? ` (${tasks.done} completed, ${tasks.resolved} descoped).` : ".")
         );
+      }
+
+      // A descope is a decision someone made, so it is always named. Silent scope
+      // reduction is how a "finished" feature quietly comes to mean something
+      // narrower than the specification that was approved.
+      if (tasks.resolved > 0) {
+        warnings.push(describeResolved(tasks.resolvedTasks, "tasks"));
       }
     }
 
-    const verificationPath = govFile('verification.json');
+    const verificationPath = govFile("verification.json");
 
     if (fs.existsSync(verificationPath)) {
       const status = (readJsonIfPresent(verificationPath) || {}).status;
 
-      if (status === 'fail') {
+      if (status === "fail") {
         blockers.push(
-          `verification.json reports status "fail" - run \`sdrive verify ${feature.name}\` after fixing it.`,
+          `verification.json reports status "fail" - run \`sdrive verify ${feature.name}\` after fixing it.`
         );
-      } else if (status && status !== 'pass' && status !== 'warn') {
+      } else if (status && status !== "pass" && status !== "warn") {
         warnings.push(`verification.json has an unrecognised status "${status}".`);
       }
     } else {
-      warnings.push(
-        `No verification.json yet - run \`sdrive verify ${feature.name}\` for a spec-to-code check.`,
-      );
+      warnings.push(`No verification.json yet - run \`sdrive verify ${feature.name}\` for a spec-to-code check.`);
     }
   }
 
-  if (gate === 'review') {
+  if (gate === "review") {
     const reviewPolicy = testEvidencePolicy(root);
-    const reviewPath = location ? path.join(location.dir, 'review.md') : null;
+    const reviewPath = location ? path.join(location.dir, "review.md") : null;
 
     if (!reviewPath || !fs.existsSync(reviewPath)) {
-      blockers.push('Missing review.md in the version folder, so there is no verdict to approve.');
-    } else if (!/Status:\s*PASS/i.test(fs.readFileSync(reviewPath, 'utf8'))) {
+      blockers.push("Missing review.md in the version folder, so there is no verdict to approve.");
+    } else if (!/Status:\s*PASS/i.test(fs.readFileSync(reviewPath, "utf8"))) {
       blockers.push(
-        `review.md does not record \`Status: PASS\` - a failing or torn verdict cannot be approved.`,
+        `review.md does not record \`Status: PASS\` - a failing or torn verdict cannot be approved.`
       );
     }
 
     // Structured review record. New projects require it; existing projects may
     // still approve a prose-only verdict until they opt in with
     // `sdrive config:set governance.requireStructuredReview true`.
-    const reviewJson = readJsonIfPresent(govFile('review.json'));
+    const reviewJson = readJsonIfPresent(govFile("review.json"));
 
     if (!reviewJson && reviewPolicy.structuredReview) {
       blockers.push(
-        `Missing review.json for ${feature.name} ${version.id} - run /sdrive:review ${feature.name} to record the structured verdict.`,
+        `Missing review.json for ${feature.name} ${version.id} - run /sdrive:review ${feature.name} to record the structured verdict.`
       );
     }
 
     if (reviewJson) {
-      if (reviewJson.status !== 'PASS') {
+      if (reviewJson.status !== "PASS") {
         blockers.push(
-          `review.json records status "${reviewJson.status || 'missing'}", not "PASS".`,
+          `review.json records status "${reviewJson.status || "missing"}", not "PASS".`
         );
       }
 
       if (reviewJson.feature !== feature.name || reviewJson.version !== version.id) {
         blockers.push(
-          `review.json belongs to "${reviewJson.feature || 'unknown'}" ${reviewJson.version || 'unknown'}, not "${feature.name}" ${version.id}.`,
+          `review.json belongs to "${reviewJson.feature || "unknown"}" ${reviewJson.version || "unknown"}, not "${feature.name}" ${version.id}.`
         );
       }
 
       if (!reviewJson.reviewedBy) {
-        blockers.push('review.json does not record who performed the review.');
+        blockers.push("review.json does not record who performed the review.");
       }
 
       const head = headCommit(root);
 
       if (head && reviewJson.commit !== head) {
         blockers.push(
-          `review.json is for commit ${String(reviewJson.commit || 'unknown').slice(0, 8)}, HEAD is ${head.slice(0, 8)} - re-run the review.`,
+          `review.json is for commit ${String(reviewJson.commit || "unknown").slice(0, 8)}, HEAD is ${head.slice(0, 8)} - re-run the review.`
         );
       }
 
       if (feature.assignee && reviewJson.reviewedBy === feature.assignee) {
         warnings.push(
-          `"${reviewJson.reviewedBy}" is both the assignee and the reviewer. Prefer an independent reviewer for the record.`,
+          `"${reviewJson.reviewedBy}" is both the assignee and the reviewer. Prefer an independent reviewer for the record.`
         );
       }
     }
@@ -467,29 +586,61 @@ function checkGateRequirements(root, feature, version, gate) {
     // verify it has closed. That makes coverage a BLOCKER here, enforced in code.
     // It used to be asked for only in the review agent's prompt, and a prompt is not
     // a gate: a review could write `Status: PASS` at 0% coverage and be approved.
-    const traceJson = readJsonIfPresent(govFile('traceability.json'));
+    const traceJson = readJsonIfPresent(govFile("traceability.json"));
 
     if (!traceJson) {
       blockers.push(
-        'Missing or unreadable traceability.json, so test coverage cannot be verified.',
+        "Missing or unreadable traceability.json, so test coverage cannot be verified."
       );
     } else {
-      const allAcs = collectAcceptanceCriteria(readJsonIfPresent(govFile('spec.json')));
+      const specJson = readJsonIfPresent(govFile("spec.json"));
+      const declaredAcs = collectAcceptanceCriteria(specJson);
+      const withdrawnAcs = collectWithdrawnAcceptanceCriteria(specJson);
+      const substantiatedAcs = collectSubstantiatedWithdrawals(specJson);
+      const unsubstantiatedAcs = withdrawnAcs.filter((entry) => !entry.substantiated);
+      const effectiveAcs = collectEffectiveAcceptanceCriteria(specJson);
       const testedAcs = collectTestedAcceptanceCriteria(traceJson);
-      const untested = allAcs.filter((ac) => !testedAcs.includes(ac));
+      // Coverage is measured against the criteria that are still in scope. A withdrawn
+      // criterion is not an untested one, and counting it as untested would make an
+      // accurate specification impossible to archive.
+      const untested = effectiveAcs.filter((ac) => !testedAcs.includes(ac));
 
-      if (allAcs.length === 0) {
+      if (declaredAcs.length === 0) {
         warnings.push(
-          'spec.json declares no acceptance criteria, so coverage could not be computed.',
+          "spec.json declares no acceptance criteria, so coverage could not be computed."
+        );
+      } else if (effectiveAcs.length === 0) {
+        // Every criterion withdrawn is not a fully covered feature, it is a feature with
+        // nothing left to verify. Without this refusal, `withdrawn: true` on all of them
+        // would be a one-line bypass of the coverage gate.
+        blockers.push(
+          `All ${declaredAcs.length} acceptance criteria are withdrawn, so nothing is left in scope to verify. ` +
+            "Keep at least one criterion in coverage, or describe the excluded surface in `overview.outOfScope` instead of withdrawing every criterion."
         );
       } else if (untested.length > 0) {
         blockers.push(
-          `${untested.length} of ${allAcs.length} acceptance criteria have no passing test (${untested
+          `${untested.length} of ${effectiveAcs.length} acceptance criteria have no passing test (${untested
             .slice(0, 6)
-            .join(
-              ', ',
-            )}${untested.length > 6 ? ', ...' : ''}) - run \`/sdrive:test ${feature.name}\` first, then re-run the review.`,
+            .join(", ")}${untested.length > 6 ? ", ..." : ""}) - run \`/sdrive:test ${feature.name}\` first, then re-run the review.`
         );
+      }
+
+      // A withdrawal nobody explained is not a withdrawal. This is checked here rather
+      // than trusted to `sdrive validate`, because approve reads spec.json directly and
+      // a hand-edited flag must not be worth more than a passing test.
+      if (unsubstantiatedAcs.length > 0) {
+        blockers.push(
+          `${unsubstantiatedAcs.length} acceptance criteria are marked withdrawn without a reason and evidence (${unsubstantiatedAcs
+            .slice(0, 6)
+            .map((entry) => entry.id)
+            .join(", ")}${unsubstantiatedAcs.length > 6 ? ", ..." : ""}). Set \`withdrawnReason\` and \`withdrawnEvidence\` in spec.json, or remove the flag - until then the criterion still counts as untested.`
+        );
+      }
+
+      // Reported after the verdict either way: withdrawing scope is a decision the
+      // archive record must mention, not a silent reduction of the denominator.
+      if (substantiatedAcs.length > 0 && effectiveAcs.length > 0) {
+        warnings.push(describeWithdrawnCriteria(substantiatedAcs));
       }
     }
 
@@ -499,21 +650,23 @@ function checkGateRequirements(root, feature, version, gate) {
     const policy = reviewPolicy;
 
     if (policy.required) {
-      const evidence = readJsonIfPresent(govFile('test-evidence.json'));
+      const evidence = readJsonIfPresent(govFile("test-evidence.json"));
 
       if (!evidence) {
         blockers.push(
-          `No test-evidence.json for ${feature.name} ${version.id} - run \`sdrive test ${feature.name}\` before approving review.`,
+          `No test-evidence.json for ${feature.name} ${version.id} - run \`sdrive test ${feature.name}\` before approving review.`
         );
       } else {
         if (evidence.exitCode !== 0) {
           blockers.push(
-            `test-evidence.json records a failing test run (exit ${evidence.exitCode}${evidence.timedOut ? ', timed out' : ''}).`,
+            `test-evidence.json records a failing test run (exit ${evidence.exitCode}${evidence.timedOut ? ", timed out" : ""}).`
           );
         }
 
         if (evidence.summary && Number(evidence.summary.failed) > 0) {
-          blockers.push(`test-evidence.json records ${evidence.summary.failed} failing test(s).`);
+          blockers.push(
+            `test-evidence.json records ${evidence.summary.failed} failing test(s).`
+          );
         }
 
         const noResults =
@@ -522,7 +675,7 @@ function checkGateRequirements(root, feature, version, gate) {
 
         if (noResults) {
           blockers.push(
-            'test-evidence.json contains no recognisable test results - configure a reporter (JUnit/Jest/pytest/node:test output) or print TEST-### IDs.',
+            "test-evidence.json contains no recognisable test results - configure a reporter (JUnit/Jest/pytest/node:test output) or print TEST-### IDs."
           );
         }
 
@@ -531,7 +684,7 @@ function checkGateRequirements(root, feature, version, gate) {
 
           if (head && evidence.commit !== head) {
             blockers.push(
-              `test-evidence.json is from commit ${String(evidence.commit || 'unknown').slice(0, 8)}, HEAD is ${head.slice(0, 8)} - re-run \`sdrive test ${feature.name}\`.`,
+              `test-evidence.json is from commit ${String(evidence.commit || "unknown").slice(0, 8)}, HEAD is ${head.slice(0, 8)} - re-run \`sdrive test ${feature.name}\`.`
             );
           }
         }
@@ -541,22 +694,26 @@ function checkGateRequirements(root, feature, version, gate) {
     // The coverage report is a human-readable artifact. Its absence weakens the audit
     // trail, but traceability.json above is the machine-checkable source of truth, so
     // a missing report warns rather than blocks.
-    const reportsDir = path.join(root, '.sdrive', 'reports', 'tests');
+    const reportsDir = path.join(root, ".sdrive", "reports", "tests");
     const reportPrefix = `test-report-${feature.name}-${version.id}-`;
 
     if (!fs.existsSync(reportsDir)) {
-      warnings.push('No .sdrive/reports/tests/ directory, so no test report was found.');
+      warnings.push("No .sdrive/reports/tests/ directory, so no test report was found.");
     } else if (!fs.readdirSync(reportsDir).some((f) => f.startsWith(reportPrefix))) {
-      warnings.push(`No test report matching ${reportPrefix}<date>.md in .sdrive/reports/tests/.`);
+      warnings.push(
+        `No test report matching ${reportPrefix}<date>.md in .sdrive/reports/tests/.`
+      );
     }
   }
 
   // Overwriting a decision is a deliberate act and is called out, never silent.
   const current = gates[gate];
 
-  if (current === 'rejected') {
-    warnings.push(`Gate "${gate}" is currently "rejected". Approving overwrites that rejection.`);
-  } else if (current === 'in_progress') {
+  if (current === "rejected") {
+    warnings.push(
+      `Gate "${gate}" is currently "rejected". Approving overwrites that rejection.`
+    );
+  } else if (current === "in_progress") {
     warnings.push(`Gate "${gate}" is currently "in_progress".`);
   } else if (isGateApprovedFor(version, gate)) {
     warnings.push(`Gate "${gate}" is already approved.`);
@@ -571,7 +728,7 @@ function checkGateRequirements(root, feature, version, gate) {
     location,
     current,
     approved: isGateApprovedFor(version, gate),
-    tasks,
+    tasks
   };
 }
 
@@ -591,5 +748,10 @@ module.exports = {
   GATE_ORDER,
   SPEC_STAGES,
   findSpecLocation,
-  checkGateRequirements,
+  collectAcceptanceCriteria,
+  collectWithdrawnAcceptanceCriteria,
+  collectSubstantiatedWithdrawals,
+  collectEffectiveAcceptanceCriteria,
+  collectTestedAcceptanceCriteria,
+  checkGateRequirements
 };

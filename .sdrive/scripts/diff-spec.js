@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const projectRoot = process.cwd();
 
@@ -7,7 +7,7 @@ function readLines(filePath) {
   if (!fs.existsSync(filePath)) {
     return [];
   }
-  return fs.readFileSync(filePath, 'utf8').split('\n');
+  return fs.readFileSync(filePath, "utf8").split("\n");
 }
 
 function simpleDiff(oldFile, newFile) {
@@ -25,17 +25,17 @@ function simpleDiff(oldFile, newFile) {
   console.log(`  New: ${path.basename(newFile)}\n`);
 
   if (added.length === 0 && removed.length === 0) {
-    console.log('✅ No changes detected.');
+    console.log("✅ No changes detected.");
     return;
   }
 
   if (removed.length > 0) {
-    console.log('❌ Removed:');
+    console.log("❌ Removed:");
     removed.forEach((line) => console.log(`  - ${line}`));
   }
 
   if (added.length > 0) {
-    console.log('✅ Added:');
+    console.log("✅ Added:");
     added.forEach((line) => console.log(`  + ${line}`));
   }
 }
@@ -44,7 +44,7 @@ const oldFile = process.argv[2];
 const newFile = process.argv[3];
 
 if (!oldFile || !newFile) {
-  console.error('❌ Usage: node diff-spec.js <old-file> <new-file>');
+  console.error("❌ Usage: node diff-spec.js <old-file> <new-file>");
   process.exit(1);
 }
 

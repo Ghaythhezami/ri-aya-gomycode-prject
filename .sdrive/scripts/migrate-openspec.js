@@ -1,18 +1,18 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const projectRoot = process.cwd();
-const sdriveRoot = path.join(projectRoot, '.sdrive');
+const sdriveRoot = path.join(projectRoot, ".sdrive");
 
-const openspecDir = path.join(projectRoot, 'openspec');
-const openspecSpecsDir = path.join(openspecDir, 'specs');
-const openspecChangesDir = path.join(openspecDir, 'changes');
-const openspecArchiveDir = path.join(openspecDir, 'archive');
+const openspecDir = path.join(projectRoot, "openspec");
+const openspecSpecsDir = path.join(openspecDir, "specs");
+const openspecChangesDir = path.join(openspecDir, "changes");
+const openspecArchiveDir = path.join(openspecDir, "archive");
 
 if (!fs.existsSync(openspecDir)) {
-  console.error('❌ openspec/ folder not found. Nothing to migrate.');
+  console.error("❌ openspec/ folder not found. Nothing to migrate.");
   process.exit(1);
 }
 
@@ -24,10 +24,10 @@ function ensureDir(dir) {
 // here would produce records the CLI stops recognising the day that value gains a shape,
 // and it would do so silently - the migrated state would simply look unapproved.
 function approvedGateValue() {
-  const gatesModulePath = path.join(sdriveRoot, 'commands', 'gates.js');
+  const gatesModulePath = path.join(sdriveRoot, "commands", "gates.js");
 
   if (!fs.existsSync(gatesModulePath)) {
-    console.error('❌ .sdrive/commands/gates.js is missing. Run `sdrive init` before migrating.');
+    console.error("❌ .sdrive/commands/gates.js is missing. Run `sdrive init` before migrating.");
     process.exit(1);
   }
 
@@ -36,7 +36,7 @@ function approvedGateValue() {
 
 function readFile(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf8');
+    return fs.readFileSync(filePath, "utf8");
   } catch (error) {
     return null;
   }
@@ -53,12 +53,12 @@ function listDirectories(dir) {
 function slugify(name) {
   return name
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function findSpecFile(dir) {
-  const candidates = ['spec.md', 'proposal.md', 'README.md'];
+  const candidates = ["spec.md", "proposal.md", "README.md"];
   for (const candidate of candidates) {
     const full = path.join(dir, candidate);
     if (fs.existsSync(full)) return full;
@@ -67,7 +67,7 @@ function findSpecFile(dir) {
 }
 
 function findTasksFile(dir) {
-  const candidates = ['tasks.md', 'todo.md'];
+  const candidates = ["tasks.md", "todo.md"];
   for (const candidate of candidates) {
     const full = path.join(dir, candidate);
     if (fs.existsSync(full)) return full;
@@ -76,8 +76,14 @@ function findTasksFile(dir) {
 }
 
 function writeSpecDriveFeature(featureName, sourceDir, lifecycle) {
-  const featureFolder = path.join(sdriveRoot, 'specs', lifecycle, featureName, 'v1');
-  const govFolder = path.join(sdriveRoot, 'governance', featureName, 'v1');
+  const featureFolder = path.join(
+    sdriveRoot,
+    "specs",
+    lifecycle,
+    featureName,
+    "v1"
+  );
+  const govFolder = path.join(sdriveRoot, "governance", featureName, "v1");
 
   ensureDir(featureFolder);
   ensureDir(govFolder);
@@ -97,10 +103,10 @@ function writeSpecDriveFeature(featureName, sourceDir, lifecycle) {
 
   // spec.md
   fs.writeFileSync(
-    path.join(featureFolder, 'spec.md'),
+    path.join(featureFolder, "spec.md"),
     `---
 title: ${featureName}
-status: ${lifecycle === 'completed' ? 'completed' : 'ongoing'}
+status: ${lifecycle === "completed" ? "completed" : "ongoing"}
 version: v1
 created: ${now}
 updated: ${now}
@@ -109,63 +115,74 @@ migratedFrom: openspec
 ---
 
 ${specContent}
-`,
+`
   );
 
   // plan.md
   fs.writeFileSync(
-    path.join(featureFolder, 'plan.md'),
-    `# Technical Plan: ${featureName} (migrated)\n\nThis plan was migrated from OpenSpec. No technical plan was extracted.\n`,
+    path.join(featureFolder, "plan.md"),
+    `# Technical Plan: ${featureName} (migrated)\n\nThis plan was migrated from OpenSpec. No technical plan was extracted.\n`
   );
 
   // tasks.md
-  fs.writeFileSync(path.join(featureFolder, 'tasks.md'), tasksContent);
+  fs.writeFileSync(
+    path.join(featureFolder, "tasks.md"),
+    tasksContent
+  );
 
   // governance JSON
   fs.writeFileSync(
-    path.join(govFolder, 'spec.json'),
+    path.join(govFolder, "spec.json"),
     JSON.stringify(
       {
         feature: featureName,
         title: featureName,
         version: 1,
         retroactive: true,
-        migratedFrom: 'openspec',
+        migratedFrom: "openspec",
         overview: {
-          problemStatement: '(migrated from OpenSpec)',
-          proposedSolution: '(migrated from OpenSpec)',
-          targetAudience: '(migrated from OpenSpec)',
+          problemStatement: "(migrated from OpenSpec)",
+          proposedSolution: "(migrated from OpenSpec)",
+          targetAudience: "(migrated from OpenSpec)"
         },
         userStories: [],
-        functionalRequirements: [],
+        functionalRequirements: []
       },
       null,
-      2,
-    ),
+      2
+    )
   );
 
   fs.writeFileSync(
-    path.join(govFolder, 'plan.json'),
+    path.join(govFolder, "plan.json"),
     JSON.stringify(
       {
         feature: featureName,
         version: 1,
-        architecture: { approach: '(migrated)', components: [] },
-        dataModel: { entities: [], flowDescription: '(migrated)' },
+        architecture: { approach: "(migrated)", components: [] },
+        dataModel: { entities: [], flowDescription: "(migrated)" }
       },
       null,
-      2,
-    ),
+      2
+    )
   );
 
   fs.writeFileSync(
-    path.join(govFolder, 'tasks.json'),
-    JSON.stringify({ feature: featureName, version: 1, phases: [] }, null, 2),
+    path.join(govFolder, "tasks.json"),
+    JSON.stringify(
+      { feature: featureName, version: 1, phases: [] },
+      null,
+      2
+    )
   );
 
   fs.writeFileSync(
-    path.join(govFolder, 'traceability.json'),
-    JSON.stringify({ feature: featureName, version: 1, rows: [] }, null, 2),
+    path.join(govFolder, "traceability.json"),
+    JSON.stringify(
+      { feature: featureName, version: 1, rows: [] },
+      null,
+      2
+    )
   );
 
   return {
@@ -173,7 +190,7 @@ ${specContent}
     source: path.relative(projectRoot, sourceDir),
     lifecycle,
     spec: specSource ? path.relative(projectRoot, specSource) : null,
-    tasks: tasksSource ? path.relative(projectRoot, tasksSource) : null,
+    tasks: tasksSource ? path.relative(projectRoot, tasksSource) : null
   };
 }
 
@@ -186,7 +203,7 @@ function migrate() {
     for (const feature of features) {
       const featureName = slugify(feature);
       const sourceDir = path.join(openspecSpecsDir, feature);
-      const result = writeSpecDriveFeature(featureName, sourceDir, 'ongoing');
+      const result = writeSpecDriveFeature(featureName, sourceDir, "ongoing");
       migrated.push(result);
       console.log(`✅ Migrated spec: ${featureName}`);
     }
@@ -198,7 +215,7 @@ function migrate() {
     for (const change of changes) {
       const featureName = slugify(change);
       const sourceDir = path.join(openspecChangesDir, change);
-      const result = writeSpecDriveFeature(featureName, sourceDir, 'ongoing');
+      const result = writeSpecDriveFeature(featureName, sourceDir, "ongoing");
       migrated.push(result);
       console.log(`✅ Migrated change: ${featureName}`);
     }
@@ -210,7 +227,7 @@ function migrate() {
     for (const feature of archived) {
       const featureName = slugify(feature);
       const sourceDir = path.join(openspecArchiveDir, feature);
-      const result = writeSpecDriveFeature(featureName, sourceDir, 'completed');
+      const result = writeSpecDriveFeature(featureName, sourceDir, "completed");
       migrated.push(result);
       console.log(`✅ Migrated archive: ${featureName}`);
     }
@@ -220,22 +237,22 @@ function migrate() {
 }
 
 function updateWorkflowState(migrated) {
-  const statePath = path.join(sdriveRoot, 'workflow-state.json');
+  const statePath = path.join(sdriveRoot, "workflow-state.json");
 
   let state = { features: [] };
   if (fs.existsSync(statePath)) {
-    state = JSON.parse(fs.readFileSync(statePath, 'utf8'));
+    state = JSON.parse(fs.readFileSync(statePath, "utf8"));
   }
 
   if (!state.onboarding) {
     state.onboarding = {
-      mode: 'brownfield',
+      mode: "brownfield",
       date: new Date().toISOString(),
       missing: [],
       deferred: [],
       retroactiveFeatures: [],
       verifiedFeatures: [],
-      notes: '',
+      notes: ""
     };
   }
 
@@ -252,36 +269,36 @@ function updateWorkflowState(migrated) {
 
       state.features.push({
         name: item.feature,
-        currentVersion: 'v1',
+        currentVersion: "v1",
         versions: [
           {
-            id: 'v1',
-            phase: item.lifecycle === 'completed' ? 'completed' : 'ongoing',
-            currentStep: 'review',
+            id: "v1",
+            phase: item.lifecycle === "completed" ? "completed" : "ongoing",
+            currentStep: "review",
             gates: {
-              specification: item.lifecycle === 'completed' ? approved : 'pending',
-              planning: item.lifecycle === 'completed' ? approved : 'pending',
-              implementation: item.lifecycle === 'completed' ? approved : 'pending',
-              review: item.lifecycle === 'completed' ? approved : 'pending',
+              specification: item.lifecycle === "completed" ? approved : "pending",
+              planning: item.lifecycle === "completed" ? approved : "pending",
+              implementation: item.lifecycle === "completed" ? approved : "pending",
+              review: item.lifecycle === "completed" ? approved : "pending"
             },
             history: [
               {
-                event: 'feature_migrated',
+                event: "feature_migrated",
                 timestamp: new Date().toISOString(),
-                by: 'onboarding',
-              },
-            ],
-          },
-        ],
+                by: "onboarding"
+              }
+            ]
+          }
+        ]
       });
     }
 
     // Add migration record
     state.onboarding.migrated.push({
       feature: item.feature,
-      from: 'openspec',
+      from: "openspec",
       date: new Date().toISOString(),
-      source: item.source,
+      source: item.source
     });
 
     // Add to retroactive features
@@ -294,24 +311,24 @@ function updateWorkflowState(migrated) {
 }
 
 function main() {
-  console.log('🔍 Migrating from OpenSpec...\n');
+  console.log("🔍 Migrating from OpenSpec...\n");
 
   const migrated = migrate();
 
   if (migrated.length === 0) {
-    console.log('\n⚠️  No OpenSpec features found to migrate.');
+    console.log("\n⚠️  No OpenSpec features found to migrate.");
     process.exit(0);
   }
 
   updateWorkflowState(migrated);
 
-  console.log('');
+  console.log("");
   console.log(`✅ Migration complete: ${migrated.length} features.`);
-  console.log('');
-  console.log('Original openspec/ folder was NOT deleted.');
-  console.log('All migrated features are marked retroactive: true.');
-  console.log('');
-  console.log('Next: run sdrive validate to confirm the new files.');
+  console.log("");
+  console.log("Original openspec/ folder was NOT deleted.");
+  console.log("All migrated features are marked retroactive: true.");
+  console.log("");
+  console.log("Next: run sdrive validate to confirm the new files.");
 }
 
 main();

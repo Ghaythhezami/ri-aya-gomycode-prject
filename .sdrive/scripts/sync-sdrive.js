@@ -3,12 +3,12 @@
 // Refreshes the reference installation under .sdrive/ from the source
 // directories. The root directories are the source of truth; `.sdrive/` is what
 // a consumer project would receive.
-const fs = require('fs');
-const path = require('path');
-const { writeManifest, FRAMEWORK_DIRS } = require('../src/lib/manifest');
+const fs = require("fs");
+const path = require("path");
+const { writeManifest, FRAMEWORK_DIRS } = require("../src/lib/manifest");
 
-const projectRoot = path.resolve(__dirname, '..');
-const sdriveRoot = path.join(projectRoot, '.sdrive');
+const projectRoot = path.resolve(__dirname, "..");
+const sdriveRoot = path.join(projectRoot, ".sdrive");
 
 function copyForce(src, dest) {
   fs.mkdirSync(dest, { recursive: true });
@@ -23,7 +23,7 @@ function copyForce(src, dest) {
 }
 
 // Remove files under a framework directory that no longer exist in the source.
-function prune(src, dest, removed = [], rel = '') {
+function prune(src, dest, removed = [], rel = "") {
   if (!fs.existsSync(dest)) return removed;
 
   for (const entry of fs.readdirSync(dest, { withFileTypes: true })) {
@@ -54,18 +54,18 @@ for (const dir of FRAMEWORK_DIRS) {
   const removed = prune(src, dest);
 
   console.log(
-    `✅ .sdrive/${dir}/ (${removed.length ? `${removed.length} stale removed` : 'in sync'})`,
+    `✅ .sdrive/${dir}/ (${removed.length ? `${removed.length} stale removed` : "in sync"})`
   );
 }
 
-const logo = path.join(projectRoot, 'logo.png');
-if (fs.existsSync(logo)) fs.copyFileSync(logo, path.join(sdriveRoot, 'logo.png'));
+const logo = path.join(projectRoot, "logo.png");
+if (fs.existsSync(logo)) fs.copyFileSync(logo, path.join(sdriveRoot, "logo.png"));
 
-const scope = path.join(sdriveRoot, 'package.json');
+const scope = path.join(sdriveRoot, "package.json");
 if (!fs.existsSync(scope)) {
-  fs.writeFileSync(scope, `${JSON.stringify({ type: 'commonjs' }, null, 2)}\n`);
-  console.log('✅ .sdrive/package.json');
+  fs.writeFileSync(scope, `${JSON.stringify({ type: "commonjs" }, null, 2)}\n`);
+  console.log("✅ .sdrive/package.json");
 }
 
-writeManifest(projectRoot, { cliVersion: require('../package.json').version });
-console.log('✅ .sdrive/framework-manifest.json');
+writeManifest(projectRoot, { cliVersion: require("../package.json").version });
+console.log("✅ .sdrive/framework-manifest.json");

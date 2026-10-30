@@ -5,22 +5,7 @@ argument-hint: Run to audit, discover, and update project skills
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'search',
-    'create',
-    'edit',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'ux-ui-library',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'search', 'create', 'edit', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -70,7 +55,7 @@ This agent supports two modes:
    - Else generate a custom `.sdrive/skills/<dependency>/SKILL.md` from Context7 docs → ask approval → write.
    - Return a single-line outcome: `existing skill` | `community skill installed` | `custom skill generated` | `no skill available`.
    - Still obey ALL rules above (constitution check, approval, verification, security scan).
-   </invocation-modes>
+</invocation-modes>
 
 <output-structure>
 All skills must be installed in the standard workspace directory:
@@ -121,7 +106,7 @@ All skills must be installed in the standard workspace directory:
    - For updates: READ the existing `SKILL.md` first. Preserve local customizations. Use targeted `edit` operations unless the file is fundamentally outdated. If a full replacement is necessary, explicitly note what will be lost and require user confirmation.
    - For new installs: Create the folder and `SKILL.md`.
    - For custom creations: Generate the `SKILL.md` based on project context.
-   </workflow>
+</workflow>
 
 <proposal-template>
 Present your findings in this exact format:
@@ -129,24 +114,21 @@ Present your findings in this exact format:
 # Skill Audit & Discovery Report
 
 ## 1. Existing Skills Status
-
-| Skill Name | Type             | Status   | Last Updated | Action Required      |
-| ---------- | ---------------- | -------- | ------------ | -------------------- |
-| [Name]     | Community/Custom | ✅/⚠️/🔴 | [Date]       | [None/Update/Review] |
+| Skill Name | Type | Status | Last Updated | Action Required |
+|------------|------|--------|--------------|-----------------|
+| [Name]     | Community/Custom | ✅/⚠️/🔴 | [Date] | [None/Update/Review] |
 
 ## 2. Missing Skills Detected
-
-| Technology | Community Skill Found? | Security Verified? | Recommended Action             |
-| ---------- | ---------------------- | ------------------ | ------------------------------ |
+| Technology | Community Skill Found? | Security Verified? | Recommended Action |
+|------------|------------------------|--------------------|--------------------|
 | [Tech]     | Yes/No                 | Yes/No             | [Install Link / Create Custom] |
 
 ## 3. Recommended Actions
-
 - [ ] Update [Skill Name] to latest version.
 - [ ] Install [Community Skill Name] for [Technology].
 - [ ] Generate custom skill for [Technology].
 
-_Please reply with the numbers of the actions you would like me to execute._
+*Please reply with the numbers of the actions you would like me to execute.*
 </proposal-template>
 
 <definition-of-done>
@@ -178,7 +160,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

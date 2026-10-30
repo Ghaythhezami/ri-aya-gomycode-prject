@@ -5,14 +5,14 @@
 // item (`BP-###`) to the feature that is actually working on it. Both the
 // dashboard and `scripts/worktree.js` use it, so the page, the command, and the
 // tests cannot disagree about what is ready.
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const BP_TOKEN = /\bBP-(\d{3})\b/gi;
 const LIFECYCLE_RANK = { backlog: 0, completed: 1, ongoing: 2 };
 
 function normalizeId(value) {
-  const match = String(value == null ? '' : value).match(/\bBP-(\d{3})\b/i);
+  const match = String(value == null ? "" : value).match(/\bBP-(\d{3})\b/i);
   return match ? `BP-${match[1]}` : null;
 }
 
@@ -20,8 +20,8 @@ function normalizeIds(value) {
   if (Array.isArray(value)) {
     return [...new Set(value.map(normalizeId).filter(Boolean))];
   }
-  return [...new Set(String(value == null ? '' : value).match(BP_TOKEN) || [])].map((id) =>
-    id.toUpperCase(),
+  return [...new Set(String(value == null ? "" : value).match(BP_TOKEN) || [])].map((id) =>
+    id.toUpperCase()
   );
 }
 
@@ -29,7 +29,7 @@ function normalizeIds(value) {
 // dependency cells and for feature scope lines, where a milestone is often
 // written as a range.
 function expandIds(text) {
-  const source = String(text == null ? '' : text).replace(/[\u2013\u2014]/g, '-');
+  const source = String(text == null ? "" : text).replace(/[\u2013\u2014]/g, "-");
   const ids = [];
   const add = (id) => {
     if (id && !ids.includes(id)) ids.push(id);
@@ -42,15 +42,15 @@ function expandIds(text) {
       const end = Number(to);
       const step = start <= end ? 1 : -1;
       for (let n = start; step > 0 ? n <= end : n >= end; n += step) {
-        add(`BP-${String(n).padStart(3, '0')}`);
+        add(`BP-${String(n).padStart(3, "0")}`);
       }
-      return ' ';
-    },
+      return " ";
+    }
   );
 
   rest = rest.replace(BP_TOKEN, (match) => {
     add(match.toUpperCase());
-    return ' ';
+    return " ";
   });
 
   return ids;
@@ -61,7 +61,7 @@ function parseBacklog(markdown) {
 
   const lines = markdown.split(/\r?\n/);
   const items = [];
-  let section = '';
+  let section = "";
   let columns = null;
 
   for (const line of lines) {
@@ -73,7 +73,7 @@ function parseBacklog(markdown) {
     }
 
     const trimmed = line.trim();
-    if (!trimmed.startsWith('|')) {
+    if (!trimmed.startsWith("|")) {
       if (!trimmed) columns = null;
       continue;
     }
@@ -81,7 +81,7 @@ function parseBacklog(markdown) {
     if (/^\|[\s:|-]+\|$/.test(trimmed)) continue;
 
     const cells = trimmed
-      .split('|')
+      .split("|")
       .slice(1, -1)
       .map((cell) => cell.trim());
 
@@ -97,17 +97,13 @@ function parseBacklog(markdown) {
       columns = {
         id: idIndex,
         feature: featureIndex,
-        details: header.findIndex((cell) =>
-          /^details?$|^description$|what it does|^summary$/.test(cell),
-        ),
+        details: header.findIndex((cell) => /^details?$|^description$|what it does|^summary$/.test(cell)),
         milestone: header.findIndex((cell) => /milestone|phase/.test(cell)),
         userValue: header.findIndex((cell) => /user value|value|benefit/.test(cell)),
         priority: header.findIndex((cell) => /priority/.test(cell)),
-        dependsOn: header.findIndex((cell) =>
-          /depends|dependency|dependencies|prerequisite/.test(cell),
-        ),
+        dependsOn: header.findIndex((cell) => /depends|dependency|dependencies|prerequisite/.test(cell)),
         status: header.findIndex((cell) => /^status$|state/.test(cell)),
-        confidence: header.findIndex((cell) => /confidence|source/.test(cell)),
+        confidence: header.findIndex((cell) => /confidence|source/.test(cell))
       };
       continue;
     }
@@ -117,21 +113,21 @@ function parseBacklog(markdown) {
     const id = normalizeId(cells[columns.id]);
     if (!id) continue;
 
-    const valueAt = (index) => (index >= 0 && index < cells.length ? cells[index] : '');
+    const valueAt = (index) => (index >= 0 && index < cells.length ? cells[index] : "");
     const depends = parseDependencyCell(valueAt(columns.dependsOn));
 
     items.push({
       id,
-      feature: valueAt(columns.feature) || '',
+      feature: valueAt(columns.feature) || "",
       details: valueAt(columns.details),
-      milestone: valueAt(columns.milestone) || section || '',
+      milestone: valueAt(columns.milestone) || section || "",
       userValue: valueAt(columns.userValue),
       priority: valueAt(columns.priority),
       dependsOn: depends.ids,
       externalDependencies: depends.external,
-      status: (valueAt(columns.status) || 'backlog').toLowerCase(),
+      status: (valueAt(columns.status) || "backlog").toLowerCase(),
       confidence: valueAt(columns.confidence),
-      section,
+      section
     });
   }
 
@@ -147,15 +143,8 @@ function parseBacklog(markdown) {
 //   "BP-001; partner access" -> ids ["BP-001"], external ["partner access"]
 //   "BP-002 to BP-003"       -> ids ["BP-002", "BP-003"]
 function parseDependencyCell(raw) {
-  const text = String(raw == null ? '' : raw).trim();
-
-  // A markdown table uses a dash — frequently mojibake'd on its way through an
-  // editor ("â€"", "ãâ‚¬â€œ") — to mean "no dependencies", as do n/a and none.
-  // Compare on letters and digits only, so every dash encoding is equivalent.
-  const meaningful = text.replace(/[^A-Za-z0-9]/g, '');
-  if (!meaningful || /^(na|none|nil|tbd)$/i.test(meaningful)) {
-    return { ids: [], external: [] };
-  }
+  const text = String(raw == null ? "" : raw).trim();
+  if (!text || /^[-—–]+$/.test(text)) return { ids: [], external: [] };
 
   const ids = [];
   const external = [];
@@ -171,10 +160,10 @@ function parseDependencyCell(raw) {
       const end = Number(to);
       const step = start <= end ? 1 : -1;
       for (let n = start; step > 0 ? n <= end : n >= end; n += step) {
-        addId(`BP-${String(n).padStart(3, '0')}`);
+        addId(`BP-${String(n).padStart(3, "0")}`);
       }
-      return ' ';
-    },
+      return " ";
+    }
   );
 
   for (const part of withPlaceholders.split(/[;,]/)) {
@@ -184,10 +173,7 @@ function parseDependencyCell(raw) {
     const found = value.match(/\bBP-\d{3}\b/gi);
     if (found) {
       found.forEach((id) => addId(id.toUpperCase()));
-      const remainder = value
-        .replace(/\bBP-\d{3}\b/gi, '')
-        .replace(/[()]/g, '')
-        .trim();
+      const remainder = value.replace(/\bBP-\d{3}\b/gi, "").replace(/[()]/g, "").trim();
       if (remainder && !/^[-—–]*$/.test(remainder)) external.push(remainder);
     } else {
       external.push(value);
@@ -195,7 +181,7 @@ function parseDependencyCell(raw) {
   }
 
   const cleanedExternal = external
-    .map((value) => value.replace(/^[-–—\s]+|[-–—\s]+$/g, '').trim())
+    .map((value) => value.replace(/^[-–—\s]+|[-–—\s]+$/g, "").trim())
     .filter(Boolean);
 
   return { ids, external: [...new Set(cleanedExternal)] };
@@ -236,10 +222,10 @@ function annotateBacklog(items) {
             other.id !== item.id &&
             waveOf(other.id) === wave &&
             !(other.dependsOn || []).includes(item.id) &&
-            !(item.dependsOn || []).includes(other.id),
+            !(item.dependsOn || []).includes(other.id)
         )
         .map((other) => other.id),
-      baseFor,
+      baseFor
     };
   });
 
@@ -247,26 +233,26 @@ function annotateBacklog(items) {
 }
 
 function readWorkflowState(sdriveRoot) {
-  const file = path.join(sdriveRoot, 'workflow-state.json');
+  const file = path.join(sdriveRoot, "workflow-state.json");
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
     return { features: [] };
   }
 }
 
 function featureStageVersion(feature, sdriveRoot) {
-  const stages = ['ongoing', 'completed', 'backlog'];
+  const stages = ["ongoing", "completed", "backlog"];
   const versions = Array.isArray(feature.versions) ? feature.versions : [];
   const ids = versions.map((version) => version.id).filter(Boolean);
   if (feature.currentVersion && !ids.includes(feature.currentVersion)) {
     ids.unshift(feature.currentVersion);
   }
-  if (!ids.length) ids.push('v1');
+  if (!ids.length) ids.push("v1");
 
   for (const stage of stages) {
     for (const version of ids) {
-      if (fs.existsSync(path.join(sdriveRoot, 'specs', stage, feature.name, version))) {
+      if (fs.existsSync(path.join(sdriveRoot, "specs", stage, feature.name, version))) {
         return stage;
       }
     }
@@ -276,19 +262,16 @@ function featureStageVersion(feature, sdriveRoot) {
 
 function featureLifecycle(feature, sdriveRoot) {
   const versions = Array.isArray(feature.versions) ? feature.versions : [];
-  const phases = versions.map((version) => String(version.phase || '').toLowerCase());
+  const phases = versions.map((version) => String(version.phase || "").toLowerCase());
   const stage = featureStageVersion(feature, sdriveRoot);
 
-  if (
-    stage === 'ongoing' ||
-    phases.some((phase) => /ongoing|in_progress|blocked|active/.test(phase))
-  ) {
-    return 'ongoing';
+  if (stage === "ongoing" || phases.some((phase) => /ongoing|in_progress|blocked|active/.test(phase))) {
+    return "ongoing";
   }
-  if (stage === 'completed' || phases.some((phase) => /completed|archived|released/.test(phase))) {
-    return 'completed';
+  if (stage === "completed" || phases.some((phase) => /completed|archived|released/.test(phase))) {
+    return "completed";
   }
-  return 'backlog';
+  return "backlog";
 }
 
 function addIdsFromText(ids, text) {
@@ -301,14 +284,14 @@ function featureProductIds(feature, sdriveRoot) {
   // New /propose runs record this explicitly. Keep the accepted spellings
   // because older specs used different names.
   for (const key of [
-    'productItems',
-    'productItem',
-    'backlogItems',
-    'backlogItem',
-    'sourceItems',
-    'sourceItem',
-    'backlogId',
-    'productId',
+    "productItems",
+    "productItem",
+    "backlogItems",
+    "backlogItem",
+    "sourceItems",
+    "sourceItem",
+    "backlogId",
+    "productId"
   ]) {
     const value = feature[key];
     if (Array.isArray(value)) value.forEach((entry) => addIdsFromText(ids, entry));
@@ -320,7 +303,7 @@ function featureProductIds(feature, sdriveRoot) {
   const versions = Array.isArray(feature.versions) ? feature.versions : [];
   for (const version of versions) {
     for (const event of version.history || []) {
-      const text = String(event.event || '');
+      const text = String(event.event || "");
       if (/\bBP-\d{3}\b/i.test(text) && /scope|promot|source|backlog/i.test(text)) {
         addIdsFromText(ids, text);
       }
@@ -331,16 +314,16 @@ function featureProductIds(feature, sdriveRoot) {
   if (feature.currentVersion && !versionIds.includes(feature.currentVersion)) {
     versionIds.unshift(feature.currentVersion);
   }
-  if (!versionIds.length) versionIds.push('v1');
+  if (!versionIds.length) versionIds.push("v1");
 
   for (const version of versionIds) {
-    for (const stage of ['backlog', 'ongoing', 'completed']) {
-      const file = path.join(sdriveRoot, 'specs', stage, feature.name, version, 'spec.md');
+    for (const stage of ["backlog", "ongoing", "completed"]) {
+      const file = path.join(sdriveRoot, "specs", stage, feature.name, version, "spec.md");
       if (!fs.existsSync(file)) continue;
 
-      let markdown = '';
+      let markdown = "";
       try {
-        markdown = fs.readFileSync(file, 'utf8');
+        markdown = fs.readFileSync(file, "utf8");
       } catch (error) {
         continue;
       }
@@ -352,7 +335,7 @@ function featureProductIds(feature, sdriveRoot) {
         // Explicit frontmatter or table rows are the strongest signal.
         if (
           /^(product-item|product-items|backlog-item|backlog-items|source-item|source-items|backlog-id|product-id)\s*:/i.test(
-            trimmed,
+            trimmed
           )
         ) {
           addIdsFromText(ids, trimmed);
@@ -397,17 +380,17 @@ function collectFeatureLinks(state, sdriveRoot) {
     // A prepared worktree is evidence that work has started, but it must never
     // downgrade a completed feature or replace the feature's recorded branch.
     if (link.prepared) {
-      if (previous.status === 'backlog') {
+      if (previous.status === "backlog") {
         links.set(id, {
           ...previous,
-          status: 'ongoing',
+          status: "ongoing",
           featureName: previous.featureName || link.featureName,
           branch: previous.branch || link.branch,
           base: previous.base || link.base,
           worktreePath: link.worktreePath,
-          prepared: true,
+          prepared: true
         });
-      } else if (previous.status === 'ongoing' && link.worktreePath && !previous.worktreePath) {
+      } else if (previous.status === "ongoing" && link.worktreePath && !previous.worktreePath) {
         links.set(id, { ...previous, worktreePath: link.worktreePath });
       }
       return;
@@ -433,7 +416,7 @@ function collectFeatureLinks(state, sdriveRoot) {
         branch: feature.branch || null,
         base: feature.base || null,
         worktreePath: null,
-        prepared: false,
+        prepared: false
       });
     }
   }
@@ -441,16 +424,16 @@ function collectFeatureLinks(state, sdriveRoot) {
   for (const worktree of state.worktrees || []) {
     if (!worktree) continue;
     const ids = normalizeIds(
-      worktree.item || worktree.items || worktree.productItem || worktree.backlogId || [],
+      worktree.item || worktree.items || worktree.productItem || worktree.backlogId || []
     );
     for (const id of ids) {
       put(id, {
         featureName: worktree.featureName || worktree.feature || null,
-        status: 'ongoing',
+        status: "ongoing",
         branch: worktree.branch || null,
         base: worktree.base || null,
         worktreePath: worktree.path || null,
-        prepared: true,
+        prepared: true
       });
     }
   }
@@ -471,17 +454,17 @@ function enrichBacklog(items, { sdriveRoot, state } = {}) {
 
   for (const item of items) {
     const link = links.get(item.id);
-    statusById.set(item.id, link ? link.status : 'backlog');
+    statusById.set(item.id, link ? link.status : "backlog");
   }
 
   const enriched = items.map((item) => {
     const link = links.get(item.id) || null;
-    const lifecycleStatus = link ? link.status : 'backlog';
+    const lifecycleStatus = link ? link.status : "backlog";
     const blockedBy = (item.dependsOn || []).filter(
-      (dependency) => statusById.get(dependency) !== 'completed',
+      (dependency) => statusById.get(dependency) !== "completed"
     );
     const external = item.externalDependencies || [];
-    const planStatus = String(item.status || 'backlog').toLowerCase();
+    const planStatus = String(item.status || "backlog").toLowerCase();
     const deliberatelyParked = /deferred|needs discovery/.test(planStatus);
     const hasFeature = Boolean(link && link.featureName);
     const hasWorktree = Boolean(link && link.worktreePath);
@@ -497,12 +480,12 @@ function enrichBacklog(items, { sdriveRoot, state } = {}) {
       prepared: Boolean(link && link.prepared),
       blockedBy,
       eligible:
-        lifecycleStatus === 'backlog' &&
+        lifecycleStatus === "backlog" &&
         !hasFeature &&
         !hasWorktree &&
         !deliberatelyParked &&
         blockedBy.length === 0 &&
-        external.length === 0,
+        external.length === 0
     };
   });
 
@@ -517,7 +500,7 @@ function enrichBacklog(items, { sdriveRoot, state } = {}) {
         backlog: 0,
         ongoing: 0,
         completed: 0,
-        eligible: 0,
+        eligible: 0
       });
     }
     const entry = waveMap.get(item.wave);
@@ -529,21 +512,21 @@ function enrichBacklog(items, { sdriveRoot, state } = {}) {
   return {
     items: enriched,
     counts,
-    waves: [...waveMap.values()].sort((a, b) => a.wave - b.wave),
+    waves: [...waveMap.values()].sort((a, b) => a.wave - b.wave)
   };
 }
 
 function waveLabel(wave) {
-  return Number(wave) === 0 ? 'start' : `W${Number(wave) || 0}`;
+  return Number(wave) === 0 ? "start" : `W${Number(wave) || 0}`;
 }
 
 function milestoneRank(milestone) {
-  const match = String(milestone || '').match(/\bM(\d+)\b/i);
+  const match = String(milestone || "").match(/\bM(\d+)\b/i);
   return match ? Number(match[1]) : 999;
 }
 
 function priorityRank(priority) {
-  const match = String(priority || '').match(/\bP(\d+)\b/i);
+  const match = String(priority || "").match(/\bP(\d+)\b/i);
   return match ? Number(match[1]) : 99;
 }
 
@@ -553,41 +536,41 @@ function sortBacklog(items) {
       (a.wave || 0) - (b.wave || 0) ||
       milestoneRank(a.milestone) - milestoneRank(b.milestone) ||
       priorityRank(a.priority) - priorityRank(b.priority) ||
-      String(a.id).localeCompare(String(b.id), undefined, { numeric: true }),
+      String(a.id).localeCompare(String(b.id), undefined, { numeric: true })
   );
 }
 
 function slugify(value, maxLength = 40) {
-  return String(value == null ? '' : value)
+  return String(value == null ? "" : value)
     .toLowerCase()
-    .replace(/[`*_]/g, '')
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/[`*_]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .slice(0, maxLength)
-    .replace(/-+$/g, '');
+    .replace(/-+$/g, "");
 }
 
 function suggestBranchNames(item) {
-  const feature = String(item && item.feature ? item.feature : '').trim();
+  const feature = String(item && item.feature ? item.feature : "").trim();
   if (!feature) return [];
 
   const firstClause = feature.split(/[:;—–]|\s+-\s+/)[0];
-  const words = slugify(feature).split('-').filter(Boolean);
+  const words = slugify(feature).split("-").filter(Boolean);
   const candidates = [
     slugify(feature, 42),
     slugify(firstClause, 34),
-    words.slice(0, 4).join('-'),
-    words.slice(0, 5).join('-'),
+    words.slice(0, 4).join("-"),
+    words.slice(0, 5).join("-")
   ];
 
   return [...new Set(candidates.filter(Boolean))].slice(0, 3).map((name) => `feature/${name}`);
 }
 
 function branchSlug(branch) {
-  return String(branch || '')
-    .replace(/^feature\//i, '')
-    .replace(/[^A-Za-z0-9._-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  return String(branch || "")
+    .replace(/^feature\//i, "")
+    .replace(/[^A-Za-z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .toLowerCase();
 }
 
@@ -610,5 +593,5 @@ module.exports = {
   slugify,
   sortBacklog,
   suggestBranchNames,
-  waveLabel,
+  waveLabel
 };

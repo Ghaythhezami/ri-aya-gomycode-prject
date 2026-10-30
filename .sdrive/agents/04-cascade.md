@@ -5,18 +5,7 @@ argument-hint: Specify which file was updated (e.g., "I updated the spec", "I ch
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'edit',
-    'create',
-    'search',
-    'execute',
-    'todo',
-    'vscode/askQuestions',
-    'stackwise',
-    'context7',
-  ]
+tools: ['read', 'edit', 'create', 'search', 'execute', 'todo', 'vscode/askQuestions', 'stackwise', 'context7']
 agents: []
 ---
 
@@ -101,17 +90,17 @@ You operate within the current version folder only.
    - Only proceed to write the files after explicit user approval.
 
 4. **EXECUTE CASCADING UPDATES**
-   - **If Spec changed:**
+   - **If Spec changed:** 
      1. Update `plan.md` to match the new requirements (preserving unaffected sections).
      2. Update `tasks.md` to match the new plan.
      3. Update `traceability.json` with new requirement/AC links and task/test IDs.
-   - **If Plan changed:**
+   - **If Plan changed:** 
      1. Update `tasks.md` to match the new technical approach.
      2. Update `traceability.json` plan section references.
-   - **If Tasks changed:**
+   - **If Tasks changed:** 
      1. If structural (IDs/additions/removals), update `traceability.json` links.
      2. If status only, update `traceability.json` status column.
-   - **If Traceability changed:**
+   - **If Traceability changed:** 
      1. Validate matrix against spec/plan/tasks. Flag inconsistencies.
 
 5. **FINALIZE & REPORT**
@@ -120,7 +109,7 @@ You operate within the current version folder only.
    - Confirm that completed task statuses and ID continuity were preserved.
    - List any removed completed tasks with the reason for removal.
    - Optionally run `sdrive verify <feature>` if the sync affects implemented code.
-   </workflow>
+</workflow>
 
 <output-structure>
 Feature files are stored under:
@@ -175,7 +164,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

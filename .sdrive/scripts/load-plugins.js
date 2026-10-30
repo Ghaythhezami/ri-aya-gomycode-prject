@@ -1,33 +1,32 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const projectRoot = process.cwd();
-const pluginsDir = path.join(projectRoot, '.sdrive', 'plugins');
+const pluginsDir = path.join(projectRoot, ".sdrive", "plugins");
 
 function loadPlugins() {
   if (!fs.existsSync(pluginsDir)) {
     return [];
   }
 
-  const pluginFolders = fs
-    .readdirSync(pluginsDir, { withFileTypes: true })
+  const pluginFolders = fs.readdirSync(pluginsDir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name);
 
   const plugins = [];
 
   pluginFolders.forEach((folder) => {
-    const pluginJsonPath = path.join(pluginsDir, folder, 'plugin.json');
+    const pluginJsonPath = path.join(pluginsDir, folder, "plugin.json");
 
     if (!fs.existsSync(pluginJsonPath)) {
       return;
     }
 
     try {
-      const pluginDef = JSON.parse(fs.readFileSync(pluginJsonPath, 'utf8'));
+      const pluginDef = JSON.parse(fs.readFileSync(pluginJsonPath, "utf8"));
       plugins.push({
         ...pluginDef,
-        path: path.join(pluginsDir, folder),
+        path: path.join(pluginsDir, folder)
       });
     } catch (error) {
       console.warn(`⚠️  Skipping invalid plugin: ${folder}`);
@@ -63,5 +62,5 @@ function listPlugins() {
 module.exports = {
   loadPlugins,
   runPlugin,
-  listPlugins,
+  listPlugins
 };

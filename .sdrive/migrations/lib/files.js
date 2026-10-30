@@ -1,6 +1,6 @@
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
+const fs = require("fs");
+const path = require("path");
+const crypto = require("crypto");
 
 function exists(file) {
   return fs.existsSync(file);
@@ -8,7 +8,7 @@ function exists(file) {
 
 function readText(file) {
   try {
-    return fs.readFileSync(file, 'utf8');
+    return fs.readFileSync(file, "utf8");
   } catch (error) {
     return null;
   }
@@ -16,7 +16,7 @@ function readText(file) {
 
 function readJson(file, fallback = null) {
   try {
-    return JSON.parse(fs.readFileSync(file, 'utf8'));
+    return JSON.parse(fs.readFileSync(file, "utf8"));
   } catch (error) {
     return fallback;
   }
@@ -56,21 +56,21 @@ function findFirst(dir, names) {
 function slugify(value) {
   return String(value)
     .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
     .slice(0, 80);
 }
 
 function hashFile(file) {
   try {
-    return `sha256:${crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex')}`;
+    return `sha256:${crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex")}`;
   } catch (error) {
     return null;
   }
 }
 
 function relative(root, file) {
-  return path.relative(root, file).split(path.sep).join('/');
+  return path.relative(root, file).split(path.sep).join("/");
 }
 
 function writeJsonAtomic(file, data) {
@@ -91,5 +91,5 @@ module.exports = {
   slugify,
   hashFile,
   relative,
-  writeJsonAtomic,
+  writeJsonAtomic
 };

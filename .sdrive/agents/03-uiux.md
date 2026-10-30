@@ -5,21 +5,7 @@ argument-hint: Describe the screen, flow, or component to design
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools:
-  [
-    'read',
-    'create',
-    'edit',
-    'search',
-    'execute',
-    'web',
-    'todo',
-    'vscode/askQuestions',
-    'exa:search',
-    'exa:fetch',
-    'ux-ui-library',
-    'context7',
-  ]
+tools: ['read', 'create', 'edit', 'search', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'context7']
 agents: []
 ---
 
@@ -73,26 +59,26 @@ Create the following structure:
 
 .sdrive/
 └── prototype/
-├── index.html # Entry point / navigation hub
-├── screens/
-│ ├── login.html
-│ ├── dashboard.html
-│ └── [feature-screens].html
-├── css/
-│ ├── variables.css # Design tokens from project conventions
-│ ├── reset.css # CSS reset
-│ ├── components.css # Reusable component styles
-│ ├── layout.css # Grid and layout system
-│ └── main.css # Main stylesheet
-├── js/
-│ ├── router.js # Client-side routing
-│ ├── state.js # UI state management
-│ ├── components.js # Reusable component functions
-│ ├── utils.js # Utility functions
-│ └── main.js # Application entry point
-└── assets/
-├── images/
-└── icons/
+    ├── index.html                    # Entry point / navigation hub
+    ├── screens/
+    │   ├── login.html
+    │   ├── dashboard.html
+    │   └── [feature-screens].html
+    ├── css/
+    │   ├── variables.css             # Design tokens from project conventions
+    │   ├── reset.css                 # CSS reset
+    │   ├── components.css            # Reusable component styles
+    │   ├── layout.css                # Grid and layout system
+    │   └── main.css                  # Main stylesheet
+    ├── js/
+    │   ├── router.js                 # Client-side routing
+    │   ├── state.js                  # UI state management
+    │   ├── components.js             # Reusable component functions
+    │   ├── utils.js                  # Utility functions
+    │   └── main.js                   # Application entry point
+    └── assets/
+        ├── images/
+        └── icons/
 </output-structure>
 
 <workflow>
@@ -128,7 +114,7 @@ Create the following structure:
 5. **APPROVAL GATE**
    - Present the screen or flow to the user.
    - STOP and ask for approval before continuing to the next piece.
-   </workflow>
+</workflow>
 
 <prototype-standards>
 **HTML Standards:**
@@ -138,14 +124,12 @@ Create the following structure:
 - Use BEM naming convention for classes.
 
 **CSS Standards:**
-
 - Mobile-first responsive design.
 - CSS Custom Properties (variables) for theming.
 - Flexbox and Grid for layouts.
 - Breakpoints: 320px (mobile), 768px (tablet), 1024px (desktop), 1440px (wide).
 
 **JavaScript Standards:**
-
 - ES6+ syntax (arrow functions, const/let, template literals).
 - Modular code structure.
 - Event delegation for performance.
@@ -183,7 +167,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-     Use the prefix `specdrive(<command>):`.
+   Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 
