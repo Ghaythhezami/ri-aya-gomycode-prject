@@ -44,7 +44,18 @@
     "signupError": "تعذر إنشاء الحساب. حاول مرة أخرى.",
     "firstName": "الاسم",
     "lastName": "اللقب",
-    "nameRequired": "أدخل اسمك"
+    "nameRequired": "أدخل اسمك",
+    "loginTitle": "تسجيل الدخول إلى رعاية",
+    "loginSubtitle": "ادخل إلى مساحة عملك وواصل تقديم رعاية صحية أفضل.",
+    "signupEyebrow": "انضم إلى الفريق",
+    "forgotEyebrow": "استعادة الحساب",
+    "heroTitleLine1": "صحتك،",
+    "heroTitleLine2": "أولويتنا",
+    "heroSubtitle": "ادخل إلى مساحة عملك وأدر رعاية المرضى والمواعيد والمزيد بكل سهولة.",
+    "featureSecure": "آمن وخاص",
+    "featureScheduling": "جدولة سهلة",
+    "featureCare": "رعاية أفضل للمرضى",
+    "emailPlaceholder": "you@clinic.com"
   },
   "nav": {
     "overview": "نظرة عامة",

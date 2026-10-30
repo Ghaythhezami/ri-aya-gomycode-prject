@@ -44,7 +44,18 @@
     "signupError": "Impossible de créer le compte. Réessayez.",
     "firstName": "Prénom",
     "lastName": "Nom",
-    "nameRequired": "Saisissez votre nom"
+    "nameRequired": "Saisissez votre nom",
+    "loginTitle": "Connexion à Ri’aya",
+    "loginSubtitle": "Accédez à votre espace et continuez à offrir de meilleurs soins.",
+    "signupEyebrow": "Rejoignez l’équipe",
+    "forgotEyebrow": "Récupération du compte",
+    "heroTitleLine1": "Votre santé,",
+    "heroTitleLine2": "notre priorité",
+    "heroSubtitle": "Accédez à votre espace et gérez les soins, les rendez-vous et bien plus en toute simplicité.",
+    "featureSecure": "Sécurisé et confidentiel",
+    "featureScheduling": "Planification facile",
+    "featureCare": "Meilleurs soins aux patients",
+    "emailPlaceholder": "vous@clinique.com"
   },
   "nav": {
     "overview": "Vue d'ensemble",

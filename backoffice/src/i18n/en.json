@@ -44,7 +44,18 @@
     "signupError": "Unable to create the account. Try again.",
     "firstName": "First name",
     "lastName": "Last name",
-    "nameRequired": "Enter your name"
+    "nameRequired": "Enter your name",
+    "loginTitle": "Sign in to Ri’aya",
+    "loginSubtitle": "Access your workspace and continue providing better healthcare.",
+    "signupEyebrow": "Join the team",
+    "forgotEyebrow": "Account recovery",
+    "heroTitleLine1": "Your Health,",
+    "heroTitleLine2": "Our Priority",
+    "heroSubtitle": "Access your workspace and manage patient care, appointments and more with ease.",
+    "featureSecure": "Secure & Private",
+    "featureScheduling": "Easy Scheduling",
+    "featureCare": "Better Patient Care",
+    "emailPlaceholder": "you@clinic.com"
   },
   "nav": {
     "overview": "Overview",

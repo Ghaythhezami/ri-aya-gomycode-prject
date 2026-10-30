@@ -4,9 +4,10 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Button } from '../common/Button';
-import { Field, Input } from '../common/Input';
-import { LanguageSwitcher } from '../layouts/LanguageSwitcher';
+import { ArrowRight, Mail, User } from 'lucide-react';
+import { AuthAlert, AuthInput, AuthSubmit, PasswordInput } from '../common/AuthInput';
+import { Field } from '../common/Input';
+import { AuthLayout } from '../layouts/AuthLayout';
 import { rtkErrorMessage, useSignupMutation } from '../store/api';
 
 export function SignupPage() {
@@ -34,79 +35,78 @@ export function SignupPage() {
   });
 
   return (
-    <div className="grid min-h-screen place-items-center bg-bg p-6">
-      <div className="w-full max-w-md rounded-[16px] border border-border bg-white p-8 shadow-(--shadow-card)">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="RI'AYA"
-              className="h-12 w-12 rounded-xl bg-black object-cover"
-            />
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-primary">{t('app.name')}</p>
-              <h1 className="text-xl font-semibold">{t('auth.signupTitle')}</h1>
-            </div>
+    <AuthLayout
+      eyebrow={t('auth.signupEyebrow')}
+      title={t('auth.signupTitle')}
+      subtitle={t('auth.signupSubtitle')}
+    >
+      {done ? (
+        <AuthAlert tone="success">{t('auth.signupPending')}</AuthAlert>
+      ) : (
+        <form
+          className="space-y-5"
+          onSubmit={form.handleSubmit(async (values) => {
+            setServerError(null);
+            try {
+              await signup({
+                firstName: values.firstName,
+                lastName: values.lastName,
+                email: values.email,
+                password: values.password,
+              }).unwrap();
+              setDone(true);
+            } catch (error) {
+              setServerError(rtkErrorMessage(error, t('auth.signupError')));
+            }
+          })}
+        >
+          {serverError ? <AuthAlert>{serverError}</AuthAlert> : null}
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field label={t('auth.firstName')} error={form.formState.errors.firstName?.message}>
+              <AuthInput
+                icon={<User size={18} />}
+                autoComplete="given-name"
+                {...form.register('firstName')}
+              />
+            </Field>
+            <Field label={t('auth.lastName')} error={form.formState.errors.lastName?.message}>
+              <AuthInput
+                icon={<User size={18} />}
+                autoComplete="family-name"
+                {...form.register('lastName')}
+              />
+            </Field>
           </div>
-          <LanguageSwitcher />
-        </div>
-        <p className="mb-6 text-sm text-muted">{t('auth.signupSubtitle')}</p>
-        {done ? (
-          <p className="rounded-[12px] bg-accent px-3 py-3 text-sm text-primary" role="status">
-            {t('auth.signupPending')}
-          </p>
-        ) : (
-          <form
-            className="space-y-4"
-            onSubmit={form.handleSubmit(async (values) => {
-              setServerError(null);
-              try {
-                await signup({
-                  firstName: values.firstName,
-                  lastName: values.lastName,
-                  email: values.email,
-                  password: values.password,
-                }).unwrap();
-                setDone(true);
-              } catch (error) {
-                setServerError(rtkErrorMessage(error, t('auth.signupError')));
-              }
-            })}
-          >
-            {serverError ? (
-              <p className="rounded-[12px] bg-red-50 px-3 py-2 text-sm text-error" role="alert">
-                {serverError}
-              </p>
-            ) : null}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label={t('auth.firstName')} error={form.formState.errors.firstName?.message}>
-                <Input {...form.register('firstName')} />
-              </Field>
-              <Field label={t('auth.lastName')} error={form.formState.errors.lastName?.message}>
-                <Input {...form.register('lastName')} />
-              </Field>
-            </div>
-            <Field label={t('auth.email')} error={form.formState.errors.email?.message}>
-              <Input type="email" autoComplete="email" {...form.register('email')} />
-            </Field>
-            <Field label={t('auth.password')} error={form.formState.errors.password?.message}>
-              <Input type="password" autoComplete="new-password" {...form.register('password')} />
-            </Field>
-            <Field label={t('auth.confirmPassword')} error={form.formState.errors.confirm?.message}>
-              <Input type="password" autoComplete="new-password" {...form.register('confirm')} />
-            </Field>
-            <Button className="w-full" disabled={isLoading}>
-              {isLoading ? t('auth.signupSubmitting') : t('auth.signupSubmit')}
-            </Button>
-          </form>
-        )}
-        <p className="mt-6 text-sm text-muted">
-          {t('auth.haveAccount')}{' '}
-          <Link className="font-medium text-primary" to="/login">
-            {t('auth.signIn')}
-          </Link>
-        </p>
-      </div>
-    </div>
+          <Field label={t('auth.email')} error={form.formState.errors.email?.message}>
+            <AuthInput
+              icon={<Mail size={18} />}
+              type="email"
+              autoComplete="email"
+              placeholder={t('auth.emailPlaceholder')}
+              {...form.register('email')}
+            />
+          </Field>
+          <Field label={t('auth.password')} error={form.formState.errors.password?.message}>
+            <PasswordInput autoComplete="new-password" {...form.register('password')} />
+          </Field>
+          <Field label={t('auth.confirmPassword')} error={form.formState.errors.confirm?.message}>
+            <PasswordInput autoComplete="new-password" {...form.register('confirm')} />
+          </Field>
+          <AuthSubmit disabled={isLoading}>
+            {isLoading ? t('auth.signupSubmitting') : t('auth.signupSubmit')}
+            <ArrowRight
+              size={18}
+              className="transition group-hover:translate-x-1 rtl:rotate-180 rtl:group-hover:-translate-x-1"
+            />
+          </AuthSubmit>
+        </form>
+      )}
+      <p className="mt-8 text-sm text-muted">
+        {t('auth.haveAccount')}{' '}
+        <Link className="font-semibold text-primary hover:underline" to="/login">
+          {t('auth.signIn')}
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }
