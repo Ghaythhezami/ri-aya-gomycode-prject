@@ -15,7 +15,7 @@
   --color-warning: #f59e0b;
   --color-error: #dc2626;
   --color-accent: #ddf6f3;
-  --font-sans: var(--font-inter), var(--font-noto), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: var(--font-inter), var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
 }
 
 html {
@@ -40,6 +40,11 @@ body {
 
 [dir='rtl'] .rtl-flip {
   transform: scaleX(-1);
+}
+
+/* Inter's metric fallback is Arial, which would otherwise catch Arabic glyphs before Cairo */
+:lang(ar) {
+  font-family: var(--font-arabic), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* Letter-spacing breaks Arabic letter joining */

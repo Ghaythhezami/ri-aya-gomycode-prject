@@ -63,10 +63,11 @@ function Hero() {
           </span>
           {t('badge')}
         </p>
-        <h1 className="rise rise-1 mt-6 text-4xl leading-[1.1] font-bold tracking-tight text-navy sm:text-5xl lg:text-[64px]">
+        <h1 className="rise rise-1 mt-8 text-4xl leading-[1.15] font-bold tracking-tight text-navy sm:text-5xl lg:text-[64px] rtl:leading-[1.45]">
           {t('titleLine1')}
           <br />
-          <span className="text-brand-gradient">{t('titleLine2')}</span>
+          {/* Padding keeps Arabic marks (e.g. the shadda) inside the gradient's clip box */}
+          <span className="text-brand-gradient inline-block py-1 rtl:py-2">{t('titleLine2')}</span>
         </h1>
         <p className="rise rise-2 mt-6 max-w-xl text-lg leading-relaxed text-muted">
           {t('subtitle')}

@@ -2,12 +2,12 @@ import type { Metadata } from 'next';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
-import { Inter, Noto_Sans_Arabic } from 'next/font/google';
+import { Cairo, Inter } from 'next/font/google';
 import { routing, type AppLocale } from '@/i18n/routing';
 import '../globals.css';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const noto = Noto_Sans_Arabic({ subsets: ['arabic'], variable: '--font-noto' });
+const cairo = Cairo({ subsets: ['arabic', 'latin'], variable: '--font-arabic' });
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -59,7 +59,7 @@ export default async function LocaleLayout({
   const dir = locale === 'ar' ? 'rtl' : 'ltr';
 
   return (
-    <html lang={locale} dir={dir} className={`${inter.variable} ${noto.variable}`}>
+    <html lang={locale} dir={dir} className={`${inter.variable} ${cairo.variable}`}>
       <body className="antialiased">
         <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>

@@ -16,11 +16,10 @@ export function SectionHeading({
   return (
     <div className={align === 'center' ? 'mx-auto max-w-2xl text-center' : 'max-w-xl'}>
       <p
-        className={`inline-flex items-center gap-2 text-xs font-semibold tracking-[0.18em] uppercase ${
+        className={`text-xs font-semibold tracking-[0.18em] uppercase ${
           light ? 'text-[#7fdccc]' : 'text-primary'
         }`}
       >
-        <span className={`h-px w-6 ${light ? 'bg-[#7fdccc]' : 'bg-primary'}`} />
         {kicker}
       </p>
       <h2
