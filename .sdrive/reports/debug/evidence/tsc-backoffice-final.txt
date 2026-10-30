@@ -1,0 +1,10 @@
+﻿BACKOFFICE_TSC_EXIT=0
+node.exe : npm info using npm@11.21.0
+At line:1 char:1
++ & "C:\Program Files\nodejs/node.exe" "C:\Users\KENULE-NWINEE\AppData\ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (npm info using npm@11.21.0:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+npm info using node@v24.20.0
+npm info ok

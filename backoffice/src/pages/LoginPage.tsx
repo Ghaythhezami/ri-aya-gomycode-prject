@@ -5,7 +5,8 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ArrowRight, Mail } from 'lucide-react';
-import { useAuth, getErrorMessage } from '../auth/AuthContext';
+import { useAuth } from '../auth/AuthContext';
+import { rtkErrorMessage } from '../store/api';
 import { AuthAlert, AuthInput, AuthSubmit, PasswordInput } from '../common/AuthInput';
 import { Field } from '../common/Input';
 import { AuthLayout } from '../layouts/AuthLayout';
@@ -42,7 +43,16 @@ export function LoginPage() {
             await login(values.email, values.password);
             navigate('/');
           } catch (error) {
-            setServerError(getErrorMessage(error, t('auth.genericError')));
+            // Login goes through RTK Query, whose error shape is `{ data }` —
+            // NOT axios's `{ response: { data } }`. Using the axios extractor
+            // here always fell back to the generic message, hiding the real
+            // cause (e.g. SECURITY_STATE_UNAVAILABLE).
+            const code = (error as { data?: { code?: string } } | undefined)?.data?.code;
+            setServerError(
+              code === 'SECURITY_STATE_UNAVAILABLE'
+                ? t('auth.securityUnavailable')
+                : rtkErrorMessage(error, t('auth.genericError')),
+            );
           }
         })}
       >
@@ -76,7 +86,7 @@ export function LoginPage() {
       </form>
       <p className="mt-8 text-sm text-muted">
         {t('auth.noAccount')}{' '}
-        <Link className="font-semibold text-primary hover:underline" to="/signup">
+        <Link className="font-semibold text-primary hover:underline" to="/register">
           {t('auth.signupSubmit')}
         </Link>
       </p>

@@ -24,6 +24,7 @@ import {
 import { useAuth } from '../auth/AuthContext';
 import { canSee } from '../auth/roles';
 import { LanguageSwitcher } from './LanguageSwitcher';
+import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 
 type NavItem = { to: string; key: string; icon: LucideIcon };
 
@@ -302,6 +303,7 @@ export function AppShell() {
             </label>
 
             <div className="ms-auto flex items-center gap-2 sm:gap-3">
+              <WorkspaceSwitcher />
               <LanguageSwitcher />
               <button
                 type="button"

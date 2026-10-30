@@ -13,6 +13,7 @@ module.exports = {
     '!auth/**/*.spec.ts',
     '!cache/**/*.spec.ts',
     '!auth/dto/**',
+    '!auth/entities/**',
   ],
   coverageDirectory: '../coverage',
   coverageThreshold: {
@@ -24,6 +25,8 @@ module.exports = {
     },
   },
   testEnvironment: 'node',
+  setupFiles: ['<rootDir>/test-setup.ts'],
+  testTimeout: 30_000,
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },

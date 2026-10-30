@@ -1,6 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
 import { getErrorMessage, setAccessToken, setOnUnauthorized } from '../lib/api';
-import type { AuthUser } from '../lib/types';
+import type { AuthResponse, AuthUser } from '../lib/types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
   clearAuth,
@@ -8,7 +8,7 @@ import {
   setReady,
   setSessionMessage as setSessionMessageAction,
 } from '../store/authSlice';
-import { useLoginMutation, useLogoutMutation, useRefreshMutation } from '../store/api';
+import { apiSlice, useLoginMutation, useLogoutMutation, useRefreshMutation } from '../store/api';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -30,6 +30,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [logoutMut] = useLogoutMutation();
   const [refreshMut] = useRefreshMutation();
 
+  /**
+   * The credential payloads report `role` from the retired identity column, which is
+   * NULL for anyone who self-registered (D13). `/auth/me` resolves the role from the
+   * active membership, so prefer that record once a token is available.
+   */
+  const resolveAuthoritativeUser = useCallback(
+    async (fallback: AuthResponse): Promise<AuthResponse> => {
+      try {
+        const me = await dispatch(
+          apiSlice.endpoints.me.initiate(undefined, { forceRefetch: true }),
+        ).unwrap();
+        return me ? { ...fallback, user: me } : fallback;
+      } catch {
+        // A refinement, never a hard failure: keep the credential payload.
+        return fallback;
+      }
+    },
+    [dispatch],
+  );
+
   useEffect(() => {
     setOnUnauthorized(() => {
       setAccessToken(null);
@@ -46,6 +66,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await refreshMut().unwrap();
         setAccessToken(data.accessToken);
         if (!cancelled) dispatch(setCredentials(data));
+        const authoritative = await resolveAuthoritativeUser(data);
+        if (!cancelled) dispatch(setCredentials(authoritative));
       } catch {
         setAccessToken(null);
         if (!cancelled) dispatch(clearAuth());
@@ -56,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, refreshMut]);
+  }, [dispatch, refreshMut, resolveAuthoritativeUser]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -68,6 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const data = await loginMut({ email, password }).unwrap();
         setAccessToken(data.accessToken);
         dispatch(setCredentials(data));
+        // Refine once the token is in the store, so /auth/me is authorized (D13).
+        dispatch(setCredentials(await resolveAuthoritativeUser(data)));
       },
       async logout() {
         try {
@@ -78,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
     }),
-    [user, ready, sessionMessage, dispatch, loginMut, logoutMut],
+    [user, ready, sessionMessage, dispatch, loginMut, logoutMut, resolveAuthoritativeUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

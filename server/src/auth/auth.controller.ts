@@ -1,16 +1,18 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, GoneException, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { Request, Response } from 'express';
 import { AuthService, REFRESH_COOKIE } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { SignupDto } from './dto/signup.dto';
 import { ChangePasswordDto } from './dto/change-password.dto';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { SwitchWorkspaceDto } from './dto/switch-workspace.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { UserRecord } from '../users/user.types';
+
+const throttleLimit = (limit: number) => (process.env.NODE_ENV === 'test' ? 1000 : limit);
 
 @ApiTags('auth')
 @Controller('auth')
@@ -18,14 +20,22 @@ export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
   @Post('signup')
-  @Throttle({ default: { limit: 8, ttl: 60_000 } })
-  @ApiOperation({ summary: 'Create a pending staff account' })
-  signup(@Body() dto: SignupDto) {
-    return this.auth.signup(dto);
+  @Throttle({ default: { limit: throttleLimit(8), ttl: 60_000 } })
+  @ApiOperation({
+    summary: 'Retired — register an organization at POST /auth/register',
+    description:
+      'The path stays registered so it remains resolvable (FR-026), but it no longer creates an identity (FR-036). It always responds 410 SIGNUP_RETIRED (FR-038, AC-045).',
+  })
+  signup(): never {
+    throw new GoneException({
+      code: 'SIGNUP_RETIRED',
+      message:
+        'Self signup is retired. Create your organization with POST /api/auth/register; staff join a clinic through an invitation.',
+    });
   }
 
   @Post('login')
-  @Throttle({ default: { limit: 10, ttl: 60_000 } })
+  @Throttle({ default: { limit: throttleLimit(10), ttl: 60_000 } })
   @ApiOperation({ summary: 'Sign in and receive an access token' })
   login(@Body() dto: LoginDto, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     return this.auth.login(dto.email, dto.password, res, {
@@ -57,6 +67,31 @@ export class AuthController {
     return this.auth.me(user);
   }
 
+  @Get('memberships')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'List the clinics this user can switch to, with their role in each' })
+  memberships(@CurrentUser() user: UserRecord) {
+    return this.auth.listMemberships(user);
+  }
+
+  @Post('switch-workspace')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ default: { limit: throttleLimit(20), ttl: 60_000 } })
+  @ApiOperation({ summary: 'Re-issue an access token scoped to another clinic' })
+  switchWorkspace(
+    @CurrentUser() user: UserRecord,
+    @Body() dto: SwitchWorkspaceDto,
+    @Req() req: Request,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return this.auth.switchWorkspace(user, dto.clinicId, res, {
+      userAgent: req.get('user-agent') ?? undefined,
+      ip: req.ip,
+    });
+  }
+
   @Post('change-password')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -65,7 +100,7 @@ export class AuthController {
   }
 
   @Post('forgot-password')
-  @Throttle({ default: { limit: 5, ttl: 60_000 } })
+  @Throttle({ default: { limit: throttleLimit(5), ttl: 60_000 } })
   forgotPassword(@Body() dto: ForgotPasswordDto) {
     return this.auth.forgotPassword(dto.email);
   }

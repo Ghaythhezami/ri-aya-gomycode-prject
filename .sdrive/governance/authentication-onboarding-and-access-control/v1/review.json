@@ -1,0 +1,108 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": "v1",
+  "status": "FAIL",
+  "commit": "04dd65a",
+  "base": "main",
+  "branch": "feature/auth-onboarding",
+  "reviewedBy": "specdrive-review-agent",
+  "reviewedAt": "2026-10-29T10:30:00.000Z",
+  "coverage": 7,
+  "criteria": [
+    {
+      "id": "C1-spec-alignment",
+      "status": "pass",
+      "detail": "sdrive verify reports Matched 105, Missing 0, Renamed 0 (WARN only for 19 duplicate bare-path endpoint forms). Every planned component, endpoint, entity and package dependency resolves to real code."
+    },
+    {
+      "id": "C2-governance",
+      "status": "pass",
+      "detail": "node .sdrive/scripts/validate-governance.js reports all files valid (config, workflow-state, spec/plan/tasks/traceability)."
+    },
+    {
+      "id": "C3-verification-gate",
+      "status": "pass",
+      "detail": "Verification status is warn, which the release gate accepts. Two endpoint entries and three label components were corrected in plan.json because the plan, not the code, was wrong."
+    },
+    {
+      "id": "C4-tests-execute",
+      "status": "pass",
+      "detail": "Jest reports 9 suites / 36 tests / 0 failures with --runInBand. Includes the invitation and suspension suites that failed before the D15 tenant-frame fix."
+    },
+    {
+      "id": "C5-ac-coverage",
+      "status": "fail",
+      "detail": "Only 3 of 45 acceptance criteria have a linked test ID in traceability.json (7%). The release gate requires 100%."
+    },
+    {
+      "id": "C6-test-report",
+      "status": "pass",
+      "detail": "test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md exists and is newer than spec.md and plan.md."
+    },
+    {
+      "id": "C7-typecheck-lint",
+      "status": "warn",
+      "detail": "server tsc and eslint exit 0 (verified after the D15 fix). backoffice tsc exited 0 earlier; backoffice lint was not re-run after the final edits."
+    },
+    {
+      "id": "C8-secret-scan",
+      "status": "pass",
+      "detail": "Pattern search for AKIA/BEGIN PRIVATE KEY/password literals found no production secrets. One test-fixture password (RiayaAdmin123!) in auth.e2e.spec.ts matches the documented local dev seed."
+    },
+    {
+      "id": "C9-clean-tree",
+      "status": "fail",
+      "detail": "git status is not empty: backoffice/src/i18n/en.json is modified (an owner edit, uncommitted)."
+    },
+    {
+      "id": "C10-commit-binding",
+      "status": "pass",
+      "detail": "HEAD 04dd65a on feature/auth-onboarding, based on main, matching workflow-state.json."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "issue": "42 of 45 acceptance criteria have no linked test ID in traceability.json, so AC coverage is 7% against a 100% gate.",
+      "location": ".sdrive/governance/authentication-onboarding-and-access-control/v1/traceability.json",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "The working tree is dirty (backoffice/src/i18n/en.json), so the review cannot be bound to a single commit.",
+      "location": "backoffice/src/i18n/en.json",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "Five acceptance criteria have no automated test at all: i18n/RTL mirroring, Swagger contract rendering and browser-only states are only manually verifiable in this environment.",
+      "location": ".sdrive/reports/tests",
+      "fixRequired": true,
+      "acIds": ["AC-033", "AC-034", "AC-036", "AC-037", "AC-038"]
+    },
+    {
+      "severity": "medium",
+      "issue": "D14: a native PostgreSQL 17 owns host port 5432, so the docker-compose PostgreSQL 16 is unreachable and the app silently develops against the other instance. The brief mandates PostgreSQL 16.",
+      "location": "docker-compose.yml",
+      "fixRequired": true
+    },
+    {
+      "severity": "low",
+      "issue": "Verification reports 19 extra endpoints because the scanner emits both /auth/x and /api/auth/x for the same route. Informational only.",
+      "location": ".sdrive/scripts/verify.js",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "D18: Jest warns that a worker failed to exit gracefully, indicating a leaked handle (likely the ioredis client in redis-cache.service.spec.ts).",
+      "location": "server/src/cache/redis-cache.service.spec.ts",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "testEvidence": "Jest: 9 suites, 36 tests, 0 failures (--runInBand)",
+    "testReport": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md",
+    "verification": "sdrive verify: status warn, matched 105, missing 0, renamed 0, extra 19",
+    "audit": "node .sdrive/scripts/validate-governance.js: all files valid"
+  }
+}

@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, type FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
-import type { AuthResponse } from '../lib/types';
+import type { AuthResponse, AuthUser } from '../lib/types';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -16,17 +16,16 @@ export const apiSlice = createApi({
     login: builder.mutation<AuthResponse, { email: string; password: string }>({
       query: (body) => ({ url: '/api/auth/login', method: 'POST', body }),
     }),
-    signup: builder.mutation<
-      { success: boolean; message: string },
-      { email: string; password: string; firstName: string; lastName: string }
-    >({
-      query: (body) => ({ url: '/api/auth/signup', method: 'POST', body }),
-    }),
     logout: builder.mutation<{ success: boolean }, void>({
       query: () => ({ url: '/api/auth/logout', method: 'POST' }),
     }),
     refresh: builder.mutation<AuthResponse, void>({
       query: () => ({ url: '/api/auth/refresh', method: 'POST' }),
+    }),
+    // Authoritative source for the signed-in user's active role (D13): the login
+    // and refresh payloads can lag behind the membership role.
+    me: builder.query<AuthUser, void>({
+      query: () => ({ url: '/api/auth/me' }),
     }),
     forgotPassword: builder.mutation<{ success: boolean; message: string }, { email: string }>({
       query: (body) => ({ url: '/api/auth/forgot-password', method: 'POST', body }),
@@ -39,7 +38,6 @@ export const apiSlice = createApi({
 
 export const {
   useLoginMutation,
-  useSignupMutation,
   useLogoutMutation,
   useRefreshMutation,
   useForgotPasswordMutation,

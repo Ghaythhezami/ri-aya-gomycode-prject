@@ -1,4 +1,10 @@
 {
   "extends": "./tsconfig.json",
+  "compilerOptions": {
+    // `nest build` deletes dist/ on every run, so incremental state must not
+    // outlive it. Otherwise TypeScript reports "0 errors" but re-emits only the
+    // files it thinks changed, leaving dist/main.js missing.
+    "incremental": false
+  },
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

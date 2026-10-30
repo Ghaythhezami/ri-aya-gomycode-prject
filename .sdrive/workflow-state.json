@@ -1,0 +1,158 @@
+{
+  "features": [
+    {
+      "name": "authentication-onboarding-and-access-control",
+      "branch": "feature/auth-onboarding",
+      "base": "main",
+      "productItems": ["BP-004", "BP-008", "BP-009", "BP-012", "BP-014", "BP-046", "BP-047"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "ongoing",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "in_progress",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "gate-specification-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "plan-and-tasks-drafted",
+              "by": "specification-agent",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "gate-planning-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-10-28T00:00:00.000Z"
+            },
+            {
+              "event": "spec_updated",
+              "by": "update-proposal-agent",
+              "timestamp": "2026-10-29T00:00:00.000Z",
+              "reason": "Added US-021/US-022, AC-041..AC-045, FR-036/FR-037/FR-038, EC-016..EC-018 and plan/tasks phase P7 (T7.1-T7.6) covering organization-owner onboarding after public registration and retirement of the pending-approval /signup path. The specification and planning gates are reset to pending because the added requirements and plan section invalidate their earlier approvals."
+            },
+            {
+              "event": "specification_approved",
+              "timestamp": "2026-10-29T01:19:44.123Z"
+            },
+            {
+              "event": "planning_approved",
+              "timestamp": "2026-10-29T01:19:44.139Z"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "onboarding": {
+    "mode": "brownfield",
+    "date": "2026-10-27T17:39:17.212Z",
+    "detectedSystems": {
+      "openspec": {
+        "detected": false,
+        "specs": 0,
+        "changes": 0,
+        "archived": 0
+      },
+      "speckit": {
+        "detected": false,
+        "specs": 0,
+        "hasConstitution": false
+      },
+      "frameworks": []
+    },
+    "missing": [
+      "requirements.txt",
+      "pyproject.toml",
+      "go.mod",
+      "pubspec.yaml",
+      "Cargo.toml",
+      "pom.xml",
+      "build.gradle",
+      "CONTRIBUTING.md",
+      "src",
+      "app",
+      "lib",
+      "pages",
+      "internal",
+      "cmd",
+      "pkg",
+      "api",
+      "apps",
+      "packages",
+      ".gitlab-ci.yml",
+      "tests",
+      "__tests__",
+      "spec",
+      "test",
+      "tsconfig.json",
+      "jsconfig.json",
+      ".eslintrc",
+      ".eslintrc.js",
+      ".eslintrc.json",
+      ".prettierrc.js",
+      ".prettierrc.json",
+      "server/test/jest-e2e.json"
+    ],
+    "deferred": [
+      "retroactive specs for auth, users, health, cache - declined at Gate 0; new work goes through /sdrive:propose",
+      "product/overview.md approval - README-derived draft confirmed accurate but product-plan interview not run; target users and non-goals remain undocumented",
+      "root-level tsconfig.json / .eslintrc - not a real gap; TypeScript and ESLint are configured per package",
+      "tests / __tests__ / spec / test directories - not a real gap; server tests are colocated as server/src/**/*.spec.ts (CON-403)",
+      "CI constitution rule - owner declined amending the constitution; CI documented in CONTRIBUTING.md and .sdrive/context/ai-workflow-rules.md"
+    ],
+    "retroactiveFeatures": [],
+    "verifiedFeatures": [],
+    "migrated": [],
+    "skipped": [
+      {
+        "system": "openspec",
+        "reason": "Not detected in the repository."
+      },
+      {
+        "system": "speckit",
+        "reason": "Not detected in the repository."
+      },
+      {
+        "system": "kiro",
+        "reason": "Not detected in the repository."
+      },
+      {
+        "system": "agent-os",
+        "reason": "Not detected in the repository."
+      },
+      {
+        "system": "bmad",
+        "reason": "Not detected in the repository."
+      },
+      {
+        "system": "generic",
+        "reason": "No generic spec folder detected."
+      }
+    ],
+    "notes": "Brownfield onboarding of an existing pnpm monorepo (web, server, backoffice; 382 source files). GATE 0 approved 2026-10-27. Constitution preserved at .sdrive/constitution.md v1.0.0 (71 rules) - not regenerated, per onboarding rules. Product overview kept as a README-derived draft at .sdrive/product/overview.md; owner confirmed the vision text is accurate. Created CONTRIBUTING.md documenting verified tooling: Node 20 LTS, pnpm 10, Prettier/EditorConfig values, strict TypeScript, Conventional Commits via commitlint + Husky, colocated *.spec.ts tests with 80/80/70/50 coverage thresholds, migrations for non-local environments, and the SpecDrive workflow. Correction applied: .sdrive/context/ai-workflow-rules.md previously claimed no CI existed; .github/workflows/ci.yml is present and runs install --frozen-lockfile, lint, typecheck, test and build on Node 20 with pnpm 10 for pushes to main/master and all pull requests. .sdrive/reports/{security,performance,docs,tests} already existed, so no scaffolding was added. Nothing was overwritten or deleted; the only existing-file change was the CI factual correction."
+  }
+}

@@ -1,4 +1,10 @@
-import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import * as argon2 from 'argon2';
@@ -10,10 +16,12 @@ import { PrismaService } from '../database/prisma.service';
 import { MAIL_SERVICE } from '../mail/mail.module';
 import type { MailService } from '../mail/mail.service';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
+import { LoginAttemptService } from '../cache/login-attempt.service';
+import { TokenBlacklistService } from '../cache/token-blacklist.service';
+import { TenancyService } from '../tenancy/tenancy.service';
+import type { TenantScope } from '../tenancy/tenant-context';
+import type { UserRole } from '../users/user-role.enum';
 
-const FAILED_WINDOW_MS = 10 * 60 * 1000;
-const LOCK_MS = 15 * 60 * 1000;
-const MAX_FAILED = 5;
 const RESET_TTL_MS = 30 * 60 * 1000;
 export const REFRESH_COOKIE = 'refresh_token';
 
@@ -24,6 +32,9 @@ export class AuthService {
     private readonly prisma: PrismaService,
     private readonly jwt: JwtService,
     private readonly config: ConfigService,
+    private readonly loginAttempts: LoginAttemptService,
+    private readonly blacklist: TokenBlacklistService,
+    private readonly tenancy: TenancyService,
     @Inject(MAIL_SERVICE) private readonly mail: MailService,
   ) {}
 
@@ -49,20 +60,6 @@ export class AuthService {
     return Boolean(user.lockedUntil && user.lockedUntil.getTime() > Date.now());
   }
 
-  async signup(dto: {
-    email: string;
-    password: string;
-    firstName: string;
-    lastName: string;
-    preferredLocale?: 'en' | 'ar' | 'fr';
-  }) {
-    await this.users.createSignup(dto);
-    return {
-      success: true,
-      message: 'Account created. A clinic admin must activate it before you can sign in.',
-    };
-  }
-
   async login(
     email: string,
     password: string,
@@ -74,8 +71,14 @@ export class AuthService {
       this.invalidCredentials();
     }
 
-    if (this.isLocked(user)) {
-      this.accountLocked();
+    // Lockout is Redis-backed (FR-014). A Redis outage throws here, so login
+    // fails closed instead of permitting unlimited attempts (NFR-009).
+    const lockout = await this.loginAttempts.getLockout(user.email);
+    if (lockout.locked) {
+      throw new UnauthorizedException({
+        code: 'ACCOUNT_LOCKED',
+        message: `Account temporarily locked. Try again in ${Math.ceil(lockout.remainingSeconds / 60)} minute(s).`,
+      });
     }
 
     const valid = await argon2.verify(user.passwordHash, password);
@@ -84,17 +87,18 @@ export class AuthService {
       this.invalidCredentials();
     }
 
-    user.failedLoginCount = 0;
-    user.failedLoginWindowStart = null;
-    user.lockedUntil = null;
+    await this.loginAttempts.clear(user.email);
     user.lastLoginAt = new Date();
     await this.users.save(user);
 
-    const accessToken = this.signAccess(user);
+    // Issue a token scoped to the user's active membership (FR-003).
+    const scope = await this.tenancy.resolveDefaultScope(user.id);
+    const accessToken = this.signAccess(user, scope);
     await this.issueRefreshCookie(user, res, meta, randomUUID());
     return {
       accessToken,
-      user: this.publicUser(user),
+      user: this.publicUser(user, scope?.role ?? null),
+      scope,
     };
   }
 
@@ -113,11 +117,8 @@ export class AuthService {
       throw new UnauthorizedException({ code: 'UNAUTHENTICATED', message: 'Session expired' });
     }
 
-    if (existing.revokedAt) {
-      await this.prisma.refreshToken.updateMany({
-        where: { familyId: existing.familyId, revokedAt: null },
-        data: { revokedAt: new Date() },
-      });
+    if (existing.revokedAt || (await this.blacklist.isRevoked(tokenHash))) {
+      await this.revokeFamily(existing.familyId);
       this.clearRefreshCookie(res);
       throw new UnauthorizedException({
         code: 'TOKEN_REUSE',
@@ -139,15 +140,22 @@ export class AuthService {
       throw new UnauthorizedException({ code: 'UNAUTHENTICATED', message: 'Session expired' });
     }
 
-    await this.prisma.refreshToken.update({
-      where: { id: existing.id },
-      data: { revokedAt: new Date() },
-    });
+    // Rotate: revoke the presented token in both stores before issuing the next
+    // one in the same family (FR-010, FR-015).
+    // Known defect (debug report D5, fix blocked): the new token is issued with
+    // no clinic scope, so a refresh after a workspace switch falls back to the
+    // default clinic. Fixing it needs a `clinicId` column on refresh_tokens
+    // plus `prisma generate` and a migration.
+    await this.revokeToken(existing.tokenHash, existing.expiresAt);
     await this.issueRefreshCookie(user, res, meta, existing.familyId);
+
+    // Report the active membership role rather than the deprecated identity
+    // column, so a refreshed session never reports `role: null` (D13).
+    const scope = await this.tenancy.resolveDefaultScope(user.id);
 
     return {
       accessToken: this.signAccess(user),
-      user: this.publicUser(user),
+      user: this.publicUser(user, scope?.role ?? null),
     };
   }
 
@@ -160,6 +168,7 @@ export class AuthService {
           where: { id: existing.id },
           data: { revokedAt: new Date() },
         });
+        await this.revokeToken(existing.tokenHash, existing.expiresAt);
       }
     }
     this.clearRefreshCookie(res);
@@ -186,10 +195,7 @@ export class AuthService {
     }
     user.passwordHash = await argon2.hash(newPassword);
     await this.users.save(user);
-    await this.prisma.refreshToken.updateMany({
-      where: { userId: user.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
+    await this.revokeAllRefreshTokens(user.id);
     return { success: true };
   }
 
@@ -252,10 +258,7 @@ export class AuthService {
       where: { id: record.id },
       data: { usedAt: new Date() },
     });
-    await this.prisma.refreshToken.updateMany({
-      where: { userId: user.id, revokedAt: null },
-      data: { revokedAt: new Date() },
-    });
+    await this.revokeAllRefreshTokens(user.id);
 
     return { success: true };
   }
@@ -307,9 +310,17 @@ export class AuthService {
     return raw;
   }
 
-  private signAccess(user: UserRecord) {
+  private signAccess(user: UserRecord, scope?: TenantScope | null) {
     return this.jwt.sign(
-      { sub: user.id, email: user.email, role: user.role },
+      {
+        sub: user.id,
+        email: user.email,
+        // Active tenant scope (FR-003). Absent only for a user with no
+        // membership yet, which the strategy rejects on the next request.
+        org_id: scope?.organizationId,
+        clinic_id: scope?.clinicId,
+        role: scope?.role ?? user.role,
+      },
       {
         secret: this.config.get<string>('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-32chars'),
         expiresIn: this.config.get('JWT_ACCESS_EXPIRES', '15m'),
@@ -317,28 +328,91 @@ export class AuthService {
     );
   }
 
-  private async registerFailedLogin(user: UserRecord) {
-    const now = Date.now();
-    const windowStart = user.failedLoginWindowStart?.getTime() ?? 0;
-    if (!windowStart || now - windowStart > FAILED_WINDOW_MS) {
-      user.failedLoginWindowStart = new Date();
-      user.failedLoginCount = 1;
-    } else {
-      user.failedLoginCount += 1;
+  /**
+   * Re-issue an access token scoped to another clinic the caller belongs to
+   * (FR-011). Rejects with 403 when they hold no ACTIVE membership there
+   * (FR-012, AC-014) — never silently falls back to another clinic.
+   */
+  async switchWorkspace(
+    user: UserRecord,
+    clinicId: string,
+    res: Response,
+    meta: { userAgent?: string; ip?: string },
+  ) {
+    const scope = await this.tenancy.resolveScope(user.id, clinicId);
+    if (!scope) {
+      throw new ForbiddenException({
+        code: 'NO_MEMBERSHIP',
+        message: 'You do not have access to that clinic',
+      });
     }
-    if (user.failedLoginCount >= MAX_FAILED) {
-      user.lockedUntil = new Date(now + LOCK_MS);
-    }
-    await this.users.save(user);
+
+    const accessToken = this.signAccess(user, scope);
+    // Rotate the refresh token so the new scope is not tied to the old one.
+    await this.issueRefreshCookie(user, res, meta, randomUUID());
+    return { accessToken, scope };
   }
 
-  publicUser(user: UserRecord) {
+  /** Active memberships for the workspace switcher (FR-032). */
+  async listMemberships(user: UserRecord) {
+    return this.tenancy.listMemberships(user.id);
+  }
+
+  /**
+   * Revoke one refresh token. PostgreSQL stays the source of truth for rotation
+   * and family rules; Redis is the shared revocation list whose TTL matches the
+   * token's remaining life (FR-015, AC-040).
+   */
+  private async revokeToken(tokenHash: string, expiresAt: Date): Promise<void> {
+    const remainingSeconds = Math.max(1, Math.ceil((expiresAt.getTime() - Date.now()) / 1000));
+    await this.blacklist.revoke(tokenHash, remainingSeconds);
+  }
+
+  /** Revoke a whole refresh-token family in both stores (FR-010). */
+  private async revokeFamily(familyId: string): Promise<void> {
+    const active = await this.prisma.refreshToken.findMany({
+      where: { familyId, revokedAt: null },
+    });
+    await this.prisma.refreshToken.updateMany({
+      where: { familyId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    for (const token of active) {
+      await this.revokeToken(token.tokenHash, token.expiresAt);
+    }
+  }
+
+  /** Revoke every active refresh token of a user, in both stores (FR-022). */
+  private async revokeAllRefreshTokens(userId: string): Promise<void> {
+    const active = await this.prisma.refreshToken.findMany({
+      where: { userId, revokedAt: null },
+    });
+    await this.prisma.refreshToken.updateMany({
+      where: { userId, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    for (const token of active) {
+      await this.revokeToken(token.tokenHash, token.expiresAt);
+    }
+  }
+
+  private async registerFailedLogin(user: UserRecord) {
+    // Lockout state lives in Redis (FR-014). If Redis is unreachable this
+    // throws, and login fails closed rather than allowing unlimited attempts
+    // (NFR-009, AC-031).
+    await this.loginAttempts.registerFailure(user.email);
+  }
+
+  publicUser(user: UserRecord, role?: UserRole | null) {
     return {
       id: user.id,
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
-      role: user.role,
+      // The ACTIVE membership's role is authoritative (FR-028). `user.role` is the
+      // deprecated identity column and is NULL for anyone who self-registered, so
+      // relying on it reported `role: null` for every new owner (D13).
+      role: role ?? user.role,
       preferredLocale: user.preferredLocale,
       isActive: user.isActive,
       lastLoginAt: user.lastLoginAt,

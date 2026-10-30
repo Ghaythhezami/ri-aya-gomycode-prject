@@ -20,25 +20,141 @@ enum PreferredLocale {
   fr
 }
 
+/// Lifecycle of a user's link to one clinic.
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+}
+
 model User {
-  id                     String           @id @default(uuid())
-  email                  String           @unique
-  passwordHash           String
-  firstName              String
-  lastName               String
-  role                   UserRole
-  isActive               Boolean          @default(true)
-  preferredLocale        PreferredLocale  @default(en)
-  lastLoginAt            DateTime?
-  failedLoginCount       Int              @default(0)
+  id          String          @id @default(uuid())
+  email       String          @unique
+  passwordHash String
+  firstName   String
+  lastName    String
+  isActive    Boolean         @default(true)
+  preferredLocale PreferredLocale @default(en)
+  lastLoginAt DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  /// @deprecated Clinic-scoped role now lives on UserMembership.role.
+  /// Retained only while existing call sites are migrated (see tasks T3.3).
+  role        UserRole?
+
+  /// @deprecated Lockout state moved to Redis (LoginAttemptService, FR-014).
+  /// Retained so historical rows keep their values; no longer read by the API.
+  failedLoginCount       Int       @default(0)
   failedLoginWindowStart DateTime?
   lockedUntil            DateTime?
-  createdAt              DateTime         @default(now())
-  updatedAt              DateTime         @updatedAt
+
   refreshTokens          RefreshToken[]
   passwordResetTokens    PasswordResetToken[]
+  memberships            UserMembership[]
+  sentInvitations        Invitation[]        @relation("InvitationInviter")
+  auditLogs              AuditLog[]
 
   @@map("users")
+}
+
+/// Ownership boundary. An organization groups one or more clinics.
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  clinics     Clinic[]
+  memberships UserMembership[]
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+
+  @@map("organizations")
+}
+
+/// The working workspace. All clinical data is scoped to a clinic.
+model Clinic {
+  id             String   @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name           String
+  timezone       String   @default("UTC")
+  currency       String   @default("USD")
+  address        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  memberships UserMembership[]
+  invitations Invitation[]
+  auditLogs   AuditLog[]
+
+  @@index([organizationId])
+  @@map("clinics")
+}
+
+/// Links one global identity to one clinic with one role. This is what makes a
+/// user able to hold a different role per clinic (FR-001, FR-028).
+model UserMembership {
+  id             String   @id @default(uuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clinicId       String
+  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  role           UserRole
+  status         MembershipStatus @default(ACTIVE)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@unique([userId, clinicId])
+  @@index([userId, status])
+  @@index([clinicId, status])
+  @@map("user_memberships")
+}
+
+/// Single-use, expiring invitation to join one clinic with one role (FR-007).
+model Invitation {
+  id          String   @id @default(uuid())
+  email       String
+  organizationId String
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  role        UserRole
+  tokenHash   String   @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  invitedById String?
+  invitedBy   User?    @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+
+  @@index([email, clinicId])
+  @@index([expiresAt])
+  @@map("invitations")
+}
+
+/// Append-only record of every mutation (FR-016, NFR-013).
+model AuditLog {
+  id             String   @id @default(uuid())
+  actorUserId    String?
+  actor          User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  action         String
+  entity         String
+  entityId       String
+  before         Json?
+  after          Json?
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
+  clinicId       String?
+  clinic         Clinic?  @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+  createdAt      DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorUserId])
+  @@index([clinicId, createdAt])
+  @@map("audit_logs")
 }
 
 model RefreshToken {
