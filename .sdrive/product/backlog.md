@@ -1,7 +1,9 @@
 ﻿# RI'AYA â€” Product Backlog
 
 > **Status:** Approved (owner approval 2026-10-27)
-> **Last Updated:** 2026-10-27
+> **Last Updated:** 2026-10-31
+> **Plan change:** `Kind` and `Batch` columns added at the end of the table for
+> `/sdrive:propose` group selection. No item's status, priority, or dependency was changed.
 > **Source:** MediFlow brief Â§6â€“Â§10 epics, Ri'aya feature spec parts 1â€“14, repository discovery
 
 Product-level feature candidates only. **No feature specs, plans, tasks or governance records

@@ -1,12 +1,12 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "version": "v1",
-  "status": "FAIL",
-  "commit": "2b7279cb05f03a4f502e4b16a9332316359fbc83",
+  "status": "PASS",
+  "commit": "940189dffc4923224958472d79e2eacb6acaa2dc",
   "base": "main",
   "branch": "feature/auth-onboarding",
   "reviewedBy": "specdrive-review-agent",
-  "reviewedAt": "2026-10-31T03:58:00.000Z",
+  "reviewedAt": "2026-10-31T08:00:00.000Z",
   "coverage": 100,
   "criteria": [
     {
@@ -27,27 +27,27 @@
     {
       "id": "C04-coverage",
       "status": "pass",
-      "detail": "45 of 45 acceptance criteria in scope, 0 withdrawn, 45 linked to a passing test = 100%. sdrive archive:check no longer reports a coverage blocker."
+      "detail": "45 of 45 acceptance criteria in scope, 0 withdrawn (no \"withdrawn\": true anywhere in spec.json), 45 linked to a passing test = 100%."
     },
     {
       "id": "C05-test-report",
       "status": "pass",
-      "detail": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-30.md exists and is newer than spec.md (2026-10-29T01:41) and plan.md (2026-10-29T02:08). Caveat: its headline 54/54 is 47 jest + 7 vitest, while test-evidence.json reports 50 passed of 51 for jest."
+      "detail": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-31.md exists and is newer than spec.md and plan.md (both 2026-10-29). Its headline now reads 50/51 and names the skipped suite, so it agrees with test-evidence.json - the 2026-10-30 arithmetic mismatch (54/54 vs 50 of 51) is closed."
     },
     {
       "id": "C06-test-evidence",
       "status": "pass",
-      "detail": "test-evidence.json exists: exitCode 0, summary.failed 0, summary.total 51 > 0, commit 2b7279c equals HEAD, branch feature/auth-onboarding, recorded 2026-10-31T02:54:18Z."
+      "detail": "test-evidence.json exists: exitCode 0, summary.failed 0, summary.total 51 > 0, commit 940189d equals HEAD, branch feature/auth-onboarding, recorded 2026-10-31T07:44:00Z."
     },
     {
       "id": "C07-change-scope",
-      "status": "fail",
-      "detail": "The working tree is clean and the branch matches feature.branch, so CON-609 is satisfied. Scope is not: the 233-file diff against main still carries 8 unplanned artefacts - .sdrive/reports/debug/probe-exec.txt, .sdrive/reports/tests/raw/probe-2026-10-30.txt, probe-jest.txt, probe-redis.txt, probe.txt, probe2.txt, and the tracked stray folder CUsersKENULE-NWINEE.../ (.t3-probe.tmp, T3-HANDOFF.md)."
+      "status": "pass",
+      "detail": "The 236-file diff against main carries planned files only: the five raw probe logs, .sdrive/reports/debug/probe-exec.txt and the stray CUsersKENULE-NWINEE.../ folder are all removed from git (the folder is ignored on disk), and server/probe-prisma.cjs predates the feature on main. The branch is based on its recorded base (main) and contains no other feature's commits. One path is uncommitted: .sdrive/audit-log.json, whose hash-chained entry is written by the evidence run itself - see finding F2."
     },
     {
       "id": "C08-test-quality",
       "status": "pass",
-      "detail": "11 spec files, no .only, no xit/xdescribe, one justified skip (lockout-persistence needs REDIS_URL + LOCKOUT_INTEGRATION=1, and its green run is recorded separately). CON-405 is satisfied: all 45 server test names begin with their AC id. 39 titles were renamed for this pass."
+      "detail": "11 spec files, no .only, no xit/xdescribe, one justified skip (lockout-persistence needs REDIS_URL + LOCKOUT_INTEGRATION=1, and its green run is recorded separately). CON-405 is satisfied: all 45 server test names begin with their AC id - renamed in 2b7279c and afbf1ce, and no test file has changed since."
     },
     {
       "id": "C09-code-quality",
@@ -56,28 +56,28 @@
     },
     {
       "id": "C10-security",
-      "status": "not_verified",
-      "detail": "No report under .sdrive/reports/security (0 files) and no recorded waiver, for a change that rewrites authentication, tenancy and refresh-token handling."
+      "status": "pass",
+      "detail": ".sdrive/reports/security/security-report-authentication-onboarding-and-access-control-v1-2026-10-31.md exists: 16 controls verified across auth, tenancy, invitation and refresh-token handling, no critical or high finding, six hardening items recorded (R-1 dependency CVE status unknown, R-2 no automated secret scanning, R-3 no CI run, R-4 dev mail stub, R-5 relaxed test throttles, R-6 15-minute access-token window). The report states its own limits: it is a code-level audit, not a dependency certification."
     },
     {
       "id": "C11-testing",
       "status": "pass",
-      "detail": "Recorded run: jest 50 passed, 0 failed, 1 skipped; vitest 4 files / 7 tests passed. The Redis-only AC-009 suite was executed separately against the riaya-redis container and passed (1/1, 2462 ms), logged at .sdrive/reports/tests/raw/lockout-integration-ac-009-2026-10-30.log."
+      "detail": "Recorded run: jest 50 passed, 0 failed, 1 skipped; vitest 4 files / 7 tests passed - 57 passing, 0 failures. The Redis-only AC-009 suite was executed separately against the riaya-redis container and passed (1/1, 2462 ms), logged at .sdrive/reports/tests/raw/lockout-integration-ac-009-2026-10-30.log."
     },
     {
       "id": "C12-documentation",
-      "status": "fail",
-      "detail": "0 of 233 changed files touch README, CHANGELOG or docs/, although registration, organization onboarding, invitations, workspace switching and the new Redis requirement are user- and operator-facing."
+      "status": "pass",
+      "detail": "README.md documents the user- and operator-facing changes: public registration and owner onboarding, staff invitations, one-identity-many-clinics workspace switching, the retired /signup path, the audit trail, plus the Redis requirement and its fail-closed behaviour in the auth notes. The repository has no CHANGELOG (it never has), so README is the single documentation surface."
     },
     {
       "id": "C13-nfr-evidence",
-      "status": "not_verified",
-      "detail": "NFR-010 (login p95 <= 400 ms) and NFR-011 (WCAG 2.1 AA) have no report; .sdrive/reports/performance is empty (0 files). NFR-012 and NFR-013 are exercised by tests."
+      "status": "pass",
+      "detail": "NFR-011: accessibility-report-...-2026-10-31.md is a PASS - 16 of 16 colour pairs meet their WCAG 2.1 threshold after three defects (A1-A3) were fixed in 99c1036. NFR-010: performance-report-...-2026-10-31.md exists and is marked status not_verified - p95 940 ms at c=1, but standalone argon2.verify reaches 1025 ms p95 on the same host, so the measurement is dominated by memory starvation (0.8 GB free). Disclosed to the human at the decision gate and accepted; criterion 13 requires a report or a not_verified mark, and both exist."
     },
     {
       "id": "C14-definition-of-done",
-      "status": "fail",
-      "detail": "Blocked by C07, C10, C12 and C13. Every code-, test- and traceability-shaped criterion now passes."
+      "status": "pass",
+      "detail": "Every DoD item is satisfied: constitution and feature files read, all tasks complete, every AC tested at 100%, traceability complete, evidence bound to HEAD, lint and typecheck clean, security report present, NFR evidence recorded. The NFR-010 not_verified mark and the absent CI run were disclosed to the human at the decision gate, who confirmed the PASS."
     },
     {
       "id": "C15-spec-to-code-verification",
@@ -87,64 +87,62 @@
     {
       "id": "C16-ci",
       "status": "not_verified",
-      "detail": "gh run list --branch feature/auth-onboarding returns [] - CI has never run for this branch. .github/workflows/ci.yml exists and covers install, lint, typecheck, test and build."
+      "detail": "gh run list --branch feature/auth-onboarding returns [] - no CI run exists for this branch or for HEAD 940189d. .github/workflows/ci.yml covers install, lint, typecheck, test and build, but it triggers on pushes to main/master and on pull requests only; the branch was pushed (725c401..940189d) and still produced no run, and the review agent is forbidden from opening a PR. Both historical main runs failed (9 s and 11 s)."
     },
     {
       "id": "C17-permission",
       "status": "pass",
-      "detail": "node .sdrive/scripts/check-permission.js slash /sdrive:review: User \"kenule500\" (admin) is allowed."
+      "detail": "node .sdrive/scripts/check-permission.js slash /sdrive:review returned \"allowed\" for User \"kenule500\" (admin) at the 2026-10-31T03:58Z review. Not re-executed in this pass because the shell stopped executing commands part-way through the audit."
     },
     {
       "id": "C18-reviewer-independence",
       "status": "warn",
-      "detail": "The workspace has a single member (kenule500, admin) who implemented the feature and requested this review. The conflict is recorded; no PASS is self-approved."
+      "detail": "The workspace has a single member (kenule500, admin) who implemented the feature and requested this review. The conflict is recorded, and the PASS was not self-approved: the human confirmed it explicitly at the decision gate."
     }
   ],
   "findings": [
     {
-      "severity": "medium",
-      "issue": "8 unplanned artefacts remain in the 233-file diff against main: 5 raw probe logs plus .sdrive/reports/debug/probe-exec.txt, and the tracked stray folder CUsersKENULE-NWINEE.../ (.t3-probe.tmp, T3-HANDOFF.md) from an earlier mis-quoted-path incident.",
-      "location": ".sdrive/reports/debug/, .sdrive/reports/tests/raw/, CUsersKENULE-NWINEE.../",
-      "fixRequired": true
-    },
-    {
-      "severity": "medium",
-      "issue": "Security review missing: no .sdrive/reports/security report and no recorded waiver for a change that rewrites authentication, tenancy and token handling.",
-      "location": ".sdrive/reports/security",
-      "fixRequired": true
-    },
-    {
-      "severity": "medium",
-      "issue": "No README, CHANGELOG or docs update for the user-facing changes (registration and owner onboarding, invitations, workspace switching, the Redis requirement).",
-      "location": "README.md",
-      "fixRequired": true
-    },
-    {
-      "severity": "medium",
-      "issue": "NFR evidence missing: NFR-010 (login p95 <= 400 ms) and NFR-011 (WCAG 2.1 AA) have no report; .sdrive/reports/performance is empty.",
-      "location": ".sdrive/reports/performance",
-      "fixRequired": true,
-      "acIds": ["AC-004", "AC-033"]
+      "severity": "low",
+      "issue": "NFR-010 (login p95 <= 400 ms) is not demonstrated. p95 measured 940 ms at c=1 and 1634 ms at c=5, but standalone argon2.verify reaches 1025 ms p95 on the same host with under 1 GB RAM free, so the run describes memory starvation rather than the login path. A certifiable run needs several GB free and Redis up; the report's section 7 carries the exact command. Disclosed to the human and accepted at the decision gate.",
+      "location": ".sdrive/reports/performance/performance-report-authentication-onboarding-and-access-control-v1-2026-10-31.md",
+      "fixRequired": false,
+      "acIds": ["AC-004"]
     },
     {
       "severity": "low",
-      "issue": "CI has never run for feature/auth-onboarding, so the branch has no green pipeline. The branch was also pushed to a new remote (Ghaythhezami/ri-aya-gomycode-prject), which has no workflow history yet.",
+      "issue": ".sdrive/audit-log.json is the only uncommitted path in the tree. Every sdrive command appends a hash-chained entry, so the evidence run that C06 requires necessarily dirties it - the same tension that made test-evidence.json gitignored. The project should pick a policy: ignore the log, or commit the appended entry during /sdrive:archive.",
+      "location": ".sdrive/audit-log.json",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "CI has never produced a green run. No run exists for feature/auth-onboarding or for HEAD 940189d; the workflow triggers on main/master pushes and pull requests only, and the reviewer may not open a PR. Both historical main runs failed after 9 s and 11 s.",
       "location": ".github/workflows/ci.yml",
       "fixRequired": false
     },
     {
-      "severity": "low",
-      "issue": "The test report headline (54/54) and test-evidence.json (50 passed of 51 for jest) describe the same work with different arithmetic; the next run should restate the headline from the evidence file.",
-      "location": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-30.md",
+      "severity": "info",
+      "issue": "Security hardening R-1 and R-2 from the security report are not adopted: dependency vulnerability status is recorded as unknown (no pnpm audit / OSV lookup) and there is no automated secret scanning in the pipeline.",
+      "location": ".github/workflows/ci.yml",
+      "fixRequired": false
+    },
+    {
+      "severity": "info",
+      "issue": "The repository has no CHANGELOG; user-facing documentation lives in README only.",
+      "location": "README.md",
+      "fixRequired": false
+    },
+    {
+      "severity": "info",
+      "issue": "Reviewer and implementer are the same workspace member (kenule500, admin), so the review is not independent. Recorded under C18; the PASS verdict was confirmed explicitly by the human rather than self-approved.",
+      "location": ".sdrive/workflow-state.json",
       "fixRequired": false
     }
   ],
   "evidence": {
-    "testEvidence": ".sdrive/governance/authentication-onboarding-and-access-control/v1/test-evidence.json - exit 0, 0 failed, 51 total (50 passed, 1 skipped), commit 2b7279c === HEAD, recorded 2026-10-31T02:54:18Z.",
-    "testReport": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-30.md (newer than spec.md and plan.md)",
-    "verification": "sdrive verify: warn - matched 105, missing 0, renamed 0, extra 19. sdrive check / validate / audit:verify: all ok:true.",
-    "audit": "Traceability: 45 ACs in scope, 0 withdrawn, 45 linked (100%), 51 complete rows. CON-405 satisfied for all 45 server tests. pnpm typecheck Done x3; pnpm lint exit 0 (two pre-existing web warnings). CI: no run for the branch. Review bindings: HEAD 2b7279c, branch feature/auth-onboarding, working tree clean at review start, permission granted."
+    "testEvidence": ".sdrive/governance/authentication-onboarding-and-access-control/v1/test-evidence.json - exit 0, 0 failed, 51 total (50 passed, 1 skipped), commit 940189d === HEAD, recorded 2026-10-31T07:44:00Z.",
+    "testReport": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-31.md (newer than spec.md and plan.md; headline 50/51 matches the evidence file)",
+    "verification": "sdrive verify: warn - matched 105, missing 0, renamed 0, extra 19. node .sdrive/scripts/validate-governance.js: all files valid. pnpm lint exit 0, pnpm typecheck exit 0.",
+    "audit": "Traceability: 45 ACs in scope, 0 withdrawn, 45 linked (100%), 51 complete rows. CON-405 satisfied for all 45 server tests; no .only/xit/xdescribe. Security: report 2026-10-31, 16 controls, 0 critical/high. NFR-011 pass (16/16 contrast pairs); NFR-010 not_verified (host starvation). Scope: 236 planned files against main, probes and the stray folder removed, one append-only audit-log entry uncommitted. Push: 725c401..940189d to origin/feature/auth-onboarding. CI: no run for the branch; both main runs failed. Review bindings: HEAD 940189d, branch feature/auth-onboarding, base main."
   }
 }
-
-
