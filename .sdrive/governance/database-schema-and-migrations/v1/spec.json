@@ -1,0 +1,224 @@
+{
+  "feature": "database-schema-and-migrations",
+  "title": "Database Schema and Migrations",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The database models the platform's access layer but none of its work. User, Organization, Clinic, UserMembership, Invitation, AuditLog, RefreshToken and PasswordResetToken exist, while patients, doctors and appointments - the entities BP-015 to BP-019 depend on - do not. There is no ERD, no clinical seed and no declared index strategy, so the later scheduling features would invent tables, demos would need hand-made data, and the two hot access paths (a doctor's day, a patient's history) would be written against an unindexed table.",
+    "proposedSolution": "Model the clinical core - Patient, Doctor and Appointment with an AppointmentStatus enum - every row scoped to a Clinic, with the relations and cascade rules the later features need. Add the two indexes those access paths require, (doctorId, startsAt) and (patientId). Ship the change as a forward-only, additive Prisma migration. Add an idempotent seed producing 3 clinics, 10 doctors, 200 patients and 600 appointments of fictional data, and write an ERD that matches the models.",
+    "targetAudience": "The teams building BP-015 to BP-019 whose plans name these tables and fields; anyone running the demo who needs a realistic dataset without real patient data; CI and reviewers who need migrate deploy to be one repeatable step.",
+    "assumptions": [
+      "Doctors are staff: a Doctor is a clinic-scoped profile row that may link to a User through userId, not a second identity system.",
+      "Patients never authenticate in this version; the Patient table has no credentials.",
+      "Scheduling semantics belong to BP-018 and BP-019. This feature defines startsAt, endsAt and status but not availability rules, conflict detection or transitions.",
+      "No new dependency: the seed ships a small deterministic generator instead of adding a faker package.",
+      "Timestamps are stored UTC; clinic-local rendering is BP-013.",
+      "The existing 20261028235000_init_tenancy migration is already applied in development and must not be edited."
+    ],
+    "outOfScope": [
+      "Availability, working hours, breaks, leave and slot generation (BP-018).",
+      "Appointment booking rules, conflict detection and the status state machine (BP-019).",
+      "Queue ordering and the Redis sorted set (BP-029/BP-030).",
+      "Patient portal, patient authentication and patient-facing APIs.",
+      "Billing tables (BP-036) and analytics views (BP-034).",
+      "A production data-import path; the seed is development-only (CON-506)."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "A schema later features can build on",
+      "role": "developer starting BP-015 to BP-019",
+      "want": "the clinical entities already modelled and scoped",
+      "benefit": "my feature adds behaviour instead of inventing tables",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given the Prisma schema, when I read it, then Patient, Doctor and Appointment exist, each carrying clinicId with a foreign key to Clinic, and Appointment relates to both Patient and Doctor."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given an empty database, when prisma migrate deploy runs, then every migration applies in order without manual intervention and the clinical tables exist."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Append-only migration on a live database",
+      "role": "maintainer",
+      "want": "the schema change to be additive",
+      "benefit": "an existing database keeps its data when the migration is applied",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-003",
+          "text": "Given a database already holding the tenancy data, when the new migration is applied, then no existing table is dropped or truncated and no existing row is lost."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given the migrations have been applied, when they are applied again, then Prisma reports no pending migrations and exits 0."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "The indexes the access paths need",
+      "role": "developer",
+      "want": "the two declared indexes to exist",
+      "benefit": "a doctor's day and a patient's history are lookups rather than scans",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given the migrated schema, when I inspect Appointment's indexes, then one covers (doctorId, startsAt) and one covers (patientId)."
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "A realistic, fictional dataset",
+      "role": "demo owner",
+      "want": "one idempotent command to produce believable data",
+      "benefit": "I can demo scheduling without real patient information",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-006",
+          "text": "Given an empty database, when the seed runs, then it creates 3 clinics, 10 doctors, 200 patients and 600 appointments."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given the seed has run once, when it runs again, then the row counts are unchanged and no duplicate rows are created."
+        },
+        {
+          "id": "AC-008",
+          "text": "Given the seeded rows, when I inspect them, then every patient and doctor uses fictional details and no real personal data is present."
+        }
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "A diagram that matches the code",
+      "role": "reviewer",
+      "want": "an ERD that matches the models",
+      "benefit": "I can check a later plan against one picture",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-009",
+          "text": "Given the repository, when I open the ERD, then it documents every clinical model - Patient, Doctor, Appointment - and their relations to Clinic and to each other."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The schema MUST define Patient, clinic-scoped (clinicId FK to Clinic), with name, date of birth, phone, optional email and optional gender, plus createdAt and updatedAt.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The schema MUST define Doctor, clinic-scoped, with an optional userId link to User, a specialty, an optional licence number, a consultation duration in minutes and an isActive flag.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-003",
+      "text": "The schema MUST define Appointment, clinic-scoped, holding patientId, doctorId, startsAt, endsAt, a status of an AppointmentStatus enum, an optional reason and createdAt/updatedAt, with relations to both Patient and Doctor.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-004",
+      "text": "The change MUST be delivered as a new Prisma migration that is additive only: it MUST NOT drop or truncate an existing table, and it MUST NOT modify the already-applied init_tenancy migration.",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-003", "AC-004"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "prisma migrate deploy MUST complete on an empty database in under 60 seconds without manual steps, so CI can run it unattended.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "The new migration MUST be forward-only and additive, so it can be applied to a populated database without a backfill.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "The seed MUST complete in under 60 seconds and MUST be safe to re-run at any time. (CON-519)",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "Every clinical table MUST carry clinicId and a foreign key to Clinic, so tenant scoping is a schema guarantee rather than an application convention. (CON-516)",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "The seed is interrupted halfway.",
+      "expectedBehavior": "A re-run completes the remaining rows without duplicating the ones already written, because each entity upserts on a natural key."
+    },
+    {
+      "id": "EC-002",
+      "description": "Two patients in one clinic share a phone number.",
+      "expectedBehavior": "Allowed; the seeding natural key includes the clinic and the person index, not the phone."
+    },
+    {
+      "id": "EC-003",
+      "description": "An appointment endsAt precedes startsAt.",
+      "expectedBehavior": "Rejected by the seed generator; Prisma cannot express the check, so BP-019 must enforce it on write and the spec records the gap."
+    },
+    {
+      "id": "EC-004",
+      "description": "A Doctor row references a User who is deleted.",
+      "expectedBehavior": "userId is SetNull, so the clinic's doctor record survives the identity being removed."
+    },
+    {
+      "id": "EC-005",
+      "description": "A Clinic is deleted while it has patients.",
+      "expectedBehavior": "Deletion is blocked by the foreign key (restrict), so clinical data cannot be orphaned silently."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Prisma",
+      "type": "library",
+      "notes": "Already present and in use; this feature adds models and one migration."
+    },
+    {
+      "name": "PostgreSQL",
+      "type": "service",
+      "notes": "Already required; the migration targets it."
+    },
+    {
+      "name": "Deterministic generator (inline)",
+      "type": "internal",
+      "notes": "No faker package is added; the seed ships a small seeded PRNG so re-runs produce identical data."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "A migration that rewrites an existing table locks it and fails on a populated database.",
+      "mitigation": "Additive-only DDL with no table rewrite; AC-003 proves existing rows survive."
+    },
+    {
+      "id": "RISK-002",
+      "description": "The seed duplicates rows on a second run and inflates the demo dataset.",
+      "mitigation": "Upsert on a natural key per entity, with AC-007 asserting the counts are stable."
+    },
+    {
+      "id": "RISK-003",
+      "description": "The indexes exist but a later feature queries differently and never uses them.",
+      "mitigation": "The two indexes are named in FR-005 and verified by AC-005; BP-015 and BP-019 plans must cite them."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Fictional seed data drifts into being treated as real.",
+      "mitigation": "Emails use @riaya.local and example.org, names come from a fixed fictional list, and CON-506 is restated in the seed header."
+    },
+    {
+      "id": "RISK-005",
+      "description": "endsAt > startsAt cannot be expressed in Prisma, so invalid rows become possible later.",
+      "mitigation": "EC-003 records the gap and assigns enforcement to BP-019 instead of pretending the schema covers it."
+    }
+  ]
+}

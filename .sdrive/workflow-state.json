@@ -170,6 +170,141 @@
           ]
         }
       ]
+    },
+    {
+      "name": "database-schema-and-migrations",
+      "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+      "base": "main",
+      "productItems": ["BP-002"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "api-skeleton-and-ci",
+      "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+      "base": "main",
+      "productItems": ["BP-003"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "design-tokens-and-component-library",
+      "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+      "base": "main",
+      "productItems": ["BP-006"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "realtime-service",
+      "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+      "base": "main",
+      "productItems": ["BP-031"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "shared-package",
+      "branch": "feature/bp-045",
+      "base": "main",
+      "productItems": ["BP-045"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            }
+          ]
+        }
+      ]
     }
   ],
   "onboarding": {
