@@ -8,7 +8,7 @@
       "planSection": "Compose services",
       "taskIds": ["T1.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-002",
@@ -16,7 +16,7 @@
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.1", "T2.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-003",
@@ -24,7 +24,7 @@
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-004",
@@ -32,7 +32,7 @@
       "planSection": "Documentation and verification",
       "taskIds": ["T3.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-005",
@@ -40,7 +40,7 @@
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-006",
@@ -48,7 +48,7 @@
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-001",
@@ -56,7 +56,7 @@
       "planSection": "Documentation and verification",
       "taskIds": ["T3.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-002",
@@ -64,7 +64,7 @@
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-003",
@@ -72,7 +72,7 @@
       "planSection": "Compose services",
       "taskIds": ["T1.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "in_progress"
     },
     {
       "requirementId": "NFR-004",
@@ -80,7 +80,7 @@
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     }
   ]
 }

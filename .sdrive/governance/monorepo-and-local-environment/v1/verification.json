@@ -1,0 +1,299 @@
+{
+  "feature": "monorepo-and-local-environment",
+  "status": "fail",
+  "checkedAt": "2026-10-31T11:46:41.951Z",
+  "summary": {
+    "matched": 4,
+    "missing": 6,
+    "renamed": 1,
+    "extra": 36
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "docker-compose.yml",
+        "action": "modify",
+        "file": "docker-compose.yml"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/.env.example",
+        "action": "reuse",
+        "file": "backoffice/eslint.config.js"
+      },
+      {
+        "type": "dependency",
+        "name": "MongoDB 7",
+        "action": "add",
+        "depType": "service"
+      },
+      {
+        "type": "dependency",
+        "name": "Docker Compose",
+        "action": "no_change",
+        "depType": "service"
+      }
+    ],
+    "missing": [
+      {
+        "type": "component",
+        "name": "scripts/setup-env.mjs",
+        "action": "create"
+      },
+      {
+        "type": "component",
+        "name": "package.json",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": "README.md",
+        "action": "modify"
+      },
+      {
+        "type": "component",
+        "name": ".gitignore",
+        "action": "reuse"
+      },
+      {
+        "type": "component",
+        "name": "web/.env.example",
+        "action": "reuse"
+      },
+      {
+        "type": "dependency",
+        "name": "Node.js node:fs",
+        "action": "no_change",
+        "depType": "library"
+      }
+    ],
+    "renamed": [
+      {
+        "type": "component",
+        "name": "server/.env.example",
+        "action": "modify",
+        "to": "server/eslint.config.mjs",
+        "file": "server/eslint.config.mjs"
+      }
+    ],
+    "extra": [
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/signup",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/signup",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/login",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/login",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/refresh",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/refresh",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/logout",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/auth/me",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/auth/me",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/auth/memberships",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/auth/memberships",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/switch-workspace",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/switch-workspace",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/change-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/change-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/forgot-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/forgot-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/reset-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/reset-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/health",
+        "file": "server/src/health/health.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/health",
+        "file": "server/src/health/health.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/register",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/register",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/auth/accept-invite",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/accept-invite",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/organizations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/organizations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/memberships/:id/suspend",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id/suspend",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/users",
+        "file": "server/src/users/users.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/users",
+        "file": "server/src/users/users.controller.ts"
+      }
+    ]
+  }
+}

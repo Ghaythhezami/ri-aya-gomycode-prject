@@ -16,6 +16,7 @@
     "lint": "pnpm -r --if-present run lint",
     "test": "pnpm -r --if-present run test",
     "typecheck": "pnpm -r --if-present run typecheck",
+    "setup": "node scripts/setup-env.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "seed": "pnpm --filter server seed",

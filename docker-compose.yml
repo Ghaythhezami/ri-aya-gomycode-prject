@@ -32,6 +32,21 @@ services:
     volumes:
       - riaya_redisdata:/data
 
+  mongo:
+    image: mongo:7
+    container_name: riaya-mongo
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - riaya_mongodata:/data/db
+
 volumes:
   riaya_pgdata:
   riaya_redisdata:
+  riaya_mongodata:

@@ -16,32 +16,45 @@ Languages: English, Arabic (RTL), French.
 
 ## Quick start
 
-1. **Start PostgreSQL and Redis**
-   ```bash
-   docker compose up -d
-   ```
+**Prerequisites:** Node.js 20 LTS, pnpm 10, and a running Docker daemon. Nothing else.
 
-   `REDIS_URL` is required in `server/.env` (see `server/.env.example`). Redis holds the
-   login-attempt counter and the revoked-refresh-token list; when it is unreachable, security
-   paths fail closed while ordinary reads keep serving from PostgreSQL.
-2. **Install dependencies**
-   ```bash
-   pnpm install
-   ```
-3. **Configure environment**
-   ```bash
-   cp server/.env.example server/.env
-   cp web/.env.example web/.env
-   cp backoffice/.env.example backoffice/.env
-   ```
-4. **Seed development users**
-   ```bash
-   pnpm --filter server seed
-   ```
-5. **Run all apps**
-   ```bash
-   pnpm dev
-   ```
+```bash
+pnpm install                # 1. dependencies
+pnpm setup                  # 2. writes each package's .env from its .env.example
+docker compose up -d        # 3. PostgreSQL, Redis and MongoDB
+pnpm --filter server seed   # 4. local development users
+pnpm dev                    # 5. web :3000, API :4000 (docs at /api/docs), backoffice :5173
+```
+
+`pnpm setup` copies examples only where `.env` is missing, so it is safe to re-run: it reports
+`created`, `skipped` or `missing example` per package and never overwrites your settings. If your
+`server/.env` predates a key that now exists in `server/.env.example` — `MONGO_URL`, for example —
+add that key by hand; the script deliberately leaves your file alone.
+
+`REDIS_URL` is required in `server/.env` (see `server/.env.example`). Redis holds the
+login-attempt counter and the revoked-refresh-token list; when it is unreachable, security
+paths fail closed while ordinary reads keep serving from PostgreSQL.
+
+### Backing services
+
+| Service    | Image                | Port  | Volume            | Used by                                  |
+| ---------- | -------------------- | ----- | ----------------- | ---------------------------------------- |
+| PostgreSQL | `postgres:16-alpine` | 5432  | `riaya_pgdata`    | Prisma / all application data            |
+| Redis      | `redis:7-alpine`     | 6379  | `riaya_redisdata` | lockout counters, revoked refresh tokens |
+| MongoDB    | `mongo:7`            | 27017 | `riaya_mongodata` | reserved for the realtime wave (BP-031)  |
+
+All three declare healthchecks, so `docker compose ps` shows `healthy` rather than merely
+`running`; they normally reach that state within a minute.
+
+### Troubleshooting
+
+| Symptom                                                               | Cause                                              | Fix                                                                                                                  |
+| --------------------------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `Cannot connect to the Docker daemon`                                 | Docker is not running                              | Start Docker Desktop, then re-run `docker compose up -d`                                                             |
+| `bind: address already in use` for 5432, 6379 or 27017                | Another Postgres/Redis/Mongo already uses the port | Stop that service, or change the published port in `docker-compose.yml` and the matching URL in the package's `.env` |
+| `pnpm setup` prints `skipped` but a key is missing                    | The `.env` was created before that key was added   | Copy the missing key from the same package's `.env.example` (see the note above)                                     |
+| `pnpm setup` prints `missing example`                                 | That package has no `.env.example`                 | Add one; the other packages were still prepared                                                                      |
+| API starts but security paths return `503 SECURITY_STATE_UNAVAILABLE` | Redis is not reachable                             | `docker compose up -d redis` and confirm `healthy`                                                                   |
 
 Then open:
 

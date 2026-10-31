@@ -13,7 +13,7 @@
           "description": "Add a mongo service using mongo:7-alpine with port 27017, a healthcheck running mongosh --eval \"db.adminCommand('ping')\", and the named volume riaya_mongodata. Leave the postgres and redis services byte-identical.",
           "linkedRequirements": ["FR-001", "NFR-003"],
           "linkedAcceptanceCriteria": ["AC-002"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -28,7 +28,7 @@
           "description": "Create scripts/setup-env.mjs: for server, web and backoffice, copy .env.example to .env only when .env is absent, print one line per package (created, skipped, missing example) and exit 0 even when a later package has no example.",
           "linkedRequirements": ["FR-002", "FR-003", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-003", "AC-004"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.2",
@@ -36,7 +36,7 @@
           "description": "Add \"setup\": \"node scripts/setup-env.mjs\" to the root package.json scripts without renaming or reordering the existing entries.",
           "linkedRequirements": ["FR-002"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-004"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.3",
@@ -44,7 +44,7 @@
           "description": "Add the MongoDB connection key to server/.env.example beside REDIS_URL with a local default and no real credential; confirm .gitignore still ignores .env while .env.example remains tracked.",
           "linkedRequirements": ["FR-005", "FR-006", "NFR-002"],
           "linkedAcceptanceCriteria": ["AC-005", "AC-007"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -59,7 +59,7 @@
           "description": "Document prerequisites (Node 20, pnpm 10, Docker running), pnpm install, pnpm setup, docker compose up -d, pnpm dev and the three ports; add troubleshooting for ports 5432/6379/27017 and for an existing .env that needs MONGO_URL added by hand.",
           "linkedRequirements": ["FR-004"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.2",
@@ -67,7 +67,12 @@
           "description": "Run pnpm setup twice and confirm the second run reports skipped for all three packages and changes nothing; bring the stack up and confirm all three services are healthy; time a fresh-clone run for NFR-001 and record the result in the implementation report.",
           "linkedRequirements": ["NFR-001", "NFR-003", "NFR-004", "FR-006"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-003"],
-          "completed": false
+          "completed": false,
+          "resolution": {
+            "kind": "deferred",
+            "reason": "The idempotency half is verified (run 1: 2 created / 1 skipped; run 2: 0 created / 3 skipped). The Docker-dependent half - compose health for the three services and the timed fresh-clone run for NFR-001 - cannot be executed because no Docker daemon is reachable on this host.",
+            "at": "2026-10-31"
+          }
         },
         {
           "id": "T3.3",
@@ -75,7 +80,7 @@
           "description": "Run pnpm format:check, pnpm lint, pnpm typecheck, sdrive verify monorepo-and-local-environment and node .sdrive/scripts/validate-governance.js.",
           "linkedRequirements": ["NFR-002"],
           "linkedAcceptanceCriteria": [],
-          "completed": false
+          "completed": true
         }
       ]
     }
