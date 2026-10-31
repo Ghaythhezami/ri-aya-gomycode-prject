@@ -7,7 +7,7 @@
       "acceptanceCriteriaIds": ["AC-002"],
       "planSection": "Compose services",
       "taskIds": ["T1.1"],
-      "testIds": [],
+      "testIds": ["TEST-001"],
       "status": "complete"
     },
     {
@@ -15,7 +15,7 @@
       "acceptanceCriteriaIds": ["AC-001", "AC-003", "AC-004"],
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.1", "T2.2"],
-      "testIds": [],
+      "testIds": ["TEST-002", "TEST-003"],
       "status": "complete"
     },
     {
@@ -23,7 +23,7 @@
       "acceptanceCriteriaIds": ["AC-003", "AC-004"],
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.1"],
-      "testIds": [],
+      "testIds": ["TEST-002", "TEST-003"],
       "status": "complete"
     },
     {
@@ -31,7 +31,7 @@
       "acceptanceCriteriaIds": ["AC-001", "AC-006"],
       "planSection": "Documentation and verification",
       "taskIds": ["T3.1"],
-      "testIds": [],
+      "testIds": ["TEST-005"],
       "status": "complete"
     },
     {
@@ -39,7 +39,7 @@
       "acceptanceCriteriaIds": ["AC-007"],
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.3"],
-      "testIds": [],
+      "testIds": ["TEST-006"],
       "status": "complete"
     },
     {
@@ -47,7 +47,7 @@
       "acceptanceCriteriaIds": ["AC-005"],
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.3"],
-      "testIds": [],
+      "testIds": ["TEST-004"],
       "status": "complete"
     },
     {
@@ -63,7 +63,7 @@
       "acceptanceCriteriaIds": ["AC-005", "AC-007"],
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.3"],
-      "testIds": [],
+      "testIds": ["TEST-004", "TEST-006"],
       "status": "complete"
     },
     {
@@ -79,7 +79,7 @@
       "acceptanceCriteriaIds": ["AC-003"],
       "planSection": "Environment bootstrap and configuration",
       "taskIds": ["T2.1"],
-      "testIds": [],
+      "testIds": ["TEST-002"],
       "status": "complete"
     }
   ]
