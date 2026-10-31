@@ -1,11 +1,11 @@
 {
   "feature": "monorepo-and-local-environment",
-  "status": "fail",
-  "checkedAt": "2026-10-31T11:46:41.951Z",
+  "status": "warn",
+  "checkedAt": "2026-10-31T13:35:05.813Z",
   "summary": {
-    "matched": 4,
-    "missing": 6,
-    "renamed": 1,
+    "matched": 11,
+    "missing": 0,
+    "renamed": 0,
     "extra": 36
   },
   "items": {
@@ -15,6 +15,42 @@
         "name": "docker-compose.yml",
         "action": "modify",
         "file": "docker-compose.yml"
+      },
+      {
+        "type": "component",
+        "name": "scripts/setup-env.mjs",
+        "action": "create",
+        "file": "scripts/setup-env.mjs"
+      },
+      {
+        "type": "component",
+        "name": "package.json",
+        "action": "modify",
+        "file": "package.json"
+      },
+      {
+        "type": "component",
+        "name": "server/.env.example",
+        "action": "modify",
+        "file": "server/.env.example"
+      },
+      {
+        "type": "component",
+        "name": "README.md",
+        "action": "modify",
+        "file": "README.md"
+      },
+      {
+        "type": "component",
+        "name": ".gitignore",
+        "action": "reuse",
+        "file": ".gitignore"
+      },
+      {
+        "type": "component",
+        "name": "web/.env.example",
+        "action": "reuse",
+        "file": "web/.env.example"
       },
       {
         "type": "component",
@@ -33,50 +69,16 @@
         "name": "Docker Compose",
         "action": "no_change",
         "depType": "service"
-      }
-    ],
-    "missing": [
-      {
-        "type": "component",
-        "name": "scripts/setup-env.mjs",
-        "action": "create"
-      },
-      {
-        "type": "component",
-        "name": "package.json",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": "README.md",
-        "action": "modify"
-      },
-      {
-        "type": "component",
-        "name": ".gitignore",
-        "action": "reuse"
-      },
-      {
-        "type": "component",
-        "name": "web/.env.example",
-        "action": "reuse"
       },
       {
         "type": "dependency",
         "name": "Node.js node:fs",
         "action": "no_change",
-        "depType": "library"
+        "depType": "internal"
       }
     ],
-    "renamed": [
-      {
-        "type": "component",
-        "name": "server/.env.example",
-        "action": "modify",
-        "to": "server/eslint.config.mjs",
-        "file": "server/eslint.config.mjs"
-      }
-    ],
+    "missing": [],
+    "renamed": [],
     "extra": [
       {
         "type": "endpoint",

@@ -93,9 +93,9 @@
     },
     {
       "name": "Node.js node:fs",
-      "type": "library",
+      "type": "internal",
       "action": "no_change",
-      "notes": "Built in; the bootstrap adds no package."
+      "notes": "A Node built-in rather than a package, so nothing appears in package.json; the bootstrap adds no dependency."
     }
   ],
   "risks": [

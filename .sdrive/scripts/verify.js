@@ -531,6 +531,23 @@ function detectDependencies() {
   return [...names];
 }
 
+// Plans name components that are not source code and live in no scanned root:
+// README.md, package.json, .gitignore, docker-compose.yml, scripts/*.mjs and the
+// *.env.example files. scanCode() only reads source extensions, so those paths could
+// never match and were reported missing while sitting on disk. An existing path is
+// proof of presence; brace globs are excluded because they name several files.
+function existsOnDisk(name) {
+  const candidate = String(name == null ? '' : name).trim();
+
+  if (!candidate || candidate.includes('{')) return false;
+
+  try {
+    return fs.existsSync(path.join(projectRoot, candidate));
+  } catch (error) {
+    return false;
+  }
+}
+
 function diffPlanAgainstCode(planItems, code) {
   const matched = [];
   const missing = [];
@@ -607,6 +624,9 @@ function diffPlanAgainstCode(planItems, code) {
 
       if (found) {
         matched.push({ ...item, file: found.file });
+      } else if (existsOnDisk(item.name)) {
+        // A real file or directory outside every scanned root (see existsOnDisk).
+        matched.push({ ...item, file: item.name });
       } else {
         // possible rename: same folder or similar name
         const similar = codeComponents.find((c) =>

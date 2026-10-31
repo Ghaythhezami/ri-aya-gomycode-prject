@@ -68,11 +68,11 @@ None. This feature adds no endpoint and changes no request or response shape.
 
 ## 7. Dependencies
 
-| Dependency        | Type    | Action    | Notes                                                        |
-| ----------------- | ------- | --------- | ------------------------------------------------------------ |
-| MongoDB 7         | service | add       | Compose service; no client library is added in this version. |
-| Docker Compose    | service | no_change | Already required by postgres and redis.                      |
-| Node.js `node:fs` | library | no_change | Built in; the bootstrap adds no package.                     |
+| Dependency        | Type     | Action    | Notes                                                        |
+| ----------------- | -------- | --------- | ------------------------------------------------------------ |
+| MongoDB 7         | service  | add       | Compose service; no client library is added in this version. |
+| Docker Compose    | service  | no_change | Already required by postgres and redis.                      |
+| Node.js `node:fs` | internal | no_change | A built-in, not a package; the bootstrap adds no dependency. |
 
 ## 8. Risks
 
