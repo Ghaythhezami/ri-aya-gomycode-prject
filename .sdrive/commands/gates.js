@@ -188,47 +188,6 @@ function headCommit(root) {
   }
 }
 
-// A recorded commit still describes HEAD when nothing OUTSIDE .sdrive/ differs
-// between them. Review records, test evidence, the audit log and workflow state
-// are governance artefacts: committing them moves HEAD without changing the code
-// the evidence describes. Requiring `recorded === HEAD` made review.json
-// impossible to commit at all - a file cannot contain its own commit hash - which
-// left the only satisfiable state an uncommitted tree, forbidden by the archive
-// agent's clean-tree rule. Comparing the two TREES rather than their ancestry also
-// survives a squash merge, where the recorded commit is not an ancestor of HEAD.
-//
-// Any change to source, tests, config or docs still invalidates the record, and a
-// comparison that cannot be performed fails closed (stale).
-function commitStillDescribesHead(root, recorded) {
-  const head = headCommit(root);
-
-  if (!head) return { stale: false, detail: '' };
-  if (!recorded) return { stale: true, detail: 'records no commit' };
-  if (recorded === head) return { stale: false, detail: '' };
-
-  try {
-    execFileSync('git', ['diff', '--quiet', recorded, head, '--', '.', ':(exclude).sdrive'], {
-      cwd: root,
-      stdio: 'ignore',
-    });
-
-    // Exit 0: identical outside .sdrive/.
-    return { stale: false, detail: '' };
-  } catch (error) {
-    if (error.status === 1) {
-      return {
-        stale: true,
-        detail: `describes ${String(recorded).slice(0, 8)}, but source or tests changed since then`,
-      };
-    }
-
-    return {
-      stale: true,
-      detail: `describes ${String(recorded).slice(0, 8)}, which cannot be compared with HEAD`,
-    };
-  }
-}
-
 // Task counts for the implementation gate.
 //
 // A task is one of three things, not two:
@@ -617,13 +576,10 @@ function checkGateRequirements(root, feature, version, gate) {
       }
 
       const head = headCommit(root);
-      const reviewBinding = commitStillDescribesHead(root, reviewJson.commit);
 
-      if (reviewBinding.stale) {
-        blockers.push(`review.json ${reviewBinding.detail} - re-run the review.`);
-      } else if (head && reviewJson.commit !== head) {
-        warnings.push(
-          `review.json was recorded at ${String(reviewJson.commit || 'unknown').slice(0, 8)}, HEAD is ${head.slice(0, 8)}; only governance files (.sdrive/) differ, so the verdict still applies.`,
+      if (head && reviewJson.commit !== head) {
+        blockers.push(
+          `review.json is for commit ${String(reviewJson.commit || 'unknown').slice(0, 8)}, HEAD is ${head.slice(0, 8)} - re-run the review.`,
         );
       }
 
@@ -737,11 +693,11 @@ function checkGateRequirements(root, feature, version, gate) {
         }
 
         if (!policy.allowStale) {
-          const evidenceBinding = commitStillDescribesHead(root, evidence.commit);
+          const head = headCommit(root);
 
-          if (evidenceBinding.stale) {
+          if (head && evidence.commit !== head) {
             blockers.push(
-              `test-evidence.json ${evidenceBinding.detail} - re-run \`sdrive test ${feature.name}\`.`,
+              `test-evidence.json is from commit ${String(evidence.commit || 'unknown').slice(0, 8)}, HEAD is ${head.slice(0, 8)} - re-run \`sdrive test ${feature.name}\`.`,
             );
           }
         }
@@ -807,5 +763,4 @@ module.exports = {
   collectEffectiveAcceptanceCriteria,
   collectTestedAcceptanceCriteria,
   checkGateRequirements,
-  commitStillDescribesHead,
 };

@@ -158,14 +158,7 @@ function parseBacklog(markdown) {
 //   "BP-002 to BP-003"       -> ids ["BP-002", "BP-003"]
 function parseDependencyCell(raw) {
   const text = String(raw == null ? '' : raw).trim();
-
-  // A cell carrying no letter or digit is a placeholder, not a dependency:
-  // `—`, `–`, `-`, `--`, and also the mojibake `â€”` produced when a UTF-8 file is
-  // decoded as Latin-1 (that is what the backlog actually contains). Matching
-  // specific dash characters is not enough: `188b42c` fixed one spelling, and a
-  // later framework re-sync restored the narrower test, which made the whole
-  // `start` wave unstartable because BP-001 read as "outside blocker: â€”".
-  if (!text || !/[A-Za-z0-9]/.test(text)) return { ids: [], external: [] };
+  if (!text || /^[-—–]+$/.test(text)) return { ids: [], external: [] };
 
   const ids = [];
   const external = [];

@@ -20,23 +20,23 @@ const MILESTONE_SELECTOR = /^(?:wave|w|m|milestone)(\d+)$/i;
 const PRIORITY_SELECTOR = /^p(\d+)$/i;
 const ID_SELECTOR = /^bp-(\d{3})$/i;
 const BATCH_SELECTOR = /^b(\d+)$/i;
-const STATUS_WORDS = new Set(["backlog", "deferred", "ongoing", "completed", "needs-discovery"]);
+const STATUS_WORDS = new Set(['backlog', 'deferred', 'ongoing', 'completed', 'needs-discovery']);
 // What kind of work a backlog row is. A `decision` produces no test and a `release` step
 // cannot run until the build lands, so neither can pass a coverage gate - excluding them at
 // selection time is far cheaper than discovering it at archive time.
-const KIND_WORDS = new Set(["build", "decision", "release"]);
+const KIND_WORDS = new Set(['build', 'decision', 'release']);
 
 // A row that cannot start without something from outside the repository: marked
 // `needs discovery` / `deferred`, or its dependency cell names access that must be granted.
-const GATED_STATUS = new Set(["needs-discovery", "deferred"]);
+const GATED_STATUS = new Set(['needs-discovery', 'deferred']);
 const GATED_DEPENDENCY = /access|discovery|partner|credential|onboarding|approval|agreement/i;
 
 function toKebab(value) {
-  return String(value == null ? "" : value)
+  return String(value == null ? '' : value)
     .toLowerCase()
     .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
 }
 
 // One word → one selector, or null when the word is not a selector.
@@ -46,32 +46,32 @@ function toKebab(value) {
 // backlog and they do not always agree - in a product plan where M5 holds three crates the
 // dependency wave may be 1 - so conflating them silently matched the wrong items.
 function selectorFor(word) {
-  const text = String(word || "").trim();
+  const text = String(word || '').trim();
   if (!text) return null;
 
   const wave = text.match(/^(?:wave|w)(\d+)$/i);
-  if (wave) return { kind: "wave", value: Number(wave[1]) };
+  if (wave) return { kind: 'wave', value: Number(wave[1]) };
 
   const milestone = text.match(/^(?:milestone|m)(\d+)$/i);
-  if (milestone) return { kind: "milestone", value: Number(milestone[1]) };
+  if (milestone) return { kind: 'milestone', value: Number(milestone[1]) };
 
   const priority = text.match(PRIORITY_SELECTOR);
-  if (priority) return { kind: "priority", value: Number(priority[1]) };
+  if (priority) return { kind: 'priority', value: Number(priority[1]) };
 
   const id = text.match(ID_SELECTOR);
-  if (id) return { kind: "id", value: `BP-${id[1]}` };
+  if (id) return { kind: 'id', value: `BP-${id[1]}` };
 
   const batch = text.match(BATCH_SELECTOR);
-  if (batch) return { kind: "batch", value: `b${Number(batch[1])}` };
+  if (batch) return { kind: 'batch', value: `b${Number(batch[1])}` };
 
   const asKind = text.toLowerCase();
-  if (KIND_WORDS.has(asKind)) return { kind: "kind", value: asKind };
+  if (KIND_WORDS.has(asKind)) return { kind: 'kind', value: asKind };
 
-  const status = text.toLowerCase().replace(/\s+/g, "-");
-  if (STATUS_WORDS.has(status)) return { kind: "status", value: status };
+  const status = text.toLowerCase().replace(/\s+/g, '-');
+  if (STATUS_WORDS.has(status)) return { kind: 'status', value: status };
 
-  if (text.startsWith("@") && text.length > 1) {
-    return { kind: "tag", value: text.slice(1).toLowerCase() };
+  if (text.startsWith('@') && text.length > 1) {
+    return { kind: 'tag', value: text.slice(1).toLowerCase() };
   }
 
   return null;
@@ -79,7 +79,7 @@ function selectorFor(word) {
 
 // `[ ... ]` is a group; `[` is required on both ends to avoid guessing at half-syntax.
 function parseExpression(raw) {
-  const text = String(raw == null ? "" : raw).trim();
+  const text = String(raw == null ? '' : raw).trim();
   const wrapped = /^\[(.*)\]$/.exec(text);
 
   if (!wrapped) return { isGroup: false, expression: null };
@@ -88,33 +88,33 @@ function parseExpression(raw) {
 }
 
 function classifySegment(segment) {
-  const words = String(segment || "")
+  const words = String(segment || '')
     .trim()
     .split(/\s+/)
     .filter(Boolean);
 
-  if (words.length === 0) return { kind: "empty", words };
+  if (words.length === 0) return { kind: 'empty', words };
 
   const selectors = words.map(selectorFor);
 
   // Every word must be a selector, otherwise the segment is a name. This is what keeps
   // `video call` a feature name and makes `wave1 p2` a query.
   if (selectors.every(Boolean)) {
-    return { kind: "query", words, selectors };
+    return { kind: 'query', words, selectors };
   }
 
-  return { kind: "name", words, name: words.join(" ") };
+  return { kind: 'name', words, name: words.join(' ') };
 }
 
 function splitSegments(expression) {
-  return String(expression || "")
-    .split(",")
+  return String(expression || '')
+    .split(',')
     .map((segment) => segment.trim())
     .filter(Boolean);
 }
 
 function milestoneNumber(cell) {
-  const match = String(cell || "").match(/(\d+)/);
+  const match = String(cell || '').match(/(\d+)/);
   return match ? Number(match[1]) : null;
 }
 
@@ -123,7 +123,7 @@ function milestoneNumber(cell) {
 // `waveN` selector uses that value when it is present and falls back to the milestone
 // number only for a backlog that has not been annotated.
 function waveValue(row) {
-  if (row && row.wave !== undefined && row.wave !== null && String(row.wave).trim() !== "") {
+  if (row && row.wave !== undefined && row.wave !== null && String(row.wave).trim() !== '') {
     const wave = Number(row.wave);
     if (Number.isFinite(wave)) return wave;
   }
@@ -132,20 +132,27 @@ function waveValue(row) {
 }
 
 function priorityNumber(cell) {
-  const match = String(cell || "").match(/(\d+)/);
+  const match = String(cell || '').match(/(\d+)/);
   return match ? Number(match[1]) : null;
 }
 
 function rowMatchesSelector(row, selector) {
-  if (selector.kind === "wave") return waveValue(row) === selector.value;
-  if (selector.kind === "milestone") return milestoneNumber(row.milestone) === selector.value;
-  if (selector.kind === "priority") return priorityNumber(row.priority) === selector.value;
-  if (selector.kind === "kind") return toKebab(row.kind) === selector.value;
-  if (selector.kind === "batch") return toKebab(row.batch) === selector.value;
-  if (selector.kind === "id") return String(row.id).toUpperCase() === selector.value;
-  if (selector.kind === "status") return toKebab(row.status) === selector.value;
+  if (selector.kind === 'wave') return waveValue(row) === selector.value;
+  if (selector.kind === 'milestone') return milestoneNumber(row.milestone) === selector.value;
+  if (selector.kind === 'priority') return priorityNumber(row.priority) === selector.value;
+  if (selector.kind === 'kind') {
+    // A row with no `Kind` column is a build. That is the documented default, and it is what
+    // keeps `[w2 p1 build]` usable on a backlog nobody has relabelled - otherwise the filter
+    // would silently exclude every unlabelled row.
+    const kind = toKebab(row.kind) || 'build';
 
-  if (selector.kind === "tag") {
+    return kind === selector.value;
+  }
+  if (selector.kind === 'batch') return toKebab(row.batch) === selector.value;
+  if (selector.kind === 'id') return String(row.id).toUpperCase() === selector.value;
+  if (selector.kind === 'status') return toKebab(row.status) === selector.value;
+
+  if (selector.kind === 'tag') {
     const tags = Array.isArray(row.tags) ? row.tags.map(toKebab) : [];
     return tags.includes(selector.value);
   }
@@ -154,13 +161,13 @@ function rowMatchesSelector(row, selector) {
 }
 
 function selectorLabel(selector) {
-  if (selector.kind === "wave") return `wave${selector.value}`;
-  if (selector.kind === "milestone") return `m${selector.value}`;
-  if (selector.kind === "priority") return `p${selector.value}`;
-  if (selector.kind === "kind") return selector.value;
-  if (selector.kind === "batch") return selector.value;
-  if (selector.kind === "status") return selector.value;
-  if (selector.kind === "tag") return `@${selector.value}`;
+  if (selector.kind === 'wave') return `wave${selector.value}`;
+  if (selector.kind === 'milestone') return `m${selector.value}`;
+  if (selector.kind === 'priority') return `p${selector.value}`;
+  if (selector.kind === 'kind') return selector.value;
+  if (selector.kind === 'batch') return selector.value;
+  if (selector.kind === 'status') return selector.value;
+  if (selector.kind === 'tag') return `@${selector.value}`;
   return selector.value;
 }
 
@@ -183,10 +190,10 @@ function isGated(row) {
       : [row.externalDependencies]),
     row.depends,
     row.dependencies,
-    row.external
+    row.external,
   ]
-    .filter((value) => value !== undefined && value !== null && value !== "")
-    .join(" ");
+    .filter((value) => value !== undefined && value !== null && value !== '')
+    .join(' ');
 
   return GATED_DEPENDENCY.test(dependencyText);
 }
@@ -196,15 +203,15 @@ function rowToCandidate(row) {
     id: row.id,
     title: row.feature || row.title || row.id,
     name: toKebab(row.feature || row.title || row.id),
-    milestone: row.milestone || "",
-    priority: row.priority || "",
-    status: row.status || "",
-    kind: row.kind || "",
+    milestone: row.milestone || '',
+    priority: row.priority || '',
+    status: row.status || '',
+    kind: row.kind || '',
     batch: toKebab(row.batch),
     // Carried so a declared batch can be checked for "all members in one wave" - members
     // from different waves can never be ready at the same time.
     wave: waveValue(row),
-    gated: isGated(row)
+    gated: isGated(row),
   };
 }
 
@@ -231,7 +238,7 @@ function describeAvailable(backlog) {
     waves: [...waves].sort((a, b) => a - b),
     milestones: [...milestones].sort((a, b) => a - b),
     priorities: [...priorities].sort((a, b) => a - b),
-    statuses: [...statuses].sort()
+    statuses: [...statuses].sort(),
   };
 }
 
@@ -245,11 +252,11 @@ function singleBatch(expression) {
 
   const classified = classifySegment(segments[0]);
 
-  if (classified.kind !== "query" || classified.selectors.length !== 1) return null;
+  if (classified.kind !== 'query' || classified.selectors.length !== 1) return null;
 
   const [selector] = classified.selectors;
 
-  return selector.kind === "batch" ? selector.value : null;
+  return selector.kind === 'batch' ? selector.value : null;
 }
 
 // Resolves a group expression against parsed backlog rows (product-plan.parseBacklog).
@@ -275,13 +282,11 @@ function resolveGroup({ expression, backlog }) {
   for (const segment of segments) {
     const classified = classifySegment(segment);
 
-    if (classified.kind === "empty") continue;
+    if (classified.kind === 'empty') continue;
 
-    if (classified.kind === "name") {
+    if (classified.kind === 'name') {
       const name = toKebab(classified.name);
-      const row = (backlog || []).find(
-        (entry) => toKebab(entry.feature || entry.title) === name
-      );
+      const row = (backlog || []).find((entry) => toKebab(entry.feature || entry.title) === name);
 
       names.push(name);
 
@@ -291,15 +296,15 @@ function resolveGroup({ expression, backlog }) {
           id: null,
           title: classified.name,
           name,
-          milestone: "",
-          priority: "",
-          status: "",
-          kind: "",
-          batch: "",
+          milestone: '',
+          priority: '',
+          status: '',
+          kind: '',
+          batch: '',
           wave: null,
           // A name with no backlog row has no declared dependency, so it cannot be flagged
           // as gated - the user is naming it directly, which is already a decision.
-          gated: false
+          gated: false,
         });
       }
 
@@ -307,11 +312,11 @@ function resolveGroup({ expression, backlog }) {
     }
 
     const hits = (backlog || []).filter((row) =>
-      classified.selectors.every((selector) => rowMatchesSelector(row, selector))
+      classified.selectors.every((selector) => rowMatchesSelector(row, selector)),
     );
 
     if (hits.length === 0) {
-      emptyQueries.push(classified.selectors.map(selectorLabel).join(" "));
+      emptyQueries.push(classified.selectors.map(selectorLabel).join(' '));
       continue;
     }
 
@@ -329,7 +334,7 @@ function resolveGroup({ expression, backlog }) {
     // The subset a shared branch cannot afford: one gated member holds the whole group,
     // because the branch merges only when every member passes review.
     gated: matched.filter((item) => item.gated),
-    available: describeAvailable(backlog)
+    available: describeAvailable(backlog),
   };
 }
 
@@ -351,14 +356,16 @@ function checkGroupShareable(resolved, options = {}) {
       blockers.push(
         `${gated.length} of ${matched.length} selected item(s) cannot start without access from outside the repository (${gated
           .map((item) => item.id || item.name)
-          .join(", ")}). A shared branch merges only when every member passes review, so these would hold the whole group. Use one branch each, exclude them with --exclude-gated, or confirm the access first.`
+          .join(
+            ', ',
+          )}). A shared branch merges only when every member passes review, so these would hold the whole group. Use one branch each, exclude them with --exclude-gated, or confirm the access first.`,
       );
     }
   }
 
   if (matched.length > maxFeatures) {
     warnings.push(
-      `${matched.length} features on one branch means ${matched.length * 2} approval stops, and one failure freezes all of them. Consider splitting the wave.`
+      `${matched.length} features on one branch means ${matched.length * 2} approval stops, and one failure freezes all of them. Consider splitting the wave.`,
     );
   }
 
@@ -377,7 +384,7 @@ function checkBatch(resolved, options = {}) {
   const warnings = [];
 
   if (matched.length === 0) {
-    return { ok: false, blockers: ["The batch selects no items."], warnings };
+    return { ok: false, blockers: ['The batch selects no items.'], warnings };
   }
 
   const gated = matched.filter((item) => item.gated);
@@ -386,44 +393,129 @@ function checkBatch(resolved, options = {}) {
     blockers.push(
       `${gated.length} member(s) need access from outside the repository (${gated
         .map((item) => item.id || item.name)
-        .join(", ")}). A batch lands atomically, so the whole branch waits on them.`
+        .join(', ')}). A batch lands atomically, so the whole branch waits on them.`,
     );
   }
 
-  const notBuild = matched.filter((item) => item.kind && item.kind !== "build");
+  const notBuild = matched.filter((item) => item.kind && item.kind !== 'build');
 
   if (notBuild.length > 0) {
     blockers.push(
       `${notBuild.length} member(s) are not builds (${notBuild
         .map((item) => `${item.id || item.name}: ${item.kind}`)
-        .join(", ")}). A decision has no test to pass and a release cannot run before the batch lands, so neither can clear review.`
+        .join(
+          ', ',
+        )}). A decision has no test to pass and a release cannot run before the batch lands, so neither can clear review.`,
     );
   }
 
   const waves = [...new Set(matched.map((item) => item.wave))].filter(
-    (wave) => wave !== null && wave !== undefined
+    (wave) => wave !== null && wave !== undefined,
   );
 
   if (waves.length > 1) {
     blockers.push(
       `Members span ${waves.length} waves (${waves
         .map((wave) => `w${wave}`)
-        .join(", ")}). A batch must be one wave, or its members can never all be ready at once.`
+        .join(', ')}). A batch must be one wave, or its members can never all be ready at once.`,
     );
   }
 
   if (matched.length > maxFeatures) {
     warnings.push(
-      `${matched.length} members means ${matched.length * 2} approval stops, and one failure freezes all of them.`
+      `${matched.length} members means ${matched.length * 2} approval stops, and one failure freezes all of them.`,
     );
   }
 
   return { ok: blockers.length === 0, blockers, warnings };
 }
 
+// Which branch topologies can actually finish?
+//
+// The resolver used to hand the agent a set and a verdict, and the agent then invented
+// options — which is how a deadlocked topology ("one shared branch for all four") got
+// offered as a choice. This returns only what can reach archive:
+//
+//   1. a non-build member cannot pass a review gate in ANY topology, so it is never a
+//      feature: it is excluded, with the reason.
+//   2. a gated member (access outside the repository) makes a shared branch unarchivable
+//      until that access exists, so it is only offered on its own branch.
+//   3. everything else may share a branch, which merges once when every member is ready.
+function topologies(resolved) {
+  const matched = (resolved && resolved.matched) || [];
+  const builds = matched.filter((item) => !item.kind || item.kind === 'build');
+  const nonBuilds = matched.filter((item) => item.kind && item.kind !== 'build');
+  const gated = builds.filter((item) => item.gated);
+  const clean = builds.filter((item) => !item.gated);
+
+  const names = (items) => items.map((item) => item.id || item.name).join(', ');
+  const options = [];
+
+  if (clean.length >= 2) {
+    options.push({
+      id: 'shared-clean',
+      ok: true,
+      label:
+        `One shared branch for ${clean.length} (${names(clean)})` +
+        (gated.length > 0 ? `, and a separate branch for ${names(gated)}` : ''),
+      shared: clean.map((item) => item.id || item.name),
+      separate: gated.map((item) => item.id || item.name),
+      note: 'The shared branch merges once, when every member passes review.',
+    });
+  }
+
+  if (builds.length > 1) {
+    options.push({
+      id: 'shared-all-builds',
+      ok: gated.length === 0,
+      label: `One shared branch for all ${builds.length} builds (${names(builds)})`,
+      reasons:
+        gated.length > 0
+          ? [
+              `${gated.length} gated member(s) (${names(
+                gated,
+              )}) would hold the merge until that access is granted.`,
+            ]
+          : [],
+      shared: builds.map((item) => item.id || item.name),
+      separate: [],
+      note: 'The shared branch merges once, when every member passes review.',
+    });
+  }
+
+  if (builds.length > 1) {
+    options.push({
+      id: 'per-feature',
+      ok: true,
+      label: `One branch per item (${names(builds)})`,
+      reasons: [],
+      shared: [],
+      separate: builds.map((item) => item.id || item.name),
+      note: 'Independent merges: a stalled item blocks nobody.',
+    });
+  }
+
+  return {
+    options,
+    // Members for which no topology helps, stated rather than quietly dropped.
+    excluded: nonBuilds.map((item) => ({
+      item: item.id || item.name,
+      kind: item.kind,
+      reason:
+        item.kind === 'decision'
+          ? 'A decision has no test to pass, so it cannot clear review. Record it in the plan, or give it testable criteria (a decision record that must exist and name the choice).'
+          : 'A release step runs after the merge, so it cannot be gated by the merge it belongs to.',
+    })),
+  };
+}
+
 // `feature/wave1-p2` from `wave1 p2`; the user can always override it at propose time.
+// Segments are deduped: `[BP-011, BP-011, BP-017]` is the same set as `[BP-011, BP-017]`, and
+// the suggestion should not advertise a duplicate.
 function suggestBranchName(expression) {
-  return toKebab(String(expression || "").replace(/,/g, " ")) || "wave";
+  const unique = [...new Set(splitSegments(expression))];
+
+  return toKebab(unique.join(' ').replace(/,/g, ' ')) || 'wave';
 }
 
 module.exports = {
@@ -442,5 +534,6 @@ module.exports = {
   checkGroupShareable,
   checkBatch,
   singleBatch,
-  suggestBranchName
+  topologies,
+  suggestBranchName,
 };
