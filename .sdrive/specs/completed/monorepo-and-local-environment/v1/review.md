@@ -4,7 +4,7 @@ feature: monorepo-and-local-environment
 version: v1
 branch: feature/BP-001
 base: main
-commit: 9f0a8e687e7ef86850aac89c7e5b2321b33b7d9b
+commit: 1891ff9c675b2fb6b89d0612fd2f34841a348a7e
 reviewedBy: specdrive-review-agent
 reviewedAt: 2026-10-31T14:15:00.000Z
 coverage: 100
@@ -16,7 +16,10 @@ evidence: .sdrive/governance/monorepo-and-local-environment/v1/test-evidence.jso
 ## 1. Audit Summary
 
 - **Status:** ✅ **PASS** — with three items disclosed at the decision gate
-- **Date:** 2026-10-31 · **Commit:** `9f0a8e6` · **Branch/base:** `feature/BP-001` / `main`
+- **Date:** 2026-10-31 · **Commit:** `1891ff9` · **Branch/base:** `feature/BP-001` / `main`
+- **Re-recorded at `1891ff9`** after the CLI refused the gate: the reviewed tree at `9f0a8e6` and
+  this one differ only under `.sdrive/` (a framework patch restore and these review artifacts), so
+  the audit below is unchanged. Evidence and this record are now both bound to `1891ff9`.
 - **Reviewer:** `specdrive-review-agent` via `/sdrive:review` — **not independent**: the single
   workspace member (`kenule500`, admin) implemented and requested this review. Recorded under C18;
   the PASS was confirmed explicitly by the human at the decision gate.
@@ -36,7 +39,7 @@ evidence: .sdrive/governance/monorepo-and-local-environment/v1/test-evidence.jso
 
 | Evidence         | Path / command                                                                      | Result                                                                       |
 | ---------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Test evidence    | `.sdrive/governance/…/v1/test-evidence.json`                                        | exit **0**, 0 failed, `commit 9f0a8e6 === HEAD`, `testIds TEST-001…TEST-007` |
+| Test evidence    | `.sdrive/governance/…/v1/test-evidence.json`                                        | exit **0**, 0 failed, `commit 1891ff9 === HEAD`, `testIds TEST-001…TEST-007` |
 | Test report      | `.sdrive/reports/tests/test-report-monorepo-and-local-environment-v1-2026-10-31.md` | 7/7 passed, 100 % coverage                                                   |
 | Tests            | `node --test test/monorepo-and-local-environment/*.test.mjs`                        | **7 passed, 0 failed**                                                       |
 | Verification     | `sdrive verify monorepo-and-local-environment`                                      | **warn** — matched 11, missing 0, renamed 0, extra 36                        |

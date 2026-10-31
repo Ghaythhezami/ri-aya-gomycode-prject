@@ -2,7 +2,7 @@
   "feature": "monorepo-and-local-environment",
   "version": "v1",
   "status": "PASS",
-  "commit": "9f0a8e687e7ef86850aac89c7e5b2321b33b7d9b",
+  "commit": "1891ff9c675b2fb6b89d0612fd2f34841a348a7e",
   "base": "main",
   "branch": "feature/BP-001",
   "reviewedBy": "specdrive-review-agent",
@@ -37,7 +37,7 @@
     {
       "id": "C06-test-evidence",
       "status": "pass",
-      "detail": "test-evidence.json: exitCode 0, summary.failed 0, commit 9f0a8e6 equals HEAD, branch feature/BP-001, recorded 2026-10-31T14:10:11Z. summary counts are 0 because the recorder cannot parse node:test TAP, so results are carried by testIds TEST-001 through TEST-007, which is the route the gate itself names."
+      "detail": "test-evidence.json: exitCode 0, summary.failed 0, commit 1891ff9 equals HEAD, branch feature/BP-001, recorded 2026-10-31T14:25:04Z. summary counts are 0 because the recorder cannot parse node:test TAP, so results are carried by testIds TEST-001 through TEST-007, which is the route the gate itself names."
     },
     {
       "id": "C07-change-scope",
@@ -139,9 +139,9 @@
     }
   ],
   "evidence": {
-    "testEvidence": ".sdrive/governance/monorepo-and-local-environment/v1/test-evidence.json - exit 0, 0 failed, commit 9f0a8e6 === HEAD, testIds TEST-001 through TEST-007, recorded 2026-10-31T14:10:11Z.",
+    "testEvidence": ".sdrive/governance/monorepo-and-local-environment/v1/test-evidence.json - exit 0, 0 failed, commit 1891ff9 === HEAD, testIds TEST-001 through TEST-007, recorded 2026-10-31T14:25:04Z.",
     "testReport": ".sdrive/reports/tests/test-report-monorepo-and-local-environment-v1-2026-10-31.md - 7/7 passed, 100% coverage, newer than spec.md and plan.md.",
     "verification": "sdrive verify: warn - matched 11, missing 0, renamed 0, extra 36. sdrive check / validate / audit:verify: exit 0. pnpm lint exit 0, pnpm typecheck exit 0, prettier clean on the feature's files.",
-    "audit": "Scope: 33 planned files against main. Stack: docker compose up -d in 71.1 s, postgres/redis/mongo all healthy. Dev ports: 3000, 4000 and [::1]:5173 verified manually. Coverage: 7/7 ACs, 0 withdrawn. CI: no run for the branch. Review bindings: HEAD 9f0a8e6, branch feature/BP-001, base main."
+    "audit": "Scope: 33 planned files against main. Stack: docker compose up -d in 71.1 s, postgres/redis/mongo all healthy. Dev ports: 3000, 4000 and [::1]:5173 verified manually. Coverage: 7/7 ACs, 0 withdrawn. CI: no run for the branch. Review bindings: HEAD 1891ff9, branch feature/BP-001, base main. The record was re-cut at 1891ff9 because the CLI requires the reviewed commit to equal HEAD; the tree differs from 9f0a8e6 only under .sdrive/."
   }
 }
