@@ -100,8 +100,8 @@
           "phase": "backlog",
           "currentStep": "planning",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
+            "specification": "approved",
+            "planning": "approved",
             "implementation": "pending",
             "review": "pending"
           },
@@ -125,6 +125,20 @@
               "event": "plan-and-tasks-drafted",
               "by": "specification-agent",
               "timestamp": "2026-10-31T00:00:00.000Z"
+            },
+            {
+              "event": "specification_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-10-31T11:37:17.344Z"
+            },
+            {
+              "event": "planning_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-10-31T11:37:18.870Z"
             }
           ]
         }
