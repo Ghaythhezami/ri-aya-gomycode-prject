@@ -48,9 +48,9 @@ export function AcceptInvitePage() {
   if (!token) {
     return (
       <div className="mx-auto max-w-md px-6 py-16 text-center">
-        <h1 className="text-xl font-semibold text-[#172B4D]">{t('invite.missingTitle')}</h1>
-        <p className="mt-2 text-sm text-[#697586]">{t('invite.missingBody')}</p>
-        <Link className="mt-6 inline-block text-[#0F766E] underline" to="/login">
+        <h1 className="text-xl font-semibold text-text">{t('invite.missingTitle')}</h1>
+        <p className="mt-2 text-sm text-muted">{t('invite.missingBody')}</p>
+        <Link className="mt-6 inline-block text-primary underline" to="/login">
           {t('auth.signIn')}
         </Link>
       </div>
@@ -60,9 +60,9 @@ export function AcceptInvitePage() {
   if (expired) {
     return (
       <div className="mx-auto max-w-md px-6 py-16 text-center">
-        <h1 className="text-xl font-semibold text-[#172B4D]">{t('invite.expiredTitle')}</h1>
-        <p className="mt-2 text-sm text-[#697586]">{t('invite.expiredBody')}</p>
-        <Link className="mt-6 inline-block text-[#0F766E] underline" to="/login">
+        <h1 className="text-xl font-semibold text-text">{t('invite.expiredTitle')}</h1>
+        <p className="mt-2 text-sm text-muted">{t('invite.expiredBody')}</p>
+        <Link className="mt-6 inline-block text-primary underline" to="/login">
           {t('invite.requestNew')}
         </Link>
       </div>
@@ -71,8 +71,8 @@ export function AcceptInvitePage() {
 
   return (
     <div className="mx-auto max-w-md px-6 py-16">
-      <h1 className="text-2xl font-semibold text-[#172B4D]">{t('invite.title')}</h1>
-      <p className="mt-1 text-sm text-[#697586]">{t('invite.subtitle')}</p>
+      <h1 className="text-2xl font-semibold text-text">{t('invite.title')}</h1>
+      <p className="mt-1 text-sm text-muted">{t('invite.subtitle')}</p>
 
       <form className="mt-6 space-y-4" onSubmit={submit}>
         <Field label={t('register.firstName')}>
@@ -92,7 +92,7 @@ export function AcceptInvitePage() {
         </Field>
 
         {error && (
-          <p role="alert" className="text-sm text-[#DC2626]">
+          <p role="alert" className="text-sm text-error">
             {error}
           </p>
         )}

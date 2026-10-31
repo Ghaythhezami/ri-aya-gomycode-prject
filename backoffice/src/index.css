@@ -7,11 +7,12 @@
   --color-bg: #f7f9fc;
   --color-surface: #ffffff;
   --color-text: #172b4d;
-  --color-muted: #697586;
+  --color-muted: #64707f;
   --color-border: #e5eaf0;
+  --color-border-strong: #7b8698;
   --color-success: #16a34a;
   --color-warning: #f59e0b;
-  --color-error: #dc2626;
+  --color-error: #c81e1e;
   --color-accent: #ddf6f3;
   --font-sans: Inter, 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif;
   --radius-md: 12px;
