@@ -56,7 +56,7 @@
     "scripts/lib/audit-chain.js": "sha256:172f86ccd715455bdfb3181ea0e9255c2a75e4dc186439ec463a21cbae285a11",
     "scripts/lib/governance-paths.js": "sha256:be41734952d8e4ab515beeaa34de915413a2fef772d6da1241f56a14fc7f53c3",
     "scripts/lib/group.js": "sha256:d9c94addc6b52125fb8d8c84683af882b8f2c86b4e9cabd70dc879938c378d59",
-    "scripts/lib/product-plan.js": "sha256:4dd11cae9e683c9b88c8f3fff572320662ec55d15bd734910f61ff47e8a3545a",
+    "scripts/lib/product-plan.js": "sha256:d7f640765ae36c7dcbe9d64f6a604576f51902eab9f9bfed028683521571a886",
     "scripts/lib/resolution.js": "sha256:657d9e5777441dad2d3520b054fb17d90d0ea9fb9b958250219dedeaaa329cf2",
     "scripts/lib/tool-registry.js": "sha256:dcc734fd5e6852e99bd720e7ccd8fb1e5c85eebee585851a69f3b7107b262668",
     "scripts/load-plugins.js": "sha256:a4caca190626eaa4aad2d9140da4a956b0e17fdcf7054044b5f8cd659cc18974",
