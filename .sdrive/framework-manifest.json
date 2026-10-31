@@ -20,7 +20,7 @@
     "agents/15-debug.md": "sha256:0e11eacd14c1960558e1d46d041da466052b6b02c03857ab562fcdb000965978",
     "agents/16-worktree.md": "sha256:a1fca940cf67250359384f20d0b18591921157d2aeab9f84f424e10ebd52da50",
     "commands/archive.js": "sha256:4d49e8651ebb4661a58b17486820954c1a5125722370b3b8041a1ce6f2b31077",
-    "commands/gates.js": "sha256:12d05944f10d289ae34ca3cf4a6d0924fff442595abec3b23bedc2831e909ed3",
+    "commands/gates.js": "sha256:789c4ba9739c3108a53870788ea3a528e11495bb927279811a744d7824a5097a",
     "commands/manifest.json": "sha256:dba79a984a828152ad675b580e0f3ccf3f0871ff12c760658aef6b582d811b70",
     "commands/permissions.json": "sha256:04d5191bfdd4c8de1a833f231eae69747b1d377534804dfda546155ef6e4ac57",
     "commands/router.js": "sha256:ec5235b45ab56f4bd5136b356b1066913435a31a497f725ba2305e9525c87e3f",

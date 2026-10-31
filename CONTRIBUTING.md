@@ -139,3 +139,29 @@ This project uses **SpecDrive**. Before starting a feature:
 4. Use `/sdrive:review` before merging.
 
 Stop at every human approval gate the SpecDrive agents define.
+
+### Local SpecDrive customisations
+
+`/sdrive:archive` (and `sdrive sync`) re-installs the framework and **overwrites any file
+whose hash no longer matches `.sdrive/framework-manifest.json`**. Two files here are
+deliberately modified, so after any CLI upgrade:
+
+1. Re-apply or verify the customisation.
+2. Write its current hash into `framework-manifest.json` under `files` — otherwise the next
+   sync treats it as stale and restores the stock version.
+
+| File                        | Why it is customised                                                                                                                                                                                                                                                                       |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.sdrive/scripts/verify.js` | Adds NestJS decorator detection, `.prisma` and the `backoffice`/`web` roots. Stock scans `server` only, which drops verification to 4 matched / 101 missing.                                                                                                                               |
+| `.sdrive/commands/gates.js` | `commitStillDescribesHead()` compares the recorded commit's **tree** with HEAD, ignoring `.sdrive/`. Stock compares `commit === HEAD`, which makes `review.json` impossible to commit (a file cannot contain its own hash) and leaves archiving only satisfiable with an uncommitted tree. |
+
+Changing either stops the gate from doing what it was patched to do:
+
+```bash
+node --test .sdrive/test/gates-binding.test.js   # 7 tests: governance-only commit is valid,
+                                                 # source/test change is stale, bad input fails closed
+sdrive verify authentication-onboarding-and-access-control   # expect 105 matched, 0 missing
+```
+
+`test-evidence.json` is git-ignored on purpose: committing it would move HEAD and make the
+evidence it records stale by definition.
