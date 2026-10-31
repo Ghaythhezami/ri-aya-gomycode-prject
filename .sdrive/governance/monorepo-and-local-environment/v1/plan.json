@@ -1,0 +1,115 @@
+{
+  "feature": "monorepo-and-local-environment",
+  "version": 1,
+  "architecture": {
+    "approach": "The stack already works, so this plan adds one service, one script, one configuration key and one document rather than restructuring anything. MongoDB is declared now because BP-031 needs it and a declared service is cheaper than a discovered gap; no application code reads it in this version. The bootstrap is a Node script because Windows is a first-class developer environment here and Node 20 is already a prerequisite, so a second toolchain is not introduced. .env.example stays the single source of values: the bootstrap copies examples and never synthesises a credential.",
+    "components": [
+      {
+        "name": "docker-compose.yml",
+        "action": "modify",
+        "description": "Add a mongo service (mongo:7-alpine, port 27017, healthcheck, named volume riaya_mongodata) beside the existing postgres and redis services, leaving both untouched."
+      },
+      {
+        "name": "scripts/setup-env.mjs",
+        "action": "create",
+        "description": "Idempotent bootstrap: for server, web and backoffice, copy .env.example to .env only when .env is absent; report created, skipped or missing example per package; exit 0."
+      },
+      {
+        "name": "package.json",
+        "action": "modify",
+        "description": "Add the root script \"setup\": \"node scripts/setup-env.mjs\" without renaming or reordering existing scripts."
+      },
+      {
+        "name": "server/.env.example",
+        "action": "modify",
+        "description": "Document the MongoDB connection key beside REDIS_URL with a local default and no real credential."
+      },
+      {
+        "name": "README.md",
+        "action": "modify",
+        "description": "Rewrite the quick start around pnpm setup and add troubleshooting for the Docker prerequisite and the default ports."
+      },
+      {
+        "name": ".gitignore",
+        "action": "reuse",
+        "description": "Already ignores .env while keeping .env.example tracked; verified, not changed."
+      },
+      {
+        "name": "web/.env.example",
+        "action": "reuse",
+        "description": "Exists and is consumed by the bootstrap as-is."
+      },
+      {
+        "name": "backoffice/.env.example",
+        "action": "reuse",
+        "description": "Exists and is consumed by the bootstrap as-is."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004"
+    ]
+  },
+  "dataModel": {
+    "entities": [],
+    "flowDescription": "No schema change: prisma/schema.prisma is untouched and the MongoDB service stores nothing in this version. Flow: pnpm install, pnpm setup creates the three .env files, docker compose up -d brings postgres, redis and mongo to healthy, pnpm dev serves web on 3000, the API on 4000 and the backoffice on 5173."
+  },
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-002",
+      "description": "Only .env.example files are committed (CON-519, CON-504, CON-505). The bootstrap writes .env files that .gitignore already excludes, copies example values verbatim and never generates or stores a credential; no .env is ever opened by the tooling (CON-502, CON-503)."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-001",
+      "strategy": "The five-minute target is measured once on the documented prerequisites with a warm image cache and recorded as evidence; if the run disagrees, the README claim is corrected rather than the measurement."
+    },
+    {
+      "requirementId": "NFR-003",
+      "strategy": "Every compose service declares a healthcheck, so readiness is a real signal rather than container start, and the 60-second expectation is observable with docker compose ps."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "MongoDB 7",
+      "type": "service",
+      "action": "add",
+      "notes": "Compose service only; no client library is added in this version."
+    },
+    {
+      "name": "Docker Compose",
+      "type": "service",
+      "action": "no_change",
+      "notes": "Already required by the postgres and redis services."
+    },
+    {
+      "name": "Node.js node:fs",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Built in; the bootstrap adds no package."
+    }
+  ],
+  "risks": [
+    {
+      "description": "Developers with an existing server/.env never receive the new MongoDB key.",
+      "mitigation": "The bootstrap reports skipped files and the README names the key to add by hand (EC-003)."
+    },
+    {
+      "description": "A third container makes local startup feel slower.",
+      "mitigation": "Healthchecks on every service and the documented 60-second expectation (NFR-003)."
+    },
+    {
+      "description": "The five-minute claim drifts into marketing.",
+      "mitigation": "NFR-001 records one timed run and the README is corrected if it disagrees."
+    }
+  ]
+}

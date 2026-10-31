@@ -98,7 +98,7 @@
         {
           "id": "v1",
           "phase": "backlog",
-          "currentStep": "specification",
+          "currentStep": "planning",
           "gates": {
             "specification": "pending",
             "planning": "pending",
@@ -113,6 +113,16 @@
             },
             {
               "event": "specification-drafted",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T00:00:00.000Z"
+            },
+            {
+              "event": "gate-specification-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-31T00:00:00.000Z"
+            },
+            {
+              "event": "plan-and-tasks-drafted",
               "by": "specification-agent",
               "timestamp": "2026-10-31T00:00:00.000Z"
             }
