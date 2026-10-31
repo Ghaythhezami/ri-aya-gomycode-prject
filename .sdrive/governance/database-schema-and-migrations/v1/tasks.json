@@ -1,0 +1,99 @@
+{
+  "feature": "database-schema-and-migrations",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Schema and migration",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Add the clinical models and indexes to the Prisma schema",
+          "description": "Add Patient, Doctor, Appointment and the AppointmentStatus enum to server/prisma/schema.prisma. Every table carries clinicId with a FK to Clinic; Appointment declares @@index([doctorId, startsAt]) and @@index([patientId]). The eight existing models are left untouched.",
+          "linkedRequirements": ["FR-001", "FR-002", "FR-003", "FR-005", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-005"],
+          "completed": false
+        },
+        {
+          "id": "T1.2",
+          "title": "Generate the additive migration and read the emitted SQL",
+          "description": "Run prisma migrate dev --name clinical_core, then read the generated migration.sql. Stop if it contains DROP or TRUNCATE, and confirm it does not touch the applied 20261028235000_init_tenancy migration.",
+          "linkedRequirements": ["FR-004", "NFR-002"],
+          "linkedAcceptanceCriteria": ["AC-002", "AC-003"],
+          "completed": false
+        },
+        {
+          "id": "T1.3",
+          "title": "Confirm the indexes and migration idempotency",
+          "description": "Check that both indexes appear in the emitted SQL, and that a second prisma migrate deploy reports no pending migrations.",
+          "linkedRequirements": ["FR-005", "FR-004"],
+          "linkedAcceptanceCriteria": ["AC-004", "AC-005"],
+          "completed": false
+        },
+        {
+          "id": "T1.4",
+          "title": "Extend the in-memory Prisma double",
+          "description": "Add the three clinical collections and their query surface to server/src/database/memory-prisma.ts so the in-memory path the API tests use matches schema.prisma.",
+          "linkedRequirements": ["FR-001", "FR-002", "FR-003"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Seed",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Seed the clinical dataset deterministically and idempotently",
+          "description": "Extend server/src/database/seeds/seed.ts with an inline fixed-seed generator and upserts producing exactly 3 clinics, 10 doctors, 200 patients and 600 appointments, clinic-scoped and fictional. No new package is added.",
+          "linkedRequirements": ["FR-006", "FR-007", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-007", "AC-008"],
+          "completed": false
+        },
+        {
+          "id": "T2.2",
+          "title": "Guard the seed against non-development databases",
+          "description": "Read DATABASE_URL from the environment only and refuse to run when NODE_ENV=production. Restate the CON-506 local-fixtures-only warning in the file header.",
+          "linkedRequirements": ["NFR-003", "FR-007"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Documentation and verification",
+      "dependencies": ["P1", "P2"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Write the ERD",
+          "description": "Create server/prisma/ERD.md with a Mermaid erDiagram covering Patient, Doctor and Appointment, their relations to Clinic and to each other, and the two indexes.",
+          "linkedRequirements": ["FR-008"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": false
+        },
+        {
+          "id": "T3.2",
+          "title": "Record the migration and seed evidence",
+          "description": "Run prisma migrate deploy twice and confirm the second reports no pending migrations; run the seed twice and confirm the counts stay 3/10/200/600. Record both results in the implementation report.",
+          "linkedRequirements": ["NFR-001", "NFR-002", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-002", "AC-003", "AC-004", "AC-006", "AC-007"],
+          "completed": false
+        },
+        {
+          "id": "T3.3",
+          "title": "Run the verification gates",
+          "description": "Run pnpm format:check on the changed files, pnpm lint, pnpm typecheck, sdrive verify database-schema-and-migrations, and node .sdrive/scripts/validate-governance.js.",
+          "linkedRequirements": ["NFR-001"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
