@@ -1,0 +1,64 @@
+{
+  "nfr": "NFR-010",
+  "requirement": "A login request MUST complete within 400 ms p95 under normal load.",
+  "mode": "load",
+  "nodeEnv": "test",
+  "cacheBackend": "memory",
+  "throttle": "test: login 1000/min (throttleLimit override under NODE_ENV=test)",
+  "endpoint": "POST /api/auth/login (http://127.0.0.1:61858/api/auth/login)",
+  "node": "v24.20.0",
+  "platform": "win32 x64",
+  "commit": "afbf1cee64401b06c11613af145f921a76983ef7",
+  "branch": "feature/auth-onboarding",
+  "recordedAt": "2026-10-31T04:02:27.048Z",
+  "levels": [
+    {
+      "concurrency": 1,
+      "requests": 50,
+      "errorCount": 0,
+      "statuses": {
+        "201": 50
+      },
+      "wallMs": 17643,
+      "throughputPerSec": 2.8,
+      "p50": 240.2,
+      "p90": 624.4,
+      "p95": 940.5,
+      "p99": 1308.6,
+      "max": 1308.6,
+      "min": 138.7
+    },
+    {
+      "concurrency": 5,
+      "requests": 100,
+      "errorCount": 0,
+      "statuses": {
+        "201": 100
+      },
+      "wallMs": 19691.8,
+      "throughputPerSec": 5.1,
+      "p50": 833.2,
+      "p90": 1518,
+      "p95": 1634.3,
+      "p99": 2092.5,
+      "max": 2552.7,
+      "min": 403.5
+    },
+    {
+      "concurrency": 20,
+      "requests": 200,
+      "errorCount": 0,
+      "statuses": {
+        "201": 200
+      },
+      "wallMs": 32849.9,
+      "throughputPerSec": 6.1,
+      "p50": 2413.7,
+      "p90": 6072.1,
+      "p95": 6889.8,
+      "p99": 7719.4,
+      "max": 7875.1,
+      "min": 1379.8
+    }
+  ]
+}
