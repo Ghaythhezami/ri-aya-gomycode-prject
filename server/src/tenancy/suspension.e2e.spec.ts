@@ -95,7 +95,7 @@ describe('Membership suspension (e2e)', () => {
   });
 
   // TEST-018 → AC-022
-  it('kills the suspended member’s existing token immediately', async () => {
+  it('AC-022: kills the suspended member’s existing token immediately', async () => {
     await request(app.getHttpServer())
       .get('/api/auth/me')
       .set('Authorization', `Bearer ${doctorToken}`)
@@ -115,7 +115,7 @@ describe('Membership suspension (e2e)', () => {
   });
 
   // TEST-019 → AC-023
-  it('gives a suspended member no usable scope on a fresh login', async () => {
+  it('AC-023: gives a suspended member no usable scope on a fresh login', async () => {
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'suspend.doctor@riaya.local', password: DOCTOR_PASSWORD })
@@ -130,7 +130,7 @@ describe('Membership suspension (e2e)', () => {
   });
 
   // TEST-020 → AC-022 (FR-029)
-  it('refuses to suspend the organization’s last SUPER_ADMIN', async () => {
+  it('AC-022: refuses to suspend the organization’s last SUPER_ADMIN', async () => {
     const memberships = await request(app.getHttpServer())
       .get('/api/auth/memberships')
       .set('Authorization', `Bearer ${ownerToken}`)

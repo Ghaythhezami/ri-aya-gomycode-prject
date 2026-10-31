@@ -69,7 +69,7 @@ describe('Staff invitations (e2e)', () => {
   });
 
   // TEST-010 → AC-015
-  it('issues an invitation token by email, never in the HTTP response', async () => {
+  it('AC-015: issues an invitation token by email, never in the HTTP response', async () => {
     mail.sendInvitation.mockClear();
     const res = await request(app.getHttpServer())
       .post('/api/invitations')
@@ -86,7 +86,7 @@ describe('Staff invitations (e2e)', () => {
   });
 
   // TEST-011 → AC-016
-  it('grants exactly the invited role on acceptance', async () => {
+  it('AC-016: grants exactly the invited role on acceptance', async () => {
     mail.sendInvitation.mockClear();
     await request(app.getHttpServer())
       .post('/api/invitations')
@@ -112,7 +112,7 @@ describe('Staff invitations (e2e)', () => {
   });
 
   // TEST-012 → AC-017
-  it('rejects a token that was already consumed', async () => {
+  it('AC-017: rejects a token that was already consumed', async () => {
     mail.sendInvitation.mockClear();
     await request(app.getHttpServer())
       .post('/api/invitations')
@@ -135,7 +135,7 @@ describe('Staff invitations (e2e)', () => {
   });
 
   // TEST-013 → AC-017 (FR-031)
-  it('revokes the earlier token when a newer invitation is issued for the same email', async () => {
+  it('AC-017: revokes the earlier token when a newer invitation is issued for the same email', async () => {
     const email = 'invited.reissued@riaya.local';
 
     mail.sendInvitation.mockClear();

@@ -165,4 +165,38 @@ before the evidence run, and expect ~115 s.
 6. `sdrive approve … implementation`, `/sdrive:review` → PASS (human-confirmed),
    `sdrive approve … review`, `/sdrive:archive`.
 
+---
+
+# Update 3 — CON-405 closed (2026-10-30, late)
+
+Every server test name now carries the acceptance-criterion ID, as CON-405 requires.
+39 titles were renamed on top of the 9 that already had one, so all **45** tests in
+`server/src/**/*.spec.ts` are `it('AC-0xx: …')`:
+
+| File | Titles |
+| ---- | ------ |
+| `audit/audit-trail.e2e.spec.ts` | 4 (AC-019 ×3, AC-020) |
+| `auth/signup-retired.e2e.spec.ts` | 3 (AC-045 ×2, AC-043) |
+| `auth/switch-workspace.e2e.spec.ts` | 4 (AC-011, AC-012/024/025, AC-013, AC-014) |
+| `tenancy/registration.e2e.spec.ts` | 6 (AC-001, AC-002, AC-003, AC-018, AC-041, AC-042) |
+| `tenancy/invitations.e2e.spec.ts` | 4 (AC-015, AC-016, AC-017 ×2) |
+| `tenancy/suspension.e2e.spec.ts` | 3 (AC-022 ×2, AC-023) |
+| `tenancy/acceptance-gaps.e2e.spec.ts` | 11 (AC-003/010/021/027/028/030/031/032/037/039/040) |
+| `cache/lockout-persistence.spec.ts` | 1 (AC-009) |
+| `cache/redis-cache.service.spec.ts` | 1 (AC-032) |
+| `common/validators/password-strength.spec.ts` | 2 (AC-027) |
+
+Titles only — no assertion, import or fixture changed, so behaviour is untouched.
+
+**Next:** re-run the finish script (it validates, re-runs both suites, rewrites the report,
+commits the renames, and records fresh evidence bound to the new HEAD), then run the
+review. The review cannot be completed from the session that produced this note: its
+command tool stopped executing, and `/sdrive:review` needs `sdrive check`, `sdrive verify`,
+`sdrive audit:verify`, `git`, and `gh`.
+
+Still open for the review verdict: C10 (no `/sdrive:secure` report), C12 (no README/
+CHANGELOG update), C13 (NFR-010 p95 and NFR-011 WCAG unmeasured), C16 (no CI run for the
+branch), C18 (implementer == reviewer, warn).
+
+
 

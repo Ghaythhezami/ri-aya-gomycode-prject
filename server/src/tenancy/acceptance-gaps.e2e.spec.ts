@@ -82,7 +82,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-034 → AC-003
-  it('reports a duplicate email as a field-level conflict', async () => {
+  it('AC-003: reports a duplicate email as a field-level conflict', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/register')
       .send({
@@ -99,7 +99,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-035 → AC-010
-  it('provisions a second organization without a duplicate identity', async () => {
+  it('AC-010: provisions a second organization without a duplicate identity', async () => {
     const before = await app
       .get(PrismaService)
       .user.findUnique({ where: { email: 'gaps.owner@riaya.local' } });
@@ -120,7 +120,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-036 → AC-027
-  it('rejects a weak password when an invitee sets it', async () => {
+  it('AC-027: rejects a weak password when an invitee sets it', async () => {
     mail.sendInvitation.mockClear();
     await request(app.getHttpServer())
       .post('/api/invitations')
@@ -142,7 +142,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-037 → AC-028
-  it('issues a single-use password reset token', async () => {
+  it('AC-028: issues a single-use password reset token', async () => {
     mail.sendPasswordReset.mockClear();
     const forgot = await request(app.getHttpServer())
       .post('/api/auth/forgot-password')
@@ -168,7 +168,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-038 → AC-030
-  it('revokes other sessions when the password is changed', async () => {
+  it('AC-030: revokes other sessions when the password is changed', async () => {
     const first = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'gaps.owner@riaya.local', password: NEXT_PASSWORD })
@@ -195,7 +195,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-039 → AC-031
-  it('fails login closed when the security state store is unavailable', async () => {
+  it('AC-031: fails login closed when the security state store is unavailable', async () => {
     jest
       .spyOn(app.get(RedisCacheService), 'ttlStrict')
       .mockRejectedValue(
@@ -214,7 +214,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-040 → AC-032
-  it('keeps serving ordinary reads while the security store is degraded', async () => {
+  it('AC-032: keeps serving ordinary reads while the security store is degraded', async () => {
     jest
       .spyOn(app.get(RedisCacheService), 'ttlStrict')
       .mockRejectedValue(new ServiceUnavailableException({ code: 'SECURITY_STATE_UNAVAILABLE' }));
@@ -228,7 +228,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-041 → AC-037
-  it('publishes the auth, invitation and workspace routes in the OpenAPI document', () => {
+  it('AC-037: publishes the auth, invitation and workspace routes in the OpenAPI document', () => {
     const document = SwaggerModule.createDocument(app, new DocumentBuilder().build());
     const paths = Object.keys(document.paths);
 
@@ -239,7 +239,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-042 → AC-039
-  it('declares PostgreSQL and Redis with healthchecks in docker compose', () => {
+  it('AC-039: declares PostgreSQL and Redis with healthchecks in docker compose', () => {
     const compose = readFileSync(join(process.cwd(), '..', 'docker-compose.yml'), 'utf8');
 
     expect(compose).toMatch(/postgres:/);
@@ -248,7 +248,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-043 → AC-021
-  it('preserves audit history when a membership is suspended', async () => {
+  it('AC-021: preserves audit history when a membership is suspended', async () => {
     mail.sendInvitation.mockClear();
     await request(app.getHttpServer())
       .post('/api/invitations')
@@ -282,7 +282,7 @@ describe('Acceptance gaps (e2e)', () => {
   });
 
   // TEST-044 → AC-040
-  it('records a rotated refresh token in the revocation store', async () => {
+  it('AC-040: records a rotated refresh token in the revocation store', async () => {
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'gaps.owner@riaya.local', password: PASSWORD })

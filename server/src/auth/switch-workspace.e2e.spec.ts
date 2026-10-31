@@ -83,7 +83,7 @@ describe('Workspace switching and token scoping (e2e)', () => {
   });
 
   // TEST-014 → AC-013
-  it('carries org_id, clinic_id and role in the access token', () => {
+  it('AC-013: carries org_id, clinic_id and role in the access token', () => {
     const claims = claimsOf(accessToken);
     expect(claims.clinic_id).toBe(firstClinicId);
     expect(claims.role).toBe('SUPER_ADMIN');
@@ -92,7 +92,7 @@ describe('Workspace switching and token scoping (e2e)', () => {
   });
 
   // TEST-015 → AC-011
-  it('re-issues a token scoped to the switched clinic', async () => {
+  it('AC-011: re-issues a token scoped to the switched clinic', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/switch-workspace')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -105,7 +105,7 @@ describe('Workspace switching and token scoping (e2e)', () => {
   });
 
   // TEST-016 → AC-014
-  it('refuses a clinic the caller has no membership in', async () => {
+  it('AC-014: refuses a clinic the caller has no membership in', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/switch-workspace')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -116,7 +116,7 @@ describe('Workspace switching and token scoping (e2e)', () => {
   });
 
   // TEST-017 → AC-012, AC-024, AC-025
-  it('scopes later requests to the switched clinic, ignoring a body clinicId', async () => {
+  it('AC-012 / AC-024 / AC-025: scopes later requests to the switched clinic, ignoring a body clinicId', async () => {
     const switched = await request(app.getHttpServer())
       .post('/api/auth/switch-workspace')
       .set('Authorization', `Bearer ${accessToken}`)

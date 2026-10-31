@@ -57,7 +57,7 @@ describe('Registration and owner onboarding (e2e)', () => {
   });
 
   // TEST-001 → AC-001
-  it('creates identity, organization, first clinic and a SUPER_ADMIN membership', async () => {
+  it('AC-001: creates identity, organization, first clinic and a SUPER_ADMIN membership', async () => {
     const body = newOwner('one');
     const res = await request(app.getHttpServer())
       .post('/api/auth/register')
@@ -77,7 +77,7 @@ describe('Registration and owner onboarding (e2e)', () => {
   });
 
   // TEST-002 → AC-041
-  it('signs the owner in immediately and reports the membership role', async () => {
+  it('AC-041: signs the owner in immediately and reports the membership role', async () => {
     const body = newOwner('two');
     await request(app.getHttpServer()).post('/api/auth/register').send(body).expect(201);
 
@@ -94,7 +94,7 @@ describe('Registration and owner onboarding (e2e)', () => {
   });
 
   // TEST-003 → AC-042
-  it('lists the created clinic as an active SUPER_ADMIN workspace', async () => {
+  it('AC-042: lists the created clinic as an active SUPER_ADMIN workspace', async () => {
     const body = newOwner('three');
     const registered = await request(app.getHttpServer())
       .post('/api/auth/register')
@@ -120,7 +120,7 @@ describe('Registration and owner onboarding (e2e)', () => {
   });
 
   // TEST-004 → AC-002
-  it('persists nothing when registration is rejected', async () => {
+  it('AC-002: persists nothing when registration is rejected', async () => {
     const body = { ...newOwner('four'), password: 'tooweak' };
     await request(app.getHttpServer()).post('/api/auth/register').send(body).expect(400);
 
@@ -129,7 +129,7 @@ describe('Registration and owner onboarding (e2e)', () => {
   });
 
   // TEST-005 → AC-003
-  it('rejects unknown fields instead of ignoring them', async () => {
+  it('AC-003: rejects unknown fields instead of ignoring them', async () => {
     const body = { ...newOwner('five'), role: 'SUPER_ADMIN' };
     const res = await request(app.getHttpServer())
       .post('/api/auth/register')
@@ -140,7 +140,7 @@ describe('Registration and owner onboarding (e2e)', () => {
   });
 
   // TEST-006 → AC-018
-  it('cannot be pointed at an existing clinic', async () => {
+  it('AC-018: cannot be pointed at an existing clinic', async () => {
     const body = { ...newOwner('six'), clinicId: '00000000-0000-4000-8000-000000000001' };
     await request(app.getHttpServer()).post('/api/auth/register').send(body).expect(400);
 

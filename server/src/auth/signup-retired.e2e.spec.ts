@@ -53,7 +53,7 @@ describe('Signup retirement (e2e)', () => {
   };
 
   // TEST-007 → AC-045
-  it('responds 410 Gone with the stable SIGNUP_RETIRED code', async () => {
+  it('AC-045: responds 410 Gone with the stable SIGNUP_RETIRED code', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send(signupBody)
@@ -63,7 +63,7 @@ describe('Signup retirement (e2e)', () => {
   });
 
   // TEST-008 → AC-045
-  it('points the caller at the registration route', async () => {
+  it('AC-045: points the caller at the registration route', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/signup')
       .send({ ...signupBody, email: 'retired.signup2@riaya.local' })
@@ -73,7 +73,7 @@ describe('Signup retirement (e2e)', () => {
   });
 
   // TEST-009 → AC-043
-  it('creates no identity at all — no row is written', async () => {
+  it('AC-043: creates no identity at all — no row is written', async () => {
     await request(app.getHttpServer()).post('/api/auth/signup').send(signupBody).expect(410);
 
     // Asserted directly against the store rather than through a 401: an inactive

@@ -43,7 +43,7 @@ describe('Audit trail (e2e)', () => {
   });
 
   // TEST-021 → AC-019
-  it('records an entry for the organization, the clinic and the membership', async () => {
+  it('AC-019: records an entry for the organization, the clinic and the membership', async () => {
     const body = {
       email: 'audit.owner@riaya.local',
       password: PASSWORD,
@@ -67,7 +67,7 @@ describe('Audit trail (e2e)', () => {
   });
 
   // TEST-022 → AC-019
-  it('captures actor, action and the after-state of the change', async () => {
+  it('AC-019: captures actor, action and the after-state of the change', async () => {
     const logs = await app.get(PrismaService).auditLog.findMany({
       where: { entity: 'organization' },
     });
@@ -81,7 +81,7 @@ describe('Audit trail (e2e)', () => {
   });
 
   // TEST-023 → AC-020
-  it('writes nothing when the mutation is rejected', async () => {
+  it('AC-020: writes nothing when the mutation is rejected', async () => {
     const before = await app.get(PrismaService).auditLog.findMany({});
 
     await request(app.getHttpServer())
@@ -101,7 +101,7 @@ describe('Audit trail (e2e)', () => {
   });
 
   // TEST-024 → AC-019 (scoping)
-  it('scopes clinic entries to their organization and clinic', async () => {
+  it('AC-019: scopes clinic entries to their organization and clinic', async () => {
     const logs = await app.get(PrismaService).auditLog.findMany({ where: { entity: 'clinic' } });
 
     expect(logs.length).toBeGreaterThan(0);

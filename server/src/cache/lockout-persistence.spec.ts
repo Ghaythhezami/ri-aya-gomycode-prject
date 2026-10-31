@@ -57,7 +57,7 @@ async function connectedCache(): Promise<RedisCacheService | null> {
     await cache.onModuleDestroy();
   });
 
-  it('keeps the account locked for a brand-new cache instance', async () => {
+  it('AC-009: keeps the account locked for a brand-new cache instance', async () => {
     const before = new LoginAttemptService(cache);
     await before.clear(email);
 

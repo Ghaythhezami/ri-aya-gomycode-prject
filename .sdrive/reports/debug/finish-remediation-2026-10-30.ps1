@@ -158,7 +158,7 @@ Write-Host "wrote $reportPath  (server pass=$pass fail=$fail skip=$skip, backoff
 Write-Host "`n== 6/6 commit + sdrive test ==" -ForegroundColor Cyan
 git add -A
 git --no-pager diff --cached --shortstat
-git commit --no-verify -m "test(auth): cover AC-009 and align traceability to 45/45"
+git commit --no-verify -m "test(auth): carry the AC id in every server test name"
 if ($LASTEXITCODE -ne 0) { Fail 'commit failed' }
 
 sdrive test $feature --cmd "pnpm --filter server exec jest --runInBand --forceExit --testTimeout=120000 && pnpm --filter backoffice exec vitest run"
