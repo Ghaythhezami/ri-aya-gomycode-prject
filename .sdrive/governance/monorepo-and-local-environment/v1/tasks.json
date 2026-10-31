@@ -70,7 +70,7 @@
           "completed": false,
           "resolution": {
             "kind": "deferred",
-            "reason": "The idempotency half is verified (run 1: 2 created / 1 skipped; run 2: 0 created / 3 skipped). The Docker-dependent half - compose health for the three services and the timed fresh-clone run for NFR-001 - cannot be executed because no Docker daemon is reachable on this host.",
+            "reason": "Idempotency verified (run 1: 2 created / 1 skipped; run 2: 0 created / 3 skipped) and compose health verified after starting the Docker daemon - postgres, redis and mongo all report healthy and compose up took 71.1 s. Only the timed fresh-clone run for NFR-001 is outstanding: the 71.1 s figure measured compose up on a warm image cache, not a clone through pnpm install.",
             "at": "2026-10-31"
           }
         },

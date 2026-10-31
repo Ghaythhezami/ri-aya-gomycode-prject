@@ -71,8 +71,8 @@
       "acceptanceCriteriaIds": ["AC-002"],
       "planSection": "Compose services",
       "taskIds": ["T1.1"],
-      "testIds": [],
-      "status": "in_progress"
+      "testIds": ["TEST-001", "TEST-007"],
+      "status": "complete"
     },
     {
       "requirementId": "NFR-004",
