@@ -1,0 +1,86 @@
+{
+  "feature": "monorepo-and-local-environment",
+  "version": 1,
+  "rows": [
+    {
+      "requirementId": "FR-001",
+      "acceptanceCriteriaIds": ["AC-002"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-002",
+      "acceptanceCriteriaIds": ["AC-001", "AC-003", "AC-004"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-003",
+      "acceptanceCriteriaIds": ["AC-003", "AC-004"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-004",
+      "acceptanceCriteriaIds": ["AC-001", "AC-006"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-005",
+      "acceptanceCriteriaIds": ["AC-007"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-006",
+      "acceptanceCriteriaIds": ["AC-005"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-001",
+      "acceptanceCriteriaIds": ["AC-001"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-002",
+      "acceptanceCriteriaIds": ["AC-005", "AC-007"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-003",
+      "acceptanceCriteriaIds": ["AC-002"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-004",
+      "acceptanceCriteriaIds": ["AC-003"],
+      "planSection": "",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    }
+  ]
+}

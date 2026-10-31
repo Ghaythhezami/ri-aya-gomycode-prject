@@ -1,0 +1,196 @@
+{
+  "feature": "monorepo-and-local-environment",
+  "title": "Monorepo and Local Environment",
+  "version": 1,
+  "overview": {
+    "problemStatement": "A new developer cannot reach a running stack in the five minutes BP-001 promises. docker-compose.yml declares Postgres and Redis but no MongoDB, which the Product Plan's realtime wave (BP-031, BP-032, BP-033) requires, and environment setup is three manual cp commands that fail silently when one is skipped. server/.env.example documents no MongoDB key at all.",
+    "proposedSolution": "Add a health-checked MongoDB service with a named volume beside the existing Postgres and Redis services, add one idempotent root bootstrap script that creates each package's .env from its .env.example only when missing and reports what it did, document the MongoDB key in server/.env.example, and rewrite the README quick start so the documented path is the working path.",
+    "targetAudience": "A developer cloning the repository for the first time on Node 20, pnpm 10 and Docker; the maintainers who add services later; and CI, which must never receive a real secret from the repository.",
+    "assumptions": [
+      "MongoDB is required by the Product Plan even though no current application code connects to it, so the service is declared now.",
+      "The five-minute target is measured on the documented prerequisites from a warm image cache; the first image download is excluded.",
+      "Local credentials stay the committed non-secret defaults; this feature adds no secret.",
+      "Each package keeps its own .env; no shared root .env is introduced.",
+      "The bootstrap runs after pnpm install.",
+      "The backlog row's claim that compose has no Redis is stale - Redis exists; the real gap is MongoDB plus the bootstrap."
+    ],
+    "outOfScope": [
+      "Deployment, infrastructure-as-code and CD pipelines (BP-040).",
+      "The second NestJS realtime runtime and its Mongo schema (BP-031).",
+      "Any application code that reads MongoDB.",
+      "Production secret management.",
+      "Changes to the Prisma schema or migrations."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Clone to running stack in one path",
+      "role": "developer new to the project",
+      "want": "one documented command that prepares my environment",
+      "benefit": "I can start working instead of debugging setup",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given a fresh clone, when I run the documented bootstrap and docker compose up -d, then Postgres, Redis and MongoDB all report healthy and pnpm dev serves web on 3000, the API on 4000 and the backoffice on 5173."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Every service the plan needs is declared",
+      "role": "maintainer",
+      "want": "every backing service declared and health-checked in compose",
+      "benefit": "a later feature cannot discover a missing dependency at runtime",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-002",
+          "text": "Given the compose file, when I inspect the services, then Postgres, Redis and MongoDB each declare a healthcheck and persist to a named volume."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Setup is idempotent and never clobbers my work",
+      "role": "developer",
+      "want": "the bootstrap to leave my existing configuration alone",
+      "benefit": "re-running it after a pull never destroys local settings",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-003",
+          "text": "Given every .env already exists, when the bootstrap runs again, then each file is byte-identical afterwards and the script exits 0."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given one package has no .env, when the bootstrap runs, then it creates that file from its .env.example and reports which files it created and which it skipped."
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Configuration is complete and safe to commit",
+      "role": "maintainer",
+      "want": "the documented configuration to match what the code reads and to contain no secrets",
+      "benefit": "the repository stays safe to share",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given a clone, when I run git ls-files, then no .env is tracked and every .env.example is."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given the README quick start, when I follow it verbatim, then it names all three services, the bootstrap command and the three ports, with no undocumented manual step."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given server/.env.example, when I compare it with the keys the server reads, then every key is present including the MongoDB connection, and no value is a real credential."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "docker-compose.yml MUST declare a MongoDB service (mongo:7) with a healthcheck and a named volume, alongside the existing postgres and redis services.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "FR-002",
+      "text": "A root package script MUST create each package's .env from that package's .env.example when, and only when, the .env is missing.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-003", "AC-004"]
+    },
+    {
+      "id": "FR-003",
+      "text": "The bootstrap MUST NOT modify an existing .env, and MUST report every file it created and every file it skipped.",
+      "linkedAcceptanceCriteria": ["AC-003", "AC-004"]
+    },
+    {
+      "id": "FR-004",
+      "text": "The README quick start MUST document the prerequisites, the bootstrap command, docker compose up -d and the three ports, in the order that actually works.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-006"]
+    },
+    {
+      "id": "FR-005",
+      "text": "server/.env.example MUST document the MongoDB connection key consumed by server configuration.",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    },
+    {
+      "id": "FR-006",
+      "text": ".gitignore MUST continue to ignore every .env file while keeping each .env.example tracked.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "A fresh clone MUST reach a running stack within five minutes on the documented prerequisites, excluding the first Docker image download, and the measured run MUST be recorded with its timing. (CON-519)",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Only .env.example files MAY be committed; no real secret, token or password may appear in any committed file. (CON-519, CON-504, CON-505)",
+      "linkedAcceptanceCriteria": ["AC-005", "AC-007"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "All compose services MUST report healthy within 60 seconds of docker compose up -d on a machine meeting the prerequisites.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "The bootstrap MUST be idempotent: running it repeatedly leaves the working tree unchanged after the first run.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "The Docker daemon is not running.",
+      "expectedBehavior": "The documented step fails with a message naming Docker as the prerequisite, and the README states the check."
+    },
+    {
+      "id": "EC-002",
+      "description": "Port 5432, 6379 or 27017 is already in use.",
+      "expectedBehavior": "The compose error is reported as-is and the README troubleshooting section names the conflicting default ports."
+    },
+    {
+      "id": "EC-003",
+      "description": "An existing .env predates the new MongoDB key.",
+      "expectedBehavior": "The bootstrap leaves it untouched and the README tells the developer which key to add by hand."
+    },
+    {
+      "id": "EC-004",
+      "description": "A package has no .env.example.",
+      "expectedBehavior": "The bootstrap reports the missing example and continues with the other packages instead of failing silently."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "MongoDB 7",
+      "type": "service",
+      "notes": "New compose service, health-checked, named volume riaya_mongodata. Required by BP-031/BP-032/BP-033; no code consumes it yet."
+    },
+    {
+      "name": "Docker Compose",
+      "type": "service",
+      "notes": "Already required by the existing postgres and redis services."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "A third container slows local startup and invites environment drift.",
+      "mitigation": "Healthchecks on all services and a documented 60-second expectation (NFR-003)."
+    },
+    {
+      "id": "RISK-002",
+      "description": "Developers with an existing server/.env never receive the new MongoDB key.",
+      "mitigation": "EC-003 documents the manual addition in the README, and the bootstrap reports skipped files so the gap is visible."
+    },
+    {
+      "id": "RISK-003",
+      "description": "The five-minute claim is asserted rather than measured.",
+      "mitigation": "NFR-001 requires one recorded timed run; if it fails, the README claim is corrected rather than the measurement."
+    }
+  ]
+}
