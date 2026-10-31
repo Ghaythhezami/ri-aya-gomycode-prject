@@ -1,6 +1,6 @@
 {
   "cliVersion": "0.1.51",
-  "installedAt": "2026-10-31T03:08:14.203Z",
+  "installedAt": "2026-10-31T08:59:04.298Z",
   "files": {
     "agents/00-onboarding.md": "sha256:d0a90bad4f40ce607e93883f1b5adb0d43200e2f71f23561dd68812a3bf94ba3",
     "agents/01-constitution.md": "sha256:be6077bc4939fa2ba93807edeea58d5d26e0fac249cf58fd7e2c4e0ab28ae338",
@@ -70,7 +70,7 @@
     "scripts/team.js": "sha256:6274a20c3a98c3fa913caeaa08b49446767dda9e074d71d896244b33a91b8965",
     "scripts/validate-config.js": "sha256:bb864b4484e1910ed837f4a911c2c5cda4c1b3645f3d6fa9403bc41282588a02",
     "scripts/validate-governance.js": "sha256:809973722728d1fd48941131c708be6115851cfdee7d6d20b2a8d696ecf2b6c4",
-    "scripts/verify.js": "sha256:d3316455a8d40298813d337d25647057f5984fa1fc96e2b5760b0d10f24f16b9",
+    "scripts/verify.js": "sha256:28f92b4ab80fb7447cc91969bf8525957dc40c889a025a6171d6ab926a91908d",
     "scripts/version-new.js": "sha256:f7006b55962bd778e2dd66d846555782164ef09d4797ff687a59ebe0aa43b96c",
     "scripts/worktree.js": "sha256:fcbe929ceafc368ecfa782d6dec150efca8d9357d0792b78de37920e1f7081c1",
     "templates/expo/plan.json": "sha256:51ee16a6de7589c1f2c1de0f76dc02484b1ee36004239d34b3b3a4b10c5435bf",
