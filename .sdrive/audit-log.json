@@ -96,6 +96,28 @@
       "event": "gate_approved",
       "prevHash": "9d5dbfcf49155c22f69671bd1052ef5e5f15dc57a26b520ddcdf3abda4068105",
       "hash": "21bd0e46789239ca0b36a14e539f34e2ab1c8b88e4413212cfbb07c7fc53f743"
+    },
+    {
+      "timestamp": "2026-10-31T13:44:07.939Z",
+      "actor": "kenule500",
+      "feature": "monorepo-and-local-environment",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "21bd0e46789239ca0b36a14e539f34e2ab1c8b88e4413212cfbb07c7fc53f743",
+      "hash": "cafa933f161e581924c5eddfabc72909815e722d48ddbe949b296a63628f15c9"
+    },
+    {
+      "timestamp": "2026-10-31T14:00:59.815Z",
+      "actor": "kenule500",
+      "feature": "monorepo-and-local-environment",
+      "version": "v1",
+      "exitCode": 0,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "cafa933f161e581924c5eddfabc72909815e722d48ddbe949b296a63628f15c9",
+      "hash": "bce4e1ff6e1436fe7716b37d78b0fcf29fc89ca481ba79c05c157cd4616c536f"
     }
   ]
 }

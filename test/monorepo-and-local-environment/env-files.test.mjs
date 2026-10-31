@@ -12,7 +12,7 @@ const tracked = execFileSync("git", ["ls-files"], { cwd: REPO_ROOT, encoding: "u
   .split(/\r?\n/)
   .filter(Boolean);
 
-test("AC-005: no .env is tracked, and every .env.example is", () => {
+test("TEST-004 AC-005: no .env is tracked, and every .env.example is", () => {
   const trackedEnv = tracked.filter((file) => /(^|\/)\.env(\.[^/]+)?$/.test(file) && !file.endsWith(".example"));
 
   assert.deepEqual(trackedEnv, [], `these .env files must never be committed: ${trackedEnv.join(", ")}`);
@@ -22,7 +22,7 @@ test("AC-005: no .env is tracked, and every .env.example is", () => {
   }
 });
 
-test("AC-007: server/.env.example documents the keys the server reads and holds no real credential", () => {
+test("TEST-006 AC-007: server/.env.example documents the keys the server reads and holds no real credential", () => {
   const contents = readFileSync(join(REPO_ROOT, "server", ".env.example"), "utf8");
   const keys = contents
     .split(/\r?\n/)

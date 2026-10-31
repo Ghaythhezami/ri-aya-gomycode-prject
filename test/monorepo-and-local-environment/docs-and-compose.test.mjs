@@ -32,7 +32,7 @@ function serviceBlocks(text) {
   return blocks;
 }
 
-test("AC-002: postgres, redis and mongo each declare a healthcheck and a named volume", () => {
+test("TEST-001 AC-002: postgres, redis and mongo each declare a healthcheck and a named volume", () => {
   const blocks = serviceBlocks(compose);
   const volumesSection = compose.slice(compose.lastIndexOf("\nvolumes:"));
 
@@ -52,7 +52,7 @@ test("AC-002: postgres, redis and mongo each declare a healthcheck and a named v
   }
 });
 
-test("AC-006: the README quick start names the three services, the bootstrap command and the three ports", () => {
+test("TEST-005 AC-006: the README quick start names the three services, the bootstrap command and the three ports", () => {
   for (const required of [
     "pnpm install",
     "pnpm setup",

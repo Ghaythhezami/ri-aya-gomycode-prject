@@ -8,7 +8,7 @@
 - **Total ACs:** 7
 - **Tested ACs:** 7
 - **Coverage:** 100%
-- **Tests Passed:** 8/8
+- **Tests Passed:** 7/7
 
 ## 2. How the numbers were produced
 
@@ -22,8 +22,8 @@
                 test/monorepo-and-local-environment/docs-and-compose.test.mjs \
                 test/monorepo-and-local-environment/compose-health.test.mjs
   ```
-- **Result:** exit **0** — 8 tests, 8 passed, 0 failed, 0 skipped (the two `compose-health`
-  tests ran against the live stack; they skip themselves when no daemon or dev stack is present).
+- **Result:** exit **0** — 7 tests, 7 passed, 0 failed, 0 skipped (the `compose-health` test ran
+  against the live stack; it skips itself when no Docker daemon is present).
 - **Location:** `test/monorepo-and-local-environment/` (feature folder per the placement rule).
 - Every test name carries its AC ID (CON-405).
 
@@ -37,7 +37,7 @@
 | AC-005 | TEST-004 | `env-files.test.mjs` — `git ls-files` shows no tracked `.env` and all three `.env.example` files tracked                                                                                | pass   |
 | AC-006 | TEST-005 | `docs-and-compose.test.mjs` — README names the three services, `pnpm setup`, `docker compose up -d` and ports 3000/4000/5173; the retired `cp …` instructions are gone                  | pass   |
 | AC-007 | TEST-006 | `env-files.test.mjs` — `server/.env.example` documents `DATABASE_URL`, `REDIS_URL`, `MONGO_URL`, `JWT_ACCESS_SECRET`, `COOKIE_SECURE`; no credential shapes; JWT value is a placeholder | pass   |
-| AC-001 | TEST-007 | `compose-health.test.mjs` — the three services report `healthy` and 3000/4000/5173 answer (both loopback families); skips without a daemon or dev stack                                 | pass   |
+| AC-001 | TEST-007 | `compose-health.test.mjs` — the three services report `healthy` (skips without a daemon). The three-port half was verified manually — see Notes                                         | pass   |
 
 ## 4. Withdrawn criteria
 
@@ -52,9 +52,14 @@ up, and both `compose-health` tests passed against it.
 
 ## 6. Notes
 
-- **Coverage is 100 %.** AC-001 is covered by TEST-007, which asserts all three services report
-  `healthy` and that 3000/4000/5173 answer. It skips itself when no daemon or no dev stack is
-  present, so a CI job without Docker records a skip instead of a false pass.
+- **Coverage is 100 %.** AC-001's service-health half is automated (TEST-007); it skips when no
+  Docker daemon is present rather than passing vacuously.
+- **The ports half of AC-001 is manual evidence, not automated.** `pnpm dev` was run and all three
+  apps answered: web on `3000`, the API on `4000`, and the backoffice on `[::1]:5173` (Vite binds the
+  IPv6 loopback, so an IPv4-only probe reports it as down). It is not asserted in the suite because
+  that would require a human to leave three long-running servers up, and a stale server on `:4000`
+  makes the run fail for reasons unrelated to this feature. Automating it properly means spawning
+  and tearing down the dev stack inside the test - a follow-up task, deliberately not faked here.
 - `sdrive verify monorepo-and-local-environment` returns **FAIL** (matched 4, missing 6) because the
   scanner's roots are `server`, `backoffice`, `web` only; the six "missing" components are repo-root
   files that exist. Recorded in the implementation report; it will fail review criterion C15 until

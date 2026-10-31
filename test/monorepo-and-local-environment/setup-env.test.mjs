@@ -31,7 +31,7 @@ function run(cwd) {
 
 const EXAMPLE = "DATABASE_URL=postgresql://local/dev\nMONGO_URL=mongodb://localhost:27017/dev\n";
 
-test("AC-003: setup-env is idempotent and never rewrites an existing .env", () => {
+test("TEST-002 AC-003: setup-env is idempotent and never rewrites an existing .env", () => {
   const dir = fixture({
     server: { example: EXAMPLE, env: "DATABASE_URL=my-own-value\n" },
     web: { example: EXAMPLE, env: "KEEP=1\n" },
@@ -56,7 +56,7 @@ test("AC-003: setup-env is idempotent and never rewrites an existing .env", () =
   assert.equal(second.stdout.includes("3 skipped"), true, `second run should skip all three: ${second.stdout}`);
 });
 
-test("AC-004: setup-env creates a missing .env from its example and reports created, skipped and missing", () => {
+test("TEST-003 AC-004: setup-env creates a missing .env from its example and reports created, skipped and missing", () => {
   const dir = fixture({
     server: { example: EXAMPLE, env: "DATABASE_URL=already-here\n" },
     // web has an example but no .env -> must be created
