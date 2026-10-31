@@ -1,0 +1,20 @@
+{
+  "server": {
+    "installed": true,
+    "version": "5.9.3",
+    "tdk": "C:\\Users\\KENULE-NWINEE\\Documents\\Ri-aya\\server\\node_modules\\typescript\\lib",
+    "tdkExists": true
+  },
+  "web": {
+    "installed": true,
+    "version": "5.9.3",
+    "tdk": "C:\\Users\\KENULE-NWINEE\\Documents\\Ri-aya\\web\\node_modules\\typescript\\lib",
+    "tdkExists": true
+  },
+  "backoffice": {
+    "installed": true,
+    "version": "5.9.3",
+    "tdk": "C:\\Users\\KENULE-NWINEE\\Documents\\Ri-aya\\backoffice\\node_modules\\typescript\\lib",
+    "tdkExists": true
+  }
+}

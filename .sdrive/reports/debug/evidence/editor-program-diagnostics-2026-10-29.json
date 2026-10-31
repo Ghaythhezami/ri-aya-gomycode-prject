@@ -1,0 +1,52 @@
+{
+  "root": "C:\\Users\\KENULE-NWINEE\\Documents\\Ri-aya",
+  "serverSrcDirs": [
+    "audit",
+    "auth",
+    "cache",
+    "common",
+    "database",
+    "health",
+    "mail",
+    "tenancy",
+    "types",
+    "users"
+  ],
+  "strayPaths": [
+    "CUsersKENULE-NWINEEDocumentsRi-aya/"
+  ],
+  "jestTypes": {
+    "packageJson": true,
+    "version": "29.5.14",
+    "types": "index.d.ts",
+    "realpath": "C:\\Users\\KENULE-NWINEE\\Documents\\Ri-aya\\node_modules\\.pnpm\\@types+jest@29.5.14\\node_modules\\@types\\jest"
+  },
+  "tsconfig": {
+    "exists": true,
+    "include": [
+      "src/**/*"
+    ],
+    "exclude": [
+      "node_modules",
+      "dist"
+    ],
+    "types": null
+  },
+  "tsbuildinfo": [
+    {
+      "file": "server/tsconfig.tsbuildinfo",
+      "size": 352382,
+      "modified": "2026-10-29T16:50:49.138Z"
+    },
+    {
+      "file": "web/.next/cache/.tsbuildinfo",
+      "size": 182689,
+      "modified": "2026-10-27T09:32:56.654Z"
+    },
+    {
+      "file": "web/tsconfig.tsbuildinfo",
+      "size": 164177,
+      "modified": "2026-10-27T10:43:58.168Z"
+    }
+  ]
+}

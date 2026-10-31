@@ -1,0 +1,31 @@
+{
+  "serverFiles": [
+    ".env",
+    ".env.example",
+    "dist/",
+    "eslint.config.mjs",
+    "jest.config.cjs",
+    "nest-cli.json",
+    "node_modules/",
+    "package.json",
+    "prisma/",
+    "probe-prisma.cjs",
+    "probe-redis.cjs",
+    "scripts/",
+    "src/",
+    "tsconfig.build.json",
+    "tsconfig.json",
+    "tsconfig.tsbuildinfo"
+  ],
+  "atTypes": [
+    "cookie-parser",
+    "express",
+    "jest",
+    "node",
+    "passport-jwt",
+    "supertest"
+  ],
+  "jestConfigFile": "jest.config.cjs",
+  "jestConfigSource": "/** @type {import('jest').Config} */\nmodule.exports = {\n  moduleFileExtensions: ['js', 'json', 'ts'],\n  rootDir: 'src',\n  testRegex: '.*\\\\.spec\\\\.ts$',\n  transform: {\n    '^.+\\\\.(t|j)s$': 'ts-jest',\n  },\n  collectCoverageFrom: [\n    'auth/**/*.ts',\n    'cache/**/*.ts',\n    'common/validators/**/*.ts',\n    '!auth/**/*.spec.ts',\n    '!cache/**/*.spec.ts',\n    '!auth/dto/**',\n    '!auth/entities/**',\n  ],\n  coverageDirectory: '../coverage',\n  coverageThreshold: {\n    global: {\n      lines: 80,\n      statements: 80,\n      functions: 70,\n      branches: 50,\n    },\n  },\n  testEnvironment: 'node',\n  setupFiles: ['<rootDir>/test-setup.ts'],\n  testTimeout: 30_000,\n  moduleNameMapper: {\n    '^@/(.*)$': '<rootDir>/$1',\n  },\n};\n",
+  "packageJsonJest": null
+}

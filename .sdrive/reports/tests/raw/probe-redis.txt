@@ -1,0 +1,3 @@
+﻿url = redis://localhost:6379
+status = connect
+ping failed: Stream isn't writeable and enableOfflineQueue options is false

@@ -2,107 +2,174 @@
   "feature": "authentication-onboarding-and-access-control",
   "version": "v1",
   "status": "FAIL",
-  "commit": "04dd65a",
+  "commit": "8c97d5d7b1c217554e35ad0453ac5b12ad9a7cdb",
   "base": "main",
   "branch": "feature/auth-onboarding",
   "reviewedBy": "specdrive-review-agent",
-  "reviewedAt": "2026-10-29T10:30:00.000Z",
-  "coverage": 7,
+  "reviewedAt": "2026-10-29T17:07:57.000Z",
+  "coverage": 89,
   "criteria": [
     {
-      "id": "C1-spec-alignment",
-      "status": "pass",
-      "detail": "sdrive verify reports Matched 105, Missing 0, Renamed 0 (WARN only for 19 duplicate bare-path endpoint forms). Every planned component, endpoint, entity and package dependency resolves to real code."
+      "id": "C01-spec-convergence",
+      "status": "not_verified",
+      "detail": "Code inspection confirms the planned routes, entities and modules exist, and HEAD's committed verification.json reports matched 105 / missing 0. The verifier as it now runs reports 94 missing (tooling regression I-3), so spec-to-code convergence cannot be certified by tooling."
     },
     {
-      "id": "C2-governance",
+      "id": "C02-task-completion",
       "status": "pass",
-      "detail": "node .sdrive/scripts/validate-governance.js reports all files valid (config, workflow-state, spec/plan/tasks/traceability)."
+      "detail": "tasks.md has 0 unchecked items; tasks.json marks 38 of 38 tasks completed."
     },
     {
-      "id": "C3-verification-gate",
-      "status": "pass",
-      "detail": "Verification status is warn, which the release gate accepts. Two endpoint entries and three label components were corrected in plan.json because the plan, not the code, was wrong."
-    },
-    {
-      "id": "C4-tests-execute",
-      "status": "pass",
-      "detail": "Jest reports 9 suites / 36 tests / 0 failures with --runInBand. Includes the invitation and suspension suites that failed before the D15 tenant-frame fix."
-    },
-    {
-      "id": "C5-ac-coverage",
+      "id": "C03-traceability",
       "status": "fail",
-      "detail": "Only 3 of 45 acceptance criteria have a linked test ID in traceability.json (7%). The release gate requires 100%."
+      "detail": "AC-006, AC-012, AC-032 and AC-042 have no traceability row; AC-009 is carried by FR-014 with status in_progress. Six linked test IDs (TEST-025, TEST-028, TEST-029, TEST-030, TEST-032, TEST-033) do not exist anywhere in the codebase."
     },
     {
-      "id": "C6-test-report",
+      "id": "C04-coverage",
+      "status": "fail",
+      "detail": "45 acceptance criteria in scope, 0 withdrawn, 40 with a linked test (89%). The release gate requires 100%. Untested: AC-006, AC-009, AC-012, AC-032, AC-042."
+    },
+    {
+      "id": "C05-test-report",
       "status": "pass",
-      "detail": "test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md exists and is newer than spec.md and plan.md."
+      "detail": "test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md exists (2026-10-29 14:57) and is newer than spec.md (01:41) and plan.md (02:08). Its headline figure of 44/45 is not reproducible from traceability.json, which supports 40/45."
     },
     {
-      "id": "C7-typecheck-lint",
+      "id": "C06-test-evidence",
+      "status": "fail",
+      "detail": "test-evidence.json is absent while governance.requireTestEvidence is true, so no recorded run is bound to HEAD. jest and vitest were executed during this review (47+7 passing, 1 skipped) but that is reviewer evidence, not a gate artefact."
+    },
+    {
+      "id": "C07-change-scope",
+      "status": "fail",
+      "detail": "Working tree is dirty: 97 modified and 9 untracked paths, including an uncommitted edit to server/src/cache/lockout-persistence.spec.ts and a 95-file .sdrive framework re-sync (cliVersion 0.1.47, installedAt 2026-10-29T16:05:38Z). Stray CUsersKENULE-NWINEEDocumentsRi-aya/ artefacts and framework-script commits are also in the 107-file diff against main."
+    },
+    {
+      "id": "C08-test-quality",
+      "status": "fail",
+      "detail": "No .only, no xit, no commented-out assertions; the single skip (lockout-persistence) is justified in-file. CON-405 is violated: server test names do not carry the AC ID, which appears only in a leading comment. AC-004, AC-005, AC-006, AC-007, AC-008, AC-026, AC-029 and AC-038 appear as IDs in no test file at all."
+    },
+    {
+      "id": "C09-code-quality",
+      "status": "pass",
+      "detail": "pnpm lint exits 0 with no warnings and pnpm typecheck reports Done for web, server and backoffice."
+    },
+    {
+      "id": "C10-security",
+      "status": "not_verified",
+      "detail": "No .sdrive/reports/security report and no recorded waiver, for a change that rewrites authentication, tenancy and token handling. A manual pattern scan for AKIA/BEGIN PRIVATE KEY/sk_live_/password literals found no production secrets and no gitleaks or trufflehog is installed, so no automated secret scan ran. Dependency CVE lookup was not performed."
+    },
+    {
+      "id": "C11-testing",
+      "status": "pass",
+      "detail": "Server: 10 suites passed and 1 skipped, 47 tests passed and 1 skipped, 0 failed (jest --runInBand --forceExit, 115 s). Backoffice: 4 files / 7 tests passed, 0 failed (vitest run). 54 passing tests in total."
+    },
+    {
+      "id": "C12-documentation",
+      "status": "fail",
+      "detail": "No README.md, CHANGELOG.md or docs/ change appears in the 107-file diff, although registration, invitations, workspace switching and the Redis requirement are user- and operator-facing changes."
+    },
+    {
+      "id": "C13-nfr-evidence",
+      "status": "not_verified",
+      "detail": "NFR-010 (login p95 <= 400 ms) and NFR-011 (WCAG 2.1 AA) have no /sdrive:performance report; .sdrive/reports/performance is empty. NFR-012 and NFR-013 are exercised by tests."
+    },
+    {
+      "id": "C14-definition-of-done",
+      "status": "fail",
+      "detail": "Blocked by criteria C03, C04, C06, C07, C08, C10, C12, C13 and C15."
+    },
+    {
+      "id": "C15-spec-to-code-verification",
+      "status": "fail",
+      "detail": "sdrive verify authentication-onboarding-and-access-control returns fail: matched 4, missing 94, renamed 7, extra 0, checkedAt 2026-10-29T16:15:46Z. CON-602 forbids completing a feature without pass or warn."
+    },
+    {
+      "id": "C16-ci",
+      "status": "not_verified",
+      "detail": "CI not verified: .github/workflows/ci.yml exists (install, lint, typecheck, test, build) but has never run for feature/auth-onboarding. The only run in the repository is on main with conclusion failure (2026-10-28, https://github.com/kenule500/medflow/actions/runs/40665768833)."
+    },
+    {
+      "id": "C17-permission",
+      "status": "pass",
+      "detail": "check-permission.js slash /sdrive:review reports: User \"kenule500\" (admin) is allowed."
+    },
+    {
+      "id": "C18-reviewer-independence",
       "status": "warn",
-      "detail": "server tsc and eslint exit 0 (verified after the D15 fix). backoffice tsc exited 0 earlier; backoffice lint was not re-run after the final edits."
-    },
-    {
-      "id": "C8-secret-scan",
-      "status": "pass",
-      "detail": "Pattern search for AKIA/BEGIN PRIVATE KEY/password literals found no production secrets. One test-fixture password (RiayaAdmin123!) in auth.e2e.spec.ts matches the documented local dev seed."
-    },
-    {
-      "id": "C9-clean-tree",
-      "status": "fail",
-      "detail": "git status is not empty: backoffice/src/i18n/en.json is modified (an owner edit, uncommitted)."
-    },
-    {
-      "id": "C10-commit-binding",
-      "status": "pass",
-      "detail": "HEAD 04dd65a on feature/auth-onboarding, based on main, matching workflow-state.json."
+      "detail": "The workspace has a single member, kenule500 (admin), who both implemented the feature and requested this review. No independent reviewer exists; the conflict is recorded and no PASS was self-approved."
     }
   ],
   "findings": [
     {
       "severity": "high",
-      "issue": "42 of 45 acceptance criteria have no linked test ID in traceability.json, so AC coverage is 7% against a 100% gate.",
+      "issue": "AC coverage is 89% (40/45) against a 100% gate. AC-006 has no test at all; AC-009 exists as TEST-050 in lockout-persistence.spec.ts but that suite is skipped unless LOCKOUT_INTEGRATION=1; AC-012, AC-032 and AC-042 have passing tests but no traceability row.",
       "location": ".sdrive/governance/authentication-onboarding-and-access-control/v1/traceability.json",
-      "fixRequired": true
-    },
-    {
-      "severity": "medium",
-      "issue": "The working tree is dirty (backoffice/src/i18n/en.json), so the review cannot be bound to a single commit.",
-      "location": "backoffice/src/i18n/en.json",
-      "fixRequired": true
-    },
-    {
-      "severity": "medium",
-      "issue": "Five acceptance criteria have no automated test at all: i18n/RTL mirroring, Swagger contract rendering and browser-only states are only manually verifiable in this environment.",
-      "location": ".sdrive/reports/tests",
       "fixRequired": true,
-      "acIds": ["AC-033", "AC-034", "AC-036", "AC-037", "AC-038"]
+      "acIds": ["AC-006", "AC-009", "AC-012", "AC-032", "AC-042"]
     },
     {
-      "severity": "medium",
-      "issue": "D14: a native PostgreSQL 17 owns host port 5432, so the docker-compose PostgreSQL 16 is unreachable and the app silently develops against the other instance. The brief mandates PostgreSQL 16.",
-      "location": "docker-compose.yml",
+      "severity": "high",
+      "issue": "Six test IDs linked in traceability.json do not exist anywhere in the codebase: TEST-025, TEST-028, TEST-029, TEST-030, TEST-032 and TEST-033. They were generated by .sdrive/reports/tests/raw/link-testids.cjs rather than by a test author, and they carry AC-004, AC-005, AC-007, AC-008, AC-029, AC-035 and AC-038.",
+      "location": ".sdrive/governance/authentication-onboarding-and-access-control/v1/traceability.json",
+      "fixRequired": true,
+      "acIds": ["AC-004", "AC-005", "AC-007", "AC-008", "AC-029", "AC-035", "AC-038"]
+    },
+    {
+      "severity": "high",
+      "issue": "sdrive verify returns fail (matched 4, missing 94, renamed 7) for the same commit whose committed verification.json reports matched 105 and missing 0. The 16:05 framework re-sync replaced the project-customised .sdrive/scripts/verify.js (customisation added in f5b4fa9); the replacement has no NestJS decorator detection, omits .prisma from CODE_EXTENSIONS and does not scan web/ or backoffice/. The code exists, so this is a tooling regression, but CON-602 still blocks the release.",
+      "location": ".sdrive/scripts/verify.js",
       "fixRequired": true
     },
     {
-      "severity": "low",
-      "issue": "Verification reports 19 extra endpoints because the scanner emits both /auth/x and /api/auth/x for the same route. Informational only.",
-      "location": ".sdrive/scripts/verify.js",
-      "fixRequired": false
+      "severity": "high",
+      "issue": "test-evidence.json is missing while config governance.requireTestEvidence is true, so no test run is bound to HEAD and the review gate has no evidence artefact.",
+      "location": ".sdrive/governance/authentication-onboarding-and-access-control/v1/",
+      "fixRequired": true
     },
     {
-      "severity": "low",
-      "issue": "D18: Jest warns that a worker failed to exit gracefully, indicating a leaked handle (likely the ioredis client in redis-cache.service.spec.ts).",
-      "location": "server/src/cache/redis-cache.service.spec.ts",
-      "fixRequired": false
+      "severity": "medium",
+      "issue": "Working tree is dirty: 97 modified and 9 untracked paths. It includes an uncommitted edit to server/src/cache/lockout-persistence.spec.ts, a 95-file .sdrive framework re-sync (cliVersion 0.1.47, installedAt 2026-10-29T16:05:38Z), .sdrive/.backups/, .sdrive/scripts/lib/resolution.js, server/probe-redis.cjs and five raw probe logs. The verdict therefore cannot bind to HEAD (CON-609).",
+      "location": "repository root",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "Security review missing: no /sdrive:secure report and no recorded waiver for a change that rewrites authentication, tenancy and token handling.",
+      "location": ".sdrive/reports/security",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "CON-405 violated: server test names do not contain the acceptance-criterion ID, which appears only in a leading comment (e.g. // TEST-040 -> AC-032). Only the four backoffice suites put the ID in the test name.",
+      "location": "server/src/**/*.spec.ts",
+      "fixRequired": true,
+      "acIds": ["AC-004", "AC-005", "AC-006", "AC-007", "AC-008", "AC-026", "AC-029", "AC-038"]
+    },
+    {
+      "severity": "medium",
+      "issue": "The test report claims 44/45 = 98% AC coverage, but traceability.json supports only 40/45 = 89%. Report and governance disagree.",
+      "location": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "No README, CHANGELOG or docs update for user-facing changes: registration and organization onboarding, invitations, workspace switching and the new Redis requirement.",
+      "location": "README.md",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "NFR evidence missing: NFR-010 (login p95 <= 400 ms) and NFR-011 (WCAG 2.1 AA) have no report; .sdrive/reports/performance is empty.",
+      "location": ".sdrive/reports/performance",
+      "fixRequired": true,
+      "acIds": ["AC-004", "AC-033"]
     }
   ],
   "evidence": {
-    "testEvidence": "Jest: 9 suites, 36 tests, 0 failures (--runInBand)",
-    "testReport": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md",
-    "verification": "sdrive verify: status warn, matched 105, missing 0, renamed 0, extra 19",
-    "audit": "node .sdrive/scripts/validate-governance.js: all files valid"
+    "testEvidence": "MISSING: .sdrive/governance/authentication-onboarding-and-access-control/v1/test-evidence.json does not exist. Reviewer-run suites: jest --runInBand --forceExit = 10 suites passed / 1 skipped, 47 tests passed / 1 skipped / 0 failed; vitest run = 4 files / 7 tests passed / 0 failed; pnpm lint exit 0; pnpm typecheck Done for web, server and backoffice.",
+    "testReport": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v1-2026-10-29.md (2026-10-29 14:57, newer than spec.md and plan.md)",
+    "verification": "sdrive verify: status fail, matched 4, missing 94, renamed 7, extra 0 (checkedAt 2026-10-29T16:15:46Z). HEAD's committed report says warn, matched 105, missing 0. sdrive check/validate: ok, all governance files valid. sdrive audit:verify: ok, no audit log yet.",
+    "audit": "Traceability: 45 ACs in scope, 0 withdrawn, 40 linked = 89%; FR-014 in_progress; dangling IDs TEST-025/028/029/030/032/033. CI: no run for feature/auth-onboarding; only run is main/failure (2026-10-28). Secret scan: pattern search only, no gitleaks/trufflehog. Permission: kenule500 (admin) allowed."
   }
 }

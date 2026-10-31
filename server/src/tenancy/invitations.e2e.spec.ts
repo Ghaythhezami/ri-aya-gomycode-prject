@@ -4,6 +4,7 @@ import request from 'supertest';
 import cookieParser from 'cookie-parser';
 import { AppModule } from '../app.module';
 import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
+import { PrismaService } from '../database/prisma.service';
 import { MAIL_SERVICE } from '../mail/mail.module';
 
 /**
@@ -165,5 +166,53 @@ describe('Staff invitations (e2e)', () => {
 
     // The newest invitation wins, including its role.
     expect(accepted.body.role).toBe('CLINIC_ADMIN');
+  });
+
+  // TEST-052 → AC-026
+  it('AC-026: a valid invitation password makes the account usable and consumes the invitation', async () => {
+    const email = 'invited.consumed@riaya.local';
+
+    mail.sendInvitation.mockClear();
+    await request(app.getHttpServer())
+      .post('/api/invitations')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ email, clinicId, role: 'DOCTOR' })
+      .expect(201);
+    const token = tokenFrom(mail.sendInvitation.mock.calls[0][0].acceptUrl as string);
+
+    const accepted = await request(app.getHttpServer())
+      .post('/api/auth/accept-invite')
+      .send({ token, password: INVITEE_PASSWORD, firstName: 'Consumed', lastName: 'Invitee' })
+      .expect(201);
+    expect(accepted.body.role).toBe('DOCTOR');
+
+    // First half of AC-026: the credential just chosen works immediately.
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email, password: INVITEE_PASSWORD })
+      .expect(201);
+    expect(login.body.user.email).toBe(email);
+    expect(login.body.user.role).toBe('DOCTOR');
+    expect(login.body.scope.clinicId).toBe(clinicId);
+
+    // Second half of AC-026: the invitation row itself is consumed, not merely
+    // rejected because the email now exists.
+    const prisma = app.get(PrismaService);
+    const invitations = await prisma.invitation.findMany({ where: { clinicId } });
+    const consumed = invitations.find((row) => row.email === email);
+    expect(consumed).toBeDefined();
+    expect(consumed?.consumedAt).toBeInstanceOf(Date);
+
+    // A consumed invitation cannot be replayed into a second membership.
+    await request(app.getHttpServer())
+      .post('/api/auth/accept-invite')
+      .send({ token, password: INVITEE_PASSWORD })
+      .expect(400);
+
+    const invitee = await prisma.user.findUnique({ where: { email } });
+    if (!invitee) throw new Error('accept-invite did not create the identity');
+    const memberships = await prisma.userMembership.findMany({ where: { userId: invitee.id } });
+    expect(memberships).toHaveLength(1);
+    expect(memberships[0].role).toBe('DOCTOR');
   });
 });

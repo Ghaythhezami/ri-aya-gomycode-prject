@@ -25,7 +25,9 @@ async function connectedCache(): Promise<RedisCacheService | null> {
   const cache = new RedisCacheService(config);
   process.env.NODE_ENV = original;
 
-  for (let attempt = 0; attempt < 20; attempt += 1) {
+  // ioredis needs a moment to complete the handshake; 5s is generous for a
+  // container on loopback and still fails fast when nothing is listening.
+  for (let attempt = 0; attempt < 50; attempt += 1) {
     if (cache.isRedisConnected) return cache;
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
@@ -47,6 +49,9 @@ async function connectedCache(): Promise<RedisCacheService | null> {
   });
 
   afterAll(async () => {
+    // beforeAll throws when Redis is absent, so `cache` may be unassigned; the
+    // cleanup must not mask that original failure with a TypeError.
+    if (!cache) return;
     const attempts = new LoginAttemptService(cache);
     await attempts.clear(email);
     await cache.onModuleDestroy();

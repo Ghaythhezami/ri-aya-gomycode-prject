@@ -1,0 +1,73 @@
+success=false
+suites total=11 passed=9 failed=1
+tests total=51 passed=39 failed=11 pending=1
+--- tests by status ---
+# auth/auth.e2e.spec.ts [failed]
+  failed	Auth (e2e) AC-004: logs in with valid credentials and returns an access token plus an HttpOnly refresh cookie :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-006: rejects invalid credentials with a generic message that names no field :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-006: answers an unknown email exactly like a wrong password :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-008 / AC-035: locks the account after five failed logins and states when it unlocks :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-005: rotates the refresh token on every refresh and revokes the family on reuse :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-007: logs out, revokes the refresh token and rejects it on reuse :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) returns 403 when a receptionist hits an admin-only endpoint :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-028: emails a single-use expiring reset token without revealing whether the account exists :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) returns the current user from /me :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-029: revokes the existing refresh tokens when a new password is set from a reset token :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+  failed	Auth (e2e) AC-038: keeps the pre-existing unversioned auth paths working :: Error: thrown: "Exceeded timeout of 30000 ms for a hook.
+# cache/lockout-persistence.spec.ts [skipped]
+  pending	Lockout persistence across a restart (AC-009) keeps the account locked for a brand-new cache instance :: 
+# tenancy/acceptance-gaps.e2e.spec.ts [passed]
+  passed	Acceptance gaps (e2e) reports a duplicate email as a field-level conflict
+  passed	Acceptance gaps (e2e) provisions a second organization without a duplicate identity
+  passed	Acceptance gaps (e2e) rejects a weak password when an invitee sets it
+  passed	Acceptance gaps (e2e) issues a single-use password reset token
+  passed	Acceptance gaps (e2e) revokes other sessions when the password is changed
+  passed	Acceptance gaps (e2e) fails login closed when the security state store is unavailable
+  passed	Acceptance gaps (e2e) keeps serving ordinary reads while the security store is degraded
+  passed	Acceptance gaps (e2e) publishes the auth, invitation and workspace routes in the OpenAPI document
+  passed	Acceptance gaps (e2e) declares PostgreSQL and Redis with healthchecks in docker compose
+  passed	Acceptance gaps (e2e) preserves audit history when a membership is suspended
+  passed	Acceptance gaps (e2e) records a rotated refresh token in the revocation store
+# auth/switch-workspace.e2e.spec.ts [passed]
+  passed	Workspace switching and token scoping (e2e) carries org_id, clinic_id and role in the access token
+  passed	Workspace switching and token scoping (e2e) re-issues a token scoped to the switched clinic
+  passed	Workspace switching and token scoping (e2e) refuses a clinic the caller has no membership in
+  passed	Workspace switching and token scoping (e2e) scopes later requests to the switched clinic, ignoring a body clinicId
+# tenancy/suspension.e2e.spec.ts [passed]
+  passed	Membership suspension (e2e) kills the suspended member’s existing token immediately
+  passed	Membership suspension (e2e) gives a suspended member no usable scope on a fresh login
+  passed	Membership suspension (e2e) refuses to suspend the organization’s last SUPER_ADMIN
+# tenancy/registration.e2e.spec.ts [passed]
+  passed	Registration and owner onboarding (e2e) creates identity, organization, first clinic and a SUPER_ADMIN membership
+  passed	Registration and owner onboarding (e2e) signs the owner in immediately and reports the membership role
+  passed	Registration and owner onboarding (e2e) lists the created clinic as an active SUPER_ADMIN workspace
+  passed	Registration and owner onboarding (e2e) persists nothing when registration is rejected
+  passed	Registration and owner onboarding (e2e) rejects unknown fields instead of ignoring them
+  passed	Registration and owner onboarding (e2e) cannot be pointed at an existing clinic
+# tenancy/invitations.e2e.spec.ts [passed]
+  passed	Staff invitations (e2e) issues an invitation token by email, never in the HTTP response
+  passed	Staff invitations (e2e) grants exactly the invited role on acceptance
+  passed	Staff invitations (e2e) rejects a token that was already consumed
+  passed	Staff invitations (e2e) revokes the earlier token when a newer invitation is issued for the same email
+  passed	Staff invitations (e2e) AC-026: a valid invitation password makes the account usable and consumes the invitation
+# audit/audit-trail.e2e.spec.ts [passed]
+  passed	Audit trail (e2e) records an entry for the organization, the clinic and the membership
+  passed	Audit trail (e2e) captures actor, action and the after-state of the change
+  passed	Audit trail (e2e) writes nothing when the mutation is rejected
+  passed	Audit trail (e2e) scopes clinic entries to their organization and clinic
+# auth/signup-retired.e2e.spec.ts [passed]
+  passed	Signup retirement (e2e) responds 410 Gone with the stable SIGNUP_RETIRED code
+  passed	Signup retirement (e2e) points the caller at the registration route
+  passed	Signup retirement (e2e) creates no identity at all — no row is written
+# cache/redis-cache.service.spec.ts [passed]
+  passed	RedisCacheService stores and reads values from memory when Redis is not configured
+# validators/password-strength.spec.ts [passed]
+  passed	isStrongPassword accepts a long mixed password
+  passed	isStrongPassword rejects short or simple passwords
+--- failures ---
+  ● Auth (e2e) › AC-004: logs in with valid credentials and returns an access token plus an HttpOnly refresh cookie
+
+    thrown: "Exceeded timeout of 30000 ms for a hook.
+    Add a timeout value to this test to increase the timeout, if this is a long-running test. See https://jestjs.io/docs/api#testname-fn-timeout."
+
+    [0m [90m 52 |[39m   }

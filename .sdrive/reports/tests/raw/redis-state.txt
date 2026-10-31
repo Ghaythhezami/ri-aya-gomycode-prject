@@ -1,0 +1,4 @@
+﻿REDIS_TCP=UP
+riaya-postgres|running
+riaya-redis|running
+buildx_buildkit_desktop-linux|running

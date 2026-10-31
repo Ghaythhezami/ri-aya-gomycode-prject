@@ -29,6 +29,11 @@ Thumbs.db
 .vscode/*
 !.vscode/extensions.json
 
+# governance
+# `sdrive test` records the exact run bound to HEAD. Committing the record would move
+# HEAD, which makes the evidence stale by definition, so it stays a local artifact.
+.sdrive/governance/**/test-evidence.json
+
 # tooling
 .eslintcache
 .turbo

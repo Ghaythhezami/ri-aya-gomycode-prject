@@ -7,7 +7,7 @@
       "acceptanceCriteriaIds": ["AC-010", "AC-013", "AC-025"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-035", "TEST-014", "TEST-033", "TEST-017"],
+      "testIds": ["TEST-035", "TEST-014", "TEST-017"],
       "status": "complete"
     },
     {
@@ -15,7 +15,7 @@
       "acceptanceCriteriaIds": ["AC-010", "AC-013"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-035", "TEST-014", "TEST-033"],
+      "testIds": ["TEST-035", "TEST-014"],
       "status": "complete"
     },
     {
@@ -23,7 +23,7 @@
       "acceptanceCriteriaIds": ["AC-013", "AC-025"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-014", "TEST-033", "TEST-017"],
+      "testIds": ["TEST-014", "TEST-017"],
       "status": "complete"
     },
     {
@@ -68,10 +68,10 @@
     },
     {
       "requirementId": "FR-009",
-      "acceptanceCriteriaIds": ["AC-004"],
+      "acceptanceCriteriaIds": ["AC-004", "AC-006"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-025"],
+      "testIds": ["TEST-025", "TEST-026", "TEST-027"],
       "status": "complete"
     },
     {
@@ -84,10 +84,10 @@
     },
     {
       "requirementId": "FR-011",
-      "acceptanceCriteriaIds": ["AC-013"],
+      "acceptanceCriteriaIds": ["AC-013", "AC-012"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-014", "TEST-033"],
+      "testIds": ["TEST-014", "TEST-017"],
       "status": "complete"
     },
     {
@@ -111,8 +111,8 @@
       "acceptanceCriteriaIds": ["AC-008", "AC-009"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-028"],
-      "status": "in_progress"
+      "testIds": ["TEST-028", "TEST-050"],
+      "status": "complete"
     },
     {
       "requirementId": "FR-015",
@@ -223,7 +223,7 @@
       "acceptanceCriteriaIds": ["AC-011", "AC-013"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-017", "TEST-014", "TEST-033"],
+      "testIds": ["TEST-017", "TEST-014"],
       "status": "complete"
     },
     {
@@ -252,10 +252,10 @@
     },
     {
       "requirementId": "FR-032",
-      "acceptanceCriteriaIds": ["AC-011"],
+      "acceptanceCriteriaIds": ["AC-011", "AC-042"],
       "planSection": "Data Model",
       "taskIds": [],
-      "testIds": ["TEST-017"],
+      "testIds": ["TEST-017", "TEST-003"],
       "status": "complete"
     },
     {
@@ -348,10 +348,10 @@
     },
     {
       "requirementId": "NFR-009",
-      "acceptanceCriteriaIds": ["AC-031"],
+      "acceptanceCriteriaIds": ["AC-031", "AC-032"],
       "planSection": "Security Considerations",
       "taskIds": [],
-      "testIds": ["TEST-039"],
+      "testIds": ["TEST-039", "TEST-040"],
       "status": "complete"
     },
     {

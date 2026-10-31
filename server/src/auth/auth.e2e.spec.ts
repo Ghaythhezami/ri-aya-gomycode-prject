@@ -22,7 +22,34 @@ function readCookie(res: request.Response, name: string) {
 
 describe('Auth (e2e)', () => {
   let app: INestApplication;
+  let fixtureOrganizationId = '';
+  let fixtureClinicId = '';
   const mail = { sendPasswordReset: jest.fn().mockResolvedValue(undefined) };
+
+  /**
+   * An identity alone authorizes nothing since the clinic-scoped role moved to
+   * the membership (FR-001, FR-002, FR-028), so the tests that sign in need an
+   * ACTIVE membership in the fixture clinic.
+   */
+  async function createUserWithMembership(email: string, role: UserRole) {
+    const user = await app.get(UsersService).createStaffUser({
+      email,
+      password: PASSWORD,
+      firstName: 'Fixture',
+      lastName: 'Member',
+      role,
+    });
+    await app.get(PrismaService).userMembership.create({
+      data: {
+        userId: user.id,
+        organizationId: fixtureOrganizationId,
+        clinicId: fixtureClinicId,
+        role,
+        status: 'ACTIVE',
+      },
+    });
+    return user;
+  }
 
   beforeAll(async () => {
     process.env.NODE_ENV = 'test';
@@ -69,6 +96,8 @@ describe('Auth (e2e)', () => {
     const clinic = await prisma.clinic.create({
       data: { organizationId: organization.id, name: 'Fixture Clinic' },
     });
+    fixtureOrganizationId = organization.id;
+    fixtureClinicId = clinic.id;
     await prisma.userMembership.create({
       data: {
         userId: admin.id,
@@ -93,7 +122,8 @@ describe('Auth (e2e)', () => {
     await app.close();
   });
 
-  it('logs in with valid credentials and returns access token + refresh cookie', async () => {
+  // TEST-025 → AC-004
+  it('AC-004: logs in with valid credentials and returns an access token plus an HttpOnly refresh cookie', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'admin@riaya.local', password: PASSWORD })
@@ -104,7 +134,8 @@ describe('Auth (e2e)', () => {
     expect(readCookie(res, REFRESH_COOKIE)).toBeDefined();
   });
 
-  it('rejects invalid credentials with a generic message', async () => {
+  // TEST-026 → AC-006
+  it('AC-006: rejects invalid credentials with a generic message that names no field', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'admin@riaya.local', password: 'WrongPass123!' })
@@ -113,7 +144,8 @@ describe('Auth (e2e)', () => {
     expect(res.body.message).toBe('Invalid credentials');
   });
 
-  it('does not reveal whether an unknown email exists', async () => {
+  // TEST-027 → AC-006
+  it('AC-006: answers an unknown email exactly like a wrong password', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'missing@riaya.local', password: 'WrongPass123!' })
@@ -121,7 +153,8 @@ describe('Auth (e2e)', () => {
     expect(res.body.message).toBe('Invalid credentials');
   });
 
-  it('locks the account after five failed logins in the window', async () => {
+  // TEST-028 → AC-008, AC-035
+  it('AC-008 / AC-035: locks the account after five failed logins and states when it unlocks', async () => {
     await app.get(UsersService).createStaffUser({
       email: 'lockme@riaya.local',
       password: PASSWORD,
@@ -148,7 +181,8 @@ describe('Auth (e2e)', () => {
     expect(locked.body.message).toMatch(/15 minute/);
   });
 
-  it('rotates refresh tokens and revokes the family on reuse', async () => {
+  // TEST-029 → AC-005
+  it('AC-005: rotates the refresh token on every refresh and revokes the family on reuse', async () => {
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'admin@riaya.local', password: PASSWORD })
@@ -174,7 +208,8 @@ describe('Auth (e2e)', () => {
       .expect(401);
   });
 
-  it('logs out and rejects the refresh token afterwards', async () => {
+  // TEST-030 → AC-007
+  it('AC-007: logs out, revokes the refresh token and rejects it on reuse', async () => {
     const login = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({ email: 'admin@riaya.local', password: PASSWORD })
@@ -211,7 +246,8 @@ describe('Auth (e2e)', () => {
       .expect(403);
   });
 
-  it('completes the password reset flow', async () => {
+  // TEST-031 → AC-028
+  it('AC-028: emails a single-use expiring reset token without revealing whether the account exists', async () => {
     mail.sendPasswordReset.mockClear();
     const forgotUnknown = await request(app.getHttpServer())
       .post('/api/auth/forgot-password')
@@ -256,5 +292,66 @@ describe('Auth (e2e)', () => {
       .expect(200);
     expect(me.body.email).toBe('receptionist@riaya.local');
     expect(me.body.role).toBe(UserRole.RECEPTIONIST);
+  });
+
+  // TEST-032 → AC-029
+  it('AC-029: revokes the existing refresh tokens when a new password is set from a reset token', async () => {
+    const email = 'resetuser@riaya.local';
+    await createUserWithMembership(email, UserRole.DOCTOR);
+
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email, password: PASSWORD })
+      .expect(201);
+    const oldCookie = readCookie(login, REFRESH_COOKIE);
+    expect(oldCookie).toBeDefined();
+
+    mail.sendPasswordReset.mockClear();
+    await request(app.getHttpServer()).post('/api/auth/forgot-password').send({ email }).expect(201);
+    const resetUrl = mail.sendPasswordReset.mock.calls[0][1] as string;
+    const token = new URL(resetUrl).searchParams.get('token') ?? '';
+
+    await request(app.getHttpServer())
+      .post('/api/auth/reset-password')
+      .send({ token, password: 'ResetUser456!' })
+      .expect(201);
+
+    // AC-029: the session that existed before the reset must be dead.
+    await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .set('Cookie', `${REFRESH_COOKIE}=${oldCookie}`)
+      .expect(401);
+
+    await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email, password: 'ResetUser456!' })
+      .expect(201);
+  });
+
+  // TEST-051 → AC-038
+  it('AC-038: keeps the pre-existing unversioned auth paths working', async () => {
+    const email = 'legacy.path@riaya.local';
+    await createUserWithMembership(email, UserRole.DOCTOR);
+
+    // No version segment anywhere: these are the paths that shipped before this feature.
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email, password: PASSWORD })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .get('/api/auth/me')
+      .set('Authorization', `Bearer ${login.body.accessToken}`)
+      .expect(200);
+
+    const refreshed = await request(app.getHttpServer())
+      .post('/api/auth/refresh')
+      .set('Cookie', `${REFRESH_COOKIE}=${readCookie(login, REFRESH_COOKIE)}`)
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .post('/api/auth/logout')
+      .set('Cookie', `${REFRESH_COOKIE}=${readCookie(refreshed, REFRESH_COOKIE)}`)
+      .expect(201);
   });
 });

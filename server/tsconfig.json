@@ -20,7 +20,12 @@
     "forceConsistentCasingInFileNames": true,
     "paths": {
       "@/*": ["src/*"]
-    }
+    },
+    // Spell out the global type packages this project relies on. Auto-inclusion
+    // already finds them, but naming them here makes the dependency explicit and
+    // turns an invisible type package into a loud ts(2688) instead of a silent
+    // ts(2582) "Cannot find name 'describe'" on every *.spec.ts.
+    "types": ["node", "jest"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]

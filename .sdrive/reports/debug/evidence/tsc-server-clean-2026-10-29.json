@@ -1,0 +1,14 @@
+{
+  "tscVersion": "5.9.3",
+  "tscResolved": true,
+  "exitCode": 0,
+  "errorLines": [],
+  "errorCount": 0,
+  "jestTypesInProgram": [
+    "C:/Users/KENULE-NWINEE/Documents/Ri-aya/node_modules/.pnpm/@types+jest@29.5.14/node_modules/@types/jest/index.d.ts"
+  ],
+  "specFilesInProgram": 11,
+  "acceptanceGapsInProgram": [
+    "server/src/tenancy/acceptance-gaps.e2e.spec.ts"
+  ]
+}

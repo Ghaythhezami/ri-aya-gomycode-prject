@@ -1,0 +1,6 @@
+cookie-parser
+express
+jest
+node
+passport-jwt
+supertest
