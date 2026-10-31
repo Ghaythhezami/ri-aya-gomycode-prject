@@ -16,10 +16,14 @@ Languages: English, Arabic (RTL), French.
 
 ## Quick start
 
-1. **Start PostgreSQL**
+1. **Start PostgreSQL and Redis**
    ```bash
    docker compose up -d
    ```
+
+   `REDIS_URL` is required in `server/.env` (see `server/.env.example`). Redis holds the
+   login-attempt counter and the revoked-refresh-token list; when it is unreachable, security
+   paths fail closed while ordinary reads keep serving from PostgreSQL.
 2. **Install dependencies**
    ```bash
    pnpm install
@@ -54,7 +58,24 @@ Then open:
 | Doctor       | `doctor@riaya.local`       | `RiayaDoctor123!`    |
 | Receptionist | `receptionist@riaya.local` | `RiayaReception123!` |
 
-There is no public self-registration. Staff accounts are created by admins (`POST /api/users`).
+## Registration, invitations and workspaces
+
+- **Public self-service registration** lives at `/register` → `POST /api/auth/register`. One
+  transaction creates the identity, the organization, the first clinic and a `SUPER_ADMIN`
+  membership, then signs the new owner in and places them in that clinic's workspace. There is
+  no pending or awaiting-approval state at any point.
+- **Staff never self-register into an existing clinic.** A `CLINIC_ADMIN` or `SUPER_ADMIN` invites
+  them by email (`POST /api/invitations`); the invitee sets their own password via `/accept-invite`.
+  Invitation tokens are single-use, stored hashed, and expire.
+- **One identity, many clinics.** A user holds a different role per clinic.
+  `POST /api/auth/switch-workspace` re-issues an access token scoped to the chosen clinic, and
+  every request resolves its tenant scope from that token — never from a request body or query string.
+- **The legacy `/signup` path is retired:** it answers `410 Gone` with code `SIGNUP_RETIRED`,
+  points at `/register`, and creates no identity.
+- **Audit trail:** creates, updates and deletes on audited entities write an append-only audit row
+  in the same transaction as the change it describes.
+
+The seeded accounts above are for local development only; they sign in at `/login`.
 
 ## Scripts
 
@@ -76,6 +97,16 @@ pnpm typecheck
 - The backoffice keeps the access token **in memory** and silently calls `/api/auth/refresh` after reload or a 401.
 - Five failed logins within 10 minutes lock the account for 15 minutes. Login always returns a generic “Invalid credentials” message.
 - Reusing a rotated refresh token revokes the entire token family.
+- Lockout counters and revoked tokens live in **Redis** with TTLs, so they survive an API restart
+  and are shared across instances. If Redis is unavailable, login fails closed
+  (`503 SECURITY_STATE_UNAVAILABLE`) instead of allowing unlimited attempts, while ordinary reads
+  keep serving from PostgreSQL.
+- `pnpm --filter server test` runs under `NODE_ENV=test` with an in-memory cache double. The
+  Redis-only lockout-persistence test (AC-009) needs a live Redis:
+  ```bash
+  $env:REDIS_URL='redis://localhost:6379'; $env:LOCKOUT_INTEGRATION='1'
+  pnpm --filter server exec jest lockout-persistence --runInBand
+  ```
 
 ## Design system (temporary)
 

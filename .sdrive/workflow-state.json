@@ -4,7 +4,15 @@
       "name": "authentication-onboarding-and-access-control",
       "branch": "feature/auth-onboarding",
       "base": "main",
-      "productItems": ["BP-004", "BP-008", "BP-009", "BP-012", "BP-014", "BP-046", "BP-047"],
+      "productItems": [
+        "BP-004",
+        "BP-008",
+        "BP-009",
+        "BP-012",
+        "BP-014",
+        "BP-046",
+        "BP-047"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -14,7 +22,7 @@
           "gates": {
             "specification": "approved",
             "planning": "approved",
-            "implementation": "in_progress",
+            "implementation": "approved",
             "review": "pending"
           },
           "history": [
@@ -61,6 +69,13 @@
             {
               "event": "planning_approved",
               "timestamp": "2026-10-29T01:19:44.139Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "in_progress",
+              "timestamp": "2026-10-31T03:14:58.297Z"
             }
           ]
         }
