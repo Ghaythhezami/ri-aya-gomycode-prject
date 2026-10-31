@@ -15,7 +15,9 @@
 - **Command:** `pnpm --filter server exec jest --runInBand --forceExit --testTimeout=120000 && pnpm --filter backoffice exec vitest run`
 - **Recorder:** `sdrive test authentication-onboarding-and-access-control --cmd "<above>"`, source `--cmd`
 - **Evidence:** `.sdrive/governance/authentication-onboarding-and-access-control/v1/test-evidence.json`
-  — `exitCode: 0`, `failed: 0`, commit `0563f28`, 2026-10-31T07:31:01Z → 07:32:24Z (82.6 s)
+  — `exitCode: 0`, `failed: 0`. The file records the exact commit, branch and timestamps of
+  the recorded run; it is deliberately gitignored (`.gitignore`) so that committing the
+  report cannot make the evidence stale.
 - **Server (Jest 29 + Supertest, colocated `server/src/**/*.spec.ts` per CON-406):**
   50 passed / 0 failed / 1 skipped of **51**
 - **Backoffice (Vitest + React Testing Library):** 4 files, **7 passed**
@@ -34,7 +36,7 @@ every row at `status: complete`. No criterion is withdrawn (0 of 45), so nothing
 excluded from coverage.
 
 This pass changed no test and no mapping: the suites were re-run to rebind the evidence
-to commit `0563f28`, after the WCAG 2.1 AA contrast commit `99c1036` changed
+after the WCAG 2.1 AA contrast commit `99c1036` changed
 `backoffice/src/index.css`, `backoffice/src/common/Input.tsx` and
 `backoffice/src/pages/AcceptInvitePage.tsx`. Every test name still carries its AC ID.
 
@@ -58,6 +60,6 @@ to commit `0563f28`, after the WCAG 2.1 AA contrast commit `99c1036` changed
   Accepted under CON-602; the extra entries are endpoints the plan did not enumerate.
   Evidence: `.sdrive/governance/authentication-onboarding-and-access-control/v1/verification.json`.
 - **Governance validator:** `node .sdrive/scripts/validate-governance.js` — all files valid.
-- **Machine note:** the whole run took 82 s in this session, against 599 s for the
+- **Machine note:** the whole run took about 80 s in this session, against 599 s for the
   2026-10-30 run. Same suites, same counts; the earlier run was slowed by host load,
   which is also what the NFR-010 benchmark report documents.
