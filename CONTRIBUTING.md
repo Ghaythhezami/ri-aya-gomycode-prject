@@ -150,16 +150,19 @@ deliberately modified, so after any CLI upgrade:
 2. Write its current hash into `framework-manifest.json` under `files` — otherwise the next
    sync treats it as stale and restores the stock version.
 
-| File                        | Why it is customised                                                                                                                                                                                                                                                                       |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `.sdrive/scripts/verify.js` | Adds NestJS decorator detection, `.prisma` and the `backoffice`/`web` roots. Stock scans `server` only, which drops verification to 4 matched / 101 missing.                                                                                                                               |
-| `.sdrive/commands/gates.js` | `commitStillDescribesHead()` compares the recorded commit's **tree** with HEAD, ignoring `.sdrive/`. Stock compares `commit === HEAD`, which makes `review.json` impossible to commit (a file cannot contain its own hash) and leaves archiving only satisfiable with an uncommitted tree. |
+| File                                  | Why it is customised                                                                                                                                                                                                                                                                       |
+| ------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `.sdrive/scripts/verify.js`           | Adds NestJS decorator detection, `.prisma` and the `backoffice`/`web` roots. Stock scans `server` only, which drops verification to 4 matched / 101 missing.                                                                                                                               |
+| `.sdrive/commands/gates.js`           | `commitStillDescribesHead()` compares the recorded commit's **tree** with HEAD, ignoring `.sdrive/`. Stock compares `commit === HEAD`, which makes `review.json` impossible to commit (a file cannot contain its own hash) and leaves archiving only satisfiable with an uncommitted tree. |
+| `.sdrive/scripts/lib/product-plan.js` | Treats a dependency cell with no letter or digit as "no dependency". Stock matches only `[-—–]`, so the double-encoded em-dash this backlog actually contains (`â€”`) was read as an outside blocker — making BP-001 ineligible and blocking the whole `start` wave.                       |
 
 Changing either stops the gate from doing what it was patched to do:
 
 ```bash
-node --test .sdrive/test/gates-binding.test.js   # 7 tests: governance-only commit is valid,
-                                                 # source/test change is stale, bad input fails closed
+node --test .sdrive/test/gates-binding.test.js      # 7 tests: governance-only commit is valid,
+                                                    # source/test change is stale, bad input fails closed
+node --test .sdrive/test/product-plan-deps.test.js  # 7 tests: dash placeholders (incl. mojibake)
+                                                    # never block an item; ids, ranges, blockers intact
 sdrive verify authentication-onboarding-and-access-control   # expect 105 matched, 0 missing
 ```
 
