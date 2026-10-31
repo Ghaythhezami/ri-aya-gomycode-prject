@@ -40,9 +40,12 @@ services:
       - '27017:27017'
     healthcheck:
       test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
-      interval: 5s
-      timeout: 5s
+      interval: 10s
+      timeout: 10s
       retries: 10
+      # mongosh needs a few seconds to start inside the container; without a start
+      # period the first probes count as failures and the service reports unhealthy.
+      start_period: 30s
     volumes:
       - riaya_mongodata:/data/db
 
