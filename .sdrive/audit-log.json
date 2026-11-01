@@ -193,6 +193,17 @@
       "event": "test_passed",
       "prevHash": "e673f7bf410fe6847f4ea44574c3638d31a6cc193fd268b9781c2f8d6be27bd5",
       "hash": "54134bd3f18ca01dda5dec0ded765ca98b276a33dc4d8cf09a491be0b0b903c0"
+    },
+    {
+      "timestamp": "2026-11-01T16:56:28.361Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "54134bd3f18ca01dda5dec0ded765ca98b276a33dc4d8cf09a491be0b0b903c0",
+      "hash": "8f937ca9723ed3381905aa0c4ac9db777483c2447139d6285c68bb158b86e469"
     }
   ]
 }

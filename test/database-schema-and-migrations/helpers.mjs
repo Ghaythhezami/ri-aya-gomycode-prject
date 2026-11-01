@@ -182,14 +182,33 @@ export function recreateDatabase(name) {
 /**
  * `prisma migrate ...` against a scratch database. DATABASE_URL is passed in the
  * environment, which dotenv will not override, so the developer's own .env is intact.
+ *
+ * P1001 ("can't reach database server") is retried: Docker publishes the container port
+ * through a proxy that can lag the container being ready, so the very first connection can
+ * fail even though the database is up. Retrying is a fix for that race - a genuinely
+ * absent database still fails, after the last attempt.
  */
 export function prismaMigrate(database, args) {
-  return execSync(`pnpm exec prisma migrate ${args.join(' ')}`, {
+  const command = `pnpm exec prisma migrate ${args.join(' ')}`;
+  const options = {
     cwd: serverDir,
     env: { ...process.env, DATABASE_URL: databaseUrl(database), NODE_ENV: 'test' },
     encoding: 'utf8',
     stdio: ['ignore', 'pipe', 'pipe'],
-  }).toString();
+  };
+
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      return execSync(command, options).toString();
+    } catch (error) {
+      const output = `${error.stdout ?? ''}${error.stderr ?? ''}`;
+      const unreachable = /P1001|Can't reach database server/i.test(output);
+
+      if (!unreachable || attempt >= 6) throw error;
+
+      sleepSync(3000);
+    }
+  }
 }
 
 export const migrateDeploy = (database) => prismaMigrate(database, ['deploy']);
