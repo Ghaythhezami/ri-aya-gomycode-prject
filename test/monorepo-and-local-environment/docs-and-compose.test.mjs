@@ -63,7 +63,7 @@ test("TEST-005 AC-006: the README quick start names the three services, the boot
     "MongoDB",
     ":3000",
     ":4000",
-    ":5173"
+    ":5174"
   ]) {
     assert.ok(readme.includes(required), `README quick start must mention ${required}`);
   }

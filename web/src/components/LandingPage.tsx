@@ -13,7 +13,7 @@ import { Header } from './Header';
 import { DashboardPreview } from './DashboardPreview';
 import { BrandLogo } from './BrandLogo';
 
-const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5173';
+const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174';
 
 export function LandingPage() {
   const hero = useTranslations('hero');

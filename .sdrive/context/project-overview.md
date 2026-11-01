@@ -19,7 +19,7 @@
 | ------------ | ------------- | ------------------------------------------------------------------------- | ------------- | ----------------------- |
 | `web`        | `web/`        | Next.js 15, React 19, next-intl, Tailwind CSS 4                           | 3000          | Next.js                 |
 | `server`     | `server/`     | NestJS 11, Prisma 6, PostgreSQL, ioredis                                  | 4000 (`/api`) | Nest CLI (`nest build`) |
-| `backoffice` | `backoffice/` | React 19, Vite 6, Redux Toolkit, react-hook-form + Zod, i18next, recharts | 5173          | Vite                    |
+| `backoffice` | `backoffice/` | React 19, Vite 6, Redux Toolkit, react-hook-form + Zod, i18next, recharts | 5174          | Vite                    |
 
 ### Workspace definitions
 

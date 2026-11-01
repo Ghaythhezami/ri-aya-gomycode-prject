@@ -40,7 +40,7 @@ Never commit `.env`. Only `.env.example` belongs in version control.
 ### Local development
 
 ```bash
-pnpm dev          # all three apps (web :3000, server :4000, backoffice :5173)
+pnpm dev          # all three apps (web :3000, server :4000, backoffice :5174)
 pnpm dev:web
 pnpm dev:server
 pnpm dev:backoffice
