@@ -18,7 +18,8 @@
   the text that was meant to cause it.
 - **Command:**
   ```bash
-  node --test test/database-schema-and-migrations/schema.test.mjs \
+  node --test --test-concurrency=1 \
+                test/database-schema-and-migrations/schema.test.mjs \
                 test/database-schema-and-migrations/migrations.test.mjs \
                 test/database-schema-and-migrations/seed.test.mjs
   ```
@@ -26,6 +27,12 @@
   - `schema.test.mjs` 5/5 — no database needed.
   - `migrations.test.mjs` 4/4 — against a real PostgreSQL server.
   - `seed.test.mjs` 5/5 — against a real PostgreSQL server.
+- **Why `--test-concurrency=1`.** Node runs test _files_ in parallel by default. With three
+  files each driving `prisma` and its own database on one machine, they contend: a recorded
+  parallel run measured the seed at **71 s** instead of 19 s and the whole suite at 158 s
+  instead of 71 s. That is a property of the harness, not of the seed, but a budget measured
+  under self-inflicted contention is not a measurement. Serialising the files makes the NFR
+  numbers reproducible and matches how CI would run a database suite.
 - **Location:** `test/database-schema-and-migrations/` (feature folder per the placement rule).
 - Every test name carries its requirement or AC ID (CON-405).
 
