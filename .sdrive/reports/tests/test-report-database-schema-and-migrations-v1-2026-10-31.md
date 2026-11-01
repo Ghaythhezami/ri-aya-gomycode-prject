@@ -71,17 +71,31 @@ Requirement coverage: FR-001 to FR-008 and NFR-001 to NFR-004 are all mapped in
 
 ## 4. Non-functional results
 
-| NFR     | Measured                                                                                        | Budget | Result |
-| ------- | ----------------------------------------------------------------------------------------------- | ------ | ------ |
-| NFR-001 | `migrate deploy` on an empty database: **10.1 s** in the recorded run, 7.4 s when run alone     | 60 s   | pass   |
-| NFR-003 | Seed: **21.2 s** from empty in the recorded run, 19.1 s alone; the repeat seed alone **11.6 s** | 60 s   | pass   |
+| NFR     | Measured                                                                                                  | Budget | Result    |
+| ------- | --------------------------------------------------------------------------------------------------------- | ------ | --------- |
+| NFR-001 | `migrate deploy` on an empty database: **7.4 s to 15.4 s** across runs; 10.1 s in the recorded run        | 60 s   | pass      |
+| NFR-003 | Seed from empty: **19 s to 30 s** (29.6 s recorded); repeat seed 11.6 s to 15.9 s. One loaded run: 61.3 s | 60 s   | pass [^1] |
 
-Both are single runs on a developer machine with Docker Desktop, not a benchmark. They answer
-the question the NFR asks — "can CI run this unattended inside a minute?" — with an order of
-magnitude of headroom, and are recorded as measurements rather than targets.
+[^1]:
+    A run made while the machine was under heavy load measured the seed at **61.3 s**, over the
+    budget. It has not recurred: four later runs measured 19 s to 30 s. The honest reading is that
+    the seed is not the bottleneck — `ts-node` compiles the script on every invocation and the
+    machine was thrashing — and that the 60 s budget is machine-sensitive rather than assured on a
+    shared developer laptop. It should be re-measured in CI, where the runner is dedicated, before
+    anyone relies on it. It is recorded here rather than dropped, because a budget that is only
+    quoted from its best run is not a budget.
+
+Both are repeated runs on a developer machine with Docker Desktop, not a benchmark, and they
+answer the question the NFR asks — "can CI run this unattended inside a minute?" — with headroom
+on a quiet machine. The spread is the machine's, not the code's: the same command took 7.4 s and
+15.4 s on different runs. Reporting the range keeps the claim defensible.
 
 ## 5. Notes and judgement calls
 
+- **The harness retries `P1001` ("can't reach database server") up to six times, three seconds
+  apart.** Docker publishes the container's port through a proxy that can lag the container
+  being ready, so the first connection occasionally fails against a database that is up. A
+  genuinely absent database still fails — on the last attempt.
 - **TEST-014 covers CON-519, not an AC.** The seed must refuse `NODE_ENV=production`. It is
   tested because a fixture generator that can write to a production database is a hazard the
   constitution names explicitly, and the guard runs before any database work, so the test needs
