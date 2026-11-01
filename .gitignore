@@ -34,6 +34,11 @@ Thumbs.db
 # HEAD, which makes the evidence stale by definition, so it stays a local artifact.
 .sdrive/governance/**/test-evidence.json
 
+# transient copies written by `sdrive approve` before it rewrites a governance file.
+# They are a rollback aid for a single command, not source, and committing them only
+# produces stale duplicates of framework files.
+.sdrive/.backups/
+
 # tooling
 .eslintcache
 .turbo
