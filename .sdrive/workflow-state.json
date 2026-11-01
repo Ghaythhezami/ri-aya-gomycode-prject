@@ -186,7 +186,7 @@
             "specification": "approved",
             "planning": "approved",
             "implementation": "approved",
-            "review": "pending"
+            "review": "approved"
           },
           "history": [
             {
@@ -225,6 +225,19 @@
               "actor": "kenule500",
               "previousValue": "pending",
               "timestamp": "2026-11-01T17:22:38.937Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-01T21:30:08.528Z"
+            },
+            {
+              "event": "archive-deferred",
+              "by": "project-owner",
+              "reason": "CON-611: this branch is shared with api-skeleton-and-ci, design-tokens-and-component-library and realtime-service, so it merges once when all four are ready. BP-002 is reviewed and its review gate is approved; the verdict will be re-cut at the final HEAD before archiving.",
+              "timestamp": "2026-11-01T21:40:00.000Z"
             }
           ]
         }

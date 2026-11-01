@@ -248,6 +248,28 @@
       "event": "test_passed",
       "prevHash": "d4c540d2e4c23befb60a36f45aaf6dcdfa06af7e196608a12ee49ddd37d6114d",
       "hash": "82e3372f8cf15f082f50c1c2b633560fa5c3b6b531498acc74f10925e8c87062"
+    },
+    {
+      "timestamp": "2026-11-01T21:15:11.015Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 60994,
+      "event": "test_passed",
+      "prevHash": "82e3372f8cf15f082f50c1c2b633560fa5c3b6b531498acc74f10925e8c87062",
+      "hash": "2fd324b6cb9bbe707cedced8b74357432bb43f0accd5099489908469119d2361"
+    },
+    {
+      "timestamp": "2026-11-01T21:30:10.273Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "2fd324b6cb9bbe707cedced8b74357432bb43f0accd5099489908469119d2361",
+      "hash": "658a1b01fa85af60558b52184ec3bbc6b89bfc60140b03fc1e9cc1352d8dffd3"
     }
   ]
 }
