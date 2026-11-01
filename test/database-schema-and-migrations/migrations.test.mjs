@@ -14,10 +14,10 @@ import path from 'node:path';
 import {
   CLINICAL_MIGRATION,
   INIT_MIGRATION,
+  ensureTestPostgres,
   migrateDeploy,
   migrateResolveApplied,
   migrationsDir,
-  postgresAvailable,
   psql,
   psqlFile,
   readMigration,
@@ -27,9 +27,9 @@ import {
 } from './helpers.mjs';
 
 const DB = testDatabase('mig');
-const skip = postgresAvailable()
+const skip = ensureTestPostgres()
   ? false
-  : 'PostgreSQL is not reachable - start it with `docker compose up -d postgres`';
+  : 'Docker is not available - this suite starts its own PostgreSQL container';
 
 // AC-002 and NFR-001 both need a fresh database migrated once. Doing it once and
 // sharing the measurement keeps the suite from paying for two deploy runs.

@@ -10,8 +10,8 @@ import assert from 'node:assert/strict';
 
 import {
   databaseUrl,
+  ensureTestPostgres,
   migrateDeploy,
-  postgresAvailable,
   psql,
   recreateDatabase,
   runSeed,
@@ -20,9 +20,9 @@ import {
 } from './helpers.mjs';
 
 const DB = testDatabase('seed');
-const skip = postgresAvailable()
+const skip = ensureTestPostgres()
   ? false
-  : 'PostgreSQL is not reachable - start it with `docker compose up -d postgres`';
+  : 'Docker is not available - this suite starts its own PostgreSQL container';
 
 // Migrate and seed once; the idempotency test needs a second seed, and the count
 // assertions reuse the first. Re-running the whole setup per test buys nothing.
