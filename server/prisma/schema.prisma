@@ -53,6 +53,7 @@ model User {
   memberships            UserMembership[]
   sentInvitations        Invitation[]        @relation("InvitationInviter")
   auditLogs              AuditLog[]
+  doctorProfiles         Doctor[]
 
   @@map("users")
 }
@@ -88,6 +89,9 @@ model Clinic {
   memberships UserMembership[]
   invitations Invitation[]
   auditLogs   AuditLog[]
+  patients     Patient[]
+  doctors      Doctor[]
+  appointments Appointment[]
 
   @@index([organizationId])
   @@map("clinics")
@@ -185,4 +189,83 @@ model PasswordResetToken {
 
   @@index([userId])
   @@map("password_reset_tokens")
+}
+
+/// Lifecycle of one appointment. Transitions are BP-019's; this feature only
+/// defines the states a row can hold (BP-002, FR-003).
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CHECKED_IN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  NO_SHOW
+}
+
+/// A person receiving care at one clinic. Deliberately carries no credentials:
+/// patients do not authenticate in this version (BP-002, FR-001).
+model Patient {
+  id          String   @id @default(uuid())
+  clinicId    String
+  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  firstName   String
+  lastName    String
+  dateOfBirth DateTime
+  phone       String
+  email       String?
+  gender      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  appointments Appointment[]
+
+  /// The patient directory lists and searches by clinic, then name (BP-015).
+  @@index([clinicId, lastName])
+  @@map("patients")
+}
+
+/// A clinician's profile at one clinic. It MAY link to a global identity through
+/// `userId`; deleting that identity keeps the clinical record (BP-002, FR-002, EC-004).
+model Doctor {
+  id                  String   @id @default(uuid())
+  clinicId            String
+  clinic              Clinic   @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  userId              String?
+  user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  specialty           String
+  licenseNumber       String?
+  consultationMinutes Int      @default(30)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  appointments Appointment[]
+
+  @@index([clinicId, isActive])
+  @@map("doctors")
+}
+
+/// One booked visit. Every row is clinic-scoped, and the two indexes below are the
+/// access paths BP-015 and BP-019 depend on (BP-002, FR-003, FR-005).
+model Appointment {
+  id        String            @id @default(uuid())
+  clinicId  String
+  clinic    Clinic            @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  patientId String
+  patient   Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId  String
+  doctor    Doctor            @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  startsAt  DateTime
+  endsAt    DateTime
+  status    AppointmentStatus @default(SCHEDULED)
+  reason    String?
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+
+  /// A doctor's day: ordered by start time inside one doctor (FR-005).
+  @@index([doctorId, startsAt])
+  /// A patient's history: every appointment for one patient (FR-005).
+  @@index([patientId])
+  @@map("appointments")
 }

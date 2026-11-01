@@ -13,7 +13,7 @@
           "description": "Add Patient, Doctor, Appointment and the AppointmentStatus enum to server/prisma/schema.prisma. Every table carries clinicId with a FK to Clinic; Appointment declares @@index([doctorId, startsAt]) and @@index([patientId]). The eight existing models are left untouched.",
           "linkedRequirements": ["FR-001", "FR-002", "FR-003", "FR-005", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-005"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T1.2",
@@ -21,7 +21,7 @@
           "description": "Run prisma migrate dev --name clinical_core, then read the generated migration.sql. Stop if it contains DROP or TRUNCATE, and confirm it does not touch the applied 20261028235000_init_tenancy migration.",
           "linkedRequirements": ["FR-004", "NFR-002"],
           "linkedAcceptanceCriteria": ["AC-002", "AC-003"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T1.3",
@@ -37,7 +37,7 @@
           "description": "Add the three clinical collections and their query surface to server/src/database/memory-prisma.ts so the in-memory path the API tests use matches schema.prisma.",
           "linkedRequirements": ["FR-001", "FR-002", "FR-003"],
           "linkedAcceptanceCriteria": ["AC-001"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -52,7 +52,7 @@
           "description": "Extend server/src/database/seeds/seed.ts with an inline fixed-seed generator and upserts producing exactly 3 clinics, 10 doctors, 200 patients and 600 appointments, clinic-scoped and fictional. No new package is added.",
           "linkedRequirements": ["FR-006", "FR-007", "NFR-003"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-007", "AC-008"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.2",
@@ -60,7 +60,7 @@
           "description": "Read DATABASE_URL from the environment only and refuse to run when NODE_ENV=production. Restate the CON-506 local-fixtures-only warning in the file header.",
           "linkedRequirements": ["NFR-003", "FR-007"],
           "linkedAcceptanceCriteria": ["AC-008"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -75,7 +75,7 @@
           "description": "Create server/prisma/ERD.md with a Mermaid erDiagram covering Patient, Doctor and Appointment, their relations to Clinic and to each other, and the two indexes.",
           "linkedRequirements": ["FR-008"],
           "linkedAcceptanceCriteria": ["AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.2",
