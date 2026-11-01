@@ -1,0 +1,237 @@
+{
+  "feature": "api-skeleton-and-ci",
+  "title": "API Skeleton and CI",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The API shell is largely built - a global ValidationPipe, a global HttpExceptionFilter, the Swagger document, the global ConfigModule and a throttler all exist on main.ts and app.module.ts - but two gaps remain and both stay invisible until something breaks. First, there is no structured logging: NestFactory.create uses Nest's default console logger, so output is unstructured text with no request correlation and no redaction, and searching the codebase for pino returns zero hits. When a request fails in production an operator cannot tell which lines belong to it, and a careless log call can print a bearer token into a sink that outlives the incident. Second, CI has never passed: the workflow runs the right five gates but omits prisma generate, so on a clean checkout @prisma/client exports nothing and pnpm typecheck fails with \"no exported member PrismaClient\"; both historical main runs are red.",
+    "proposedSolution": "Add structured JSON logging with nestjs-pino: one line per request carrying a generated request id, method, url, status and duration; the same id on every line written while handling it; an X-Request-Id response header; and redaction of authorization, cookie and password fields before anything is serialised. Call sites keep Nest's Logger interface, so application code does not learn a second logging API. Make CI honest by adding the Prisma client generation step and the two hardening steps the auth feature's security report asked for - a production dependency audit and a secret scan.",
+    "targetAudience": "Operators on call, who need one JSON line per request and a way to follow a single failing request end to end; every later feature, which will log through this and would otherwise invent its own scheme; reviewers, who currently take 'lint and typecheck pass locally' on trust because no CI run has ever succeeded.",
+    "assumptions": [
+      "No log shipping or aggregation infrastructure exists or is in scope; logs go to stdout as JSON, which is what a container platform collects.",
+      "nestjs-pino is the appropriate choice because it is the Nest integration for pino and keeps the Logger interface at call sites. It is a new runtime dependency.",
+      "The server test suite needs neither PostgreSQL nor Redis in CI: it runs against the in-memory Prisma double and the Redis-gated suite skips itself. If that proves false, the workflow gains service containers in this feature rather than failing silently.",
+      "CI runs Node 20, as .github/workflows/ci.yml already declares."
+    ],
+    "outOfScope": [
+      "Log aggregation, retention, shipping or dashboards (Loki, Datadog, ELK).",
+      "Metrics and distributed tracing (OpenTelemetry); correlation ids are not spans.",
+      "Changing the exception body shape, the validation rules or any status code.",
+      "GitHub branch-protection settings, which are a repository setting rather than code.",
+      "Rewriting call sites to a new logger API: existing Logger usage keeps working."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "An operator can follow one request through the logs",
+      "role": "engineer woken up by an alert",
+      "want": "each request to be one structured record with an id I can search on",
+      "benefit": "I can reconstruct a failure without reading interleaved prose",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given a request to any API route, when it completes, then exactly one JSON object is written to stdout with reqId, req.method, req.url, res.statusCode and responseTime."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given a request, when the handler logs through Nest's Logger, then those lines carry the same reqId as the request record, and the response carries a matching X-Request-Id header."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given a request carrying an Authorization header, a Cookie header and a body with a password, when the request record and handler logs are written, then none of those values appears in the output."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given LOG_LEVEL is set, when the server starts, then that level is honoured; with no value it defaults to info. A 5xx response logs at error, a 4xx at warn, everything else at info."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "A broken change cannot merge",
+      "role": "reviewer",
+      "want": "the pipeline to run every gate on a pull request and fail loudly",
+      "benefit": "'it passes locally' stops being the only evidence",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given a clean checkout, when the CI workflow runs, then install, Prisma client generation, lint, typecheck, test and build all succeed and the run is green."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given a clean checkout without a generated Prisma client, when pnpm typecheck runs, then it fails; the workflow must therefore generate the client before typechecking. The step is load-bearing, not ceremonial."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given the workflow, when it runs, then a production dependency audit and a secret scan execute, and a high or critical finding fails the job."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "The existing API contract is preserved",
+      "role": "client applications",
+      "want": "the validation and error behaviour I already depend on to keep working",
+      "benefit": "the shell can change around me without breaking me",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given a request body with an unknown property, when it is validated, then the API still returns 400 and rejects the request (whitelist and forbidNonWhitelisted unchanged)."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given a thrown HttpException, when the exception filter handles it, then the response body keeps its existing statusCode and message shape and now also carries requestId."
+        },
+        {
+          "id": "AC-010",
+          "text": "Given Swagger is enabled, when the app starts, then /api/docs still serves the document and logging does not alter that route."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The server MUST emit one structured JSON log record per HTTP request containing a request id, method, url, status code and duration.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The request id MUST be attached to every log line written while that request is handled, and MUST be returned in an X-Request-Id response header.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "FR-003",
+      "text": "Log output MUST redact authorization, cookie, set-cookie, password, passwordHash and token values at any depth.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "FR-004",
+      "text": "The log level MUST come from LOG_LEVEL defaulting to info, and response severity MUST map 5xx to error, 4xx to warn and otherwise info.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "FR-005",
+      "text": "The CI workflow MUST generate the Prisma client after install and before typecheck.",
+      "linkedAcceptanceCriteria": ["AC-005", "AC-006"]
+    },
+    {
+      "id": "FR-006",
+      "text": "The CI workflow MUST run a production dependency audit and a secret scan, failing on high or critical findings.",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    },
+    {
+      "id": "FR-007",
+      "text": "The global ValidationPipe MUST keep whitelist, forbidNonWhitelisted and transform enabled.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "FR-008",
+      "text": "HttpExceptionFilter MUST keep its current response shape and add requestId.",
+      "linkedAcceptanceCriteria": ["AC-009"]
+    },
+    {
+      "id": "FR-009",
+      "text": "Swagger MUST remain served at /api/docs.",
+      "linkedAcceptanceCriteria": ["AC-010"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "Logging MUST NOT add more than 5 ms to p95 latency on a local run of the health endpoint, measured before and after the change.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Each record MUST be valid JSON on a single line in every environment, so a collector parses it without a multi-line pattern.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "The CI job MUST finish in under 15 minutes on ubuntu-latest so a pull request is not blocked by the pipeline itself.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "Adding logging MUST NOT require changing call sites: existing Logger calls keep compiling and working.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "LOG_LEVEL holds an unknown value.",
+      "expectedBehavior": "Fall back to info and log one warning naming the invalid value; never crash on startup."
+    },
+    {
+      "id": "EC-002",
+      "description": "A client sends its own X-Request-Id header.",
+      "expectedBehavior": "Accept it only if it is a safe token (bounded length, A-Za-z0-9-_); otherwise generate a new id. Never echo arbitrary client input into logs or headers unvalidated."
+    },
+    {
+      "id": "EC-003",
+      "description": "The health endpoint is polled every second.",
+      "expectedBehavior": "Still one record per request, at info; no per-request handler chatter. Volume is an operational concern, not a reason to skip the record."
+    },
+    {
+      "id": "EC-004",
+      "description": "Tests run.",
+      "expectedBehavior": "Logging is silenced under NODE_ENV=test so fifty passing tests do not produce thousands of lines; the logging test opts back in."
+    },
+    {
+      "id": "EC-005",
+      "description": "A log call receives a circular object.",
+      "expectedBehavior": "Serialise safely, and never throw from a logging call - a failed log must not fail the request."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "nestjs-pino",
+      "type": "library",
+      "notes": "New runtime dependency: the Nest integration for pino, providing LoggerModule and the Logger service. Added together with pino-http."
+    },
+    {
+      "name": "pino-pretty",
+      "type": "library",
+      "notes": "Development-only human-readable output. Never required in CI, so a missing devDependency cannot break the pipeline."
+    },
+    {
+      "name": "@nestjs/common Logger",
+      "type": "internal",
+      "notes": "Existing call sites keep this interface (NFR-004); the pino integration supplies the implementation behind it."
+    },
+    {
+      "name": "GitHub Actions",
+      "type": "service",
+      "notes": "pnpm/action-setup@v4, actions/setup-node@v4 and the secret-scan action; the workflow already exists and gains steps rather than being replaced."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "A new dependency brings a CVE into the runtime.",
+      "mitigation": "pnpm audit --prod runs in CI from this feature on (FR-006); the version is pinned in the lockfile."
+    },
+    {
+      "id": "RISK-002",
+      "description": "Redaction misses a nested field and a token reaches the log sink.",
+      "mitigation": "AC-003 asserts on nested paths, not only top-level headers, and the redact list is one constant reviewed in the diff."
+    },
+    {
+      "id": "RISK-003",
+      "description": "CI minutes balloon with the audit and scan steps.",
+      "mitigation": "NFR-003 caps the job at 15 minutes; the audit is --prod only and the scan is diff-scoped."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Logging becomes a latency tax on every request.",
+      "mitigation": "NFR-001 measures p95 before and after; pino writes asynchronously to stdout."
+    },
+    {
+      "id": "RISK-005",
+      "description": "Tests get noisy and slow from per-request records.",
+      "mitigation": "EC-004 silences logging under NODE_ENV=test; the logging test opts back in explicitly."
+    }
+  ]
+}
