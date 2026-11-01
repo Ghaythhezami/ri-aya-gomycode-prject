@@ -1,0 +1,99 @@
+{
+  "feature": "api-skeleton-and-ci",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Structured logging",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Add the logging configuration and module",
+          "description": "Create server/src/logging/logging.config.ts with the redact list, resolveLogLevel, genReqId and customLogLevel, and server/src/logging/logging.module.ts exporting LoggerModule.forRoot over it. Silent under NODE_ENV=test.",
+          "linkedRequirements": ["FR-001", "FR-003", "FR-004"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-003", "AC-004"],
+          "completed": false
+        },
+        {
+          "id": "T1.2",
+          "title": "Wire the logger into bootstrap and the app module",
+          "description": "Import LoggingModule first in app.module.ts; in main.ts create the app with bufferLogs and call app.useLogger with the pino Logger, leaving helmet, cookie-parser, CORS, ValidationPipe and Swagger in their existing order.",
+          "linkedRequirements": ["FR-001", "FR-002", "FR-009", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T1.3",
+          "title": "Carry the request id into the error response",
+          "description": "Extend HttpExceptionFilter to include requestId in the body, read from the request the logger attached it to, without changing statusCode or message.",
+          "linkedRequirements": ["FR-002", "FR-008"],
+          "linkedAcceptanceCriteria": ["AC-002", "AC-009"],
+          "completed": false
+        },
+        {
+          "id": "T1.4",
+          "title": "Add the dependency and document LOG_LEVEL",
+          "description": "Add nestjs-pino and pino-http to dependencies and pino-pretty to devDependencies, install to refresh the lockfile, and document LOG_LEVEL in server/.env.example.",
+          "linkedRequirements": ["FR-004"],
+          "linkedAcceptanceCriteria": ["AC-004"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "CI pipeline",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Generate the Prisma client in CI",
+          "description": "Add pnpm --filter server exec prisma generate between install and typecheck in .github/workflows/ci.yml, with a comment recording why the step exists (typecheck fails on a clean checkout without it).",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-005", "AC-006"],
+          "completed": false
+        },
+        {
+          "id": "T2.2",
+          "title": "Add the audit and secret-scan steps",
+          "description": "Add pnpm audit --prod --audit-level=high and a gitleaks secret scan to the workflow, both failing the job on a high or critical finding.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-007"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Documentation and verification",
+      "dependencies": ["P1", "P2"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Record the logging contract",
+          "description": "Add a short section to CONTRIBUTING.md: where the redact list lives, how to add a redacted field, that LOG_LEVEL is the only knob, and that logging is silent under NODE_ENV=test.",
+          "linkedRequirements": ["NFR-004"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        },
+        {
+          "id": "T3.2",
+          "title": "Measure the latency cost and record the CI result",
+          "description": "Measure p95 on the health endpoint before and after wiring the logger (NFR-001), and record both, plus the CI run outcome and duration, in the implementation report.",
+          "linkedRequirements": ["NFR-001", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-005"],
+          "completed": false
+        },
+        {
+          "id": "T3.3",
+          "title": "Run the verification gates",
+          "description": "Run pnpm lint, pnpm typecheck, prettier --check on the changed files, sdrive verify api-skeleton-and-ci, and node .sdrive/scripts/validate-governance.js; record the exit codes.",
+          "linkedRequirements": ["NFR-004"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}

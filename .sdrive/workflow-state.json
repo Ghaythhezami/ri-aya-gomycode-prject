@@ -255,7 +255,7 @@
           "phase": "backlog",
           "currentStep": "specification",
           "gates": {
-            "specification": "pending",
+            "specification": "approved",
             "planning": "pending",
             "implementation": "pending",
             "review": "pending"
@@ -275,6 +275,13 @@
               ],
               "summary": "10 acceptance criteria across 3 user stories: structured JSON logging with request correlation and redaction, a CI pipeline that finally runs green (prisma generate) plus audit and secret scan, and preservation of the existing validation, error and Swagger contract.",
               "timestamp": "2026-11-01T22:00:00.000Z"
+            },
+            {
+              "event": "specification_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-01T21:48:14.559Z"
             }
           ]
         }

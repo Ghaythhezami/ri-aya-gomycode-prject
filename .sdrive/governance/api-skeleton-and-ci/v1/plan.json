@@ -1,0 +1,78 @@
+{
+  "feature": "api-skeleton-and-ci",
+  "version": 1,
+  "architecture": {
+    "approach": "Logging is added as one module, not sprinkled through the app. A LoggingModule wraps nestjs-pino's LoggerModule with a configuration that this feature owns: the redact list, the level resolution from LOG_LEVEL, the request-id generator and the mapping of response status to severity. main.ts creates the app with bufferLogs and then uses that logger, so bootstrap output is already structured and every Nest Logger call site inherits it without a single edit - which is what NFR-004 asks for. The request id is generated in one place, validated when a client supplies one, echoed in X-Request-Id, and attached to the request-scoped logger, so the exception filter can read it from the request rather than inventing its own. CI is fixed by adding the load-bearing prisma generate step and the two hardening steps the auth security review asked for; the workflow is edited, not replaced.",
+    "components": [
+      {
+        "name": "server/src/logging/logging.config.ts",
+        "action": "create",
+        "description": "Builds the pino-http configuration: REDACT_PATHS constant covering authorization, cookie, set-cookie, password, passwordHash and token at any depth; resolveLogLevel reading LOG_LEVEL with an info default and a warning on an invalid value (EC-001); a genReqId that accepts a client X-Request-Id only when it matches /^[A-Za-z0-9_-]{1,64}$/ and otherwise generates a UUID (EC-002); and a customLogLevel mapping 5xx to error, 4xx to warn and otherwise info."
+      },
+      {
+        "name": "server/src/logging/logging.module.ts",
+        "action": "create",
+        "description": "A single module exporting LoggerModule.forRoot using the configuration above; silent under NODE_ENV=test so the 50-test suite stays quiet (EC-004). Imported by AppModule so no feature needs to wire logging itself."
+      },
+      {
+        "name": "server/src/app.module.ts",
+        "action": "modify",
+        "description": "Import the new LoggingModule first in the imports array, so the logger exists before any other module initialises."
+      },
+      {
+        "name": "server/src/main.ts",
+        "action": "modify",
+        "description": "Create the app with bufferLogs: true and call app.useLogger(app.get(Logger)) from nestjs-pino, so bootstrap and framework output are structured too. Helmet, cookie-parser, CORS, the ValidationPipe and Swagger stay in their current order - logging must not reorder or bypass them (CON-513, FR-007, FR-009)."
+      },
+      {
+        "name": "server/src/common/filters/http-exception.filter.ts",
+        "action": "modify",
+        "description": "Add requestId to the response body, read from the pino-attached request, keeping the existing statusCode and message shape unchanged (FR-008, AC-009)."
+      },
+      {
+        "name": "server/package.json",
+        "action": "modify",
+        "description": "Add nestjs-pino and pino-http as runtime dependencies and pino-pretty as a devDependency for local readability. The lockfile is updated by pnpm install."
+      },
+      {
+        "name": "server/.env.example",
+        "action": "modify",
+        "description": "Document LOG_LEVEL with its default, so the setting is discoverable rather than folklore."
+      },
+      {
+        "name": ".github/workflows/ci.yml",
+        "action": "modify",
+        "description": "Add pnpm --filter server exec prisma generate between install and typecheck (FR-005), a pnpm audit --prod --audit-level=high step and a gitleaks secret-scan step (FR-006). Keep the existing gate order so the first failure is the honest one."
+      },
+      {
+        "name": "test/api-skeleton-and-ci",
+        "action": "create",
+        "description": "The feature's test folder. Tests are written by /sdrive:test, not by the implementation tasks."
+      },
+      {
+        "name": "CONTRIBUTING.md",
+        "action": "modify",
+        "description": "Record the logging contract - where the redact list lives, how to add a field, and that LOG_LEVEL is the only knob - so later features extend it instead of inventing their own."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "FR-009",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004"
+    ]
+  },
+  "dataModel": {
+    "entities": [],
+    "flowDescription": "No schema change and no migration: this feature touches request handling, not persistence. Request flow: a client call enters Express, pino-http assigns or validates a request id, the handler runs with that id in scope, Nest's Logger writes JSON lines carrying it, the response leaves with X-Request-Id, and one record is emitted at completion with status and duration."
+  }
+}

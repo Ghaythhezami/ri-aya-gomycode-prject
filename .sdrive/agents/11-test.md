@@ -5,7 +5,20 @@ argument-hint: Specify the feature to test (e.g., "Test user-login"), or use "--
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools: ['read', 'search', 'create', 'edit', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'context7']
+tools:
+  [
+    'read',
+    'search',
+    'create',
+    'edit',
+    'execute',
+    'web',
+    'todo',
+    'vscode/askQuestions',
+    'exa:search',
+    'exa:fetch',
+    'context7',
+  ]
 agents: []
 ---
 
@@ -18,6 +31,7 @@ You operate within the current version folder only.
 <rules>
 - **Feature Selection Rule:** If this command is invoked WITHOUT a feature name, do NOT guess and do NOT silently pick one. Detect the ongoing features by listing `.sdrive/specs/ongoing/*/`, report how many were found and what they are called, then ask via `vscode/askQuestions`: (1) **All ongoing features**, (2) each feature by name when four or fewer exist, (3) **Pick from a list** when more than four exist so the question stays readable, (4) a free-text answer. If no ongoing feature exists, STOP and say so instead of asking. `/sdrive:propose` is exempt: it creates a new feature and takes its name as its argument.
 - **`--all` Mode Rule:** If the user invokes this command with `--all` (e.g. `/sdrive:test --all`), you MUST test EVERY feature currently in `ongoing/`, one after the other, in a single run. See the `<all-mode>` section for the exact procedure. In `--all` mode, the per-feature rules below still apply to each feature individually — you simply repeat the full workflow for each one.
+- **Secret File Rule:** NEVER read, print, copy, or edit a file whose purpose is to hold credentials — `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `id_rsa*`, `credentials.*`, `secrets.*`, `.npmrc`, `.netrc`, or anything `.sdrive/constitution.md` marks as secret. Write and run tests against variable NAMES and test fixtures, never against a real credential file: if a test needs a secret, it uses a literal fixture value in the test itself, or an environment variable the user provides. A test that reads `.env` is a finding, not a convenience.
 - ALWAYS read `.sdrive/constitution.md` first. If it does not exist, STOP and ask the user to run the Constitution Agent.
 - **Version Detection Rule:** Before reading feature files, read `.sdrive/workflow-state.json`:
   - Find the feature by name.
@@ -109,10 +123,10 @@ When invoked as `/sdrive:test --all`, test every ongoing feature sequentially.
 3. **AGGREGATE REPORT**
    - After all features are processed, produce a single summary table:
 
-     | Feature | Version | Total ACs | Tested ACs | Coverage | Tests Passed | Status |
-     |---------|---------|-----------|------------|----------|--------------|--------|
-     | user-login | v1 | 8 | 8 | 100% | 8/8 | ✅ Pass |
-     | about-page | v1 | 5 | 3 | 60% | 3/5 | ⚠️ Incomplete |
+     | Feature    | Version | Total ACs | Tested ACs | Coverage | Tests Passed | Status        |
+     | ---------- | ------- | --------- | ---------- | -------- | ------------ | ------------- |
+     | user-login | v1      | 8         | 8          | 100%     | 8/8          | ✅ Pass       |
+     | about-page | v1      | 5         | 3          | 60%      | 3/5          | ⚠️ Incomplete |
 
    - Write the aggregate report to `.sdrive/reports/tests/test-report-all-<date>.md`.
    - Per-feature reports are still written individually to `.sdrive/reports/tests/test-report-<feature>-<version>-<date>.md`.
@@ -192,8 +206,11 @@ When invoked as `/sdrive:test --all`, test every ongoing feature sequentially.
      - Test results
      - Any failures
      - Coverage percentage
+   - Run `sdrive next <feature> --write` so the handoff is recorded in
+     `.sdrive/handoff.json`. `/sdrive:review` cannot be started from here — no agent can
+     launch another — so your job is to leave the next step on disk and name it once.
    - Recommend next step: `/sdrive:review`.
-</workflow>
+   </workflow>
 
 <test-report-template>
 Use this exact structure for `.sdrive/reports/tests/test-report-<feature>-<version>-<date>.md`:
@@ -201,6 +218,7 @@ Use this exact structure for `.sdrive/reports/tests/test-report-<feature>-<versi
 # Test Report: [Feature Name] ([version])
 
 ## 1. Summary
+
 - **Date:** [DATE]
 - **Feature:** [feature]
 - **Version:** [version]
@@ -210,17 +228,20 @@ Use this exact structure for `.sdrive/reports/tests/test-report-<feature>-<versi
 - **Tests Passed:** [X]/[X]
 
 ## 2. AC → Test Mapping
-| AC ID | Test ID | File | Status |
-|-------|---------|------|--------|
+
+| AC ID  | Test ID  | File                | Status  |
+| ------ | -------- | ------------------- | ------- |
 | AC-001 | TEST-001 | tests/login.test.ts | ✅ Pass |
 | AC-002 | TEST-002 | tests/login.test.ts | ✅ Pass |
 
 ## 3. Failures
-| Test | Reason | Blocking |
-|------|--------|----------|
+
+| Test       | Reason   | Blocking |
+| ---------- | -------- | -------- |
 | [TEST-XXX] | [reason] | [Yes/No] |
 
 ## 4. Notes
+
 - [Any framework-specific notes]
 - [Any tests that could not be written]
 </test-report-template>
@@ -263,7 +284,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-   Use the prefix `specdrive(<command>):`.
+     Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

@@ -1,15 +1,15 @@
 #!/usr/bin/env node
 
-const http = require("http");
-const fs = require("fs");
-const os = require("os");
-const path = require("path");
-const { execFile } = require("child_process");
-const productPlan = require("../scripts/lib/product-plan");
-const { isResolved } = require("../scripts/lib/resolution");
+const http = require('http');
+const fs = require('fs');
+const os = require('os');
+const path = require('path');
+const { execFile } = require('child_process');
+const productPlan = require('../scripts/lib/product-plan');
+const { isResolved } = require('../scripts/lib/resolution');
 
 let projectRoot = process.cwd();
-let sdriveRoot = path.join(projectRoot, ".sdrive");
+let sdriveRoot = path.join(projectRoot, '.sdrive');
 
 // git runs asynchronously on purpose. execFileSync blocks the event loop, and this
 // machine spawns git in 1-2 seconds, so building the header froze the entire server -
@@ -34,10 +34,10 @@ const gitCache = new Map();
 function runGit(args) {
   return new Promise((resolve) => {
     execFile(
-      "git",
+      'git',
       args,
-      { cwd: projectRoot, encoding: "utf8", timeout: GIT_TIMEOUT_MS, windowsHide: true },
-      (error, stdout) => resolve({ ok: !error, out: error ? "" : String(stdout).trim() })
+      { cwd: projectRoot, encoding: 'utf8', timeout: GIT_TIMEOUT_MS, windowsHide: true },
+      (error, stdout) => resolve({ ok: !error, out: error ? '' : String(stdout).trim() }),
     );
   });
 }
@@ -46,7 +46,7 @@ function runGit(args) {
 // to the caller but dropped from the memo straight away, so one slow spawn cannot
 // poison every request for the next ten seconds.
 async function gitProbe(args) {
-  const key = args.join("\u0000");
+  const key = args.join('\u0000');
   const cached = gitCache.get(key);
 
   if (cached && Date.now() - cached.at < GIT_CACHE_TTL_MS) {
@@ -72,11 +72,11 @@ async function apiGitInfo() {
   // so all five probes go out together. Asking for the branch first and the rest
   // afterwards cost a whole extra round of slow spawns for no extra information.
   const [branchProbe, logLine, statusProbe, upstream, counts] = await Promise.all([
-    gitProbe(["rev-parse", "--abbrev-ref", "HEAD"]),
-    git(["log", "-1", "--pretty=%h%x1f%s%x1f%an%x1f%cI"]),
-    gitProbe(["status", "--porcelain"]),
-    git(["rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{upstream}"]),
-    git(["rev-list", "--left-right", "--count", "@{upstream}...HEAD"])
+    gitProbe(['rev-parse', '--abbrev-ref', 'HEAD']),
+    git(['log', '-1', '--pretty=%h%x1f%s%x1f%an%x1f%cI']),
+    gitProbe(['status', '--porcelain']),
+    git(['rev-parse', '--abbrev-ref', '--symbolic-full-name', '@{upstream}']),
+    git(['rev-list', '--left-right', '--count', '@{upstream}...HEAD']),
   ]);
 
   const branch = branchProbe.out;
@@ -84,7 +84,7 @@ async function apiGitInfo() {
     return { available: false, branching: await apiBranching() };
   }
 
-  const [commit = "", subject = "", author = "", committedAt = ""] = logLine.split("\u001f");
+  const [commit = '', subject = '', author = '', committedAt = ''] = logLine.split('\u001f');
 
   // null means "git could not be asked", which is not the same as false ("clean").
   const dirty = statusProbe.ok ? statusProbe.out.length > 0 : null;
@@ -92,12 +92,12 @@ async function apiGitInfo() {
   // Determine the branch this one was merged from / branched off.
   // Prefer the upstream tracking branch, then the default branch, then the
   // most recent merged-in branch recorded in the reflog.
-  let mergedFrom = "";
+  let mergedFrom = '';
   let ahead = 0;
   let behind = 0;
 
   if (upstream && upstream !== branch) {
-    mergedFrom = upstream.replace(/^origin\//, "");
+    mergedFrom = upstream.replace(/^origin\//, '');
   }
 
   if (upstream) {
@@ -117,7 +117,7 @@ async function apiGitInfo() {
   }
 
   if (!mergedFrom) {
-    const reflog = await git(["reflog", "--grep-reflog=merge", "--pretty=%gs", "-n", "1"]);
+    const reflog = await git(['reflog', '--grep-reflog=merge', '--pretty=%gs', '-n', '1']);
     const match = reflog.match(/merge\s+([^:]+):/);
     if (match) {
       mergedFrom = match[1].trim();
@@ -135,7 +135,7 @@ async function apiGitInfo() {
     mergedFrom: mergedFrom || null,
     ahead,
     behind,
-    branching
+    branching,
   };
 }
 
@@ -154,10 +154,11 @@ async function apiGitInfo() {
 //   2. A base that is another feature's branch is a STACK, not an integration branch,
 //      so it is reported separately rather than counted as a landing target.
 async function resolveDefaultBranch() {
-  const originHead = (await git(["symbolic-ref", "--short", "refs/remotes/origin/HEAD"]) || "")
-    .replace(/^origin\//, "");
-  if (originHead && originHead !== "HEAD") {
-    return { name: originHead, source: "origin/HEAD" };
+  const originHead = (
+    (await git(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD'])) || ''
+  ).replace(/^origin\//, '');
+  if (originHead && originHead !== 'HEAD') {
+    return { name: originHead, source: 'origin/HEAD' };
   }
 
   // origin/HEAD is only populated once the remote is known and `remote set-head` has
@@ -168,20 +169,25 @@ async function resolveDefaultBranch() {
   // One for-each-ref instead of a rev-parse probe per candidate: seven probes is seven
   // process launches for one answer.
   const refs = await git([
-    "for-each-ref",
-    "--format=%(refname:short)",
-    "refs/remotes/origin",
-    "refs/heads"
+    'for-each-ref',
+    '--format=%(refname:short)',
+    'refs/remotes/origin',
+    'refs/heads',
   ]);
-  const known = new Set(refs.split("\n").map((line) => line.trim()).filter(Boolean));
+  const known = new Set(
+    refs
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean),
+  );
 
-  for (const candidate of ["main", "master", "trunk", "develop"]) {
+  for (const candidate of ['main', 'master', 'trunk', 'develop']) {
     if (known.has(`origin/${candidate}`)) {
       return { name: candidate, source: `origin/${candidate}` };
     }
   }
 
-  for (const candidate of ["main", "master", "trunk"]) {
+  for (const candidate of ['main', 'master', 'trunk']) {
     if (known.has(candidate)) {
       return { name: candidate, source: `local ${candidate}` };
     }
@@ -199,18 +205,18 @@ async function apiBranching(context = {}) {
       : resolveDefaultBranch(),
     context.currentBranch !== undefined
       ? context.currentBranch
-      : git(["rev-parse", "--abbrev-ref", "HEAD"])
+      : git(['rev-parse', '--abbrev-ref', 'HEAD']),
   ]);
 
   const { name: defaultBranch, source: defaultBranchSource } = resolved;
   const currentBranch = detectedBranch || null;
 
-  const state = loadJson(path.join(sdriveRoot, "workflow-state.json"), { features: [] });
+  const state = loadJson(path.join(sdriveRoot, 'workflow-state.json'), { features: [] });
   const features = Array.isArray(state.features) ? state.features : [];
 
   // A feature's branch is a stack parent when a peer points its base at it.
   const featureBranches = new Set(
-    features.map((f) => (typeof f.branch === "string" ? f.branch.trim() : "")).filter(Boolean)
+    features.map((f) => (typeof f.branch === 'string' ? f.branch.trim() : '')).filter(Boolean),
   );
 
   const bases = [];
@@ -220,7 +226,7 @@ async function apiBranching(context = {}) {
   let unrecordedCount = 0;
 
   for (const feature of features) {
-    const base = typeof feature.base === "string" ? feature.base.trim() : "";
+    const base = typeof feature.base === 'string' ? feature.base.trim() : '';
     if (!base) {
       unrecordedCount += 1;
       continue;
@@ -236,8 +242,11 @@ async function apiBranching(context = {}) {
   }
 
   const { label, detail } = describeBranchingModel({
-    defaultBranch, integration, stackedCount, unrecordedCount,
-    hasFeatureBranches: featureBranches.size > 0
+    defaultBranch,
+    integration,
+    stackedCount,
+    unrecordedCount,
+    hasFeatureBranches: featureBranches.size > 0,
   });
 
   return {
@@ -250,7 +259,7 @@ async function apiBranching(context = {}) {
     stackedCount,
     unrecordedCount,
     label,
-    detail
+    detail,
   };
 }
 
@@ -261,75 +270,81 @@ function describeBranchingModel(info) {
 
   const stackNote = stackedCount
     ? ` ${stackedCount} feature(s) are stacked on a peer branch rather than landing on an integration branch directly.`
-    : "";
+    : '';
   const pendingNote = unrecordedCount
     ? ` ${unrecordedCount} feature(s) have not started and have recorded no base yet.`
-    : "";
+    : '';
 
   if (!defaultBranch) {
     return {
-      label: "Unknown",
-      detail: "No default branch could be resolved from this repository." + stackNote
+      label: 'Unknown',
+      detail: 'No default branch could be resolved from this repository.' + stackNote,
     };
   }
 
   if (integration.length === 0) {
     if (stackedCount > 0) {
       return {
-        label: "Stacked features",
+        label: 'Stacked features',
         detail:
           `Every started feature is based on a peer's branch rather than on ${defaultBranch}. The chain lands ` +
-          `on ${defaultBranch} once the bottom of the stack lands.`
+          `on ${defaultBranch} once the bottom of the stack lands.`,
       };
     }
     return {
-      label: "Not started",
-      detail: `The default branch is ${defaultBranch}, but no started feature has recorded a landing target yet.`
+      label: 'Not started',
+      detail: `The default branch is ${defaultBranch}, but no started feature has recorded a landing target yet.`,
     };
   }
 
   if (integration.length > 1) {
     return {
-      label: "Per-feature targets",
+      label: 'Per-feature targets',
       detail:
-        `Started features land on more than one branch (${integration.join(", ")}). SpecDrive reads each ` +
-        `feature's target from its own recorded base, so there is no single integration branch.` + stackNote + pendingNote
+        `Started features land on more than one branch (${integration.join(', ')}). SpecDrive reads each ` +
+        `feature's target from its own recorded base, so there is no single integration branch.` +
+        stackNote +
+        pendingNote,
     };
   }
 
   const only = integration[0];
 
-  if (only === "develop") {
+  if (only === 'develop') {
     return {
-      label: "Git Flow",
-      detail: `Started features land on ${only}; releases go to ${defaultBranch}.` + stackNote
+      label: 'Git Flow',
+      detail: `Started features land on ${only}; releases go to ${defaultBranch}.` + stackNote,
     };
   }
 
   if (only !== defaultBranch) {
     return {
-      label: "Custom",
-      detail: `Started features land on ${only}, which is not the default branch (${defaultBranch}).` + stackNote
+      label: 'Custom',
+      detail:
+        `Started features land on ${only}, which is not the default branch (${defaultBranch}).` +
+        stackNote,
     };
   }
 
   if (!hasFeatureBranches) {
     return {
-      label: "Trunk-based",
+      label: 'Trunk-based',
       detail:
         `Started features land on ${defaultBranch} and no feature has recorded a branch of its own, so work ` +
         `appears to go straight to the trunk. If this project predates branch recording, the branches may ` +
-        `exist without having been recorded.` + stackNote
+        `exist without having been recorded.` +
+        stackNote,
     };
   }
 
   return {
-    label: "GitHub Flow",
+    label: 'GitHub Flow',
     detail:
       `Started features land on the default branch ${defaultBranch}, one branch per feature. Trunk-based ` +
       `development with short-lived branches resolves to this identical shape, so the branch name is the ` +
       `reliable fact and GitHub Flow is reported whenever features have branches of their own - which is ` +
-      `also the shape SpecDrive enforces (CON-606).` + stackNote
+      `also the shape SpecDrive enforces (CON-606).` +
+      stackNote,
   };
 }
 
@@ -340,14 +355,14 @@ async function apiBranches() {
   // they are issued together. Only the merge check has to wait, because it needs the
   // default branch name first.
   const [current, raw, originHead] = await Promise.all([
-    git(["rev-parse", "--abbrev-ref", "HEAD"]),
+    git(['rev-parse', '--abbrev-ref', 'HEAD']),
     git([
-      "for-each-ref",
-      "--sort=-committerdate",
-      "--format=%(refname:short)%09%(objectname:short)%09%(committerdate:iso-strict)%09%(authorname)%09%(subject)",
-      "refs/heads"
+      'for-each-ref',
+      '--sort=-committerdate',
+      '--format=%(refname:short)%09%(objectname:short)%09%(committerdate:iso-strict)%09%(authorname)%09%(subject)',
+      'refs/heads',
     ]),
-    git(["symbolic-ref", "--short", "refs/remotes/origin/HEAD"])
+    git(['symbolic-ref', '--short', 'refs/remotes/origin/HEAD']),
   ]);
 
   if (!raw) {
@@ -355,15 +370,18 @@ async function apiBranches() {
   }
 
   // Branches already merged into the default branch (main/master).
-  const defaultBranch = (originHead || "").replace(/^origin\//, "") || "main";
-  const mergedRaw = await git(["branch", "--merged", defaultBranch, "--format=%(refname:short)"]);
+  const defaultBranch = (originHead || '').replace(/^origin\//, '') || 'main';
+  const mergedRaw = await git(['branch', '--merged', defaultBranch, '--format=%(refname:short)']);
   const mergedSet = new Set(
-    mergedRaw.split("\n").map((b) => b.trim()).filter(Boolean)
+    mergedRaw
+      .split('\n')
+      .map((b) => b.trim())
+      .filter(Boolean),
   );
 
   const branches = raw
-    .split("\n")
-    .map((line) => line.split("\t"))
+    .split('\n')
+    .map((line) => line.split('\t'))
     .filter((parts) => parts.length >= 5 && parts[0])
     .map(([name, commit, committedAt, author, subject]) => ({
       name,
@@ -372,21 +390,21 @@ async function apiBranches() {
       author,
       subject,
       current: name === current,
-      merged: mergedSet.has(name)
+      merged: mergedSet.has(name),
     }));
 
   return {
     available: true,
     current: current || null,
     defaultBranch,
-    branches
+    branches,
   };
 }
 
 function loadJson(filePath, fallback = null) {
   if (!fs.existsSync(filePath)) return fallback;
   try {
-    return JSON.parse(fs.readFileSync(filePath, "utf8"));
+    return JSON.parse(fs.readFileSync(filePath, 'utf8'));
   } catch (error) {
     return fallback;
   }
@@ -396,8 +414,8 @@ function loadJson(filePath, fallback = null) {
 // project name (e.g. "allymagax"). Surfaced in the sidebar and topbar so it is
 // obvious which project a dashboard belongs to when several are running.
 function apiProjectInfo() {
-  const name = path.basename(projectRoot) || "project";
-  return { service: "specdrive-dashboard", name, root: projectRoot };
+  const name = path.basename(projectRoot) || 'project';
+  return { service: 'specdrive-dashboard', name, root: projectRoot };
 }
 
 // Classify the project so the dashboard can tell the user which workflow they
@@ -406,52 +424,52 @@ function apiProjectInfo() {
 // record, then fall back to heuristics (existing source + no onboarding record
 // means it was almost certainly adopted).
 function apiProductType() {
-  const state = loadJson(path.join(sdriveRoot, "workflow-state.json"), {});
+  const state = loadJson(path.join(sdriveRoot, 'workflow-state.json'), {});
   const onboarding = state.onboarding || null;
 
-  const hasConstitution = fs.existsSync(path.join(sdriveRoot, "constitution.md"));
-  const hasProductPlan = fs.existsSync(path.join(sdriveRoot, "product", "overview.md"));
+  const hasConstitution = fs.existsSync(path.join(sdriveRoot, 'constitution.md'));
+  const hasProductPlan = fs.existsSync(path.join(sdriveRoot, 'product', 'overview.md'));
   const featureCount = Array.isArray(state.features) ? state.features.length : 0;
 
   // Heuristic: a project with source code but no onboarding record predates
   // SpecDrive, i.e. it was adopted (brownfield).
-  const sourceDirs = ["app", "src", "components", "lib", "pages", "server"];
+  const sourceDirs = ['app', 'src', 'components', 'lib', 'pages', 'server'];
   const hasSource = sourceDirs.some((dir) => fs.existsSync(path.join(projectRoot, dir)));
 
-  let type = "unknown";
-  let source = "heuristic";
+  let type = 'unknown';
+  let source = 'heuristic';
 
   if (onboarding && onboarding.mode) {
     type = onboarding.mode;
-    source = "onboarding record";
+    source = 'onboarding record';
   } else if (hasSource) {
-    type = "brownfield";
+    type = 'brownfield';
   } else {
-    type = "greenfield";
+    type = 'greenfield';
   }
 
   const meta = {
     greenfield: {
-      label: "Greenfield",
-      tagline: "Built from scratch",
+      label: 'Greenfield',
+      tagline: 'Built from scratch',
       description:
-        "A brand-new project started inside SpecDrive. Every feature is specified before it is built, so the spec and the code stay in lockstep from day one.",
-      icon: "✦"
+        'A brand-new project started inside SpecDrive. Every feature is specified before it is built, so the spec and the code stay in lockstep from day one.',
+      icon: '✦',
     },
     brownfield: {
-      label: "Brownfield",
-      tagline: "Adopted existing code",
+      label: 'Brownfield',
+      tagline: 'Adopted existing code',
       description:
-        "An existing codebase brought under SpecDrive governance. Existing work is inventoried, retroactive specs are generated, and gaps are marked as deferred instead of breaking anything.",
-      icon: "◈"
+        'An existing codebase brought under SpecDrive governance. Existing work is inventoried, retroactive specs are generated, and gaps are marked as deferred instead of breaking anything.',
+      icon: '◈',
     },
     unknown: {
-      label: "Unclassified",
-      tagline: "Not yet determined",
+      label: 'Unclassified',
+      tagline: 'Not yet determined',
       description:
-        "SpecDrive has not recorded how this project started. Run onboarding or the constitution step to classify it.",
-      icon: "○"
-    }
+        'SpecDrive has not recorded how this project started. Run onboarding or the constitution step to classify it.',
+      icon: '○',
+    },
   }[type];
 
   return {
@@ -467,17 +485,17 @@ function apiProductType() {
       constitution: hasConstitution,
       productPlan: hasProductPlan,
       features: featureCount,
-      existingSource: hasSource
-    }
+      existingSource: hasSource,
+    },
   };
 }
 
 function apiWorkflowState() {
-  return loadJson(path.join(sdriveRoot, "workflow-state.json"), { features: [] });
+  return loadJson(path.join(sdriveRoot, 'workflow-state.json'), { features: [] });
 }
 
 function apiAuditLog() {
-  return loadJson(path.join(sdriveRoot, "audit-log.json"), { events: [] });
+  return loadJson(path.join(sdriveRoot, 'audit-log.json'), { events: [] });
 }
 
 // The Activity page is fed from two sources:
@@ -488,31 +506,31 @@ function apiAuditLog() {
 function apiActivity() {
   const events = [];
 
-  const log = loadJson(path.join(sdriveRoot, "audit-log.json"), { events: [] });
+  const log = loadJson(path.join(sdriveRoot, 'audit-log.json'), { events: [] });
   (log.events || []).forEach((e) => {
     events.push({
-      event: e.event || "event",
+      event: e.event || 'event',
       timestamp: e.timestamp || null,
-      actor: e.actor || "",
-      feature: e.feature || "",
-      version: e.version || "",
+      actor: e.actor || '',
+      feature: e.feature || '',
+      version: e.version || '',
       details: e.details || {},
-      source: "audit-log"
+      source: 'audit-log',
     });
   });
 
-  const state = loadJson(path.join(sdriveRoot, "workflow-state.json"), { features: [] });
+  const state = loadJson(path.join(sdriveRoot, 'workflow-state.json'), { features: [] });
   (state.features || []).forEach((feature) => {
     (feature.versions || []).forEach((version) => {
       (version.history || []).forEach((h) => {
         events.push({
-          event: h.event || "event",
+          event: h.event || 'event',
           timestamp: h.timestamp || null,
-          actor: h.actor || "",
-          feature: feature.name || "",
-          version: version.id || "",
+          actor: h.actor || '',
+          feature: feature.name || '',
+          version: version.id || '',
           details: {},
-          source: "workflow-state"
+          source: 'workflow-state',
         });
       });
     });
@@ -542,14 +560,14 @@ function parseFrontmatter(content) {
     const key = kv[1];
     let value = kv[2].trim();
 
-    if (value.startsWith("[") && value.endsWith("]")) {
+    if (value.startsWith('[') && value.endsWith(']')) {
       value = value
         .slice(1, -1)
-        .split(",")
-        .map((v) => v.trim().replace(/^["']|["']$/g, ""))
+        .split(',')
+        .map((v) => v.trim().replace(/^["']|["']$/g, ''))
         .filter(Boolean);
     } else {
-      value = value.replace(/^["']|["']$/g, "");
+      value = value.replace(/^["']|["']$/g, '');
     }
     meta[key] = value;
   }
@@ -557,7 +575,7 @@ function parseFrontmatter(content) {
 }
 
 function apiSkills() {
-  const skillsDir = path.join(sdriveRoot, "skills");
+  const skillsDir = path.join(sdriveRoot, 'skills');
   if (!fs.existsSync(skillsDir)) {
     return { exists: false, skills: [] };
   }
@@ -566,12 +584,12 @@ function apiSkills() {
   for (const entry of fs.readdirSync(skillsDir, { withFileTypes: true })) {
     if (!entry.isDirectory()) continue;
 
-    const skillFile = path.join(skillsDir, entry.name, "SKILL.md");
+    const skillFile = path.join(skillsDir, entry.name, 'SKILL.md');
     if (!fs.existsSync(skillFile)) continue;
 
-    let content = "";
+    let content = '';
     try {
-      content = fs.readFileSync(skillFile, "utf8");
+      content = fs.readFileSync(skillFile, 'utf8');
     } catch (error) {
       continue;
     }
@@ -585,7 +603,7 @@ function apiSkills() {
       const walk = (dir) => {
         for (const child of fs.readdirSync(dir, { withFileTypes: true })) {
           if (child.isDirectory()) walk(path.join(dir, child.name));
-          else if (child.name !== "SKILL.md") extraFiles += 1;
+          else if (child.name !== 'SKILL.md') extraFiles += 1;
         }
       };
       walk(path.join(skillsDir, entry.name));
@@ -601,16 +619,16 @@ function apiSkills() {
     skills.push({
       name: meta.name || entry.name,
       folder: entry.name,
-      description: meta.description || "",
-      version: meta.version || "",
-      lastUpdated: meta.last_updated || "",
+      description: meta.description || '',
+      version: meta.version || '',
+      lastUpdated: meta.last_updated || '',
       tags: Array.isArray(meta.tags) ? meta.tags : [],
-      source: meta.source || "",
-      license: meta.license || "",
-      installed: meta.installed || "",
-      logo: logo ? `/api/skill-logo/${encodeURIComponent(entry.name)}` : "",
+      source: meta.source || '',
+      license: meta.license || '',
+      installed: meta.installed || '',
+      logo: logo ? `/api/skill-logo/${encodeURIComponent(entry.name)}` : '',
       lines,
-      extraFiles
+      extraFiles,
     });
   }
 
@@ -620,30 +638,30 @@ function apiSkills() {
 
 // Conventional logo filenames, checked in order. The first match wins.
 const SKILL_LOGO_NAMES = [
-  "logo.svg",
-  "logo.png",
-  "logo.webp",
-  "logo.jpg",
-  "logo.jpeg",
-  "icon.svg",
-  "icon.png",
-  "icon.webp",
-  "icon.jpg",
-  "icon.jpeg"
+  'logo.svg',
+  'logo.png',
+  'logo.webp',
+  'logo.jpg',
+  'logo.jpeg',
+  'icon.svg',
+  'icon.png',
+  'icon.webp',
+  'icon.jpg',
+  'icon.jpeg',
 ];
 
 const SKILL_LOGO_TYPES = {
-  ".svg": "image/svg+xml",
-  ".png": "image/png",
-  ".webp": "image/webp",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg"
+  '.svg': 'image/svg+xml',
+  '.png': 'image/png',
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
 };
 
 // Returns the absolute path to a skill's logo, or null if none is present.
 // Looks in the skill root and an optional assets/ subfolder.
 function findSkillLogo(skillDir) {
-  const searchDirs = [skillDir, path.join(skillDir, "assets")];
+  const searchDirs = [skillDir, path.join(skillDir, 'assets')];
   for (const dir of searchDirs) {
     for (const name of SKILL_LOGO_NAMES) {
       const candidate = path.join(dir, name);
@@ -656,28 +674,28 @@ function findSkillLogo(skillDir) {
 // Serves a skill's logo by folder name. The folder is validated against the
 // skills directory listing so a crafted path cannot escape the skills root.
 function serveSkillLogo(res, folder) {
-  const skillsDir = path.join(sdriveRoot, "skills");
+  const skillsDir = path.join(sdriveRoot, 'skills');
   const skillDir = path.join(skillsDir, folder);
 
   // Guard against path traversal: the resolved dir must sit directly under skills/.
   const resolved = path.resolve(skillDir);
   if (path.dirname(resolved) !== path.resolve(skillsDir)) {
     res.writeHead(400);
-    return res.end("Bad request");
+    return res.end('Bad request');
   }
 
   const logoPath = findSkillLogo(resolved);
   if (!logoPath) {
     res.writeHead(404);
-    return res.end("Not found");
+    return res.end('Not found');
   }
 
-  const type = SKILL_LOGO_TYPES[path.extname(logoPath).toLowerCase()] || "application/octet-stream";
+  const type = SKILL_LOGO_TYPES[path.extname(logoPath).toLowerCase()] || 'application/octet-stream';
   return serveStatic(res, logoPath, type);
 }
 
 function apiTeam() {
-  return loadJson(path.join(sdriveRoot, "team.json"), { members: [] });
+  return loadJson(path.join(sdriveRoot, 'team.json'), { members: [] });
 }
 
 // Governance files may live in either layout:
@@ -686,25 +704,25 @@ function apiTeam() {
 // Resolve the versioned path first, then fall back to the flat legacy path so
 // projects created before versioned governance still render correctly.
 function governanceFile(feature, version, fileName) {
-  const versioned = path.join(sdriveRoot, "governance", feature, version, fileName);
+  const versioned = path.join(sdriveRoot, 'governance', feature, version, fileName);
   if (fs.existsSync(versioned)) return versioned;
-  const legacy = path.join(sdriveRoot, "governance", feature, fileName);
+  const legacy = path.join(sdriveRoot, 'governance', feature, fileName);
   if (fs.existsSync(legacy)) return legacy;
   return versioned;
 }
 
 function apiTraceability(feature, version) {
-  return loadJson(governanceFile(feature, version, "traceability.json"), { rows: [] });
+  return loadJson(governanceFile(feature, version, 'traceability.json'), { rows: [] });
 }
 
 // Execution tasks for a feature version. Tasks are grouped into phases, and
 // each task links back to the requirements it satisfies. The dashboard uses
 // this to show pending/completed counts and the full task breakdown.
 function apiTasks(feature, version) {
-  const data = loadJson(governanceFile(feature, version, "tasks.json"), {
+  const data = loadJson(governanceFile(feature, version, 'tasks.json'), {
     feature,
     version: Number(version) || 1,
-    phases: []
+    phases: [],
   });
 
   const phases = Array.isArray(data.phases) ? data.phases : [];
@@ -722,22 +740,22 @@ function apiTasks(feature, version) {
     completed += done;
     descoped += resolved;
     return {
-      phaseId: phase.phaseId || "",
-      name: phase.name || "",
+      phaseId: phase.phaseId || '',
+      name: phase.name || '',
       dependencies: phase.dependencies || [],
       total: tasks.length,
       completed: done,
       descoped: resolved,
       tasks: tasks.map((t) => ({
-        id: t.id || "",
-        title: t.title || "",
-        description: t.description || "",
+        id: t.id || '',
+        title: t.title || '',
+        description: t.description || '',
         linkedRequirements: t.linkedRequirements || [],
         linkedAcceptanceCriteria: t.linkedAcceptanceCriteria || [],
         completed: t.completed === true,
         descoped: t.completed !== true && isResolved(t),
-        resolution: t.completed !== true && isResolved(t) ? t.resolution : null
-      }))
+        resolution: t.completed !== true && isResolved(t) ? t.resolution : null,
+      })),
     };
   });
 
@@ -753,38 +771,39 @@ function apiTasks(feature, version) {
       completed,
       descoped,
       pending: actionable - completed,
-      percent: actionable === 0 ? 0 : Math.round((completed / actionable) * 100)
+      percent: actionable === 0 ? 0 : Math.round((completed / actionable) * 100),
     },
-    phases: shaped
+    phases: shaped,
   };
 }
 
 function apiVerification(feature, version) {
-  return loadJson(governanceFile(feature, version, "verification.json"), {
-    status: "not_run",
+  return loadJson(governanceFile(feature, version, 'verification.json'), {
+    status: 'not_run',
     summary: {},
-    items: {}
+    items: {},
   });
 }
 
 function apiTestReport(feature, version) {
-  const reportDir = path.join(sdriveRoot, "reports", "tests");
+  const reportDir = path.join(sdriveRoot, 'reports', 'tests');
 
   if (!fs.existsSync(reportDir)) {
-    return { status: "not_run", summary: {}, tests: [] };
+    return { status: 'not_run', summary: {}, tests: [] };
   }
 
-  const files = fs.readdirSync(reportDir)
+  const files = fs
+    .readdirSync(reportDir)
     .filter((f) => f.startsWith(`test-report-${feature}-${version}-`))
     .sort()
     .reverse();
 
   if (files.length === 0) {
-    return { status: "not_run", summary: {}, tests: [] };
+    return { status: 'not_run', summary: {}, tests: [] };
   }
 
   const latest = path.join(reportDir, files[0]);
-  const content = fs.readFileSync(latest, "utf8");
+  const content = fs.readFileSync(latest, 'utf8');
 
   const totalMatch = content.match(/Total ACs:\*\*\s*(\d+)/);
   const testedMatch = content.match(/Tested ACs:\*\*\s*(\d+)/);
@@ -792,18 +811,15 @@ function apiTestReport(feature, version) {
   const passedMatch = content.match(/Tests Passed:\*\*\s*(\d+)\/(\d+)/);
 
   return {
-    status:
-      testedMatch && totalMatch && testedMatch[1] === totalMatch[1]
-        ? "complete"
-        : "partial",
+    status: testedMatch && totalMatch && testedMatch[1] === totalMatch[1] ? 'complete' : 'partial',
     file: files[0],
     summary: {
       totalACs: totalMatch ? parseInt(totalMatch[1]) : 0,
       testedACs: testedMatch ? parseInt(testedMatch[1]) : 0,
       coverage: coverageMatch ? parseInt(coverageMatch[1]) : 0,
       passed: passedMatch ? parseInt(passedMatch[1]) : 0,
-      total: passedMatch ? parseInt(passedMatch[2]) : 0
-    }
+      total: passedMatch ? parseInt(passedMatch[2]) : 0,
+    },
   };
 }
 
@@ -812,19 +828,19 @@ function apiTestReport(feature, version) {
 // <prefix>-report-<feature>-<version>-<date>.md (or -all-<date>.md).
 // The dashboard surfaces whichever of these exist for a feature.
 const REPORT_TYPES = [
-  { id: "tests", dir: "tests", prefix: "test", label: "Tests" },
-  { id: "performance", dir: "performance", prefix: "performance", label: "Performance" },
-  { id: "security", dir: "security", prefix: "security", label: "Security" },
-  { id: "reviews", dir: "reviews", prefix: "review", label: "Review" },
-  { id: "docs", dir: "docs", prefix: "coverage", label: "Documentation" },
-  { id: "debug", dir: "debug", prefix: "debug", label: "Debug" }
+  { id: 'tests', dir: 'tests', prefix: 'test', label: 'Tests' },
+  { id: 'performance', dir: 'performance', prefix: 'performance', label: 'Performance' },
+  { id: 'security', dir: 'security', prefix: 'security', label: 'Security' },
+  { id: 'reviews', dir: 'reviews', prefix: 'review', label: 'Review' },
+  { id: 'docs', dir: 'docs', prefix: 'coverage', label: 'Documentation' },
+  { id: 'debug', dir: 'debug', prefix: 'debug', label: 'Debug' },
 ];
 
 // Read the first markdown heading of a report so the UI can show a title
 // without shipping the whole file. Falls back to null when absent.
 function readReportTitle(filePath) {
   try {
-    const content = fs.readFileSync(filePath, "utf8");
+    const content = fs.readFileSync(filePath, 'utf8');
     const match = content.match(/^#\s+(.+)$/m);
     return match ? match[1].trim() : null;
   } catch (error) {
@@ -835,8 +851,10 @@ function readReportTitle(filePath) {
 // Extract a "Status: PASS" / "**Status:** PASS" style verdict if present.
 function readReportStatus(filePath) {
   try {
-    const content = fs.readFileSync(filePath, "utf8");
-    const match = content.match(/\*{0,2}Status:?\*{0,2}\s*:?\s*\*{0,2}\s*(PASS|FAIL|PASSED|FAILED|CLEAN|IMPROVED|REGRESSED)/i);
+    const content = fs.readFileSync(filePath, 'utf8');
+    const match = content.match(
+      /\*{0,2}Status:?\*{0,2}\s*:?\s*\*{0,2}\s*(PASS|FAIL|PASSED|FAILED|CLEAN|IMPROVED|REGRESSED)/i,
+    );
     return match ? match[1].toUpperCase() : null;
   } catch (error) {
     return null;
@@ -848,19 +866,19 @@ function readReportStatus(filePath) {
 // Global reports (e.g. debug-report-all-<date>.md) are matched separately and
 // flagged so the UI can distinguish them.
 function apiReports(feature, version) {
-  const reportsRoot = path.join(sdriveRoot, "reports");
+  const reportsRoot = path.join(sdriveRoot, 'reports');
   const types = [];
 
   for (const type of REPORT_TYPES) {
     const dir = path.join(reportsRoot, type.dir);
     if (!fs.existsSync(dir)) {
-      types.push({ id: type.id, label: type.label, status: "missing", reports: [] });
+      types.push({ id: type.id, label: type.label, status: 'missing', reports: [] });
       continue;
     }
 
     let files = [];
     try {
-      files = fs.readdirSync(dir).filter((f) => f.endsWith(".md"));
+      files = fs.readdirSync(dir).filter((f) => f.endsWith('.md'));
     } catch (error) {
       files = [];
     }
@@ -882,11 +900,11 @@ function apiReports(feature, version) {
       const full = path.join(dir, latest);
       reports.push({
         file: latest,
-        scope: "feature",
-        date: latest.replace(/\.md$/, "").split("-").slice(-3).join("-"),
+        scope: 'feature',
+        date: latest.replace(/\.md$/, '').split('-').slice(-3).join('-'),
         title: readReportTitle(full),
         status: readReportStatus(full),
-        history: scoped.length
+        history: scoped.length,
       });
     }
 
@@ -895,19 +913,19 @@ function apiReports(feature, version) {
       const full = path.join(dir, latest);
       reports.push({
         file: latest,
-        scope: "all",
-        date: latest.replace(/\.md$/, "").split("-").slice(-3).join("-"),
+        scope: 'all',
+        date: latest.replace(/\.md$/, '').split('-').slice(-3).join('-'),
         title: readReportTitle(full),
         status: readReportStatus(full),
-        history: global.length
+        history: global.length,
       });
     }
 
     types.push({
       id: type.id,
       label: type.label,
-      status: reports.length ? "present" : "missing",
-      reports
+      status: reports.length ? 'present' : 'missing',
+      reports,
     });
   }
 
@@ -918,12 +936,12 @@ function parseFeatureVersion(url) {
   // Strip the query string, then drop the leading "/api/<resource>" segments so
   // only the feature/version tail remains. Without this, "/api/reports/foo"
   // would yield feature="reports", version="foo".
-  const clean = url.split("?")[0];
-  const parts = clean.split("/").filter(Boolean);
+  const clean = url.split('?')[0];
+  const parts = clean.split('/').filter(Boolean);
   const tail = parts.slice(2);
   return {
     feature: tail.length >= 2 ? tail[tail.length - 2] : tail[0],
-    version: tail.length >= 2 ? tail[tail.length - 1] : null
+    version: tail.length >= 2 ? tail[tail.length - 1] : null,
   };
 }
 
@@ -932,18 +950,18 @@ function parseFeatureVersion(url) {
 // stage and return the first folder that actually holds the version. This lets
 // the dashboard read the raw spec/plan/tasks/traceability markdown without the
 // user having to open the repo.
-const SPEC_STAGES = ["ongoing", "completed", "backlog"];
+const SPEC_STAGES = ['ongoing', 'completed', 'backlog'];
 const SPEC_DOCS = [
-  { id: "spec", label: "Specification", file: "spec.md" },
-  { id: "plan", label: "Plan", file: "plan.md" },
-  { id: "tasks", label: "Tasks", file: "tasks.md" },
-  { id: "traceability", label: "Traceability", file: "traceability.md" },
-  { id: "review", label: "Review", file: "review.md" }
+  { id: 'spec', label: 'Specification', file: 'spec.md' },
+  { id: 'plan', label: 'Plan', file: 'plan.md' },
+  { id: 'tasks', label: 'Tasks', file: 'tasks.md' },
+  { id: 'traceability', label: 'Traceability', file: 'traceability.md' },
+  { id: 'review', label: 'Review', file: 'review.md' },
 ];
 
 function resolveSpecDir(feature, version) {
   for (const stage of SPEC_STAGES) {
-    const dir = path.join(sdriveRoot, "specs", stage, feature, version);
+    const dir = path.join(sdriveRoot, 'specs', stage, feature, version);
     if (fs.existsSync(dir)) return { stage, dir };
   }
   return { stage: null, dir: null };
@@ -962,20 +980,20 @@ function apiSpecFiles(feature, version) {
   for (const doc of SPEC_DOCS) {
     const full = path.join(dir, doc.file);
     if (!fs.existsSync(full)) continue;
-    let content = "";
+    let content = '';
     try {
-      content = fs.readFileSync(full, "utf8");
+      content = fs.readFileSync(full, 'utf8');
     } catch (error) {
-      content = "";
+      content = '';
     }
     docs.push({
       id: doc.id,
       label: doc.label,
       file: doc.file,
       path: `.sdrive/specs/${stage}/${feature}/${version}/${doc.file}`,
-      bytes: Buffer.byteLength(content, "utf8"),
+      bytes: Buffer.byteLength(content, 'utf8'),
       lines: content ? content.split(/\r?\n/).length : 0,
-      content
+      content,
     });
   }
 
@@ -998,19 +1016,19 @@ const FILE_DENY_PATTERNS = [
   /(^|[\\/])secrets?\.json$/i,
   /(^|[\\/])id_(rsa|ed25519)/i,
   /(^|[\\/])\.npmrc$/i,
-  /(^|[\\/])\.git[\\/]/i
+  /(^|[\\/])\.git[\\/]/i,
 ];
 const FILE_MAX_BYTES = 512 * 1024;
 
 function apiFile(requestedPath, checkOnly) {
-  const requested = String(requestedPath || "").trim();
-  if (!requested) return { found: false, reason: "no path given" };
+  const requested = String(requestedPath || '').trim();
+  if (!requested) return { found: false, reason: 'no path given' };
 
   if (FILE_DENY_PATTERNS.some((pattern) => pattern.test(requested))) {
-    return { found: false, reason: "refused: this looks like a secret or internal file" };
+    return { found: false, reason: 'refused: this looks like a secret or internal file' };
   }
   if (/secret|credential|private[-_]?key/i.test(requested)) {
-    return { found: false, reason: "refused: this looks like a secret or internal file" };
+    return { found: false, reason: 'refused: this looks like a secret or internal file' };
   }
 
   const root = path.resolve(projectRoot);
@@ -1018,16 +1036,16 @@ function apiFile(requestedPath, checkOnly) {
 
   // Compare with a trailing separator so `/project-evil` cannot pass as `/project`.
   if (resolved !== root && !resolved.startsWith(root + path.sep)) {
-    return { found: false, reason: "outside the project" };
+    return { found: false, reason: 'outside the project' };
   }
 
   let stat;
   try {
     stat = fs.statSync(resolved);
   } catch (error) {
-    return { found: false, reason: "no such file" };
+    return { found: false, reason: 'no such file' };
   }
-  if (!stat.isFile()) return { found: false, reason: "not a file" };
+  if (!stat.isFile()) return { found: false, reason: 'not a file' };
 
   // Existence-only mode: the client uses this to decide whether a path-shaped
   // token in a spec is really a file before offering it as clickable.
@@ -1037,16 +1055,16 @@ function apiFile(requestedPath, checkOnly) {
   try {
     buffer = fs.readFileSync(resolved);
   } catch (error) {
-    return { found: false, reason: "unreadable" };
+    return { found: false, reason: 'unreadable' };
   }
 
   // A NUL byte near the start is the cheapest reliable binary test there is.
   if (buffer.subarray(0, 8192).includes(0)) {
-    return { found: true, path: requested, binary: true, bytes: stat.size, content: "" };
+    return { found: true, path: requested, binary: true, bytes: stat.size, content: '' };
   }
 
   const truncated = buffer.length > FILE_MAX_BYTES;
-  const content = buffer.subarray(0, FILE_MAX_BYTES).toString("utf8");
+  const content = buffer.subarray(0, FILE_MAX_BYTES).toString('utf8');
 
   return {
     found: true,
@@ -1056,18 +1074,18 @@ function apiFile(requestedPath, checkOnly) {
     truncated,
     lines: content.split(/\r?\n/).length,
     markdown: /\.(md|markdown)$/i.test(requested),
-    content
+    content,
   };
 }
 
 function serveStatic(res, filePath, contentType) {
   if (!fs.existsSync(filePath)) {
     res.writeHead(404);
-    res.end("Not found");
+    res.end('Not found');
     return;
   }
 
-  res.writeHead(200, { "Content-Type": contentType });
+  res.writeHead(200, { 'Content-Type': contentType });
   res.end(fs.readFileSync(filePath));
 }
 
@@ -1084,7 +1102,7 @@ async function fileStamp(filePath) {
     const stat = await fs.promises.stat(filePath);
     return `${stat.size}:${Math.round(stat.mtimeMs)}`;
   } catch (error) {
-    return "0";
+    return '0';
   }
 }
 
@@ -1117,7 +1135,7 @@ async function treeStamp(dir) {
         } catch (error) {
           // A file that vanished mid-walk is not a reason to fail the whole stamp.
         }
-      })
+      }),
     );
   };
 
@@ -1133,7 +1151,7 @@ async function treeStamp(dir) {
 // Nothing is stored, and no component can be moved by editing a file - only by
 // approving, testing, verifying, or archiving something real. A health number that
 // can be gamed is worse than no number at all.
-const HEALTH_GATES = ["specification", "planning", "implementation", "review"];
+const HEALTH_GATES = ['specification', 'planning', 'implementation', 'review'];
 const HEALTH_STALE_DAYS = 14;
 const HEALTH_MOMENTUM_DAYS = 7;
 const HEALTH_MEMO_MS = 3000;
@@ -1145,7 +1163,7 @@ function liveVersions(state) {
   const live = [];
   for (const feature of state.features || []) {
     const version = (feature.versions || []).find((v) => v.id === feature.currentVersion);
-    if (!version || version.phase === "completed") continue;
+    if (!version || version.phase === 'completed') continue;
     live.push({ feature, version });
   }
   return live;
@@ -1159,7 +1177,7 @@ function liveVersions(state) {
 // project copy that predates an accessor and quietly score every gate as unapproved, so
 // the sibling copy wins and the project copy is the fallback for older layouts.
 function requireRules(relative) {
-  const candidates = [path.join(__dirname, "..", relative), path.join(sdriveRoot, relative)];
+  const candidates = [path.join(__dirname, '..', relative), path.join(sdriveRoot, relative)];
 
   for (const candidate of candidates) {
     try {
@@ -1176,11 +1194,11 @@ const PROJECTS_CACHE_MS = 2000;
 let projectsMemo = { at: 0, roots: [] };
 
 function isSdriveProject(root) {
-  return fs.existsSync(path.join(root, ".sdrive", "config.json"));
+  return fs.existsSync(path.join(root, '.sdrive', 'config.json'));
 }
 
 function registryPath() {
-  return path.join(os.homedir(), ".sdrive", "projects.json");
+  return path.join(os.homedir(), '.sdrive', 'projects.json');
 }
 
 // The registry keeps its own shape: an array of paths or `{ "projects": [...] }`.
@@ -1194,7 +1212,7 @@ function readProjectRegistry() {
   }
 
   try {
-    const registry = JSON.parse(fs.readFileSync(file, "utf8"));
+    const registry = JSON.parse(fs.readFileSync(file, 'utf8'));
     const entries = Array.isArray(registry) ? registry : registry.projects || [];
 
     return {
@@ -1203,8 +1221,8 @@ function readProjectRegistry() {
       // hand-edited `{ "path": ..., "name": ... }` entry carries.
       entries,
       paths: entries
-        .map((entry) => (typeof entry === "string" ? entry : entry && entry.path))
-        .filter((entry) => typeof entry === "string" && entry.trim())
+        .map((entry) => (typeof entry === 'string' ? entry : entry && entry.path))
+        .filter((entry) => typeof entry === 'string' && entry.trim()),
     };
   } catch (error) {
     // A malformed registry must not break the dashboard or block a project.
@@ -1230,9 +1248,7 @@ function samePath(a, b) {
   const right = canonicalPath(b);
 
   // Windows paths are case-insensitive; two spellings are one project.
-  return process.platform === "win32"
-    ? left.toLowerCase() === right.toLowerCase()
-    : left === right;
+  return process.platform === 'win32' ? left.toLowerCase() === right.toLowerCase() : left === right;
 }
 
 // Discovery can only see the current folder and its siblings, so projects that
@@ -1275,10 +1291,10 @@ function withRegistryLock(callback) {
 
   while (Date.now() - startedAt < REGISTRY_LOCK_TIMEOUT_MS) {
     try {
-      handle = fs.openSync(lockPath, "wx");
+      handle = fs.openSync(lockPath, 'wx');
       break;
     } catch (error) {
-      if (error.code !== "EEXIST") return callback();
+      if (error.code !== 'EEXIST') return callback();
 
       try {
         if (Date.now() - fs.statSync(lockPath).mtimeMs > REGISTRY_LOCK_STALE_MS) {
@@ -1312,7 +1328,7 @@ function withRegistryLock(callback) {
 }
 
 function registerProject(root) {
-  if (process.env.SDRIVE_NO_REGISTRY === "1") return;
+  if (process.env.SDRIVE_NO_REGISTRY === '1') return;
   if (!isSdriveProject(root)) return;
 
   const resolved = canonicalPath(root);
@@ -1327,10 +1343,7 @@ function registerProject(root) {
 
     try {
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(
-        file,
-        `${JSON.stringify(asArray ? next : { projects: next }, null, 2)}\n`
-      );
+      fs.writeFileSync(file, `${JSON.stringify(asArray ? next : { projects: next }, null, 2)}\n`);
     } catch (error) {
       // A read-only home directory must not stop the dashboard.
     }
@@ -1349,14 +1362,14 @@ function discoverProjectRoots() {
   const roots = new Set();
 
   const add = (candidate) => {
-    if (typeof candidate !== "string" || !candidate.trim()) return;
+    if (typeof candidate !== 'string' || !candidate.trim()) return;
     const resolved = canonicalPath(candidate.trim());
     if (isSdriveProject(resolved)) roots.add(resolved);
   };
 
   add(projectRoot);
 
-  const configured = process.env.SDRIVE_PROJECTS || "";
+  const configured = process.env.SDRIVE_PROJECTS || '';
   for (const candidate of configured.split(path.delimiter)) add(candidate);
 
   for (const entry of readProjectRegistry().paths) add(entry);
@@ -1394,10 +1407,10 @@ function apiProjects() {
           name,
           path: root,
           label: nameCounts.get(name) > 1 ? `${name} — ${path.dirname(root)}` : name,
-          active: samePath(root, projectRoot)
+          active: samePath(root, projectRoot),
         };
       })
-      .sort((a, b) => Number(b.active) - Number(a.active) || a.label.localeCompare(b.label))
+      .sort((a, b) => Number(b.active) - Number(a.active) || a.label.localeCompare(b.label)),
   };
 }
 
@@ -1409,13 +1422,13 @@ const PORTFOLIO_CACHE_MS = 3000;
 let portfolioMemo = { at: 0, value: null };
 
 function timestampOf(value) {
-  const parsed = Date.parse(value || "");
+  const parsed = Date.parse(value || '');
   return Number.isFinite(parsed) ? parsed : 0;
 }
 
 function summarizeProject(root) {
-  const projectSdrive = path.join(root, ".sdrive");
-  const state = loadJson(path.join(projectSdrive, "workflow-state.json"), { features: [] });
+  const projectSdrive = path.join(root, '.sdrive');
+  const state = loadJson(path.join(projectSdrive, 'workflow-state.json'), { features: [] });
   const features = Array.isArray(state.features) ? state.features : [];
   const gates = gateAccessors();
   const live = liveVersions(state);
@@ -1430,7 +1443,7 @@ function summarizeProject(root) {
     }
   }
 
-  const audit = loadJson(path.join(projectSdrive, "audit-log.json"), { events: [] });
+  const audit = loadJson(path.join(projectSdrive, 'audit-log.json'), { events: [] });
   for (const event of audit.events || []) {
     lastActivity = Math.max(lastActivity, timestampOf(event.timestamp));
   }
@@ -1438,7 +1451,7 @@ function summarizeProject(root) {
   // A live version is what the project is working on. When nothing is live,
   // show the version touched most recently so the card still says something.
   const all = features.flatMap((feature) =>
-    (feature.versions || []).map((version) => ({ feature, version }))
+    (feature.versions || []).map((version) => ({ feature, version })),
   );
   const newest = (entries) =>
     entries
@@ -1446,25 +1459,23 @@ function summarizeProject(root) {
       .sort(
         (a, b) =>
           Math.max(...(b.version.history || []).map((h) => timestampOf(h.timestamp)), 0) -
-          Math.max(...(a.version.history || []).map((h) => timestampOf(h.timestamp)), 0)
+          Math.max(...(a.version.history || []).map((h) => timestampOf(h.timestamp)), 0),
       )[0] || null;
 
   const focus = newest(live) || newest(all);
   const outstandingGates =
-    focus && gates && focus.version.phase !== "completed"
+    focus && gates && focus.version.phase !== 'completed'
       ? gates.GATE_ORDER.filter((gate) => !gates.isGateApprovedFor(focus.version, gate))
       : [];
   // A pending gate is the next step, not a problem. Only a rejected gate means
   // someone has to act before the feature can move.
   const rejectedGates =
     focus && gates
-      ? gates.GATE_ORDER.filter(
-          (gate) => gates.gateStatusFor(focus.version, gate) === "rejected"
-        )
+      ? gates.GATE_ORDER.filter((gate) => gates.gateStatusFor(focus.version, gate) === 'rejected')
       : [];
 
   return {
-    name: path.basename(root) || "project",
+    name: path.basename(root) || 'project',
     path: root,
     active: samePath(root, projectRoot),
     features: features.length,
@@ -1473,18 +1484,18 @@ function summarizeProject(root) {
       ? {
           feature: focus.feature.name,
           version: focus.version.id,
-          phase: focus.version.phase || "unknown",
+          phase: focus.version.phase || 'unknown',
           step: focus.version.currentStep || null,
           approvedGates: gates
             ? gates.GATE_ORDER.filter((gate) => gates.isGateApprovedFor(focus.version, gate)).length
             : 0,
-          totalGates: gates ? gates.GATE_ORDER.length : 0
+          totalGates: gates ? gates.GATE_ORDER.length : 0,
         }
       : null,
     outstandingGates,
     rejectedGates,
     lastActivity: lastActivity ? new Date(lastActivity).toISOString() : null,
-    status: rejectedGates.length ? "blocked" : live.length ? "active" : "idle"
+    status: rejectedGates.length ? 'blocked' : live.length ? 'active' : 'idle',
   };
 }
 
@@ -1503,18 +1514,19 @@ function apiPortfolio() {
 }
 
 function switchProject(target) {
-  const requested = path.resolve(String(target || ""));
+  const requested = path.resolve(String(target || ''));
   const resolved = discoverProjectRoots().find((root) => samePath(root, requested));
 
   if (!resolved) {
     return {
       ok: false,
-      error: "That project is not in the dashboard's project list. Add it to SDRIVE_PROJECTS or ~/.sdrive/projects.json."
+      error:
+        "That project is not in the dashboard's project list. Add it to SDRIVE_PROJECTS or ~/.sdrive/projects.json.",
     };
   }
 
   projectRoot = resolved;
-  sdriveRoot = path.join(projectRoot, ".sdrive");
+  sdriveRoot = path.join(projectRoot, '.sdrive');
   projectsMemo = { at: 0, roots: [] };
 
   // A project reached through SDRIVE_PROJECTS or a sibling scan joins the
@@ -1532,35 +1544,35 @@ function switchProject(target) {
 
 function readJsonBody(req) {
   return new Promise((resolve) => {
-    let body = "";
+    let body = '';
 
-    req.on("data", (chunk) => {
+    req.on('data', (chunk) => {
       body += chunk;
       if (body.length > 1024 * 1024) req.destroy();
     });
 
-    req.on("end", () => {
+    req.on('end', () => {
       try {
-        resolve(JSON.parse(body || "{}"));
+        resolve(JSON.parse(body || '{}'));
       } catch (error) {
         resolve(null);
       }
     });
 
-    req.on("error", () => resolve(null));
+    req.on('error', () => resolve(null));
   });
 }
 
 // Reuses commands/archive.js instead of reimplementing the rules, so this score and
 // `sdrive archive:check` can never disagree about whether something is stuck.
 function archivableChecker() {
-  const archive = requireRules(path.join("commands", "archive.js"));
+  const archive = requireRules(path.join('commands', 'archive.js'));
 
-  return archive && typeof archive.checkArchivable === "function" ? archive.checkArchivable : null;
+  return archive && typeof archive.checkArchivable === 'function' ? archive.checkArchivable : null;
 }
 
 function eventTime(event) {
-  const raw = event.timestamp || event.at || event.date || "";
+  const raw = event.timestamp || event.at || event.date || '';
   const parsed = Date.parse(raw);
   return Number.isNaN(parsed) ? null : parsed;
 }
@@ -1568,9 +1580,11 @@ function eventTime(event) {
 // Same reasoning as archivableChecker: reuse the real checker so the page can never
 // suggest an approval that `sdrive approve` would refuse.
 function gateChecker() {
-  const gates = requireRules(path.join("commands", "gates.js"));
+  const gates = requireRules(path.join('commands', 'gates.js'));
 
-  return gates && typeof gates.checkGateRequirements === "function" ? gates.checkGateRequirements : null;
+  return gates && typeof gates.checkGateRequirements === 'function'
+    ? gates.checkGateRequirements
+    : null;
 }
 
 // Gate status is READ through commands/gates.js. Comparing `gates[gate] === "approved"`
@@ -1580,12 +1594,12 @@ function gateChecker() {
 // The accessors must be present, not merely the file: an older copy that loads fine but
 // lacks them would throw on every health request instead of degrading to "unreadable".
 function gateAccessors() {
-  const gates = requireRules(path.join("commands", "gates.js"));
+  const gates = requireRules(path.join('commands', 'gates.js'));
 
   if (
     !gates ||
-    typeof gates.isGateApprovedFor !== "function" ||
-    typeof gates.gateStatusFor !== "function"
+    typeof gates.isGateApprovedFor !== 'function' ||
+    typeof gates.gateStatusFor !== 'function'
   ) {
     return null;
   }
@@ -1595,7 +1609,9 @@ function gateAccessors() {
 
 function apiValidateProject() {
   try {
-    const { validateArtifacts } = require(path.join(__dirname, "..", "scripts", "validate-governance"));
+    const { validateArtifacts } = require(
+      path.join(__dirname, '..', 'scripts', 'validate-governance'),
+    );
     const verdict = validateArtifacts(projectRoot, {});
     return { ok: verdict.ok, results: verdict.results, skipped: verdict.skipped };
   } catch (error) {
@@ -1603,39 +1619,44 @@ function apiValidateProject() {
       ok: false,
       error: error.message,
       results: [],
-      skipped: []
+      skipped: [],
     };
   }
 }
 
 function apiTestEvidence(feature, version) {
   if (!feature || !version) {
-    return { found: false, evidence: null, error: "feature and version are required" };
+    return { found: false, evidence: null, error: 'feature and version are required' };
   }
 
-  const file = governanceFile(feature, version, "test-evidence.json");
+  const file = governanceFile(feature, version, 'test-evidence.json');
   const evidence = loadJson(file, null);
 
   return {
     found: Boolean(evidence),
     evidence,
-    path: path.relative(projectRoot, file)
+    path: path.relative(projectRoot, file),
   };
 }
 
 function apiReviewRecord(feature, version) {
   if (!feature || !version) {
-    return { found: false, review: null, reviewMd: null, error: "feature and version are required" };
+    return {
+      found: false,
+      review: null,
+      reviewMd: null,
+      error: 'feature and version are required',
+    };
   }
 
-  const file = governanceFile(feature, version, "review.json");
+  const file = governanceFile(feature, version, 'review.json');
   const review = loadJson(file, null);
   const { dir } = resolveSpecDir(feature, version);
   let reviewMd = null;
 
   if (dir) {
     try {
-      reviewMd = fs.readFileSync(path.join(dir, "review.md"), "utf8");
+      reviewMd = fs.readFileSync(path.join(dir, 'review.md'), 'utf8');
     } catch (error) {
       reviewMd = null;
     }
@@ -1645,19 +1666,19 @@ function apiReviewRecord(feature, version) {
     found: Boolean(review),
     review,
     reviewMd,
-    path: path.relative(projectRoot, file)
+    path: path.relative(projectRoot, file),
   };
 }
 
 function apiArchiveCheck(feature) {
   if (!feature) {
-    return { ok: false, blockers: ["feature is required"] };
+    return { ok: false, blockers: ['feature is required'] };
   }
 
   const check = archivableChecker();
 
   if (!check) {
-    return { ok: false, blockers: ["Archive rules are not available in this installation."] };
+    return { ok: false, blockers: ['Archive rules are not available in this installation.'] };
   }
 
   try {
@@ -1671,18 +1692,18 @@ function apiMigrations() {
   let detections = [];
 
   try {
-    const migrations = require(path.join(__dirname, "..", "migrations"));
+    const migrations = require(path.join(__dirname, '..', 'migrations'));
     detections = migrations.detectAll(projectRoot).filter((entry) => entry.detected);
   } catch (error) {
     detections = [];
   }
 
-  const runsDir = path.join(sdriveRoot, "migration-runs");
+  const runsDir = path.join(sdriveRoot, 'migration-runs');
   const runs = [];
 
   if (fs.existsSync(runsDir)) {
     for (const name of fs.readdirSync(runsDir).slice(0, 20)) {
-      const report = loadJson(path.join(runsDir, name, "report.json"), null);
+      const report = loadJson(path.join(runsDir, name, 'report.json'), null);
       if (!report) continue;
       runs.push({
         id: report.migrationId || name,
@@ -1691,8 +1712,8 @@ function apiMigrations() {
         counts: report.counts,
         features: (report.features || []).map((feature) => ({
           feature: feature.feature,
-          status: feature.status
-        }))
+          status: feature.status,
+        })),
       });
     }
   }
@@ -1714,9 +1735,9 @@ function apiHealth() {
 }
 
 function computeHealth() {
-  const state = loadJson(path.join(sdriveRoot, "workflow-state.json"), { features: [] });
+  const state = loadJson(path.join(sdriveRoot, 'workflow-state.json'), { features: [] });
   const live = liveVersions(state);
-  const events = loadJson(path.join(sdriveRoot, "audit-log.json"), { events: [] }).events || [];
+  const events = loadJson(path.join(sdriveRoot, 'audit-log.json'), { events: [] }).events || [];
   const checkArchivable = archivableChecker();
   const checkGateRequirements = gateChecker();
   const gatesApi = gateAccessors();
@@ -1724,10 +1745,11 @@ function computeHealth() {
   if (live.length === 0) {
     return {
       available: false,
-      reason: "No live features. Every version is either not started or already archived, so there is nothing to score yet.",
+      reason:
+        'No live features. Every version is either not started or already archived, so there is nothing to score yet.',
       components: [],
       nextAction: null,
-      blockers: []
+      blockers: [],
     };
   }
 
@@ -1766,7 +1788,7 @@ function computeHealth() {
   const unverified = [];
   for (const { feature, version } of live) {
     const verification = apiVerification(feature.name, version.id);
-    if (verification.status === "pass") {
+    if (verification.status === 'pass') {
       verifiedCount += 1;
       continue;
     }
@@ -1774,19 +1796,19 @@ function computeHealth() {
     // Name the drift, not just the count. "WARN - 9 extra" with no list is a dead
     // end, and the items are already sitting in verification.json.
     const summary = verification.summary || {};
-    const counts = ["missing", "renamed", "extra"]
+    const counts = ['missing', 'renamed', 'extra']
       .filter((kind) => (summary[kind] || 0) > 0)
       .map((kind) => `${summary[kind]} ${kind}`);
-    const names = ["missing", "renamed", "extra"]
+    const names = ['missing', 'renamed', 'extra']
       .flatMap((kind) => (verification.items && verification.items[kind]) || [])
-      .map((item) => item.name || item.file || "")
+      .map((item) => item.name || item.file || '')
       .filter(Boolean)
       .slice(0, 4);
 
     unverified.push(
       `${feature.name}: ${verification.status}${
-        counts.length ? ` (${counts.join(", ")})` : ""
-      }${names.length ? ` - ${names.join(", ")}` : ""}`
+        counts.length ? ` (${counts.join(', ')})` : ''
+      }${names.length ? ` - ${names.join(', ')}` : ''}`,
     );
   }
 
@@ -1823,50 +1845,50 @@ function computeHealth() {
 
   const components = [
     {
-      id: "gates",
-      label: "Gates approved",
+      id: 'gates',
+      label: 'Gates approved',
       weight: 30,
       earned: gatesApproved,
       max: live.length * HEALTH_GATES.length,
       detail: `${gatesApproved} of ${live.length * HEALTH_GATES.length} gate approvals are signed on live versions`,
       evidence: gatesMissing.slice(0, 8),
-      evidenceMore: Math.max(0, gatesMissing.length - 8)
+      evidenceMore: Math.max(0, gatesMissing.length - 8),
     },
     {
-      id: "coverage",
-      label: "Acceptance criteria tested",
+      id: 'coverage',
+      label: 'Acceptance criteria tested',
       weight: 25,
       earned: acsTested,
       max: acsTotal,
       detail: `${acsTested} of ${acsTotal} acceptance criteria have a passing test`,
       evidence: coverageGaps,
-      evidenceMore: 0
+      evidenceMore: 0,
     },
     {
-      id: "verification",
-      label: "Spec-to-code verification",
+      id: 'verification',
+      label: 'Spec-to-code verification',
       weight: 15,
       earned: verifiedCount,
       max: live.length,
       detail: `${verifiedCount} of ${live.length} live versions pass verification`,
       evidence: unverified,
-      evidenceMore: 0
+      evidenceMore: 0,
     },
     {
-      id: "archivable",
-      label: "Ready to archive",
+      id: 'archivable',
+      label: 'Ready to archive',
       weight: 15,
       earned: archivableCount,
       max: checkArchivable ? live.length : 0,
       detail: checkArchivable
         ? `${archivableCount} of ${live.length} live versions have no blocker`
-        : "the archive checker is not in this project yet - run `sdrive update`",
+        : 'the archive checker is not in this project yet - run `sdrive update`',
       evidence: blockers.map((b) => `${b.feature}: ${b.blockers[0]}`),
-      evidenceMore: 0
+      evidenceMore: 0,
     },
     {
-      id: "freshness",
-      label: "Freshness of activity",
+      id: 'freshness',
+      label: 'Freshness of activity',
       weight: 15,
       // Measures STALENESS, not velocity. An absolute "events per week" target is
       // unachievable for a small or early project and would pin its health at zero
@@ -1875,18 +1897,19 @@ function computeHealth() {
       max: HEALTH_STALE_DAYS,
       detail:
         daysSinceLast === null
-          ? "no activity has ever been recorded in audit-log.json"
+          ? 'no activity has ever been recorded in audit-log.json'
           : `last recorded activity was ${daysSinceLast} day(s) ago (full marks within a day, zero at ${HEALTH_STALE_DAYS})`,
       evidence:
         recent.length > 0
           ? [`${recent.length} event(s) in the last ${HEALTH_MOMENTUM_DAYS} days`]
           : [`nothing recorded in the last ${HEALTH_MOMENTUM_DAYS} days`],
-      evidenceMore: 0
-    }
+      evidenceMore: 0,
+    },
   ];
 
   for (const component of components) {
-    component.percent = component.max === 0 ? null : Math.round((component.earned / component.max) * 100);
+    component.percent =
+      component.max === 0 ? null : Math.round((component.earned / component.max) * 100);
   }
 
   // Rescaled over only the components that could actually be scored. An unavailable
@@ -1900,8 +1923,7 @@ function computeHealth() {
   }
   const score = scoredWeight === 0 ? 0 : Math.round((earnedWeight / scoredWeight) * 100);
 
-  const band =
-    score >= 80 ? "Healthy" : score >= 55 ? "Needs attention" : "At risk";
+  const band = score >= 80 ? 'Healthy' : score >= 55 ? 'Needs attention' : 'At risk';
 
   // The part that earns a return visit. A snapshot says where you are; this says
   // what to do, with the real command and an honest estimate of what it is worth.
@@ -1919,26 +1941,26 @@ function computeHealth() {
         points: untested * coverageWeightPerAc,
         title: `${feature.name}: ${untested} acceptance criteria have no passing test`,
         command: `/sdrive:test ${feature.name}`,
-        reason: "Testing is the largest single lever on this project's health."
+        reason: "Testing is the largest single lever on this project's health.",
       });
     }
 
     // Verification was the biggest recoverable block and had no suggested action
     // until this existed - the score dropped without saying how to raise it.
     const verification = apiVerification(feature.name, version.id);
-    if (verification.status !== "pass") {
+    if (verification.status !== 'pass') {
       opportunities.push({
         points: verificationWeight,
         title: `${feature.name}: spec-to-code verification is ${
-          verification.status === "warn" ? "reporting drift" : "not run"
+          verification.status === 'warn' ? 'reporting drift' : 'not run'
         }`,
         command: `sdrive verify ${feature.name}`,
-        reason: "Verification counts only when it passes; drift here is real work outstanding."
+        reason: 'Verification counts only when it passes; drift here is real work outstanding.',
       });
     }
 
     const pending = HEALTH_GATES.filter(
-      (gate) => !(gatesApi && gatesApi.isGateApprovedFor(version, gate))
+      (gate) => !(gatesApi && gatesApi.isGateApprovedFor(version, gate)),
     );
     if (pending.length > 0 && untested === 0) {
       // Only suggest an approval the real checker would accept. Recommending a
@@ -1956,17 +1978,17 @@ function computeHealth() {
       if (approvable.length > 0) {
         opportunities.push({
           points: approvable.length * gateWeight,
-          title: `${feature.name}: ${approvable.length} gate(s) ready to approve (${approvable.join(", ")})`,
+          title: `${feature.name}: ${approvable.length} gate(s) ready to approve (${approvable.join(', ')})`,
           command: `sdrive approve ${feature.name} ${approvable[0]}`,
-          reason: "Its requirements are met, so the approval is the only thing outstanding."
+          reason: 'Its requirements are met, so the approval is the only thing outstanding.',
         });
       } else if (pending.length > 0) {
         opportunities.push({
           points: 0,
-          title: `${feature.name}: ${pending.length} gate(s) pending, none approvable yet (${pending.join(", ")})`,
+          title: `${feature.name}: ${pending.length} gate(s) pending, none approvable yet (${pending.join(', ')})`,
           command: `sdrive status`,
           reason:
-            "A gate is waiting, but its requirements are not met — approving now would be refused.",
+            'A gate is waiting, but its requirements are not met — approving now would be refused.',
         });
       }
     }
@@ -1977,7 +1999,7 @@ function computeHealth() {
       points: 0,
       title: `${blockers.length} live version(s) cannot be archived`,
       command: `sdrive archive:check ${blockers[0].feature}`,
-      reason: "A blocker is not worth points, it is worth clearing - see the list below."
+      reason: 'A blocker is not worth points, it is worth clearing - see the list below.',
     });
   }
 
@@ -1988,7 +2010,7 @@ function computeHealth() {
         title: best.title,
         command: best.command,
         reason: best.reason,
-        points: Math.round(best.points)
+        points: Math.round(best.points),
       }
     : null;
 
@@ -1999,7 +2021,7 @@ function computeHealth() {
     liveCount: live.length,
     components,
     nextAction,
-    blockers
+    blockers,
   };
 }
 
@@ -2011,45 +2033,53 @@ async function apiStamp() {
     return stampMemo.value;
   }
 
-  const files = ["workflow-state.json", "audit-log.json", "team.json", "config.json"];
-  const dirs = ["specs", "governance", "product", "onboarding", "reports", "context", "migration-runs"];
+  const files = ['workflow-state.json', 'audit-log.json', 'team.json', 'config.json'];
+  const dirs = [
+    'specs',
+    'governance',
+    'product',
+    'onboarding',
+    'reports',
+    'context',
+    'migration-runs',
+  ];
 
   const parts = await Promise.all([
     ...files.map((name) => fileStamp(path.join(sdriveRoot, name))),
-    ...dirs.map((dir) => treeStamp(path.join(sdriveRoot, dir)))
+    ...dirs.map((dir) => treeStamp(path.join(sdriveRoot, dir))),
   ]);
 
-  stampMemo = { at: Date.now(), value: { stamp: parts.join("|") } };
+  stampMemo = { at: Date.now(), value: { stamp: parts.join('|') } };
   return stampMemo.value;
 }
 
 function apiOnboarding() {
-  const state = loadJson(path.join(sdriveRoot, "workflow-state.json"), { features: [] });
+  const state = loadJson(path.join(sdriveRoot, 'workflow-state.json'), { features: [] });
   return state.onboarding || null;
 }
 
 function readProductFile(fileName) {
-  const filePath = path.join(sdriveRoot, "product", fileName);
+  const filePath = path.join(sdriveRoot, 'product', fileName);
   if (!fs.existsSync(filePath)) return null;
   try {
-    return fs.readFileSync(filePath, "utf8");
+    return fs.readFileSync(filePath, 'utf8');
   } catch (error) {
     return null;
   }
 }
 
 function apiProduct() {
-  const overview = readProductFile("overview.md");
-  const mockup = readProductFile("mockup.md");
-  const designSystem = readProductFile("design-system.md");
-  const roadmap = readProductFile("roadmap.md");
-  const backlogMarkdown = readProductFile("backlog.md");
+  const overview = readProductFile('overview.md');
+  const mockup = readProductFile('mockup.md');
+  const designSystem = readProductFile('design-system.md');
+  const roadmap = readProductFile('roadmap.md');
+  const backlogMarkdown = readProductFile('backlog.md');
 
   const exists = Boolean(overview || mockup || designSystem || roadmap || backlogMarkdown);
-  const state = loadJson(path.join(sdriveRoot, "workflow-state.json"), { features: [] });
+  const state = loadJson(path.join(sdriveRoot, 'workflow-state.json'), { features: [] });
   const enriched = productPlan.enrichBacklog(
     productPlan.annotateBacklog(productPlan.parseBacklog(backlogMarkdown)),
-    { sdriveRoot, state }
+    { sdriveRoot, state },
   );
 
   return {
@@ -2061,7 +2091,7 @@ function apiProduct() {
     backlog: productPlan.sortBacklog(enriched.items),
     counts: enriched.counts,
     waves: enriched.waves,
-    summary: parseProductOverview(overview)
+    summary: parseProductOverview(overview),
   };
 }
 
@@ -2087,7 +2117,7 @@ function parseProductOverview(markdown) {
 
   const findSection = (needle) => {
     const key = Object.keys(sections).find((k) => k.includes(needle));
-    return key ? sections[key].join("\n").trim() : "";
+    return key ? sections[key].join('\n').trim() : '';
   };
 
   const bullets = (text) =>
@@ -2095,34 +2125,44 @@ function parseProductOverview(markdown) {
       .split(/\r?\n/)
       .map((l) => l.trim())
       .filter((l) => /^[-*]\s+/.test(l))
-      .map((l) => l.replace(/^[-*]\s+/, "").replace(/\*\*/g, "").trim());
+      .map((l) =>
+        l
+          .replace(/^[-*]\s+/, '')
+          .replace(/\*\*/g, '')
+          .trim(),
+      );
 
   const tableRows = (text) =>
     text
       .split(/\r?\n/)
       .map((l) => l.trim())
-      .filter((l) => l.startsWith("|") && !/^\|[\s:|-]+\|$/.test(l))
-      .map((l) => l.split("|").slice(1, -1).map((c) => c.trim()))
+      .filter((l) => l.startsWith('|') && !/^\|[\s:|-]+\|$/.test(l))
+      .map((l) =>
+        l
+          .split('|')
+          .slice(1, -1)
+          .map((c) => c.trim()),
+      )
       .filter((cells) => cells.length && !/^segment$/i.test(cells[0]));
 
   const titleMatch = markdown.match(/^#\s+(.*)$/m);
   const statusMatch = markdown.match(/Status:\s*([^·\n]+)/i);
 
   return {
-    title: titleMatch ? titleMatch[1].trim() : "",
-    status: statusMatch ? statusMatch[1].trim() : "",
-    vision: findSection("vision"),
-    problem: findSection("problem"),
-    goals: bullets(findSection("goals")),
-    nonGoals: bullets(findSection("non-goals")),
-    targetUsers: tableRows(findSection("target users")).map((cells) => ({
-      segment: cells[0] || "",
-      description: cells[1] || "",
-      need: cells[2] || ""
+    title: titleMatch ? titleMatch[1].trim() : '',
+    status: statusMatch ? statusMatch[1].trim() : '',
+    vision: findSection('vision'),
+    problem: findSection('problem'),
+    goals: bullets(findSection('goals')),
+    nonGoals: bullets(findSection('non-goals')),
+    targetUsers: tableRows(findSection('target users')).map((cells) => ({
+      segment: cells[0] || '',
+      description: cells[1] || '',
+      need: cells[2] || '',
     })),
-    guidance: bullets(findSection("confirmed guidance")),
-    architecture: bullets(findSection("existing architecture")),
-    openQuestions: bullets(findSection("open questions"))
+    guidance: bullets(findSection('confirmed guidance')),
+    architecture: bullets(findSection('existing architecture')),
+    openQuestions: bullets(findSection('open questions')),
   };
 }
 
@@ -2130,442 +2170,548 @@ function parseProductOverview(markdown) {
 // Each entry carries plain-language fields so a non-technical reader can
 // understand what the command does, why it exists, and when to reach for it.
 const CLI_COMMANDS = [
-  { command: "sdrive init", description: "Initialize SpecDrive structure, tool adapters, and MCP wiring", group: "Setup",
-    what: "Sets up SpecDrive inside your project for the first time.",
-    why: "Creates the folders, config, and AI-tool connections SpecDrive needs to work.",
-    when: "Once, at the very start of a new project.",
-    example: "sdrive init" },
-  { command: "sdrive update", description: "Refresh framework files (dashboard, mcp, scripts, schemas) without touching specs or governance", group: "Setup",
+  {
+    command: 'sdrive init',
+    description: 'Initialize SpecDrive structure, tool adapters, and MCP wiring',
+    group: 'Setup',
+    what: 'Sets up SpecDrive inside your project for the first time.',
+    why: 'Creates the folders, config, and AI-tool connections SpecDrive needs to work.',
+    when: 'Once, at the very start of a new project.',
+    example: 'sdrive init',
+  },
+  {
+    command: 'sdrive update',
+    description:
+      'Refresh framework files (dashboard, mcp, scripts, schemas) without touching specs or governance',
+    group: 'Setup',
     what: "Updates SpecDrive's own files to the latest version.",
-    why: "You get new dashboard and tooling improvements without losing your specs or approvals.",
-    when: "After upgrading the SpecDrive package.",
-    example: "sdrive update" },
-  { command: "sdrive onboard", description: "Scan an existing project for onboarding (usually run by /sdrive:onboard)", group: "Setup",
-    what: "Reads an existing codebase and builds an inventory of what is already there.",
-    why: "Lets you adopt SpecDrive into a project that already has code, without starting over.",
-    when: "When bringing an existing project under SpecDrive.",
-    example: "sdrive onboard" },
-  { command: "sdrive config:validate", description: "Validate .sdrive/config.json", group: "Setup",
-    what: "Checks that your SpecDrive configuration file is correct.",
-    why: "Catches typos or missing settings before they cause confusing failures.",
-    when: "After editing .sdrive/config.json.",
-    example: "sdrive config:validate" },
-  { command: "sdrive template:list", description: "List available templates", group: "Setup",
-    what: "Shows the document templates SpecDrive can use.",
-    why: "Helps you pick the right starting point for your specs.",
-    when: "When choosing how specs should be formatted.",
-    example: "sdrive template:list" },
-  { command: "sdrive template:set <name>", description: "Set the default template", group: "Setup",
-    what: "Chooses which template SpecDrive uses by default.",
+    why: 'You get new dashboard and tooling improvements without losing your specs or approvals.',
+    when: 'After upgrading the SpecDrive package.',
+    example: 'sdrive update',
+  },
+  {
+    command: 'sdrive onboard',
+    description: 'Scan an existing project for onboarding (usually run by /sdrive:onboard)',
+    group: 'Setup',
+    what: 'Reads an existing codebase and builds an inventory of what is already there.',
+    why: 'Lets you adopt SpecDrive into a project that already has code, without starting over.',
+    when: 'When bringing an existing project under SpecDrive.',
+    example: 'sdrive onboard',
+  },
+  {
+    command: 'sdrive config:validate',
+    description: 'Validate .sdrive/config.json',
+    group: 'Setup',
+    what: 'Checks that your SpecDrive configuration file is correct.',
+    why: 'Catches typos or missing settings before they cause confusing failures.',
+    when: 'After editing .sdrive/config.json.',
+    example: 'sdrive config:validate',
+  },
+  {
+    command: 'sdrive template:list',
+    description: 'List available templates',
+    group: 'Setup',
+    what: 'Shows the document templates SpecDrive can use.',
+    why: 'Helps you pick the right starting point for your specs.',
+    when: 'When choosing how specs should be formatted.',
+    example: 'sdrive template:list',
+  },
+  {
+    command: 'sdrive template:set <name>',
+    description: 'Set the default template',
+    group: 'Setup',
+    what: 'Chooses which template SpecDrive uses by default.',
     why: "Keeps every new spec consistent with your team's preferred format.",
-    when: "Once, when configuring your project.",
-    example: "sdrive template:set standard" },
-  { command: "sdrive hooks:install", description: "Install the SpecDrive pre-commit hook", group: "Setup",
-    what: "Adds an automatic check that runs before each Git commit.",
-    why: "Stops invalid or unapproved changes from being committed by accident.",
-    when: "Once, after initializing SpecDrive.",
-    example: "sdrive hooks:install" },
+    when: 'Once, when configuring your project.',
+    example: 'sdrive template:set standard',
+  },
+  {
+    command: 'sdrive hooks:install',
+    description: 'Install the SpecDrive pre-commit hook',
+    group: 'Setup',
+    what: 'Adds an automatic check that runs before each Git commit.',
+    why: 'Stops invalid or unapproved changes from being committed by accident.',
+    when: 'Once, after initializing SpecDrive.',
+    example: 'sdrive hooks:install',
+  },
 
-  { command: "sdrive create <feature>", description: "Create a new feature scaffold (internal)", group: "Features",
-    what: "Creates the empty folder structure for a new feature.",
-    why: "Gives every feature the same organised home for its spec, plan, and tasks.",
-    when: "Usually run for you by /sdrive:propose.",
-    example: "sdrive create user-login" },
-  { command: "sdrive update-propose <feature>", description: "Validate an existing feature for extension (internal)", group: "Features",
-    what: "Checks the feature exists, is not already completed, and has a spec folder to extend.",
-    why: "Extension has preconditions - a completed version is immutable, so new scope needs a new version instead.",
-    when: "Usually run for you by /sdrive:update-propose.",
-    example: "sdrive update-propose user-login" },
-  { command: "sdrive assign <feature> <username>", description: "Assign a team member as the owner of a feature", group: "Features",
-    what: "Records which team member owns a feature.",
+  {
+    command: 'sdrive create <feature>',
+    description: 'Create a new feature scaffold (internal)',
+    group: 'Features',
+    what: 'Creates the empty folder structure for a new feature.',
+    why: 'Gives every feature the same organised home for its spec, plan, and tasks.',
+    when: 'Usually run for you by /sdrive:propose.',
+    example: 'sdrive create user-login',
+  },
+  {
+    command: 'sdrive update-propose <feature>',
+    description: 'Validate an existing feature for extension (internal)',
+    group: 'Features',
+    what: 'Checks the feature exists, is not already completed, and has a spec folder to extend.',
+    why: 'Extension has preconditions - a completed version is immutable, so new scope needs a new version instead.',
+    when: 'Usually run for you by /sdrive:update-propose.',
+    example: 'sdrive update-propose user-login',
+  },
+  {
+    command: 'sdrive assign <feature> <username>',
+    description: 'Assign a team member as the owner of a feature',
+    group: 'Features',
+    what: 'Records which team member owns a feature.',
     why: "Ownership makes it obvious who is accountable for a feature's specs and gates.",
-    when: "When a feature changes hands, or when starting work in a team.",
-    example: "sdrive assign user-login alice" },
-  { command: "sdrive status", description: "Show feature lifecycle state", group: "Features",
-    what: "Prints where each feature currently stands.",
-    why: "A quick way to see what is in progress, blocked, or done.",
-    when: "Any time you want a status check.",
-    example: "sdrive status" },
-  { command: "sdrive version:new <feature>", description: "Create a new version of a feature", group: "Features",
-    what: "Starts a fresh version of an existing feature.",
-    why: "Lets you evolve a shipped feature without erasing its history.",
-    when: "When adding significant new scope to a completed feature.",
-    example: "sdrive version:new user-login" },
-  { command: "sdrive diff:version <feature> <a> <b>", description: "Compare two versions of a feature", group: "Features",
-    what: "Shows what changed between two versions of a feature.",
-    why: "Makes it easy to review scope changes over time.",
-    when: "Before approving a new version.",
-    example: "sdrive diff:version user-login v1 v2" },
+    when: 'When a feature changes hands, or when starting work in a team.',
+    example: 'sdrive assign user-login alice',
+  },
+  {
+    command: 'sdrive status',
+    description: 'Show feature lifecycle state',
+    group: 'Features',
+    what: 'Prints where each feature currently stands.',
+    why: 'A quick way to see what is in progress, blocked, or done.',
+    when: 'Any time you want a status check.',
+    example: 'sdrive status',
+  },
+  {
+    command: 'sdrive version:new <feature>',
+    description: 'Create a new version of a feature',
+    group: 'Features',
+    what: 'Starts a fresh version of an existing feature.',
+    why: 'Lets you evolve a shipped feature without erasing its history.',
+    when: 'When adding significant new scope to a completed feature.',
+    example: 'sdrive version:new user-login',
+  },
+  {
+    command: 'sdrive diff:version <feature> <a> <b>',
+    description: 'Compare two versions of a feature',
+    group: 'Features',
+    what: 'Shows what changed between two versions of a feature.',
+    why: 'Makes it easy to review scope changes over time.',
+    when: 'Before approving a new version.',
+    example: 'sdrive diff:version user-login v1 v2',
+  },
 
-  { command: "sdrive validate", description: "Validate SpecDrive governance files", group: "Governance",
-    what: "Checks that all your spec and governance files are well-formed.",
-    why: "Catches broken or incomplete documents before they block the workflow.",
-    when: "Before approving a gate or merging.",
-    example: "sdrive validate" },
-  { command: "sdrive verify <feature>", description: "Verify code matches the plan (spec-to-code diff)", group: "Governance",
-    what: "Compares what was specified against what was actually built.",
-    why: "Proves the code matches the approved plan — no missing or surprise work.",
-    when: "Before the review gate.",
-    example: "sdrive verify user-login" },
-  { command: "sdrive approve <feature> <gate>", description: "Approve a workflow gate (specification, planning, implementation, review)", group: "Governance",
+  {
+    command: 'sdrive validate',
+    description: 'Validate SpecDrive governance files',
+    group: 'Governance',
+    what: 'Checks that all your spec and governance files are well-formed.',
+    why: 'Catches broken or incomplete documents before they block the workflow.',
+    when: 'Before approving a gate or merging.',
+    example: 'sdrive validate',
+  },
+  {
+    command: 'sdrive verify <feature>',
+    description: 'Verify code matches the plan (spec-to-code diff)',
+    group: 'Governance',
+    what: 'Compares what was specified against what was actually built.',
+    why: 'Proves the code matches the approved plan — no missing or surprise work.',
+    when: 'Before the review gate.',
+    example: 'sdrive verify user-login',
+  },
+  {
+    command: 'sdrive approve <feature> <gate>',
+    description: 'Approve a workflow gate (specification, planning, implementation, review)',
+    group: 'Governance',
     what: "Signs off on one of the four approval checkpoints — but only after verifying the stage's artifacts actually exist.",
-    why: "Gates are how a human confirms each stage is genuinely ready to advance. Approving an unmet gate would falsify the governance record, so the check runs before anything is written.",
+    why: 'Gates are how a human confirms each stage is genuinely ready to advance. Approving an unmet gate would falsify the governance record, so the check runs before anything is written.',
     when: "After reviewing a stage's output. The feature must be named explicitly.",
-    example: "sdrive approve user-login specification" },
-  { command: "sdrive archive:check <feature>", description: "Report whether a feature may be archived (changes nothing)", group: "Governance",
+    example: 'sdrive approve user-login specification',
+  },
+  {
+    command: 'sdrive archive:check <feature>',
+    description: 'Report whether a feature may be archived (changes nothing)',
+    group: 'Governance',
     what: "Re-verifies a feature's approvals and the evidence behind them, then reports whether it is safe to archive — without writing anything.",
-    why: "Lets you see exactly what is still outstanding before touching state, and gives /sdrive:archive --all a read-only pass.",
-    when: "Before archiving, or when a feature is refused.",
-    example: "sdrive archive:check user-login" },
-  { command: "sdrive archive:finalize <feature>", description: "Close a feature's lifecycle: move its spec to completed/ and mark the version completed", group: "Governance",
+    why: 'Lets you see exactly what is still outstanding before touching state, and gives /sdrive:archive --all a read-only pass.',
+    when: 'Before archiving, or when a feature is refused.',
+    example: 'sdrive archive:check user-login',
+  },
+  {
+    command: 'sdrive archive:finalize <feature>',
+    description:
+      "Close a feature's lifecycle: move its spec to completed/ and mark the version completed",
+    group: 'Governance',
     what: "Moves the feature's spec folder to specs/completed/ and marks that version completed — but only once all four gates are already approved and the evidence behind them is still present.",
-    why: "Archiving used to write the gates itself, so it could record an approval nobody granted. It now refuses instead of promoting, which means a feature that was never tested or reviewed cannot be recorded as archived.",
-    when: "After /sdrive:review has passed and the merge is done.",
-    example: "sdrive archive:finalize user-login" },
-  { command: "sdrive diff <oldFile> <newFile>", description: "Show differences between two spec files", group: "Governance",
-    what: "Highlights what changed between two documents.",
-    why: "Speeds up review by focusing attention on the differences.",
-    when: "When comparing spec revisions.",
-    example: "sdrive diff old.json new.json" },
-  { command: "sdrive openapi:generate <feature>", description: "Generate an OpenAPI spec from plan.json API contracts", group: "Governance",
-    what: "Turns your planned API contracts into a standard OpenAPI document.",
-    why: "Keeps API documentation in sync with the plan automatically.",
-    when: "After the plan defines API endpoints.",
-    example: "sdrive openapi:generate user-login" },
+    why: 'Archiving used to write the gates itself, so it could record an approval nobody granted. It now refuses instead of promoting, which means a feature that was never tested or reviewed cannot be recorded as archived.',
+    when: 'After /sdrive:review has passed and the merge is done.',
+    example: 'sdrive archive:finalize user-login',
+  },
+  {
+    command: 'sdrive diff <oldFile> <newFile>',
+    description: 'Show differences between two spec files',
+    group: 'Governance',
+    what: 'Highlights what changed between two documents.',
+    why: 'Speeds up review by focusing attention on the differences.',
+    when: 'When comparing spec revisions.',
+    example: 'sdrive diff old.json new.json',
+  },
+  {
+    command: 'sdrive openapi:generate <feature>',
+    description: 'Generate an OpenAPI spec from plan.json API contracts',
+    group: 'Governance',
+    what: 'Turns your planned API contracts into a standard OpenAPI document.',
+    why: 'Keeps API documentation in sync with the plan automatically.',
+    when: 'After the plan defines API endpoints.',
+    example: 'sdrive openapi:generate user-login',
+  },
 
-  { command: "sdrive team:add <username> <role>", description: "Add a new team member", group: "Team",
-    what: "Registers a person and their role on the project.",
-    why: "Tracks who is accountable for what.",
-    when: "When someone joins the project.",
-    example: "sdrive team:add jane developer" },
-  { command: "sdrive team:remove <username>", description: "Remove a team member", group: "Team",
-    what: "Removes a person from the project roster.",
-    why: "Keeps the team list accurate as people move on.",
-    when: "When someone leaves the project.",
-    example: "sdrive team:remove jane" },
-  { command: "sdrive team:list", description: "List all team members", group: "Team",
-    what: "Shows everyone on the project and their roles.",
-    why: "A single source of truth for who is involved.",
-    when: "Any time you need the roster.",
-    example: "sdrive team:list" },
-  { command: "sdrive team:update <username> <role>", description: "Update a team member's role", group: "Team",
+  {
+    command: 'sdrive team:add <username> <role>',
+    description: 'Add a new team member',
+    group: 'Team',
+    what: 'Registers a person and their role on the project.',
+    why: 'Tracks who is accountable for what.',
+    when: 'When someone joins the project.',
+    example: 'sdrive team:add jane developer',
+  },
+  {
+    command: 'sdrive team:remove <username>',
+    description: 'Remove a team member',
+    group: 'Team',
+    what: 'Removes a person from the project roster.',
+    why: 'Keeps the team list accurate as people move on.',
+    when: 'When someone leaves the project.',
+    example: 'sdrive team:remove jane',
+  },
+  {
+    command: 'sdrive team:list',
+    description: 'List all team members',
+    group: 'Team',
+    what: 'Shows everyone on the project and their roles.',
+    why: 'A single source of truth for who is involved.',
+    when: 'Any time you need the roster.',
+    example: 'sdrive team:list',
+  },
+  {
+    command: 'sdrive team:update <username> <role>',
+    description: "Update a team member's role",
+    group: 'Team',
     what: "Changes a person's role.",
-    why: "Keeps responsibilities current as people grow.",
+    why: 'Keeps responsibilities current as people grow.',
     when: "When someone's role changes.",
-    example: "sdrive team:update jane lead" },
-  { command: "sdrive team:sync", description: "Sync team members from GitHub collaborators", group: "Team",
-    what: "Pulls the contributor list straight from GitHub.",
-    why: "Avoids manually re-typing who is on the project.",
-    when: "After adding collaborators on GitHub.",
-    example: "sdrive team:sync" },
+    example: 'sdrive team:update jane lead',
+  },
+  {
+    command: 'sdrive team:sync',
+    description: 'Sync team members from GitHub collaborators',
+    group: 'Team',
+    what: 'Pulls the contributor list straight from GitHub.',
+    why: 'Avoids manually re-typing who is on the project.',
+    when: 'After adding collaborators on GitHub.',
+    example: 'sdrive team:sync',
+  },
 
-  { command: "sdrive dashboard", description: "Start the SpecDrive web dashboard", group: "Dashboard",
-    what: "Opens the visual dashboard in your browser.",
-    why: "Gives you a friendly view of features, gates, and progress.",
-    when: "Whenever you want to see the big picture.",
-    example: "sdrive dashboard" }
+  {
+    command: 'sdrive dashboard',
+    description: 'Start the SpecDrive web dashboard',
+    group: 'Dashboard',
+    what: 'Opens the visual dashboard in your browser.',
+    why: 'Gives you a friendly view of features, gates, and progress.',
+    when: 'Whenever you want to see the big picture.',
+    example: 'sdrive dashboard',
+  },
 ];
 
 // Plain-language descriptions for the slash commands, keyed by command name.
 // The manifest holds the terse machine description; these are the human ones.
 const SLASH_DETAILS = {
-  "/sdrive:constitution": {
+  '/sdrive:constitution': {
     what: "Establishes the project's ground rules and context.",
-    why: "Every later decision is checked against this shared foundation.",
-    when: "Immediately after sdrive init, before any feature work.",
+    why: 'Every later decision is checked against this shared foundation.',
+    when: 'Immediately after sdrive init, before any feature work.',
     does: [
-      "Interviews you about the product, stack, and constraints",
-      "Merges the answers into a single constitution document",
-      "Assigns stable IDs to every principle so later work can cite them"
+      'Interviews you about the product, stack, and constraints',
+      'Merges the answers into a single constitution document',
+      'Assigns stable IDs to every principle so later work can cite them',
     ],
-    produces: [
-      ".sdrive/constitution.md",
-      ".sdrive/context/ (product, stack, constraints)"
-    ],
-    reads: ["Your answers", "Existing repo files (brownfield)"],
-    handsOff: "/sdrive:product-plan"
+    produces: ['.sdrive/constitution.md', '.sdrive/context/ (product, stack, constraints)'],
+    reads: ['Your answers', 'Existing repo files (brownfield)'],
+    handsOff: '/sdrive:product-plan',
   },
-  "/sdrive:product-plan": {
-    what: "Creates the product overview, mockup, roadmap, and feature backlog.",
-    why: "Gives the whole team a shared picture of what is being built and why.",
-    when: "Early, once the constitution exists.",
+  '/sdrive:product-plan': {
+    what: 'Creates the product overview, mockup, roadmap, and feature backlog.',
+    why: 'Gives the whole team a shared picture of what is being built and why.',
+    when: 'Early, once the constitution exists.',
     does: [
-      "Drafts the product overview and positioning",
-      "Produces a UI mockup and roadmap",
-      "Breaks the roadmap into a prioritised feature backlog",
+      'Drafts the product overview and positioning',
+      'Produces a UI mockup and roadmap',
+      'Breaks the roadmap into a prioritised feature backlog',
       "Records each item's Milestone, Priority, Kind and Depends on — waves (w1, w2, …) are derived from the dependencies, so parallel-safe items share a wave",
-      "Groups items that must land together on one branch with a Batch id (b1, b2, …): a wave says what can run in parallel, a batch says what merges at the same moment",
-      "Keeps Kind accurate — build, decision or release — because only a build can pass a coverage gate"
+      'Groups items that must land together on one branch with a Batch id (b1, b2, …): a wave says what can run in parallel, a batch says what merges at the same moment',
+      'Keeps Kind accurate — build, decision or release — because only a build can pass a coverage gate',
     ],
     produces: [
-      ".sdrive/product/overview.md",
-      ".sdrive/product/mockup.html",
-      ".sdrive/product/roadmap.md",
-      ".sdrive/product/backlog.md"
+      '.sdrive/product/overview.md',
+      '.sdrive/product/mockup.html',
+      '.sdrive/product/roadmap.md',
+      '.sdrive/product/backlog.md',
     ],
-    reads: [".sdrive/constitution.md"],
-    handsOff: "/sdrive:propose"
+    reads: ['.sdrive/constitution.md'],
+    handsOff: '/sdrive:propose',
   },
-  "/sdrive:propose": {
-    what: "Turns an idea into a full specification, plan, and task list.",
-    why: "Nothing gets built until it is clearly specified and approved.",
-    when: "When starting a new feature.",
+  '/sdrive:propose': {
+    what: 'Turns an idea into a full specification, plan, and task list.',
+    why: 'Nothing gets built until it is clearly specified and approved.',
+    when: 'When starting a new feature.',
     does: [
-      "Writes the feature specification with numbered requirements",
-      "Derives acceptance criteria and a traceability matrix",
-      "Produces a technical plan and an ordered task list",
-      "Offers a Product ID branch (feature/BP-003) or a readable branch name",
-      "Opens the feature branch, or reuses a worktree prepared by /sdrive:worktree",
-      "Accepts a group — [w1 p2], [m5 p1 build], [b1] or [signup, video call] — resolves it against the backlog and shows the list before creating anything",
-      "Asks ONE branch decision for a whole group; [b1] alone always means one branch, merged once when every member passes review",
-      "Still runs Gate 1 and Gate 2 per feature — grouping buys one branch decision and one name, not one approval"
+      'Writes the feature specification with numbered requirements',
+      'Derives acceptance criteria and a traceability matrix',
+      'Produces a technical plan and an ordered task list',
+      'Offers a Product ID branch (feature/BP-003) or a readable branch name',
+      'Opens the feature branch, or reuses a worktree prepared by /sdrive:worktree',
+      'Accepts a group — [w1 p2], [m5 p1 build], [b1] or [signup, video call] — resolves it against the backlog and shows the list before creating anything',
+      'Asks ONE branch decision for a whole group; [b1] alone always means one branch, merged once when every member passes review',
+      'Still runs Gate 1 and Gate 2 per feature — grouping buys one branch decision and one name, not one approval',
     ],
     produces: [
-      ".sdrive/specs/ongoing/<feature>/<version>/spec.md",
-      ".sdrive/specs/ongoing/<feature>/<version>/plan.md",
-      ".sdrive/specs/ongoing/<feature>/<version>/tasks.md",
-      ".sdrive/specs/ongoing/<feature>/<version>/traceability.md",
-      ".sdrive/governance/<feature>/<version>/*.json"
+      '.sdrive/specs/ongoing/<feature>/<version>/spec.md',
+      '.sdrive/specs/ongoing/<feature>/<version>/plan.md',
+      '.sdrive/specs/ongoing/<feature>/<version>/tasks.md',
+      '.sdrive/specs/ongoing/<feature>/<version>/traceability.md',
+      '.sdrive/governance/<feature>/<version>/*.json',
     ],
-    reads: [".sdrive/constitution.md", ".sdrive/product/backlog.md"],
-    handsOff: "/sdrive:apply"
+    reads: ['.sdrive/constitution.md', '.sdrive/product/backlog.md'],
+    handsOff: '/sdrive:apply',
   },
-  "/sdrive:worktree": {
-    what: "Prepares branches and isolated worktrees for the next ready Product Plan wave.",
-    why: "Lets independent items in the same wave start in parallel without opening a later wave early.",
+  '/sdrive:worktree': {
+    what: 'Prepares branches and isolated worktrees for the next ready Product Plan wave.',
+    why: 'Lets independent items in the same wave start in parallel without opening a later wave early.',
     when: "After the product plan, when a wave's dependencies are completed and archived.",
     does: [
       "Reads the backlog's Depends on and Wave columns",
-      "Offers Product ID branches or readable names with suggestions",
-      "Creates one branch and worktree per selected item",
-      "Records prepared worktrees so /sdrive:propose reuses them"
+      'Offers Product ID branches or readable names with suggestions',
+      'Creates one branch and worktree per selected item',
+      'Records prepared worktrees so /sdrive:propose reuses them',
     ],
     produces: [
-      "A feature branch per selected item",
-      "An isolated git worktree per selected item",
-      ".sdrive/workflow-state.json worktrees entries"
+      'A feature branch per selected item',
+      'An isolated git worktree per selected item',
+      '.sdrive/workflow-state.json worktrees entries',
     ],
     reads: [
-      ".sdrive/product/backlog.md",
-      ".sdrive/workflow-state.json",
-      "git branches and existing worktrees"
+      '.sdrive/product/backlog.md',
+      '.sdrive/workflow-state.json',
+      'git branches and existing worktrees',
     ],
-    handsOff: "/sdrive:propose"
+    handsOff: '/sdrive:propose',
   },
-  "/sdrive:update-propose": {
-    what: "Extends an existing specification with new requirements.",
-    why: "Lets features grow without rewriting their history.",
-    when: "When a feature proposal needs changes before the feature is archived.",
+  '/sdrive:update-propose': {
+    what: 'Extends an existing specification with new requirements.',
+    why: 'Lets features grow without rewriting their history.',
+    when: 'When a feature proposal needs changes before the feature is archived.',
     does: [
-      "Adds new requirements without renumbering existing ones",
-      "Updates the plan and task list to cover the additions",
-      "Refreshes the traceability matrix"
+      'Adds new requirements without renumbering existing ones',
+      'Updates the plan and task list to cover the additions',
+      'Refreshes the traceability matrix',
     ],
     produces: [
-      "Updated spec.md, plan.md, tasks.md, traceability.md",
-      "Updated governance JSON for the version"
+      'Updated spec.md, plan.md, tasks.md, traceability.md',
+      'Updated governance JSON for the version',
     ],
-    reads: ["The existing feature spec and governance"],
-    handsOff: "/sdrive:apply"
+    reads: ['The existing feature spec and governance'],
+    handsOff: '/sdrive:apply',
   },
-  "/sdrive:design": {
-    what: "Builds the UI/UX prototype and design system.",
-    why: "Agrees on the look and feel before code is written.",
-    when: "After the spec, before implementation.",
+  '/sdrive:design': {
+    what: 'Builds the UI/UX prototype and design system.',
+    why: 'Agrees on the look and feel before code is written.',
+    when: 'After the spec, before implementation.',
     does: [
-      "Produces an interactive HTML/CSS/JS prototype",
-      "Defines the design tokens and component inventory",
-      "Maps every screen back to its requirements"
+      'Produces an interactive HTML/CSS/JS prototype',
+      'Defines the design tokens and component inventory',
+      'Maps every screen back to its requirements',
     ],
     produces: [
-      ".sdrive/design/<feature>/prototype.html",
-      ".sdrive/design/<feature>/design-system.md"
+      '.sdrive/design/<feature>/prototype.html',
+      '.sdrive/design/<feature>/design-system.md',
     ],
-    reads: ["The feature spec and acceptance criteria"],
-    handsOff: "/sdrive:apply"
+    reads: ['The feature spec and acceptance criteria'],
+    handsOff: '/sdrive:apply',
   },
-  "/sdrive:sync": {
-    what: "Keeps the spec, plan, tasks, and traceability in agreement.",
-    why: "Prevents documents from drifting out of sync as things change.",
-    when: "After any change to the spec or plan.",
+  '/sdrive:sync': {
+    what: 'Keeps the spec, plan, tasks, and traceability in agreement.',
+    why: 'Prevents documents from drifting out of sync as things change.',
+    when: 'After any change to the spec or plan.',
     does: [
-      "Diffs the spec against the plan, tasks, and traceability",
-      "Repairs mismatched IDs and orphaned references",
-      "Reports anything it could not reconcile"
+      'Diffs the spec against the plan, tasks, and traceability',
+      'Repairs mismatched IDs and orphaned references',
+      'Reports anything it could not reconcile',
     ],
-    produces: ["Updated spec, plan, tasks, and traceability files"],
+    produces: ['Updated spec, plan, tasks, and traceability files'],
     reads: ["Every document in the feature's version folder"],
-    handsOff: "/sdrive:apply"
+    handsOff: '/sdrive:apply',
   },
-  "/sdrive:skills": {
-    what: "Audits and manages the AI skills available to the project.",
+  '/sdrive:skills': {
+    what: 'Audits and manages the AI skills available to the project.',
     why: "Keeps the AI's capabilities current and trustworthy.",
-    when: "Periodically, or when adding new tooling.",
+    when: 'Periodically, or when adding new tooling.',
     does: [
-      "Inventories the skills currently available",
-      "Verifies each skill against its source",
-      "Discovers and proposes new skills from GitHub"
+      'Inventories the skills currently available',
+      'Verifies each skill against its source',
+      'Discovers and proposes new skills from GitHub',
     ],
-    produces: [".sdrive/skills/ (skill workspace and audit notes)"],
+    produces: ['.sdrive/skills/ (skill workspace and audit notes)'],
     reads: ["The project's skill configuration"],
-    handsOff: "Nothing — this is a maintenance command"
+    handsOff: 'Nothing — this is a maintenance command',
   },
-  "/sdrive:docs": {
-    what: "Generates documentation and flags drift from the code.",
-    why: "Keeps docs honest and up to date automatically.",
-    when: "After implementation, or on a schedule. Use --all to document every ongoing feature.",
+  '/sdrive:docs': {
+    what: 'Generates documentation and flags drift from the code.',
+    why: 'Keeps docs honest and up to date automatically.',
+    when: 'After implementation, or on a schedule. Use --all to document every ongoing feature.',
     does: [
-      "Writes inline comments and API documentation",
-      "Generates or refreshes the project README",
-      "Flags places where the docs no longer match the code"
+      'Writes inline comments and API documentation',
+      'Generates or refreshes the project README',
+      'Flags places where the docs no longer match the code',
     ],
     produces: [
-      ".sdrive/reports/docs/coverage-report-<feature>-<version>-<date>.md",
-      "Updated README and inline docs"
+      '.sdrive/reports/docs/coverage-report-<feature>-<version>-<date>.md',
+      'Updated README and inline docs',
     ],
-    reads: ["The implementation", "The feature spec"],
-    handsOff: "/sdrive:review"
+    reads: ['The implementation', 'The feature spec'],
+    handsOff: '/sdrive:review',
   },
-  "/sdrive:apply": {
-    what: "Writes the production code from the approved tasks.",
-    why: "This is where the plan becomes real, working software.",
-    when: "After the plan is approved. Use --all to implement every ongoing feature, one branch each.",
+  '/sdrive:apply': {
+    what: 'Writes the production code from the approved tasks.',
+    why: 'This is where the plan becomes real, working software.',
+    when: 'After the plan is approved. Use --all to implement every ongoing feature, one branch each.',
     does: [
       "Bases the feature branch on the branch it will merge into, and reports any base that carries another feature's commits (CON-612)",
-      "Works through the task list in order, resuming from the first unchecked task",
-      "Commits to the feature branch as tasks complete",
-      "Defers test-writing tasks to /sdrive:test",
-      "Updates the governance task state as it goes"
+      'Works through the task list in order, resuming from the first unchecked task',
+      'Commits to the feature branch as tasks complete',
+      'Defers test-writing tasks to /sdrive:test',
+      'Updates the governance task state as it goes',
     ],
     produces: [
-      "Production source code",
-      "Updated .sdrive/governance/<feature>/<version>/tasks.json",
-      "Git commits on the feature branch"
+      'Production source code',
+      'Updated .sdrive/governance/<feature>/<version>/tasks.json',
+      'Git commits on the feature branch',
     ],
-    reads: ["tasks.md", "plan.md", "spec.md"],
-    handsOff: "/sdrive:test"
+    reads: ['tasks.md', 'plan.md', 'spec.md'],
+    handsOff: '/sdrive:test',
   },
-  "/sdrive:performance": {
-    what: "Benchmarks and optimises performance and search visibility (SEO).",
-    why: "Ensures the feature is not just correct, but fast enough and discoverable.",
-    when: "After implementation, before review. Use --all to optimise every ongoing feature.",
+  '/sdrive:performance': {
+    what: 'Fixes performance and search-visibility findings: measures, optimises, and re-measures.',
+    why: 'Turns a missed NFR into a fix. Review measures; this command repairs.',
+    when: 'When /sdrive:review reports a missed NFR or SEO finding. Use --all to optimise every ongoing feature.',
     does: [
-      "Benchmarks against the feature's speed NFRs",
-      "Audits metadata, semantic HTML, structured data, and crawlability",
-      "Applies approved speed and SEO fixes",
-      "Re-measures to prove the fix landed"
+      "Benchmarks against the feature's speed NFRs (median of at least 5 runs)",
+      'Audits metadata, semantic HTML, structured data, and crawlability',
+      'Applies approved speed and SEO fixes',
+      'Re-measures to prove the fix landed — the check that found it is the check that clears it',
+    ],
+    produces: ['.sdrive/reports/performance/performance-report-<feature>-<version>-<date>.md'],
+    reads: ['The implementation', "The feature's NFRs"],
+    handsOff: '/sdrive:test, then /sdrive:review to re-verify',
+  },
+  '/sdrive:debug': {
+    what: 'Reproduces, isolates, and fixes defects — layout, APIs, runtime, and glitches.',
+    why: 'Turns a vague "something is broken" into a reproduced defect, a root cause, and a verified fix.',
+    when: 'When something is visibly wrong. Use --all to sweep every ongoing feature for defects.',
+    does: [
+      'Reproduces the symptom and captures evidence',
+      'Isolates the smallest failing case',
+      'Identifies the root cause before touching code',
+      'Applies a minimal fix and re-verifies',
     ],
     produces: [
-      ".sdrive/reports/performance/performance-report-<feature>-<version>-<date>.md"
+      '.sdrive/reports/debug/debug-report-<feature>-<version>-<date>.md',
+      '.sdrive/reports/debug/repro/ (reproduction steps)',
+      '.sdrive/reports/debug/evidence/ (before/after captures)',
     ],
-    reads: ["The implementation", "The feature's NFRs"],
-    handsOff: "/sdrive:review"
+    reads: ['The implementation', 'Runtime logs and console output'],
+    handsOff: '/sdrive:review',
   },
-  "/sdrive:debug": {
-    what: "Reproduces, isolates, and fixes defects — layout, APIs, runtime, and glitches.",
-    why: "Turns a vague \"something is broken\" into a reproduced defect, a root cause, and a verified fix.",
-    when: "When something is visibly wrong. Use --all to sweep every ongoing feature for defects.",
+  '/sdrive:review': {
+    what: 'Runs the final audit — spec, tests, security, and performance — and produces a pass/fail verdict.',
+    why: 'The last quality gate before work is considered done. It audits and certifies; it never edits code, merges, or archives.',
+    when: 'When the feature is complete. Use --all to review every ongoing feature one after the other.',
     does: [
-      "Reproduces the symptom and captures evidence",
-      "Isolates the smallest failing case",
-      "Identifies the root cause before touching code",
-      "Applies a minimal fix and re-verifies"
+      'Verifies every acceptance criterion has a linked, passing test',
+      'Audits security itself: secret scan, vulnerable dependencies, and every REQUIRED CON-51x control verified as wired into the request path — not merely present in the manifest',
+      'Measures performance against the declared NFRs (median of at least 5 runs) and assesses SEO separately',
+      'Audits the code against the spec and acceptance criteria',
+      'Records both audits in review.json, so the gate can refuse an absent, failing, unexplained, or unverified one',
+      'On FAIL, writes a remediation list naming the command that fixes each finding — /sdrive:secure, /sdrive:performance, /sdrive:test, or /sdrive:apply — and stops',
+      'Never edits source to clear a finding: a fix moves HEAD, which would invalidate the verdict it just wrote',
+      'Makes no Git or GitHub writes — no pull requests, no branch switching, no merging',
+      'Issues a pass/fail verdict with findings',
     ],
     produces: [
-      ".sdrive/reports/debug/debug-report-<feature>-<version>-<date>.md",
-      ".sdrive/reports/debug/repro/ (reproduction steps)",
-      ".sdrive/reports/debug/evidence/ (before/after captures)"
+      '.sdrive/specs/<lifecycle>/<feature>/<version>/review.md',
+      '.sdrive/governance/<feature>/<version>/review.json (verdict, audits, remediation)',
     ],
-    reads: ["The implementation", "Runtime logs and console output"],
-    handsOff: "/sdrive:review"
+    reads: [
+      'The implementation',
+      'The spec',
+      "The constitution's Security Baseline",
+      'Every prior report',
+    ],
+    handsOff:
+      '/sdrive:archive on PASS · /sdrive:secure, /sdrive:performance, /sdrive:test, or /sdrive:apply on FAIL',
   },
-  "/sdrive:review": {
-    what: "Runs the final audit and produces a pass/fail verdict.",
-    why: "The last quality gate before work is considered done. It does not merge or archive.",
-    when: "When the feature is complete. Use --all to review every ongoing feature one after the other.",
+  '/sdrive:archive': {
+    what: 'Merges an approved feature to the confirmed target branch and completes its lifecycle.',
+    why: 'Turns a passing review into shipped, archived work — specs move to completed/ and the branch is cleaned up.',
+    when: 'Only after /sdrive:review has passed. Use --all to archive every ongoing feature that passed review.',
     does: [
-      "Verifies every acceptance criterion has a linked, passing test",
-      "Audits the code against the spec and acceptance criteria",
-      "Checks quality, security, and governance compliance",
-      "Makes no Git or GitHub writes — no pull requests, no branch switching, no merging",
-      "Issues a pass/fail verdict with findings"
-    ],
-    produces: [
-      ".sdrive/reports/reviews/review-report-<feature>-<version>-<date>.md"
-    ],
-    reads: ["The implementation", "The spec", "Every prior report"],
-    handsOff: "/sdrive:archive"
-  },
-  "/sdrive:archive": {
-    what: "Merges an approved feature to the confirmed target branch and completes its lifecycle.",
-    why: "Turns a passing review into shipped, archived work — specs move to completed/ and the branch is cleaned up.",
-    when: "Only after /sdrive:review has passed. Use --all to archive every ongoing feature that passed review.",
-    does: [
-      "Asks whether to merge at all, then confirms the target branch — never assumed",
+      'Asks whether to merge at all, then confirms the target branch — never assumed',
       "Refuses a branch that also carries another feature's commits, and prints the order to merge instead (CON-611)",
-      "Merges the feature branch into the confirmed target branch",
-      "Moves the spec from ongoing/ to completed/",
-      "Deletes the merged feature branch, only after the merge is confirmed",
-      "Marks the feature complete in the workflow state"
+      'Merges the feature branch into the confirmed target branch',
+      'Moves the spec from ongoing/ to completed/',
+      'Deletes the merged feature branch, only after the merge is confirmed',
+      'Marks the feature complete in the workflow state',
     ],
-    produces: [
-      ".sdrive/specs/completed/<feature>/<version>/",
-      "A merge commit on main"
-    ],
-    reads: ["The passing review report"],
-    handsOff: "Nothing — the feature lifecycle ends here"
+    produces: ['.sdrive/specs/completed/<feature>/<version>/', 'A merge commit on main'],
+    reads: ['The passing review report'],
+    handsOff: 'Nothing — the feature lifecycle ends here',
   },
-  "/sdrive:secure": {
-    what: "Performs a security audit, threat modelling, and fixes.",
-    why: "Catches vulnerabilities before they reach users.",
-    when: "Before the review gate. Use --all to audit every ongoing feature.",
+  '/sdrive:secure': {
+    what: 'Fixes security findings: threat modelling, remediation, and re-verification.',
+    why: 'Turns a security finding into a fix. Review detects; this command repairs.',
+    when: 'When /sdrive:review reports a security finding. Use --all to audit every ongoing feature.',
     does: [
       "Threat-models the feature's attack surface",
-      "Scans for OWASP-class vulnerabilities",
-      "Applies approved fixes and re-tests"
+      'Scans for OWASP-class vulnerabilities and leaked secrets',
+      'Applies approved fixes and re-tests',
+      'Rotates a leaked credential rather than rewriting the file that holds it — deleting a key does not un-leak it',
+      'Never opens a secret file to read it; findings cite the variable name and location, redacted',
     ],
-    produces: [
-      ".sdrive/reports/security/security-report-<feature>-<version>-<date>.md"
-    ],
-    reads: ["The implementation", "The feature spec"],
-    handsOff: "/sdrive:review"
+    produces: ['.sdrive/reports/security/security-report-<feature>-<version>-<date>.md'],
+    reads: ['The implementation', 'The feature spec'],
+    handsOff: '/sdrive:test, then /sdrive:review to re-verify',
   },
-  "/sdrive:test": {
-    what: "Writes tests for the acceptance criteria and reports coverage.",
-    why: "Proves the feature actually does what was promised.",
-    when: "After implementation. Use --all to test every ongoing feature.",
+  '/sdrive:test': {
+    what: 'Writes tests for the acceptance criteria and reports coverage.',
+    why: 'Proves the feature actually does what was promised.',
+    when: 'After implementation. Use --all to test every ongoing feature.',
     does: [
-      "Writes tests covering each acceptance criterion",
-      "Runs the suite and records the results",
-      "Reports coverage and any unmet criteria"
+      'Writes tests covering each acceptance criterion',
+      'Runs the suite and records the results',
+      'Reports coverage and any unmet criteria',
     ],
     produces: [
-      ".sdrive/reports/tests/test-report-<feature>-<version>-<date>.md",
-      "Test files in the project's test directory"
+      '.sdrive/reports/tests/test-report-<feature>-<version>-<date>.md',
+      "Test files in the project's test directory",
     ],
-    reads: ["The acceptance criteria", "The implementation"],
-    handsOff: "/sdrive:review",
+    reads: ['The acceptance criteria', 'The implementation'],
+    handsOff: '/sdrive:review',
     optional: true,
     optionalNote:
-      "Optional — run when development is done (end of a sprint or once an MVP is complete), not on every change."
+      'Optional — run when development is done (end of a sprint or once an MVP is complete), not on every change.',
   },
-  "/sdrive:onboard": {
-    what: "Adopts an existing project into SpecDrive.",
-    why: "Brings legacy code under governance without breaking it.",
-    when: "Only for existing projects, at the very start.",
+  '/sdrive:onboard': {
+    what: 'Adopts an existing project into SpecDrive.',
+    why: 'Brings legacy code under governance without breaking it.',
+    when: 'Only for existing projects, at the very start.',
     does: [
-      "Reads the existing repository structure and conventions",
-      "Detects other spec frameworks (OpenSpec, Spec Kit, Software Factory)",
-      "Brings existing specs across without touching the originals",
-      "Writes the project context files"
+      'Reads the existing repository structure and conventions',
+      'Detects other spec frameworks (OpenSpec, Spec Kit, Software Factory)',
+      'Brings existing specs across without touching the originals',
+      'Writes the project context files',
     ],
-    produces: [
-      ".sdrive/context/ (product, stack, constraints)",
-      ".sdrive/onboarding-report.md"
-    ],
-    reads: ["The existing repository", "Any existing spec documents"],
-    handsOff: "/sdrive:constitution"
-  }
+    produces: ['.sdrive/context/ (product, stack, constraints)', '.sdrive/onboarding-report.md'],
+    reads: ['The existing repository', 'Any existing spec documents'],
+    handsOff: '/sdrive:constitution',
+  },
 };
 
 // The two product lifecycles SpecDrive supports. Rendered as cards at the
@@ -2579,109 +2725,125 @@ const SLASH_DETAILS = {
 // peer card with its own command list.
 const PRODUCT_WORKFLOWS = [
   {
-    id: "greenfield",
-    name: "Greenfield",
-    tagline: "Brand-new project",
-    icon: "✦",
+    id: 'greenfield',
+    name: 'Greenfield',
+    tagline: 'Brand-new project',
+    icon: '✦',
     summary:
-      "You are beginning with a clean slate — either an empty folder or a freshly scaffolded repo that has no plan in place yet. SpecDrive walks you from that starting point all the way to governed, specified, and tested code.",
-    steps: ["/sdrive:constitution", "/sdrive:product-plan", "/sdrive:worktree"],
+      'You are beginning with a clean slate — either an empty folder or a freshly scaffolded repo that has no plan in place yet. SpecDrive walks you from that starting point all the way to governed, specified, and tested code.',
+    steps: ['/sdrive:constitution', '/sdrive:product-plan', '/sdrive:worktree'],
     // product-plan and worktree are optional setup steps. The plan is for a project
     // that has an idea but no written plan (or an empty repo); worktree is for a
     // project that wants to prepare a whole dependency wave in parallel. A project
     // that already knows what it is building can go straight to /sdrive:propose.
-    optional: ["/sdrive:product-plan", "/sdrive:worktree"],
+    optional: ['/sdrive:product-plan', '/sdrive:worktree'],
     optionalNote:
-      "/sdrive:product-plan is optional: run it when you have an idea but no written plan, or an empty repo. /sdrive:worktree is optional too: after a plan, it prepares branches and isolated worktrees for one ready wave. /sdrive:propose can still create a branch by itself.",
-    iteration: ["/sdrive:propose", "/sdrive:apply", "/sdrive:test", "/sdrive:review", "/sdrive:archive"]
+      '/sdrive:product-plan is optional: run it when you have an idea but no written plan, or an empty repo. /sdrive:worktree is optional too: after a plan, it prepares branches and isolated worktrees for one ready wave. /sdrive:propose can still create a branch by itself.',
+    iteration: [
+      '/sdrive:propose',
+      '/sdrive:apply',
+      '/sdrive:test',
+      '/sdrive:review',
+      '/sdrive:archive',
+    ],
   },
   {
-    id: "brownfield",
-    name: "Brownfield",
-    tagline: "Existing codebase",
-    icon: "◈",
+    id: 'brownfield',
+    name: 'Brownfield',
+    tagline: 'Existing codebase',
+    icon: '◈',
     summary:
-      "Your codebase is already well underway — a plan exists and development has moved far past the early stages. SpecDrive takes stock of what is there, writes specs after the fact, and flags the gaps as deferred so nothing breaks.",
-    steps: ["/sdrive:onboard", "/sdrive:constitution"],
+      'Your codebase is already well underway — a plan exists and development has moved far past the early stages. SpecDrive takes stock of what is there, writes specs after the fact, and flags the gaps as deferred so nothing breaks.',
+    steps: ['/sdrive:onboard', '/sdrive:constitution'],
     optional: [],
-    iteration: ["/sdrive:propose", "/sdrive:apply", "/sdrive:test", "/sdrive:review", "/sdrive:archive"],
+    iteration: [
+      '/sdrive:propose',
+      '/sdrive:apply',
+      '/sdrive:test',
+      '/sdrive:review',
+      '/sdrive:archive',
+    ],
     migrationNote: {
-      title: "Coming from another spec framework?",
-      body:
-        "If SpecDrive detects OpenSpec, Software Factory, Spec Kit, or another spec-driven framework in your repo, onboarding brings your existing specs across and leaves the originals untouched. Nothing extra to run — the same Brownfield lifecycle applies."
-    }
-  }
+      title: 'Coming from another spec framework?',
+      body: 'If SpecDrive detects OpenSpec, Software Factory, Spec Kit, or another spec-driven framework in your repo, onboarding brings your existing specs across and leaves the originals untouched. Nothing extra to run — the same Brownfield lifecycle applies.',
+    },
+  },
 ];
 
 // Optional commands are not part of the core workflow. They are run on demand —
 // for example when a feature is totally done and ready to ship. They are shown
 // in their own card on the Commands page, separate from the workflow cards.
 const OPTIONAL_COMMANDS = {
-  title: "Optional Commands",
-  tagline: "Run on demand",
-  icon: "✦",
+  title: 'Optional Commands',
+  tagline: 'Run on demand',
+  icon: '✦',
   summary:
-    "These commands are not part of the core workflow. Run them when you need them - for example when performance becomes a concern, when you need to fix a defect, or when you want docs.",
+    'These commands are not part of the core workflow. Run them when you need them - for example when performance becomes a concern, when you need to fix a defect, or when you want docs.',
   commands: [
     {
-      command: "/sdrive:update-propose",
-      what: "Revises an existing proposal after feedback, without starting over.",
-      when: "When a feature proposal needs changes before the feature is archived."
+      command: '/sdrive:update-propose',
+      what: 'Revises an existing proposal after feedback, without starting over.',
+      when: 'When a feature proposal needs changes before the feature is archived.',
     },
     {
-      command: "/sdrive:sync",
-      what: "Re-aligns spec, plan, tasks, and traceability after a change.",
-      when: "After a migration, or whenever the spec and the code drift apart."
+      command: '/sdrive:sync',
+      what: 'Re-aligns spec, plan, tasks, and traceability after a change.',
+      when: 'After a migration, or whenever the spec and the code drift apart.',
     },
     {
-      command: "/sdrive:performance",
-      what: "Benchmarks and optimizes the code for speed, efficiency, and search visibility.",
-      when: "When performance or SEO matters — before a release or after a slowdown."
+      command: '/sdrive:performance',
+      what: 'Benchmarks and optimizes the code for speed, efficiency, and search visibility.',
+      when: 'When performance or SEO matters — before a release or after a slowdown.',
     },
     {
-      command: "/sdrive:debug",
-      what: "Reproduces, isolates, and fixes defects — layout, APIs, runtime, and glitches.",
-      when: "When something is visibly wrong — a broken layout, a failing endpoint, a console error."
+      command: '/sdrive:debug',
+      what: 'Reproduces, isolates, and fixes defects — layout, APIs, runtime, and glitches.',
+      when: 'When something is visibly wrong — a broken layout, a failing endpoint, a console error.',
     },
     {
-      command: "/sdrive:docs",
-      what: "Generates inline comments, API docs, and project READMEs.",
-      when: "When you want documentation that matches the code."
+      command: '/sdrive:docs',
+      what: 'Generates inline comments, API docs, and project READMEs.',
+      when: 'When you want documentation that matches the code.',
     },
     {
-      command: "/sdrive:secure",
-      what: "Runs a deep security audit and fixes vulnerabilities.",
-      when: "Before shipping anything that touches auth, data, or payments."
-    }
-  ]
+      command: '/sdrive:secure',
+      what: 'Runs a deep security audit and fixes vulnerabilities.',
+      when: 'Before shipping anything that touches auth, data, or payments.',
+    },
+  ],
 };
 
 function apiCommands() {
-  const manifestPath = path.join(sdriveRoot, "commands", "manifest.json");
+  const manifestPath = path.join(sdriveRoot, 'commands', 'manifest.json');
   const manifest = loadJson(manifestPath, { commands: [] });
 
   const slash = (manifest.commands || []).map((c) => {
     const detail = SLASH_DETAILS[c.command] || {};
     return {
       command: c.command,
-      description: c.description || "",
-      agent: c.agent || "",
+      description: c.description || '',
+      agent: c.agent || '',
       acceptsFeature: Boolean(c.acceptsFeature),
       acceptsAll: Boolean(c.acceptsAll),
       gates: c.gates || [],
-      what: detail.what || "",
-      why: detail.why || "",
-      when: detail.when || "",
+      what: detail.what || '',
+      why: detail.why || '',
+      when: detail.when || '',
       does: detail.does || [],
       produces: detail.produces || [],
       reads: detail.reads || [],
-      handsOff: detail.handsOff || "",
+      handsOff: detail.handsOff || '',
       optional: Boolean(detail.optional),
-      optionalNote: detail.optionalNote || ""
+      optionalNote: detail.optionalNote || '',
     };
   });
 
-  return { slash, cli: CLI_COMMANDS, workflows: PRODUCT_WORKFLOWS, optionalCommands: OPTIONAL_COMMANDS };
+  return {
+    slash,
+    cli: CLI_COMMANDS,
+    workflows: PRODUCT_WORKFLOWS,
+    optionalCommands: OPTIONAL_COMMANDS,
+  };
 }
 
 async function handleRequest(req, res) {
@@ -2697,7 +2859,7 @@ async function handleRequest(req, res) {
       return res.end();
     }
 
-    res.writeHead(500, { "Content-Type": "application/json" });
+    res.writeHead(500, { 'Content-Type': 'application/json' });
     return res.end(JSON.stringify({ error: error.message }));
   }
 }
@@ -2705,11 +2867,11 @@ async function handleRequest(req, res) {
 function setSecurityHeaders(res) {
   // The dashboard is a local read-only view. These headers cost nothing and
   // close the obvious browser-side gaps if someone sets SDRIVE_HOST.
-  res.setHeader("X-Content-Type-Options", "nosniff");
-  res.setHeader("X-Frame-Options", "DENY");
-  res.setHeader("Referrer-Policy", "no-referrer");
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'DENY');
+  res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader(
-    "Content-Security-Policy",
+    'Content-Security-Policy',
     [
       "default-src 'self'",
       "img-src 'self' data:",
@@ -2719,8 +2881,8 @@ function setSecurityHeaders(res) {
       "font-src 'self' data:",
       "object-src 'none'",
       "base-uri 'none'",
-      "frame-ancestors 'none'"
-    ].join("; ")
+      "frame-ancestors 'none'",
+    ].join('; '),
   );
 }
 
@@ -2731,118 +2893,118 @@ async function routeRequest(req, res) {
 
   // Skill logos are binary assets, so they are served before the JSON API block
   // (which sets a JSON content-type header for everything under /api/).
-  if (url.startsWith("/api/skill-logo/")) {
-    const folder = decodeURIComponent(url.slice("/api/skill-logo/".length).split("?")[0]);
+  if (url.startsWith('/api/skill-logo/')) {
+    const folder = decodeURIComponent(url.slice('/api/skill-logo/'.length).split('?')[0]);
     return serveSkillLogo(res, folder);
   }
 
-  if (url.startsWith("/api/")) {
+  if (url.startsWith('/api/')) {
     // Status and content-type are SET here, not written. writeHead() flushes the
     // headers immediately, so the 404 fallthrough below threw ERR_HTTP_HEADERS_SENT
     // and terminated the process on any unrecognised /api/ path.
     res.statusCode = 200;
-    res.setHeader("Content-Type", "application/json");
-    res.setHeader("Cache-Control", "no-store");
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Cache-Control', 'no-store');
 
-    if (url === "/api/workflow-state") {
+    if (url === '/api/workflow-state') {
       return res.end(JSON.stringify(apiWorkflowState()));
     }
 
-    if (url === "/api/audit-log") {
+    if (url === '/api/audit-log') {
       return res.end(JSON.stringify(apiAuditLog()));
     }
 
-    if (url === "/api/activity") {
+    if (url === '/api/activity') {
       return res.end(JSON.stringify(apiActivity()));
     }
 
-    if (url === "/api/skills") {
+    if (url === '/api/skills') {
       return res.end(JSON.stringify(apiSkills()));
     }
-    if (url === "/api/team") {
+    if (url === '/api/team') {
       return res.end(JSON.stringify(apiTeam()));
     }
 
-    if (url.startsWith("/api/traceability/")) {
+    if (url.startsWith('/api/traceability/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiTraceability(feature, version)));
     }
 
-    if (url.startsWith("/api/tasks/")) {
+    if (url.startsWith('/api/tasks/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiTasks(feature, version)));
     }
 
-    if (url.startsWith("/api/verification/")) {
+    if (url.startsWith('/api/verification/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiVerification(feature, version)));
     }
 
-    if (url.startsWith("/api/tests/")) {
+    if (url.startsWith('/api/tests/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiTestReport(feature, version)));
     }
 
-    if (url.startsWith("/api/reports/")) {
+    if (url.startsWith('/api/reports/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiReports(feature, version)));
     }
 
-    if (url.startsWith("/api/spec-files/")) {
+    if (url.startsWith('/api/spec-files/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiSpecFiles(feature, version)));
     }
 
-    if (url === "/api/onboarding") {
+    if (url === '/api/onboarding') {
       return res.end(JSON.stringify(apiOnboarding()));
     }
 
-    if (url === "/api/product") {
+    if (url === '/api/product') {
       return res.end(JSON.stringify(apiProduct()));
     }
 
-    if (url === "/api/git-info") {
+    if (url === '/api/git-info') {
       return res.end(JSON.stringify(await apiGitInfo()));
     }
 
-    if (url === "/api/branches") {
+    if (url === '/api/branches') {
       return res.end(JSON.stringify(await apiBranches()));
     }
 
-    if (url === "/api/project-info") {
+    if (url === '/api/project-info') {
       return res.end(JSON.stringify(apiProjectInfo()));
     }
 
-    if (url === "/api/product-type") {
+    if (url === '/api/product-type') {
       return res.end(JSON.stringify(apiProductType()));
     }
 
-    if (url === "/api/stamp") {
+    if (url === '/api/stamp') {
       return res.end(JSON.stringify(await apiStamp()));
     }
 
-    if (url === "/api/health") {
+    if (url === '/api/health') {
       return res.end(JSON.stringify(apiHealth()));
     }
 
-    if (url === "/api/projects") {
+    if (url === '/api/projects') {
       return res.end(JSON.stringify(apiProjects()));
     }
 
-    if (url === "/api/portfolio") {
+    if (url === '/api/portfolio') {
       return res.end(JSON.stringify(apiPortfolio()));
     }
 
-    if (url === "/api/switch-project") {
-      if (req.method !== "POST") {
+    if (url === '/api/switch-project') {
+      if (req.method !== 'POST') {
         res.writeHead(405);
-        return res.end(JSON.stringify({ error: "Use POST" }));
+        return res.end(JSON.stringify({ error: 'Use POST' }));
       }
 
       const body = await readJsonBody(req);
-      if (!body || typeof body.path !== "string") {
+      if (!body || typeof body.path !== 'string') {
         res.writeHead(400);
-        return res.end(JSON.stringify({ error: "A project path is required" }));
+        return res.end(JSON.stringify({ error: 'A project path is required' }));
       }
 
       const result = switchProject(body.path);
@@ -2850,90 +3012,98 @@ async function routeRequest(req, res) {
       return res.end(JSON.stringify(result));
     }
 
-    if (url === "/api/validate") {
+    if (url === '/api/validate') {
       return res.end(JSON.stringify(apiValidateProject()));
     }
 
-    if (url === "/api/migrations") {
+    if (url === '/api/migrations') {
       return res.end(JSON.stringify(apiMigrations()));
     }
 
-    if (url.startsWith("/api/test-evidence/")) {
+    if (url.startsWith('/api/test-evidence/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiTestEvidence(feature, version)));
     }
 
-    if (url.startsWith("/api/review/")) {
+    if (url.startsWith('/api/review/')) {
       const { feature, version } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiReviewRecord(feature, version)));
     }
 
-    if (url.startsWith("/api/archive-check/")) {
+    if (url.startsWith('/api/archive-check/')) {
       const { feature } = parseFeatureVersion(url);
       return res.end(JSON.stringify(apiArchiveCheck(feature)));
     }
 
-    if (url.startsWith("/api/file")) {
-      const params = new URL(url, "http://localhost").searchParams;
-      return res.end(
-        JSON.stringify(apiFile(params.get("path"), params.get("check") === "1"))
-      );
+    if (url.startsWith('/api/file')) {
+      const params = new URL(url, 'http://localhost').searchParams;
+      return res.end(JSON.stringify(apiFile(params.get('path'), params.get('check') === '1')));
     }
 
-    if (url === "/api/commands") {
+    if (url === '/api/commands') {
       return res.end(JSON.stringify(apiCommands()));
     }
 
     res.writeHead(404);
-    return res.end(JSON.stringify({ error: "Not found" }));
+    return res.end(JSON.stringify({ error: 'Not found' }));
   }
 
-  if (url === "/" || url === "/index.html") {
-    return serveStatic(res, path.join(__dirname, "index.html"), "text/html");
+  if (url === '/' || url === '/index.html') {
+    return serveStatic(res, path.join(__dirname, 'index.html'), 'text/html');
   }
 
   // Path-based page routes. Each dashboard view is its own URL (e.g.
   // /product-plan, /features, /team). They all serve the same single-page shell;
   // the client router in app.js decides which section to display.
-  const PAGE_ROUTES = ["/projects", "/overview", "/product-plan", "/features", "/quality", "/team", "/activity", "/commands", "/skills"];
+  const PAGE_ROUTES = [
+    '/projects',
+    '/overview',
+    '/product-plan',
+    '/features',
+    '/quality',
+    '/team',
+    '/activity',
+    '/commands',
+    '/skills',
+  ];
   if (PAGE_ROUTES.includes(url)) {
-    return serveStatic(res, path.join(__dirname, "index.html"), "text/html");
+    return serveStatic(res, path.join(__dirname, 'index.html'), 'text/html');
   }
 
   // Dynamic feature detail route: /features/<name>. Serves the same shell;
   // the client router renders the detail page for the named feature.
   if (/^\/features\/[^/]+\/?$/.test(url)) {
-    return serveStatic(res, path.join(__dirname, "index.html"), "text/html");
+    return serveStatic(res, path.join(__dirname, 'index.html'), 'text/html');
   }
 
-  if (url === "/style.css") {
-    return serveStatic(res, path.join(__dirname, "style.css"), "text/css");
+  if (url === '/style.css') {
+    return serveStatic(res, path.join(__dirname, 'style.css'), 'text/css');
   }
 
-  if (url === "/app.js") {
-    return serveStatic(res, path.join(__dirname, "app.js"), "application/javascript");
+  if (url === '/app.js') {
+    return serveStatic(res, path.join(__dirname, 'app.js'), 'application/javascript');
   }
 
-  if (url === "/theme.js") {
-    return serveStatic(res, path.join(__dirname, "theme.js"), "application/javascript");
+  if (url === '/theme.js') {
+    return serveStatic(res, path.join(__dirname, 'theme.js'), 'application/javascript');
   }
 
-  if (url === "/logo.png") {
+  if (url === '/logo.png') {
     const logoCandidates = [
-      path.join(__dirname, "logo.png"),
-      path.join(sdriveRoot, "logo.png"),
-      path.join(projectRoot, "logo.png"),
-      path.join(__dirname, "..", "logo.png"),
-      path.join(__dirname, "..", "..", "logo.png")
+      path.join(__dirname, 'logo.png'),
+      path.join(sdriveRoot, 'logo.png'),
+      path.join(projectRoot, 'logo.png'),
+      path.join(__dirname, '..', 'logo.png'),
+      path.join(__dirname, '..', '..', 'logo.png'),
     ];
     const logoPath = logoCandidates.find((candidate) => fs.existsSync(candidate));
     if (logoPath) {
-      return serveStatic(res, logoPath, "image/png");
+      return serveStatic(res, logoPath, 'image/png');
     }
   }
 
   res.writeHead(404);
-  res.end("Not found");
+  res.end('Not found');
 }
 
 // Preferred port, overridable via SDRIVE_PORT. If it is taken (for example
@@ -2945,8 +3115,8 @@ const MAX_PORT_ATTEMPTS = 20;
 // Loopback by default. The dashboard has no authentication, so binding it to
 // every interface (the old `listen(port)` behaviour) exposed project specs and
 // source files to the local network.
-const PREFERRED_HOST = process.env.SDRIVE_HOST || "127.0.0.1";
-const LOOPBACK_HOSTS = new Set(["127.0.0.1", "::1", "localhost"]);
+const PREFERRED_HOST = process.env.SDRIVE_HOST || '127.0.0.1';
+const LOOPBACK_HOSTS = new Set(['127.0.0.1', '::1', 'localhost']);
 
 function isLoopback(host) {
   return LOOPBACK_HOSTS.has(host);
@@ -2958,8 +3128,8 @@ function isLoopback(host) {
 function listenOnFreePort(port, attemptsLeft, host = PREFERRED_HOST) {
   const server = http.createServer(handleRequest);
 
-  server.once("error", (error) => {
-    if (error.code === "EADDRINUSE" && attemptsLeft > 0) {
+  server.once('error', (error) => {
+    if (error.code === 'EADDRINUSE' && attemptsLeft > 0) {
       console.log(`⚠️  Port ${port} is in use, trying ${port + 1}...`);
       listenOnFreePort(port + 1, attemptsLeft - 1, host);
       return;
@@ -2970,7 +3140,7 @@ function listenOnFreePort(port, attemptsLeft, host = PREFERRED_HOST) {
   });
 
   server.listen(port, host, () => {
-    const shown = isLoopback(host) ? "localhost" : host;
+    const shown = isLoopback(host) ? 'localhost' : host;
 
     // Only after the port is ours: a failed start should not leave a project
     // in the shared list.
@@ -2979,15 +3149,17 @@ function listenOnFreePort(port, attemptsLeft, host = PREFERRED_HOST) {
 
     if (!isLoopback(host)) {
       console.warn(
-        `⚠️  Bound to ${host} with no authentication. Anyone who can reach this port can read project files.`
+        `⚠️  Bound to ${host} with no authentication. Anyone who can reach this port can read project files.`,
       );
-      console.warn("   Use 127.0.0.1 (the default) unless you are on a trusted network.\n");
+      console.warn('   Use 127.0.0.1 (the default) unless you are on a trusted network.\n');
     }
   });
 }
 
 if (!isLoopback(PREFERRED_HOST)) {
-  console.warn(`⚠️  SDRIVE_HOST=${PREFERRED_HOST}: the dashboard is reachable beyond this machine.`);
+  console.warn(
+    `⚠️  SDRIVE_HOST=${PREFERRED_HOST}: the dashboard is reachable beyond this machine.`,
+  );
 }
 
 listenOnFreePort(PREFERRED_PORT, MAX_PORT_ATTEMPTS, PREFERRED_HOST);

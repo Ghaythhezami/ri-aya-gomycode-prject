@@ -153,86 +153,12 @@ function parseBacklog(markdown) {
   });
 }
 
-// A dependency cell uses a dash to mean "nothing". This backlog is UTF-8 text that has
-// been decoded as Latin-1/CP1252 at least once, so the em-dash it actually contains is
-// the three code points `â€”`, not `—`. Enumerating spellings (`[-—–]`) therefore missed
-// the one the file really held, the placeholder survived as an "outside blocker", and
-// BP-001 - the only item in the `start` wave - became permanently ineligible, freezing
-// every item that depends on it.
-//
-// Fixing the spelling list only until the next corruption is not a fix, so the cell is
-// round-tripped through CP1252 back to UTF-8 first: `â€”` becomes `—` and the dash test
-// then works on text that means what it says.
-const CP1252_TO_BYTE = new Map([
-  [0x20ac, 0x80],
-  [0x201a, 0x82],
-  [0x0192, 0x83],
-  [0x201e, 0x84],
-  [0x2026, 0x85],
-  [0x2020, 0x86],
-  [0x2021, 0x87],
-  [0x02c6, 0x88],
-  [0x2030, 0x89],
-  [0x0160, 0x8a],
-  [0x2039, 0x8b],
-  [0x0152, 0x8c],
-  [0x017d, 0x8e],
-  [0x2018, 0x91],
-  [0x2019, 0x92],
-  [0x201c, 0x93],
-  [0x201d, 0x94],
-  [0x2022, 0x95],
-  [0x2013, 0x96],
-  [0x2014, 0x97],
-  [0x02dc, 0x98],
-  [0x2122, 0x99],
-  [0x0161, 0x9a],
-  [0x203a, 0x9b],
-  [0x0153, 0x9c],
-  [0x017e, 0x9e],
-  [0x0178, 0x9f],
-]);
-
-// Reverse a UTF-8-read-as-CP1252 decode. Text that was never double encoded, or whose
-// bytes are not valid UTF-8, is returned unchanged.
-function repairDoubleEncoding(text) {
-  if (!/[^\x00-\x7F]/.test(text)) return text;
-
-  const bytes = [];
-
-  for (const char of text) {
-    const code = char.codePointAt(0);
-
-    if (code <= 0xff) {
-      bytes.push(code);
-      continue;
-    }
-
-    const mapped = CP1252_TO_BYTE.get(code);
-    if (mapped === undefined) return text;
-    bytes.push(mapped);
-  }
-
-  const decoded = Buffer.from(bytes).toString('utf8');
-
-  return decoded.includes('\uFFFD') ? text : decoded;
-}
-
-// A cell that names no feature and holds only dashes (in any encoding) names no
-// dependency.
-function isDashPlaceholder(value) {
-  const text = repairDoubleEncoding(String(value == null ? '' : value)).trim();
-
-  return !text || /^[-–—]+$/.test(text);
-}
-
 // A dependency cell may mix feature IDs with outside blockers:
 //   "BP-001; partner access" -> ids ["BP-001"], external ["partner access"]
 //   "BP-002 to BP-003"       -> ids ["BP-002", "BP-003"]
 function parseDependencyCell(raw) {
-  if (isDashPlaceholder(raw)) return { ids: [], external: [] };
-
-  const text = repairDoubleEncoding(String(raw == null ? '' : raw)).trim();
+  const text = String(raw == null ? '' : raw).trim();
+  if (!text || /^[-—–]+$/.test(text)) return { ids: [], external: [] };
 
   const ids = [];
   const external = [];
@@ -265,7 +191,7 @@ function parseDependencyCell(raw) {
         .replace(/\bBP-\d{3}\b/gi, '')
         .replace(/[()]/g, '')
         .trim();
-      if (!isDashPlaceholder(remainder)) external.push(remainder);
+      if (remainder && !/^[-—–]*$/.test(remainder)) external.push(remainder);
     } else {
       external.push(value);
     }
@@ -273,7 +199,7 @@ function parseDependencyCell(raw) {
 
   const cleanedExternal = external
     .map((value) => value.replace(/^[-–—\s]+|[-–—\s]+$/g, '').trim())
-    .filter((value) => !isDashPlaceholder(value));
+    .filter(Boolean);
 
   return { ids, external: [...new Set(cleanedExternal)] };
 }
@@ -517,8 +443,15 @@ function collectFeatureLinks(state, sdriveRoot) {
 
   for (const worktree of state.worktrees || []) {
     if (!worktree) continue;
+    // `items` wins when a branch carries several: `item` is the field written before shared
+    // branches existed, so preferring it would link only the first member of a shared branch
+    // and leave the others looking unprepared.
     const ids = normalizeIds(
-      worktree.item || worktree.items || worktree.productItem || worktree.backlogId || [],
+      (Array.isArray(worktree.items) && worktree.items.length ? worktree.items : null) ||
+        worktree.item ||
+        worktree.productItem ||
+        worktree.backlogId ||
+        [],
     );
     for (const id of ids) {
       put(id, {

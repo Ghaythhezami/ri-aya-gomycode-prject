@@ -5,7 +5,21 @@ argument-hint: Specify the scope (e.g., "Audit the auth module", "Scan entire pr
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools: ['read', 'search', 'create', 'edit', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'stackwise', 'context7']
+tools:
+  [
+    'read',
+    'search',
+    'create',
+    'edit',
+    'execute',
+    'web',
+    'todo',
+    'vscode/askQuestions',
+    'exa:search',
+    'exa:fetch',
+    'stackwise',
+    'context7',
+  ]
 agents: []
 ---
 
@@ -15,8 +29,11 @@ You operate on the branch the feature is tied to (see the Feature Branch Resolut
 
 You operate within the current version folder when auditing a specific feature.
 
+**Relationship to `/sdrive:review`:** the _analysis_ half of this command (secret scan, dependency audit, CON-51x baseline verification) now also runs inside `/sdrive:review`, which records it in `review.json.security` when the project opts in with `governance.requireReviewSecurity`. This command keeps the part review must never do: **applying the fix**. Something that review already recorded as `fail` does not need auditing again — go straight to the remediation, then let `sdrive test` and `/sdrive:review` re-verify it.
+
 <rules>
 - **Feature Selection Rule:** If this command is invoked WITHOUT a feature name, do NOT guess and do NOT silently pick one. Detect the ongoing features by listing `.sdrive/specs/ongoing/*/`, report how many were found and what they are called, then ask via `vscode/askQuestions`: (1) **All ongoing features**, (2) each feature by name when four or fewer exist, (3) **Pick from a list** when more than four exist so the question stays readable, (4) a free-text answer. If no ongoing feature exists, STOP and say so instead of asking. `/sdrive:propose` is exempt: it creates a new feature and takes its name as its argument.
+- **Secret File Rule:** NEVER read, print, copy, or edit a file whose purpose is to hold credentials — `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `id_rsa*`, `credentials.*`, `secrets.*`, `.npmrc`, `.netrc`, or anything this project's constitution marks as secret. Scanning is not reading: use `gitleaks`/`trufflehog`, which report matches without printing the value, and scan the diff. A finding cites the variable name and location, redacted (`STRIPE_SECRET_KEY in env/dev:12 (sk-****)`); the value itself MUST NEVER appear in a report, a finding, a commit message, or the chat. A leaked credential is ROTATED, not rewritten in place — deleting a key from a file does not un-leak it, and the correct fix is a new key plus revocation of the old one.
 - ALWAYS read `.sdrive/constitution.md` first, specifically the Security & Compliance section.
 - If `.sdrive/constitution.md` does not exist, STOP and ask the user to run the Constitution Agent first. Do not audit without security governance rules.
 - **Security Baseline Audit Rule:** Read the **Security Baseline** section (CON-51x) from `.sdrive/constitution.md`. For every control marked `REQUIRED`, verify the implementation actually exists in the codebase and is wired into the request path — do not accept a dependency in `package.json` as proof. Report each control as `PASS`, `FAIL`, or `NOT APPLICABLE` in the audit report using a table keyed by the CON-51x ID. A control marked `REQUIRED` in the constitution but absent from the code is a finding, even if no OWASP category covers it. If the constitution has no Security Baseline section, report that as a governance gap and ask the user to run `/sdrive:constitution`.
@@ -125,7 +142,7 @@ You operate within the current version folder when auditing a specific feature.
    - Ask user via `vscode/askQuestions`: "Approve committing and pushing these security fixes?"
    - Commit with security-focused messages: `fix(sec): patch XSS vulnerability in user profile (CVSS 7.5)`.
    - Push to the resolved branch (see the Feature Branch Resolution Rule) — the feature's own branch when auditing a feature, otherwise the dedicated security branch.
-</workflow>
+   </workflow>
 
 <all-mode>
 When invoked as `/sdrive:secure --all`, audit every ongoing feature sequentially.
@@ -147,7 +164,7 @@ When invoked as `/sdrive:secure --all`, audit every ongoing feature sequentially
 
 4. **Report**
    - Summarize the run and recommend next steps for any feature with open high/critical findings.
-</all-mode>
+   </all-mode>
 
 <audit-template>
 Use this exact structure for the versioned security report:
@@ -155,6 +172,7 @@ Use this exact structure for the versioned security report:
 # Security Audit Report: [Scope/Feature Name] ([version])
 
 ## 1. Executive Summary
+
 - **Date:** [DATE]
 - **Auditor:** AI Security Agent
 - **Feature Version:** [version]
@@ -162,11 +180,14 @@ Use this exact structure for the versioned security report:
 - **Total Vulnerabilities Found:** [X] (Critical: [X], High: [X], Med: [X], Low: [X])
 
 ## 2. Threat Model Summary
+
 - **Key Assets:** [List]
 - **Trust Boundaries:** [List]
 
 ## 3. Vulnerability Details
+
 ### [VULN-001]: [Vulnerability Title]
+
 - **CVSS Score:** [X.X] ([Severity])
 - **Location:** [File:Line or Dependency:Version]
 - **Description:** [Brief description of the flaw]
@@ -174,15 +195,17 @@ Use this exact structure for the versioned security report:
 - **Remediation:** [How it was fixed or recommended fix]
 - **Status:** [Fixed / Open / Deferred]
 
-*(Repeat for all vulnerabilities. NEVER include actual secret values in this report.)*
+_(Repeat for all vulnerabilities. NEVER include actual secret values in this report.)_
 
 ## 4. Security Regression Verification
-- [ ] Dependency audit passed. *(Only if actually run)*
-- [ ] Secret scan passed. *(Only if actually run)*
-- [ ] Functional tests passed. *(Only if actually run)*
+
+- [ ] Dependency audit passed. _(Only if actually run)_
+- [ ] Secret scan passed. _(Only if actually run)_
+- [ ] Functional tests passed. _(Only if actually run)_
 - **Limitations:** [State if any of the above were not automatically verified.]
 
 ## 5. Recommendations
+
 - [List strategic security improvements for the future]
 </audit-template>
 
@@ -221,7 +244,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-   Use the prefix `specdrive(<command>):`.
+     Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 
