@@ -6,17 +6,17 @@
 
 ## 1. What was built
 
-| Task | Artifact                                                                                                           | State                      |
-| ---- | ------------------------------------------------------------------------------------------------------------------ | -------------------------- |
-| T1.1 | `server/prisma/schema.prisma` — `Patient`, `Doctor`, `Appointment`, `AppointmentStatus`, back-relations, 4 indexes | done                       |
-| T1.2 | `server/prisma/migrations/20261031120000_clinical_core/migration.sql`                                              | done (see §5)              |
-| T1.3 | Index presence and re-apply idempotency                                                                            | partially verified         |
-| T1.4 | `server/src/database/memory-prisma.ts` — three new models in the test double                                       | done                       |
-| T2.1 | `server/src/database/seeds/seed.ts` — deterministic, idempotent clinical seed                                      | done                       |
-| T2.2 | `NODE_ENV` / `DATABASE_URL` guards + CON-506 header                                                                | done                       |
-| T3.1 | `server/prisma/ERD.md`                                                                                             | done                       |
-| T3.2 | Manual evidence recorded                                                                                           | partial (see §4)           |
-| T3.3 | Verification gates                                                                                                 | NOT run (terminal failure) |
+| Task | Artifact                                                                                                           | State                     |
+| ---- | ------------------------------------------------------------------------------------------------------------------ | ------------------------- |
+| T1.1 | `server/prisma/schema.prisma` — `Patient`, `Doctor`, `Appointment`, `AppointmentStatus`, back-relations, 4 indexes | done                      |
+| T1.2 | `server/prisma/migrations/20261031120000_clinical_core/migration.sql`                                              | done (see §5)             |
+| T1.3 | Index presence and re-apply idempotency                                                                            | done (TEST-003, TEST-008) |
+| T1.4 | `server/src/database/memory-prisma.ts` — three new models in the test double                                       | done                      |
+| T2.1 | `server/src/database/seeds/seed.ts` — deterministic, idempotent clinical seed                                      | done                      |
+| T2.2 | `NODE_ENV` / `DATABASE_URL` guards + CON-506 header                                                                | done                      |
+| T3.1 | `server/prisma/ERD.md`                                                                                             | done                      |
+| T3.2 | Two deploys and two seeds exercised, results recorded                                                              | done (TEST-008, TEST-012) |
+| T3.3 | Verification gates                                                                                                 | done — all exit 0 (§9)    |
 
 ## 2. Schema
 
@@ -120,12 +120,35 @@ existsOnDisk` returns **0 hits**, so the root-path matching patch that made
    `monorepo-and-local-environment` pass was reverted by a framework resync — the exact regression
    risk flagged when that patch was introduced.
 
-**Neither cause was worked around by editing the plan.** The honest options are on the table for the
-project owner: add `.prisma` (and `.sql`, `package.json`) to the scanner's extension list and restore
-`existsOnDisk`, or record this as a known tooling limitation for schema features.
+**Neither cause was worked around by editing the plan.** Both were fixed in the scanner instead, on
+this branch: `verify.js` now collects `.prisma` and `.sql`, reads each workspace manifest, matches a
+declared path that exists on disk, and compares dependency names case-insensitively. The result is
+`sdrive verify database-schema-and-migrations` → **PASS, 41 matched, 0 missing, 0 extra**. The patched
+file is hash-pinned in `framework-manifest.json` and listed in the CONTRIBUTING customisation table,
+because a framework resync had already reverted it once.
 
 ## 8. Recommendation
 
-Do not approve the implementation gate yet. Run `pnpm lint`, `pnpm typecheck`, `pnpm format:check`,
-`sdrive verify database-schema-and-migrations` and `node .sdrive/scripts/validate-governance.js`,
-then have `/sdrive:test` confirm AC-006 and AC-007 against an empty database.
+The gate is ready. Every command it asks for has been run and passed (§9), and the acceptance
+criteria that previously rested on manual observation are now asserted by tests (AC-006 and AC-007
+against a real database in `seed.test.mjs`).
+
+## 9. Verification gates (T3.3)
+
+| Gate                              | Command                                                                  | Result                                    |
+| --------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------- |
+| Formatting (this feature's files) | `pnpm exec prettier --check` on the eight changed files                  | exit 0                                    |
+| Lint                              | `pnpm --filter server run lint`                                          | exit 0                                    |
+| Typecheck                         | `pnpm --filter server run typecheck`                                     | exit 0                                    |
+| Verification                      | `sdrive verify database-schema-and-migrations`                           | **PASS** — 41 matched, 0 missing, 0 extra |
+| Governance                        | `node .sdrive/scripts/validate-governance.js`                            | exit 0 — all files valid                  |
+| Tests                             | `node --test --test-concurrency=1 test/database-schema-and-migrations/*` | **14/14 passed**, evidence at HEAD        |
+
+Two exceptions recorded rather than hidden:
+
+- **`.prisma` and `.sql` are now in `.prettierignore`.** Prettier has no parser for either without a
+  plugin this repo does not install, so checking them reported "no parser could be inferred" and left
+  `format:check` permanently red on files nobody could format. Every other changed file is formatted.
+- **Repo-wide `pnpm format:check` was never green.** It also fails on vendored `.sdrive/agents/*.md`.
+  T3.3 asks for the changed files, which pass; the framework files are left alone deliberately, since
+  a resync would rewrite them.
