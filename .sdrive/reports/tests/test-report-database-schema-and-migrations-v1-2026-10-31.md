@@ -29,8 +29,8 @@
   - `seed.test.mjs` 5/5 — against a real PostgreSQL server.
 - **Why `--test-concurrency=1`.** Node runs test _files_ in parallel by default. With three
   files each driving `prisma` and its own database on one machine, they contend: a recorded
-  parallel run measured the seed at **71 s** instead of 19 s and the whole suite at 158 s
-  instead of 71 s. That is a property of the harness, not of the seed, but a budget measured
+  parallel run measured the seed at **71 s** instead of 21 s and the whole suite at 158 s
+  instead of 88 s. That is a property of the harness, not of the seed, but a budget measured
   under self-inflicted contention is not a measurement. Serialising the files makes the NFR
   numbers reproducible and matches how CI would run a database suite.
 - **Location:** `test/database-schema-and-migrations/` (feature folder per the placement rule).
@@ -71,10 +71,10 @@ Requirement coverage: FR-001 to FR-008 and NFR-001 to NFR-004 are all mapped in
 
 ## 4. Non-functional results
 
-| NFR     | Measured                                                                                           | Budget | Result |
-| ------- | -------------------------------------------------------------------------------------------------- | ------ | ------ |
-| NFR-001 | `migrate deploy` on an empty database: **7.4 s** (TEST-006: scratch database created, then deploy) | 60 s   | pass   |
-| NFR-003 | Seed: **19.1 s** from empty including the migrate deploy before it; repeat seed alone **11.1 s**   | 60 s   | pass   |
+| NFR     | Measured                                                                                        | Budget | Result |
+| ------- | ----------------------------------------------------------------------------------------------- | ------ | ------ |
+| NFR-001 | `migrate deploy` on an empty database: **10.1 s** in the recorded run, 7.4 s when run alone     | 60 s   | pass   |
+| NFR-003 | Seed: **21.2 s** from empty in the recorded run, 19.1 s alone; the repeat seed alone **11.6 s** | 60 s   | pass   |
 
 Both are single runs on a developer machine with Docker Desktop, not a benchmark. They answer
 the question the NFR asks — "can CI run this unattended inside a minute?" — with an order of
