@@ -149,11 +149,18 @@ const CODE_EXTENSIONS = [
   '.md',
   '.yml',
   '.yaml',
+  // Schema and migration sources. A plan for a database feature declares entities and
+  // fields that exist ONLY in these files, and detectEntities/detectFields already have
+  // Prisma patterns - but the walk never collected `.prisma`, so every model and every
+  // one of its fields was reported "missing" in a file that plainly declared them.
+  '.prisma',
+  '.sql',
 ];
 
 // Config files that are never feature components, even though they are JSON.
+// `package.json` is deliberately absent: a plan may legitimately declare it as a
+// component (adding a script or a dependency), and that claim is checkable.
 const IGNORED_FILES = new Set([
-  'package.json',
   'package-lock.json',
   'tsconfig.json',
   'jsconfig.json',
@@ -558,6 +565,23 @@ function detectDependencies(sourceRoots = []) {
     }
   }
 
+  // A monorepo declares its libraries in each workspace manifest, not only in the root
+  // one. With the root read alone, every dependency of `server/` and `web/` - Prisma,
+  // Nest, React - was reported missing while sitting in the project's own package.json.
+  for (const root of sourceRoots) {
+    const workspacePkg = path.join(projectRoot, root, 'package.json');
+
+    if (!fs.existsSync(workspacePkg)) continue;
+
+    try {
+      const pkg = JSON.parse(fs.readFileSync(workspacePkg, 'utf8'));
+      Object.keys(pkg.dependencies || {}).forEach((name) => names.add(name));
+      Object.keys(pkg.devDependencies || {}).forEach((name) => names.add(name));
+    } catch (error) {
+      // Same reasoning as above: an unreadable manifest is skipped, not fatal.
+    }
+  }
+
   // Rust: the workspace manifest plus each member manifest one level down.
   const cargoFiles = [path.join(projectRoot, 'Cargo.toml')];
 
@@ -589,6 +613,35 @@ function detectDependencies(sourceRoots = []) {
   }
 
   return [...names];
+}
+
+/**
+ * Resolve a component name a plan declared to a real path on disk.
+ *
+ * The walk collects files by extension, so a plan that names a `.prisma` file, a
+ * `migrations/` directory or any other path outside that list had no matching code
+ * component and was reported missing even when the path existed. Existence on disk
+ * is a weaker claim than "the scanner found content", but it is exactly what the plan
+ * asserts, and it is checkable.
+ *
+ * Brace globs (`messages/{fr,pt}.json`) name several files and are resolved by the
+ * caller, so they are not handled here.
+ */
+function resolveDeclaredPathOnDisk(name) {
+  if (!name || typeof name !== 'string' || name.includes('{')) return null;
+
+  const normalised = name.replace(/^\.?\//, '').replace(/\\/g, '/');
+  const candidate = path.join(projectRoot, normalised);
+
+  // Never let a plan escape the project root with `..`.
+  const relative = path.relative(projectRoot, candidate);
+  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return null;
+
+  try {
+    return fs.existsSync(candidate) ? relative.replace(/\\/g, '/') : null;
+  } catch {
+    return null;
+  }
 }
 
 function diffPlanAgainstCode(planItems, code) {
@@ -640,10 +693,17 @@ function diffPlanAgainstCode(planItems, code) {
       // Plans may reference a component either by exported symbol name
       // ("Hero") or by file path ("components/home/hero.tsx"). Match both.
       const found = codeComponents.find((c) => componentMatches(item, c));
+      const onDisk = found ? null : resolveDeclaredPathOnDisk(item.name);
 
       if (found) {
         matched.push({ ...item, file: found.file });
         claimedFiles.add(found.file);
+      } else if (onDisk) {
+        // The plan named a path that exists but the walk does not collect it: a
+        // `.prisma` schema, a migrations directory, a manifest, or a folder. Report it
+        // as matched against the real path rather than as a missing component.
+        matched.push({ ...item, file: onDisk });
+        claimedFiles.add(onDisk);
       } else {
         // A rename claims that a similar file IS this plan item under another name.
         // The old test compared the first five characters of the whole path against
@@ -715,7 +775,10 @@ function diffPlanAgainstCode(planItems, code) {
       if (item.depType && item.depType !== 'library') {
         matched.push({ ...item, note: `${item.depType} dependency; not manifest-verifiable` });
       } else if (
-        codeDependencies.includes(item.name) ||
+        // Plans name dependencies the way people say them - "Prisma", "React" - while a
+        // manifest records the package name in lower case. The comparison has to ignore
+        // case, or a dependency that is plainly installed is reported missing.
+        codeDependencies.some((name) => name.toLowerCase() === item.name.toLowerCase()) ||
         VIRTUAL_DEPENDENCIES.has(item.name.toLowerCase())
       ) {
         matched.push(item);

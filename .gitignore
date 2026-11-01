@@ -38,6 +38,7 @@ Thumbs.db
 .eslintcache
 .turbo
 .cache
+.perch/
 
 # docker volumes
 pgdata

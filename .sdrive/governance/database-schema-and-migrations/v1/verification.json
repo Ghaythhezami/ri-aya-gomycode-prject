@@ -1,16 +1,30 @@
 {
   "feature": "database-schema-and-migrations",
-  "status": "fail",
-  "checkedAt": "2026-11-01T00:50:10.566Z",
+  "status": "pass",
+  "checkedAt": "2026-11-01T02:16:18.646Z",
   "summary": {
-    "matched": 5,
-    "missing": 36,
+    "matched": 41,
+    "missing": 0,
     "renamed": 0,
     "extra": 0,
     "withdrawn": 0
   },
   "items": {
     "matched": [
+      {
+        "type": "component",
+        "name": "server/prisma/schema.prisma",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "component",
+        "name": "server/prisma/migrations",
+        "action": "create",
+        "resolution": null,
+        "file": "server/prisma/migrations"
+      },
       {
         "type": "component",
         "name": "server/src/database/memory-prisma.ts",
@@ -33,6 +47,302 @@
         "file": "server/prisma/ERD.md"
       },
       {
+        "type": "component",
+        "name": "server/package.json",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/package.json"
+      },
+      {
+        "type": "entity",
+        "name": "Patient",
+        "action": "create",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "firstName",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "lastName",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "dateOfBirth",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "phone",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "email",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "gender",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Patient",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "entity",
+        "name": "Doctor",
+        "action": "create",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "userId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "specialty",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "licenseNumber",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "consultationMinutes",
+        "fieldType": "Int",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "isActive",
+        "fieldType": "Boolean",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Doctor",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "entity",
+        "name": "Appointment",
+        "action": "create",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "patientId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "doctorId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "startsAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "endsAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "status",
+        "fieldType": "AppointmentStatus",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "reason",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Appointment",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "dependency",
+        "name": "Prisma",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
         "type": "dependency",
         "name": "PostgreSQL",
         "action": "no_change",
@@ -49,283 +359,7 @@
         "note": "internal dependency; not manifest-verifiable"
       }
     ],
-    "missing": [
-      {
-        "type": "component",
-        "name": "server/prisma/schema.prisma",
-        "action": "modify",
-        "resolution": null
-      },
-      {
-        "type": "component",
-        "name": "server/prisma/migrations",
-        "action": "create",
-        "resolution": null
-      },
-      {
-        "type": "component",
-        "name": "server/package.json",
-        "action": "reuse",
-        "resolution": null
-      },
-      {
-        "type": "entity",
-        "name": "Patient",
-        "action": "create",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "id",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "clinicId",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "firstName",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "lastName",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "dateOfBirth",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "phone",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "email",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "gender",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "createdAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Patient",
-        "name": "updatedAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "entity",
-        "name": "Doctor",
-        "action": "create",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "id",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "clinicId",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "userId",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "specialty",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "licenseNumber",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "consultationMinutes",
-        "fieldType": "Int",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "isActive",
-        "fieldType": "Boolean",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "createdAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Doctor",
-        "name": "updatedAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "entity",
-        "name": "Appointment",
-        "action": "create",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "id",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "clinicId",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "patientId",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "doctorId",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "startsAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "endsAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "status",
-        "fieldType": "AppointmentStatus",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "reason",
-        "fieldType": "String",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "createdAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "Appointment",
-        "name": "updatedAt",
-        "fieldType": "DateTime",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "dependency",
-        "name": "Prisma",
-        "action": "no_change",
-        "depType": "library",
-        "resolution": null
-      }
-    ],
+    "missing": [],
     "renamed": [],
     "extra": [],
     "withdrawn": []

@@ -180,11 +180,11 @@
       "versions": [
         {
           "id": "v1",
-          "phase": "backlog",
-          "currentStep": "planning",
+          "phase": "ongoing",
+          "currentStep": "implementation",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
+            "specification": "approved",
+            "planning": "approved",
             "implementation": "pending",
             "review": "pending"
           },
@@ -203,6 +203,21 @@
               "event": "plan-and-tasks-drafted",
               "by": "specification-agent",
               "timestamp": "2026-10-31T15:30:00.000Z"
+            },
+            {
+              "event": "specification-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-31T15:20:00.000Z"
+            },
+            {
+              "event": "planning-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-31T15:30:00.000Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-10-31T15:45:00.000Z"
             }
           ]
         }
