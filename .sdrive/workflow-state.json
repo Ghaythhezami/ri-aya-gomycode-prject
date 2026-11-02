@@ -252,8 +252,8 @@
       "versions": [
         {
           "id": "v1",
-          "phase": "backlog",
-          "currentStep": "specification",
+          "phase": "ongoing",
+          "currentStep": "implementation",
           "gates": {
             "specification": "approved",
             "planning": "approved",
@@ -270,7 +270,7 @@
               "event": "specification-drafted",
               "by": "specification-agent",
               "artifacts": [
-                ".sdrive/specs/backlog/api-skeleton-and-ci/v1/spec.md",
+                ".sdrive/specs/ongoing/api-skeleton-and-ci/v1/spec.md",
                 ".sdrive/governance/api-skeleton-and-ci/v1/spec.json"
               ],
               "summary": "10 acceptance criteria across 3 user stories: structured JSON logging with request correlation and redaction, a CI pipeline that finally runs green (prisma generate) plus audit and secret scan, and preservation of the existing validation, error and Swagger contract.",
@@ -289,6 +289,16 @@
               "actor": "kenule500",
               "previousValue": "pending",
               "timestamp": "2026-11-01T22:08:00.444Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-02T00:00:00.000Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-02T00:00:00.000Z"
             }
           ]
         }

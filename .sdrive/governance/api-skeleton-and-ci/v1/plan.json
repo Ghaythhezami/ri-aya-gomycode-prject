@@ -47,7 +47,12 @@
       {
         "name": "test/api-skeleton-and-ci",
         "action": "create",
-        "description": "The feature's test folder. Tests are written by /sdrive:test, not by the implementation tasks."
+        "description": "The feature's test folder. Tests are written by /sdrive:test, not by the implementation tasks.",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "The test folder is written by /sdrive:test, not by an implementation task; no implementation task creates it.",
+          "at": "2026-11-02"
+        }
       },
       {
         "name": "CONTRIBUTING.md",

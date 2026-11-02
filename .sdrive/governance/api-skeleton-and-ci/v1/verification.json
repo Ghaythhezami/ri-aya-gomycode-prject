@@ -1,0 +1,96 @@
+{
+  "feature": "api-skeleton-and-ci",
+  "status": "pass",
+  "checkedAt": "2026-11-02T01:40:52.540Z",
+  "summary": {
+    "matched": 9,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 1
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "server/src/logging/logging.config.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/logging/logging.config.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/logging/logging.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/logging/logging.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/app.module.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/app.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/main.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/main.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/common/filters/http-exception.filter.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/common/filters/http-exception.filter.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/package.json",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/package.json"
+      },
+      {
+        "type": "component",
+        "name": "server/.env.example",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/.env.example"
+      },
+      {
+        "type": "component",
+        "name": ".github/workflows/ci.yml",
+        "action": "modify",
+        "resolution": null,
+        "file": ".github/workflows/ci.yml"
+      },
+      {
+        "type": "component",
+        "name": "CONTRIBUTING.md",
+        "action": "modify",
+        "resolution": null,
+        "file": "CONTRIBUTING.md"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": [
+      {
+        "type": "component",
+        "name": "test/api-skeleton-and-ci",
+        "action": "create",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "The test folder is written by /sdrive:test, not by an implementation task; no implementation task creates it.",
+          "at": "2026-11-02"
+        },
+        "reason": "The test folder is written by /sdrive:test, not by an implementation task; no implementation task creates it.",
+        "kind": "deferred"
+      }
+    ]
+  }
+}
