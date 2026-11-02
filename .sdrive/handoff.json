@@ -1,14 +1,34 @@
 {
   "feature": "api-skeleton-and-ci",
   "version": "v1",
-  "recordedAt": "2026-11-02T11:30:00.000Z",
-  "by": "sdrive:test",
-  "verdict": "tested",
+  "recordedAt": "2026-11-02T11:45:00.000Z",
+  "by": "sdrive:review",
+  "verdict": "review-failed",
   "steps": [
     {
-      "command": "/sdrive:review",
+      "command": "sdrive approve api-skeleton-and-ci implementation",
       "kind": "human",
-      "why": "All 10 ACs have a passing test and test-evidence.json records exit 0 at b496f36. Review is a sign-off, so it stays with you, and it must also sign off the production edits disclosed in the test phase: app-log-stream.ts, the resolveTransport wiring in logging.config.ts, the quietReqLogger fix, and AC-010's test/ placement (CON-403 exception)."
+      "why": "The implementation gate is still pending. Reviewer independence is also unresolved: kenule500 is both author and reviewer. No command can grant this."
+    },
+    {
+      "command": "/sdrive:secure api-skeleton-and-ci",
+      "kind": "agent",
+      "why": "Clear the 26 audit advisories (1 critical, 15 high) so AC-007 s audit step can pass, and settle CON-515."
+    },
+    {
+      "command": "/sdrive:apply api-skeleton-and-ci",
+      "kind": "agent",
+      "why": "Correct AC-009 s wording to the implemented {code,message,details,requestId} shape and close T3.2, T3.3, T3.4, T3.5 and T3.6."
+    },
+    {
+      "command": "/sdrive:test api-skeleton-and-ci",
+      "kind": "agent",
+      "why": "Re-stamp test-evidence.json at the new HEAD (currently b496f36, HEAD is a09e8da) and record the CI run outcome."
+    },
+    {
+      "command": "/sdrive:review api-skeleton-and-ci",
+      "kind": "human",
+      "why": "Round 2 of 3. A PASS clears the feature for /sdrive:archive; a third failure on the same finding goes to a human."
     }
   ]
 }

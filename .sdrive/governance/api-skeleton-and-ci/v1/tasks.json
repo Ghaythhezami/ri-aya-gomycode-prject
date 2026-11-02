@@ -92,6 +92,30 @@
           "linkedRequirements": ["NFR-004"],
           "linkedAcceptanceCriteria": [],
           "completed": false
+        },
+        {
+          "id": "T3.4",
+          "title": "Clear the security findings",
+          "description": "Clear the audit advisories and settle CON-515 input validation.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-007"],
+          "completed": false
+        },
+        {
+          "id": "T3.5",
+          "title": "Correct the AC-009 criterion wording",
+          "description": "Align AC-009 with the implemented {code,message,details,requestId} contract.",
+          "linkedRequirements": ["FR-008"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": false
+        },
+        {
+          "id": "T3.6",
+          "title": "Close T3.2 and T3.3 with the CI run",
+          "description": "Record a green CI run for HEAD and the verification exit codes, then close both tasks.",
+          "linkedRequirements": ["NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-005", "AC-006", "AC-007"],
+          "completed": false
         }
       ]
     }

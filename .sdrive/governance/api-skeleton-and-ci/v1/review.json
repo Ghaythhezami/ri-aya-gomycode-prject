@@ -1,0 +1,314 @@
+{
+  "feature": "api-skeleton-and-ci",
+  "version": "v1",
+  "status": "FAIL",
+  "commit": "a09e8da4703cb8e9abb7ade709cf2305c9026a40",
+  "base": "main",
+  "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-02T11:39:32Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "C01-spec-convergence",
+      "status": "pass",
+      "detail": "10 ACs implemented; AC-001..004, 008, 009 and 010 read as satisfied against the code."
+    },
+    {
+      "id": "C02-task-completion",
+      "status": "fail",
+      "detail": "T3.2 and T3.3 are completed:false in tasks.json; both remain open at review time."
+    },
+    {
+      "id": "C03-traceability",
+      "status": "pass",
+      "detail": "13 rows, all status complete, no empty cells; every AC has at least one test ID."
+    },
+    {
+      "id": "C04-coverage",
+      "status": "pass",
+      "detail": "100% (10/10 ACs tested, 73/73 tests accounted for: 72 passed, 1 skipped for a recorded pre-existing reason)."
+    },
+    {
+      "id": "C05-test-report",
+      "status": "pass",
+      "detail": "test-report-api-skeleton-and-ci-v1-2026-11-02-rerun.md at 11:25 is newer than spec.md (22:43) and plan.md (22:52)."
+    },
+    {
+      "id": "C06-test-evidence",
+      "status": "fail",
+      "detail": "Exit 0, 0 failed, 73 total, but commit b496f36 !== HEAD a09e8da; the evidence predates the artifact-only commit."
+    },
+    {
+      "id": "C07-change-scope",
+      "status": "pass",
+      "detail": "34 planned files across 4 feature commits. The main...HEAD range also holds BP-002 commits, separated by commit not entangled (CON-611)."
+    },
+    {
+      "id": "C08-test-quality",
+      "status": "pass",
+      "detail": "No .only, xit, xdescribe or test.skip in the feature tests; every test name carries its AC ID."
+    },
+    {
+      "id": "C09-code-quality",
+      "status": "pass",
+      "detail": "pnpm typecheck exit 0; pnpm lint exit 0 with pre-existing warnings only."
+    },
+    {
+      "id": "C10-security",
+      "status": "fail",
+      "detail": "No secrets in the diff and 0 advisories on new dependencies, but pnpm audit exits 1 (26 advisories, 1 critical) and CON-515 is not met as written."
+    },
+    {
+      "id": "C11-testing",
+      "status": "pass",
+      "detail": "72 passed, 0 failed, exit 0 (pnpm test --reporter=dot --forceExit plus node --test swagger.test.mjs)."
+    },
+    {
+      "id": "C12-documentation",
+      "status": "pass",
+      "detail": "CONTRIBUTING.md documents the redact list and LOG_LEVEL as the only knob (T3.1)."
+    },
+    {
+      "id": "C13-nfr-evidence",
+      "status": "fail",
+      "detail": "NFR-001 measured (-0.50 ms p95 delta against +5 ms); NFR-002 and NFR-004 covered by tests; NFR-003 not verified."
+    },
+    {
+      "id": "C14-definition-of-done",
+      "status": "fail",
+      "detail": "Implementation gate is pending and two tasks are open."
+    },
+    {
+      "id": "C15-spec-to-code",
+      "status": "pass",
+      "detail": "sdrive verify returns warn: 9 matched, 0 missing, 1 withdrawn, 3 extra. Warn is accepted by the agent."
+    },
+    {
+      "id": "C16-ci",
+      "status": "fail",
+      "detail": "No run exists for HEAD a09e8da; gh and a GitHub runner are unavailable, so CI is not verified."
+    },
+    {
+      "id": "C17-permission",
+      "status": "pass",
+      "detail": "check-permission.js slash /sdrive:review allowed kenule500 (admin)."
+    },
+    {
+      "id": "C18-reviewer-independence",
+      "status": "fail",
+      "detail": "The reviewer is also the implementation author; recorded and escalated rather than self-approved."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "issue": "Implementation gate is still pending",
+      "location": ".sdrive/workflow-state.json",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "high",
+      "issue": "No CI run for HEAD; AC-005/006/007 are static-only",
+      "location": ".github/workflows/ci.yml",
+      "fixRequired": true,
+      "acIds": ["AC-005", "AC-006", "AC-007"]
+    },
+    {
+      "severity": "high",
+      "issue": "pnpm audit --prod --audit-level=high exits 1 (26 advisories: 15 high, 1 critical)",
+      "location": "pnpm-lock.yaml",
+      "fixRequired": true,
+      "acIds": ["AC-007"]
+    },
+    {
+      "severity": "high",
+      "issue": "AC-009 wording names statusCode/message; the filter emits code/message/details",
+      "location": "server/src/common/filters/http-exception.filter.ts",
+      "fixRequired": true,
+      "acIds": ["AC-009"]
+    },
+    {
+      "severity": "medium",
+      "issue": "test-evidence.json commit b496f36 is not HEAD a09e8da",
+      "location": ".sdrive/governance/api-skeleton-and-ci/v1/test-evidence.json",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "medium",
+      "issue": "T3.2 and T3.3 are still completed:false",
+      "location": ".sdrive/governance/api-skeleton-and-ci/v1/tasks.json",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "medium",
+      "issue": "CON-515: config validates process.env by hand instead of via a DTO",
+      "location": "server/src/logging/logging.config.ts",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "low",
+      "issue": "Reviewer is the implementation author",
+      "location": "review.md",
+      "fixRequired": false,
+      "acIds": []
+    },
+    {
+      "severity": "low",
+      "issue": "AC-010 test sits in test/ (recorded CON-403 exception)",
+      "location": "test/api-skeleton-and-ci/swagger.test.mjs",
+      "fixRequired": false,
+      "acIds": []
+    },
+    {
+      "severity": "low",
+      "issue": "$queryRawUnsafe wrapper exposed; caller passes a constant. Pre-existing.",
+      "location": "server/src/database/prisma.service.ts:62",
+      "fixRequired": false,
+      "acIds": []
+    }
+  ],
+  "security": {
+    "status": "fail",
+    "reason": "No secrets and no CVEs in the new code, but the dependency audit this feature gates on fails and CON-515 is not met as written.",
+    "secrets": "not_verified",
+    "dependencies": "vulnerable",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "pass",
+        "detail": "server/src/auth - JWT strategy, argon2, rotating refresh tokens."
+      },
+      {
+        "id": "CON-512",
+        "status": "pass",
+        "detail": "common/guards/roles.guard.ts plus @Roles() on users."
+      },
+      {
+        "id": "CON-513",
+        "status": "pass",
+        "detail": "main.ts:25 app.use(helmet())."
+      },
+      {
+        "id": "CON-514",
+        "status": "pass",
+        "detail": "app.module.ts ThrottlerModule with APP_GUARD ThrottlerGuard."
+      },
+      {
+        "id": "CON-515",
+        "status": "fail",
+        "detail": "main.ts:41 ValidationPipe is correct, but the new logging config hand-validates process.env strings instead of using a class-validator DTO."
+      },
+      {
+        "id": "CON-516",
+        "status": "pass",
+        "detail": "Prisma parameterises; the only raw-SQL caller passes the constant SELECT 1."
+      },
+      {
+        "id": "CON-517",
+        "status": "pass",
+        "detail": "Helmet plus React escaping; no dangerouslySetInnerHTML added."
+      },
+      {
+        "id": "CON-518",
+        "status": "pass",
+        "detail": "cookieParser plus explicit CORS allow-list with credentials:true."
+      },
+      {
+        "id": "CON-519",
+        "status": "pass",
+        "detail": ".gitignore:14 covers .env; no .env is tracked."
+      }
+    ]
+  },
+  "performance": {
+    "status": "fail",
+    "reason": "NFR-001/002/004 pass; NFR-003 cannot be measured without a CI runner.",
+    "method": "Health endpoint, 500 requests per trial after a 100-request warm-up, 3 alternating silent/info trials, median reported.",
+    "nfr": [
+      {
+        "id": "NFR-001",
+        "target": "p95 delta <= +5 ms",
+        "measured": "-0.50 ms (18.22 ms silent vs 17.72 ms info)",
+        "status": "pass"
+      },
+      {
+        "id": "NFR-002",
+        "target": "single-line JSON in every environment",
+        "measured": "asserted in logging.module.spec.ts",
+        "status": "pass"
+      },
+      {
+        "id": "NFR-003",
+        "target": "CI under 15 minutes on ubuntu-latest",
+        "measured": "not run",
+        "status": "not_verified"
+      },
+      {
+        "id": "NFR-004",
+        "target": "no call-site changes",
+        "measured": "existing Logger calls compile unchanged",
+        "status": "pass"
+      }
+    ],
+    "seo": "not_applicable",
+    "report": ".sdrive/reports/implementation-report-api-skeleton-and-ci.md §5"
+  },
+  "evidence": {
+    "testEvidence": ".sdrive/governance/api-skeleton-and-ci/v1/test-evidence.json - exit 0, 0 failed, 72 passed / 73 total, commit b496f36 (HEAD is a09e8da; evidence is git-ignored by design).",
+    "testReport": ".sdrive/reports/tests/test-report-api-skeleton-and-ci-v1-2026-11-02-rerun.md - 10/10 ACs, 14/14 tests, PASS for 7 of 10 ACs.",
+    "verification": ".sdrive/governance/api-skeleton-and-ci/v1/verification.json - status warn, 9 matched, 0 missing, 1 withdrawn, 3 extra.",
+    "audit": "sdrive audit:verify - 28 hashed events verified, 0 broken. sdrive check exit 0, sdrive validate exit 0. CI: not verified."
+  },
+  "remediation": {
+    "round": 1,
+    "items": [
+      {
+        "finding": "Implementation gate is still pending",
+        "severity": "high",
+        "fixWith": "/sdrive:apply",
+        "task": "—"
+      },
+      {
+        "finding": "No CI run for HEAD; AC-005/006/007 are static-only",
+        "severity": "high",
+        "fixWith": "/sdrive:test",
+        "task": "T3.2"
+      },
+      {
+        "finding": "pnpm audit exits 1 (26 advisories, 1 critical)",
+        "severity": "high",
+        "fixWith": "/sdrive:secure",
+        "task": "T3.4"
+      },
+      {
+        "finding": "AC-009 wording does not match the implemented shape",
+        "severity": "high",
+        "fixWith": "/sdrive:apply",
+        "task": "T3.5"
+      },
+      {
+        "finding": "Test evidence commit is not HEAD",
+        "severity": "medium",
+        "fixWith": "/sdrive:test",
+        "task": "T3.2"
+      },
+      {
+        "finding": "T3.2 and T3.3 still open",
+        "severity": "medium",
+        "fixWith": "/sdrive:apply",
+        "task": "T3.6"
+      },
+      {
+        "finding": "CON-515 config hand-validation",
+        "severity": "medium",
+        "fixWith": "/sdrive:secure",
+        "task": "T3.4"
+      }
+    ]
+  }
+}
