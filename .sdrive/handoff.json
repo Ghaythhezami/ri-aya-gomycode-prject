@@ -2,23 +2,18 @@
   "feature": "api-skeleton-and-ci",
   "version": "v1",
   "recordedAt": "2026-11-02T00:00:00.000Z",
-  "by": "sdrive:test",
-  "verdict": "fail",
+  "by": "sdrive:debug",
+  "verdict": "fixed",
   "steps": [
-    {
-      "command": "/sdrive:debug api-skeleton-and-ci",
-      "kind": "human",
-      "why": "AC-001 and AC-002 fail: pino-http only renames the request id to a top-level reqId with quietReqLogger: true, which logging.module.ts does not set."
-    },
     {
       "command": "/sdrive:test api-skeleton-and-ci",
       "kind": "human",
-      "why": "Re-run after the logging fix so all 10 ACs are green before review."
+      "why": "Re-run so the green evidence is recorded in this phase's report: AC-001 and AC-002 now pass after quietReqLogger: true, and the full server suite is 72 passed / 1 pre-existing skip."
     },
     {
       "command": "/sdrive:review",
       "kind": "human",
-      "why": "Reviewing is a sign-off, so it stays with you. It also has to sign off the three production-file edits made during this test phase (app-log-stream.ts, logging.config.ts, logging.module.ts)."
+      "why": "Reviewing is a sign-off, so it stays with you. It also has to sign off the two production edits disclosed in the test phase (app-log-stream.ts plus the resolveTransport wiring in logging.config.ts) and the one-line logging fix."
     }
   ]
 }

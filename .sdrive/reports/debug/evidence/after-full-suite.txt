@@ -1,0 +1,111 @@
+
+> server@0.1.0 test C:\Users\KENULE-NWINEE\Documents\Ri-aya\server
+> jest --coverage "--reporter=dot" "--forceExit"
+
+PASS src/logging/logging.module.spec.ts (40.799 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/auth/switch-workspace.e2e.spec.ts (48.182 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/audit/audit-trail.e2e.spec.ts (48.732 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/common/filters/http-exception-filter.spec.ts (7.566 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/tenancy/suspension.e2e.spec.ts (49.203 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/logging/logging.config.spec.ts
+PASS src/tenancy/registration.e2e.spec.ts (50.109 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/common/validators/password-strength.spec.ts
+PASS src/tenancy/invitations.e2e.spec.ts (51.471 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/cache/redis-cache.service.spec.ts (6.077 s)
+PASS src/tenancy/acceptance-gaps.e2e.spec.ts (11.55 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/auth/auth.e2e.spec.ts (36.435 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/auth/signup-retired.e2e.spec.ts (13.568 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+-----------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------
+File                         | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                               
+-----------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------
+All files                    |   82.78 |    71.81 |   86.95 |   82.02 |                                                                                 
+ auth                        |   93.89 |    75.75 |   94.73 |   93.62 |                                                                                 
+  auth.controller.ts         |     100 |     87.5 |     100 |     100 | 15                                                                              
+  auth.module.ts             |     100 |      100 |     100 |     100 |                                                                                 
+  auth.service.ts            |   91.48 |    73.07 |    91.3 |   91.36 | 53-60,111,117,130-135,140,185,191,230,246                                       
+  jwt.strategy.ts            |   95.45 |    83.33 |     100 |      95 | 40                                                                              
+ cache                       |   66.44 |     65.9 |   76.66 |   64.23 |                                                                                 
+  login-attempt.service.ts   |     100 |      100 |     100 |     100 |                                                                                 
+  redis-cache.module.ts      |     100 |      100 |     100 |     100 |                                                                                 
+  redis-cache.service.ts     |   53.77 |    64.28 |   71.42 |   51.02 | 25-51,57,67,77-83,91-95,109-110,116-119,131-132,142-147,153-162,170-171,224-233 
+  token-blacklist.service.ts |    90.9 |      100 |      80 |      90 | 41                                                                              
+ common/validators           |     100 |      100 |     100 |     100 |                                                                                 
+  password-strength.ts       |     100 |      100 |     100 |     100 |                                                                                 
+-----------------------------|---------|----------|---------|---------|---------------------------------------------------------------------------------
+
+Test Suites: 1 skipped, 13 passed, 13 of 14 total
+Tests:       1 skipped, 72 passed, 73 total
+Snapshots:   0 total
+Time:        66.518 s
+Ran all test suites.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

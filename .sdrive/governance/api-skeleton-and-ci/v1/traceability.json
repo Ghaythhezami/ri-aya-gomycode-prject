@@ -8,7 +8,7 @@
       "planSection": "Structured logging",
       "taskIds": ["T1.1", "T1.2"],
       "testIds": ["TEST-001", "TEST-002"],
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "requirementId": "FR-002",
@@ -16,7 +16,7 @@
       "planSection": "Structured logging",
       "taskIds": ["T1.2", "T1.3"],
       "testIds": ["TEST-003", "TEST-004"],
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "requirementId": "FR-003",
@@ -80,7 +80,7 @@
       "planSection": "Documentation and verification",
       "taskIds": ["T3.2"],
       "testIds": ["TEST-001", "TEST-002"],
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-002",
@@ -88,7 +88,7 @@
       "planSection": "Documentation and verification",
       "taskIds": ["T1.1"],
       "testIds": ["TEST-001", "TEST-002"],
-      "status": "in_progress"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-003",
@@ -104,7 +104,7 @@
       "planSection": "Documentation and verification",
       "taskIds": ["T1.2", "T3.1"],
       "testIds": ["TEST-003", "TEST-004"],
-      "status": "in_progress"
+      "status": "complete"
     }
   ]
 }

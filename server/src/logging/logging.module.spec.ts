@@ -71,7 +71,7 @@ async function waitForTransport<T>(
   return last;
 }
 
-/** The request path a record was written for, or undefined for startup lines. */
+/** The path a record was written for, or undefined for startup lines. */
 function requestPath(record: Record<string, unknown>): string | undefined {
   const req = record.req;
 
@@ -81,6 +81,7 @@ function requestPath(record: Record<string, unknown>): string | undefined {
 interface RecordedLine extends Record<string, unknown> {
   level?: number;
   msg?: string;
+  reqId?: string;
   req?: { id?: string; method?: string; url?: string };
   res?: { statusCode?: number };
 }
@@ -192,20 +193,34 @@ describe('structured logging middleware', () => {
     await AppLogStream.reset();
   });
 
-  /** Reads the records written during one test. */
+  /**
+   * Reads the records written for one request.
+   *
+   * pino-http writes the completion record with the request attached, while a
+   * line written by a handler carries the request id alone. So the request's id
+   * is read from the completion record and every record carrying it is kept,
+   * which is the correlation AC-002 asserts on.
+   */
   const recordsOf = async (path: string): Promise<RecordedLine[]> => {
     await flushAppLog(pinoInstanceOf(app));
 
-    const records = await waitForTransport(readAppLog, (all) =>
+    const records = (await waitForTransport(readAppLog, (all) =>
       all.some((record) => requestPath(record) === path),
-    );
+    )) as RecordedLine[];
 
-    return records.filter((record) => requestPath(record) === path) as RecordedLine[];
+    const reqId = records.find((record) => requestPath(record) === path)?.reqId;
+
+    return reqId
+      ? records.filter((record) => record.reqId === reqId)
+      : (records.filter((record) => requestPath(record) === path) as RecordedLine[]);
   };
 
   /** Groups by request, so one test making three calls can assert on each. */
-  const recordsFor = (records: RecordedLine[], path: string) =>
-    records.filter((record) => record.req?.url === path);
+  const recordsFor = (records: RecordedLine[], path: string) => {
+    const reqId = records.find((record) => requestPath(record) === path)?.reqId;
+
+    return reqId ? records.filter((record) => record.reqId === reqId) : [];
+  };
 
   // TEST-001 → AC-001 (FR-001)
   it('AC-001: writes exactly one completion record carrying reqId, method, url, status code and duration', async () => {
@@ -253,9 +268,9 @@ describe('structured logging middleware', () => {
     expect(completions).toHaveLength(1);
 
     // AC-002: the point is that the handler line, the request record and the
-    // header all agree on one value.
-    expect(handlerLines[0]!.reqId).toBe('safe-id-123');
-    expect(completions[0]!.reqId).toBe('safe-id-123');
+    // header all agree on one value, carried at the top level of both records.
+    expect(handlerLines[0]).toHaveProperty('reqId', 'safe-id-123');
+    expect(completions[0]).toHaveProperty('reqId', 'safe-id-123');
     expect(response.headers['x-request-id']).toBe('safe-id-123');
   });
 
@@ -268,6 +283,11 @@ describe('structured logging middleware', () => {
       .expect(200);
 
     const records = await recordsOf('/api/probe/sensitive');
+
+    // The request id is what ties the handler line to the request record.
+    // A handler line logged from an object keeps its text under `message`.
+    const completion = records.find((record) => record.msg !== undefined);
+    const sensitiveLines = records.filter((record) => record.message === 'user loaded');
     const serialised = JSON.stringify(records);
 
     expect(serialised).not.toContain('fixture-secret-token');
@@ -278,7 +298,8 @@ describe('structured logging middleware', () => {
     // Redaction replaces the value rather than dropping the record entirely,
     // and it reaches the nested user object, not only the top level.
     expect(serialised).toContain('[REDACTED]');
-    expect(records.length).toBeGreaterThan(0);
+    expect(completion).toBeDefined();
+    expect(sensitiveLines).toHaveLength(1);
   });
 
   // TEST-004 → AC-004 (FR-004)
@@ -327,6 +348,6 @@ describe('structured logging middleware', () => {
     const records = await recordsOf('/api/probe/thrown');
     const completion = records.filter((record) => record.msg !== undefined).pop();
 
-    expect(completion?.req?.id).toBe('safe-id-123');
+    expect(completion?.reqId).toBe('safe-id-123');
   });
 });

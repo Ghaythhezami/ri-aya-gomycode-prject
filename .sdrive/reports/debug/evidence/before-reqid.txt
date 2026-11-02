@@ -1,0 +1,58 @@
+npm info using npm@11.21.0
+npm info using node@v24.20.0
+  console.log
+    [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+FAIL src/logging/logging.module.spec.ts (25.621 s)
+  structured logging middleware
+    × AC-001: writes exactly one completion record carrying reqId, method, url, status code and duration (210 ms)
+    × AC-002: handler logs carry the same reqId as the request record and match the X-Request-Id header (42 ms)
+    √ AC-003: never writes Authorization, Cookie or password values to the sink (31 ms)
+    √ AC-004: maps 2xx to info, 4xx to warn and 5xx to error (100 ms)
+    √ AC-009: a thrown HttpException keeps its response shape and adds a matching requestId (26 ms)
+
+  ● structured logging middleware › AC-001: writes exactly one completion record carrying reqId, method, url, status code and duration
+
+    expect(received).toHaveProperty(path, value)
+
+    Expected path: "reqId"
+    Received path: []
+
+    Expected value: "safe-id-123"
+    Received value: {"hostname": "KENULE-NWINEE-PC", "level": 30, "msg": "GET /api/probe/ok 200", "pid": 32864, "req": {"id": "safe-id-123", "method": "GET", "url": "/api/probe/ok"}, "res": {"statusCode": 200}, "responseTime": 25, "time": 1793612416835}
+
+    [0m [90m 225 |[39m
+     [90m 226 |[39m     [90m// AC-001 names `reqId` at the top level of the record.[39m
+    [31m[1m>[22m[39m[90m 227 |[39m     expect(completion)[33m.[39mtoHaveProperty([32m'reqId'[39m[33m,[39m [32m'safe-id-123'[39m)[33m;[39m
+     [90m     |[39m                        [31m[1m^[22m[39m
+     [90m 228 |[39m     expect(completion[33m.[39mreq)[33m.[39mtoMatchObject({
+     [90m 229 |[39m       method[33m:[39m [32m'GET'[39m[33m,[39m
+     [90m 230 |[39m       url[33m:[39m [32m'/api/probe/ok'[39m[33m,[39m[0m
+
+      at Object.<anonymous> (logging/logging.module.spec.ts:227:24)
+
+  ● structured logging middleware › AC-002: handler logs carry the same reqId as the request record and match the X-Request-Id header
+
+    expect(received).toBe(expected) // Object.is equality
+
+    Expected: "safe-id-123"
+    Received: undefined
+
+    [0m [90m 255 |[39m     [90m// AC-002: the point is that the handler line, the request record and the[39m
+     [90m 256 |[39m     [90m// header all agree on one value.[39m
+    [31m[1m>[22m[39m[90m 257 |[39m     expect(handlerLines[[35m0[39m][33m![39m[33m.[39mreqId)[33m.[39mtoBe([32m'safe-id-123'[39m)[33m;[39m
+     [90m     |[39m                                    [31m[1m^[22m[39m
+     [90m 258 |[39m     expect(completions[[35m0[39m][33m![39m[33m.[39mreqId)[33m.[39mtoBe([32m'safe-id-123'[39m)[33m;[39m
+     [90m 259 |[39m     expect(response[33m.[39mheaders[[32m'x-request-id'[39m])[33m.[39mtoBe([32m'safe-id-123'[39m)[33m;[39m
+     [90m 260 |[39m   })[33m;[39m[0m
+
+      at Object.<anonymous> (logging/logging.module.spec.ts:257:36)
+
+Test Suites: 1 failed, 1 total
+Tests:       2 failed, 3 passed, 5 total
+Snapshots:   0 total
+Time:        26.813 s
+Ran all test suites matching /src\\logging\\logging.module.spec.ts/i.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?

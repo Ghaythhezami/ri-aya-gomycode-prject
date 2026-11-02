@@ -68,6 +68,11 @@ if (!IS_TEST && LOG_LEVEL_RESOLUTION.warning) {
           remove: false,
         },
 
+        // AC-001 / AC-002: pino-http writes the top-level request id ONLY when
+        // quietReqLogger is set; without it customAttributeKeys.reqId is inert and
+        // the id stays under `req.id`.
+        quietReqLogger: true,
+
         // FR-002 / EC-002: validate a client id before echoing or logging it.
         genReqId,
 
