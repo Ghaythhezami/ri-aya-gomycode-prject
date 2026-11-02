@@ -10,9 +10,11 @@ import { LoggerModule } from 'nestjs-pino';
 import {
   customLogLevel,
   genReqId,
+  LOG_TRANSPORT_TARGET,
   REDACT_CENSOR,
   REDACT_PATHS,
   resolveLogLevel,
+  resolveTransport,
 } from './logging.config';
 
 /**
@@ -32,6 +34,12 @@ const EFFECTIVE_LEVEL: string = IS_TEST
   ? (process.env.LOG_LEVEL?.trim().toLowerCase() ?? 'silent')
   : LOG_LEVEL_RESOLUTION.level;
 
+// Tests that assert on what was written need the records somewhere readable.
+// nestjs-pino builds pino-http itself and ignores a `destination`, so pino's
+// own `transport` is the supported way to redirect the sink. Unset outside the
+// test process, which leaves the default stdout sink in place.
+const TRANSPORT = resolveTransport(process.env[LOG_TRANSPORT_TARGET]);
+
 // EC-001: an unusable LOG_LEVEL must not stop the API from booting, but it must
 // not pass silently either. Nest's Logger is used rather than pino's because the
 // pino instance does not exist yet at this point in module definition.
@@ -47,6 +55,9 @@ if (!IS_TEST && LOG_LEVEL_RESOLUTION.warning) {
         // The middleware stays mounted either way, so request context still
         // works for the assertions that need it.
         level: EFFECTIVE_LEVEL,
+
+        // Redirect the sink only when a test asked for it (see TRANSPORT).
+        transport: TRANSPORT,
 
         // FR-003 / AC-003: one constant, reviewed in the diff.
         redact: {

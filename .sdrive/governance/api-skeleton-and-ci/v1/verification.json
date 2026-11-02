@@ -1,12 +1,12 @@
 {
   "feature": "api-skeleton-and-ci",
-  "status": "pass",
-  "checkedAt": "2026-11-02T01:40:52.540Z",
+  "status": "warn",
+  "checkedAt": "2026-11-02T09:34:28.633Z",
   "summary": {
     "matched": 9,
     "missing": 0,
     "renamed": 0,
-    "extra": 0,
+    "extra": 3,
     "withdrawn": 1
   },
   "items": {
@@ -77,7 +77,23 @@
     ],
     "missing": [],
     "renamed": [],
-    "extra": [],
+    "extra": [
+      {
+        "type": "component",
+        "name": "server/src/logging/app-log-stream.ts",
+        "file": "server/src/logging/app-log-stream.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/logging/logging.config.spec.ts",
+        "file": "server/src/logging/logging.config.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/logging/logging.module.spec.ts",
+        "file": "server/src/logging/logging.module.spec.ts"
+      }
+    ],
     "withdrawn": [
       {
         "type": "component",

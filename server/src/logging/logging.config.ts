@@ -7,6 +7,7 @@
  */
 import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, ServerResponse } from 'node:http';
+import { join } from 'node:path';
 
 /** Header that carries the correlation id in and out of the API (FR-002). */
 export const REQUEST_ID_HEADER = 'x-request-id';
@@ -137,6 +138,40 @@ export function genReqId(req: IncomingMessage, res: ServerResponse): string {
   res.setHeader('X-Request-Id', reqId);
 
   return reqId;
+}
+
+/**
+ * Environment variable that redirects the sink to a file (tests only).
+ *
+ * `nestjs-pino` builds pino-http itself, so a `destination` option would be
+ * ignored; pino's `transport` is the supported way to change the sink. Unset in
+ * every runtime path, which is what keeps production writing to stdout.
+ */
+export const LOG_TRANSPORT_TARGET = 'LOG_TRANSPORT_TARGET';
+
+/** pino `transport` that appends records to {@link LOG_TRANSPORT_TARGET}. */
+export interface LogTransport {
+  targets: { target: string; options: { destination: string } }[];
+}
+
+/**
+ * The pino transport to use, or `undefined` to keep the default stdout sink.
+ *
+ * Referenced by absolute path because the transport runs in a pino worker
+ * thread, so it cannot receive a function reference from this module. pino
+ * resolves a relative target against its own caller stack, not against this
+ * file, so the path has to be resolved here.
+ */
+export function resolveTransport(target?: string | null): LogTransport | undefined {
+  const destination = target?.trim();
+
+  if (!destination) {
+    return undefined;
+  }
+
+  return {
+    targets: [{ target: join(__dirname, 'app-log-stream.ts'), options: { destination } }],
+  };
 }
 
 /**
