@@ -1,19 +1,14 @@
 {
   "feature": "api-skeleton-and-ci",
   "version": "v1",
-  "recordedAt": "2026-11-02T00:00:00.000Z",
-  "by": "sdrive:debug",
-  "verdict": "fixed",
+  "recordedAt": "2026-11-02T11:30:00.000Z",
+  "by": "sdrive:test",
+  "verdict": "tested",
   "steps": [
-    {
-      "command": "/sdrive:test api-skeleton-and-ci",
-      "kind": "human",
-      "why": "Re-run so the green evidence is recorded in this phase's report: AC-001 and AC-002 now pass after quietReqLogger: true, and the full server suite is 72 passed / 1 pre-existing skip."
-    },
     {
       "command": "/sdrive:review",
       "kind": "human",
-      "why": "Reviewing is a sign-off, so it stays with you. It also has to sign off the two production edits disclosed in the test phase (app-log-stream.ts plus the resolveTransport wiring in logging.config.ts) and the one-line logging fix."
+      "why": "All 10 ACs have a passing test and test-evidence.json records exit 0 at b496f36. Review is a sign-off, so it stays with you, and it must also sign off the production edits disclosed in the test phase: app-log-stream.ts, the resolveTransport wiring in logging.config.ts, the quietReqLogger fix, and AC-010's test/ placement (CON-403 exception)."
     }
   ]
 }
