@@ -270,8 +270,7 @@
       {
         "finding": "Implementation gate is still pending",
         "severity": "high",
-        "fixWith": "/sdrive:apply",
-        "task": "—"
+        "fixWith": "/sdrive:apply"
       },
       {
         "finding": "No CI run for HEAD; AC-005/006/007 are static-only",
@@ -282,14 +281,12 @@
       {
         "finding": "pnpm audit exits 1 (26 advisories, 1 critical)",
         "severity": "high",
-        "fixWith": "/sdrive:secure",
-        "task": "T3.4"
+        "fixWith": "/sdrive:secure"
       },
       {
         "finding": "AC-009 wording does not match the implemented shape",
         "severity": "high",
-        "fixWith": "/sdrive:apply",
-        "task": "T3.5"
+        "fixWith": "/sdrive:apply"
       },
       {
         "finding": "Test evidence commit is not HEAD",
@@ -301,13 +298,12 @@
         "finding": "T3.2 and T3.3 still open",
         "severity": "medium",
         "fixWith": "/sdrive:apply",
-        "task": "T3.6"
+        "task": "T3.2, T3.3"
       },
       {
         "finding": "CON-515 config hand-validation",
         "severity": "medium",
-        "fixWith": "/sdrive:secure",
-        "task": "T3.4"
+        "fixWith": "/sdrive:secure"
       }
     ]
   }

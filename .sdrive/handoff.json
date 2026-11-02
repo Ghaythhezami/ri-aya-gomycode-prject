@@ -18,7 +18,7 @@
     {
       "command": "/sdrive:apply api-skeleton-and-ci",
       "kind": "agent",
-      "why": "Correct AC-009 s wording to the implemented {code,message,details,requestId} shape and close T3.2, T3.3, T3.4, T3.5 and T3.6."
+      "why": "Correct AC-009 s wording to the implemented {code,message,details,requestId} shape and close T3.2 and T3.3."
     },
     {
       "command": "/sdrive:test api-skeleton-and-ci",
