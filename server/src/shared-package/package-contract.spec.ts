@@ -64,10 +64,6 @@ function declaredDeps(importer: string): string[] {
   return names;
 }
 
-const forEachWorkspace = (fn: (dir: string) => void) => {
-  for (const dir of ['web', 'server', 'backoffice', 'packages/shared']) fn(dir);
-};
-
 describe('@riaya/shared as a server dependency', () => {
   // TEST-004 → AC-001
   it('AC-001: the server depends on the published package, not a copy', () => {
