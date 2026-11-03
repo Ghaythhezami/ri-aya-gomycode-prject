@@ -344,6 +344,15 @@ export class MemoryPrisma {
       return row;
     },
     findUnique: async ({ where }: { where: { id: string } }) => this.clinics.get(where.id) ?? null,
+    findFirst: async ({ where }: { where: { id?: string; organizationId?: string } }) => {
+      return (
+        [...this.clinics.values()].find(
+          (item) =>
+            (!where.id || item.id === where.id) &&
+            (!where.organizationId || item.organizationId === where.organizationId),
+        ) ?? null
+      );
+    },
   };
 
   readonly userMembership = {
@@ -560,12 +569,20 @@ export class MemoryPrisma {
       select,
       orderBy,
     }: {
-      where: { clinicId?: string; consumedAt?: Date | null; expiresAt?: { gt?: Date } };
+      where: {
+        clinicId?: string;
+        organizationId?: string;
+        email?: string;
+        consumedAt?: Date | null;
+        expiresAt?: { gt?: Date };
+      };
       select?: Record<string, boolean>;
       orderBy?: { createdAt: 'asc' | 'desc' };
     }) => {
       const matches = [...this.invitations.values()].filter((item) => {
         if (where.clinicId && item.clinicId !== where.clinicId) return false;
+        if (where.organizationId && item.organizationId !== where.organizationId) return false;
+        if (where.email && item.email !== where.email) return false;
         if (where.consumedAt === null && item.consumedAt !== null) return false;
         if (where.expiresAt?.gt && item.expiresAt.getTime() <= where.expiresAt.gt.getTime()) {
           return false;
