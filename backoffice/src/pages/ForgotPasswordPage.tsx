@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { forgotPasswordSchema } from '@riaya/shared';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
@@ -11,7 +11,9 @@ import { Field, Input } from '../common/Input';
 export function ForgotPasswordPage() {
   const { t } = useTranslation();
   const [sent, setSent] = useState(false);
-  const schema = z.object({ email: z.string().email(t('auth.emailRequired')) });
+  const schema = forgotPasswordSchema.extend({
+    email: forgotPasswordSchema.shape.email.min(1, t('auth.emailRequired')),
+  });
   const form = useForm({ resolver: zodResolver(schema), defaultValues: { email: '' } });
 
   return (

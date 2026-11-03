@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '@riaya/shared';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff } from 'lucide-react';
@@ -18,9 +18,9 @@ export function LoginPage() {
   const [show, setShow] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const schema = z.object({
-    email: z.string().email(t('auth.emailRequired')),
-    password: z.string().min(1, t('auth.passwordRequired')),
+  const schema = loginSchema.extend({
+    email: loginSchema.shape.email.min(1, t('auth.emailRequired')),
+    password: loginSchema.shape.password.min(1, t('auth.passwordRequired')),
   });
 
   const form = useForm({

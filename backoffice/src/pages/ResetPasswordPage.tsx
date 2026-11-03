@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { resetPasswordSchema } from '@riaya/shared';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { api, getErrorMessage } from '../lib/api';
@@ -17,7 +18,7 @@ export function ResetPasswordPage() {
 
   const schema = z
     .object({
-      password: z.string().min(10, t('auth.weakPassword')),
+      password: resetPasswordSchema.shape.password.min(10, t('auth.weakPassword')),
       confirm: z.string(),
     })
     .refine((value) => value.password === value.confirm, {
