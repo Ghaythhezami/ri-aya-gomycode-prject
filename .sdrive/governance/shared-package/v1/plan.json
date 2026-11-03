@@ -138,11 +138,12 @@
         "name": "MembershipView",
         "action": "create",
         "fields": [
-          { "name": "id", "type": "string", "action": "add" },
-          { "name": "userId", "type": "string", "action": "add" },
+          { "name": "membershipId", "type": "string", "action": "add" },
+          { "name": "organizationId", "type": "string", "action": "add" },
+          { "name": "organizationName", "type": "string", "action": "add" },
           { "name": "clinicId", "type": "string", "action": "add" },
-          { "name": "role", "type": "enum", "action": "add" },
-          { "name": "status", "type": "enum", "action": "add" }
+          { "name": "clinicName", "type": "string", "action": "add" },
+          { "name": "role", "type": "enum", "action": "add" }
         ]
       }
     ],

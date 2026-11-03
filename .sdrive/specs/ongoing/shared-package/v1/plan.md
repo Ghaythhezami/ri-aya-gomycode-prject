@@ -57,15 +57,15 @@ deliberately last, so the shared schema is proven equivalent before the local co
 
 No database entity is created, updated or removed. The package describes HTTP payload shapes only.
 
-| Entity                 | Action    | Fields                                                                                                                          |
-| ---------------------- | --------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `LoginInput`           | create    | `email: string` (add), `password: string` (add) — mirrors `login.dto.ts`.                                                       |
-| `RegisterInput`        | create    | `email`, `password`, `firstName`, `lastName`, `organizationName`, `clinicName`, `preferredLocale?` — mirrors `register.dto.ts`. |
-| `SwitchWorkspaceInput` | create    | `clinicId: string` (uuid) — mirrors `switch-workspace.dto.ts`.                                                                  |
-| `ChangePasswordInput`  | create    | `currentPassword`, `newPassword` — mirrors `change-password.dto.ts`.                                                            |
-| `InvitationInput`      | create    | `email`, `clinicId`, `role` — mirrors `invitation.dto.ts` `InviteDto`.                                                          |
-| `MembershipView`       | create    | `id`, `userId`, `clinicId`, `role`, `status` — derived from `MembershipView` in `tenancy.service.ts`.                           |
-| Prisma models          | no_change | `User`, `Organization`, `Clinic`, `UserMembership`, `Invitation`, … are untouched.                                              |
+| Entity                 | Action    | Fields                                                                                                                                          |
+| ---------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LoginInput`           | create    | `email: string` (add), `password: string` (add) — mirrors `login.dto.ts`.                                                                       |
+| `RegisterInput`        | create    | `email`, `password`, `firstName`, `lastName`, `organizationName`, `clinicName`, `preferredLocale?` — mirrors `register.dto.ts`.                 |
+| `SwitchWorkspaceInput` | create    | `clinicId: string` (uuid) — mirrors `switch-workspace.dto.ts`.                                                                                  |
+| `ChangePasswordInput`  | create    | `currentPassword`, `newPassword` — mirrors `change-password.dto.ts`.                                                                            |
+| `InvitationInput`      | create    | `email`, `clinicId`, `role` — mirrors `invitation.dto.ts` `InviteDto`.                                                                          |
+| `MembershipView`       | create    | `membershipId`, `organizationId`, `organizationName`, `clinicId`, `clinicName`, `role` — derived from `MembershipView` in `tenancy.service.ts`. |
+| Prisma models          | no_change | `User`, `Organization`, `Clinic`, `UserMembership`, `Invitation`, … are untouched.                                                              |
 
 Flow: a consumer imports a schema and its inferred type from `@riaya/shared`, validates with
 `schema.parse` where it owns the input, and uses the type for the payload it sends or receives. No

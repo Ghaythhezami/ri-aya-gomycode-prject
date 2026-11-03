@@ -1,10 +1,10 @@
 {
   "feature": "shared-package",
-  "status": "fail",
-  "checkedAt": "2026-11-03T17:43:51.547Z",
+  "status": "pass",
+  "checkedAt": "2026-11-03T17:47:38.845Z",
   "summary": {
-    "matched": 40,
-    "missing": 3,
+    "matched": 44,
+    "missing": 0,
     "renamed": 0,
     "extra": 0,
     "withdrawn": 0
@@ -289,7 +289,43 @@
       {
         "type": "field",
         "entity": "MembershipView",
+        "name": "membershipId",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "organizationId",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "organizationName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
         "name": "clinicId",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "clinicName",
         "fieldType": "string",
         "action": "add",
         "resolution": null,
@@ -327,32 +363,7 @@
         "note": "internal dependency; not manifest-verifiable"
       }
     ],
-    "missing": [
-      {
-        "type": "field",
-        "entity": "MembershipView",
-        "name": "id",
-        "fieldType": "string",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "MembershipView",
-        "name": "userId",
-        "fieldType": "string",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "MembershipView",
-        "name": "status",
-        "fieldType": "enum",
-        "action": "add",
-        "resolution": null
-      }
-    ],
+    "missing": [],
     "renamed": [],
     "extra": [],
     "withdrawn": []
