@@ -114,7 +114,15 @@ export class TenancyController {
         message: 'Only clinic admins can suspend memberships',
       });
     }
-    await this.tenancy.suspendMembership(id);
+    // The id comes from the path, so it is attacker-controlled: it MUST be
+    // resolved inside the caller's own organization. A super admin is
+    // organization-wide, every other role may only act within their clinic.
+    const organizationWide = scope.role === UserRole.SUPER_ADMIN;
+    await this.tenancy.suspendMembership({
+      membershipId: id,
+      organizationId: scope.organizationId,
+      clinicId: organizationWide ? null : scope.clinicId,
+    });
     return { success: true };
   }
 }
