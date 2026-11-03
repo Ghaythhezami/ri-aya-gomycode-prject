@@ -19,7 +19,12 @@ jobs:
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # jsdom@30 requires ^22.22.2 || ^24.15.0 || >=26, and its undici@8
+          # requires >=22.19.0; undici's zstd decompress binds against
+          # zlib.createZstdDecompress, which Node 20 does not ship, so the
+          # backoffice suite crashes at import on Node 20. 24 is the LTS that
+          # satisfies both and matches the version the suite is verified on.
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
 
