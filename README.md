@@ -10,7 +10,7 @@ This repository currently ships **monorepo tooling**, **authentication**, and th
 | ------------ | ------------------------------------- | ------------- |
 | `web`        | Next.js 15, next-intl, Tailwind CSS 4 | 3000          |
 | `server`     | NestJS 11, TypeORM, PostgreSQL        | 4000 (`/api`) |
-| `backoffice` | React 19, Vite, i18next               | 5173          |
+| `backoffice` | React 19, Vite, i18next               | 5174          |
 
 Languages: English, Arabic (RTL), French.
 
@@ -23,7 +23,7 @@ pnpm install                # 1. dependencies
 pnpm setup                  # 2. writes each package's .env from its .env.example
 docker compose up -d        # 3. PostgreSQL, Redis and MongoDB
 pnpm --filter server seed   # 4. local development users
-pnpm dev                    # 5. web :3000, API :4000 (docs at /api/docs), backoffice :5173
+pnpm dev                    # 5. web :3000, API :4000 (docs at /api/docs), backoffice :5174
 ```
 
 `pnpm setup` copies examples only where `.env` is missing, so it is safe to re-run: it reports
@@ -60,7 +60,7 @@ Then open:
 
 - Landing page: http://localhost:3000
 - API docs: http://localhost:4000/api/docs
-- Backoffice: http://localhost:5173
+- Backoffice: http://localhost:5174
 
 ## Development accounts (local only)
 

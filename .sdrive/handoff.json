@@ -1,0 +1,35 @@
+{
+  "feature": "api-skeleton-and-ci",
+  "version": "v1",
+  "recordedAt": "2026-11-03T12:45:00.000Z",
+  "by": "sdrive:review",
+  "verdict": "ready-for-archive",
+  "commit": "e0d982659cb9a941f47359b08991fbade3c2fa70",
+  "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+  "base": "main",
+  "steps": [
+    {
+      "command": "/sdrive:archive api-skeleton-and-ci",
+      "kind": "agent",
+      "why": "Round 2 review returned PASS at e0d9826. Coverage 100% (10/10 ACs), 72 passed / 0 failed / 1 skipped with evidence bound to HEAD, all nine CON-51x controls pass, pnpm audit --prod clean, CI green in 89 s. The review gate is approved; archive is the remaining step."
+    }
+  ],
+  "resolved": [
+    "Round 1 (FAIL at a09e8da) findings 1-7: all closed.",
+    "Implementation gate: pending -> approved (2026-11-03).",
+    "Review gate: pending -> approved on a PASS (2026-11-03, round 2).",
+    "Audit: 26 advisories (1 critical, 15 high) -> 0 production; pnpm audit --prod exits 0.",
+    "T3.2 and T3.3 closed; CI run 41629291551 completed the whole job in 89 s, so NFR-003 is verified.",
+    "test-evidence.json re-run during review and now stamped at HEAD e0d9826: 72 passed, 0 failed, 1 skipped.",
+    "CON-515: resolved. resolveLogLevel validates LOG_LEVEL against the LOG_LEVELS allowlist with a safe fallback, and client request ids pass SAFE_REQUEST_ID.",
+    "verify.js: 9 matched, 0 missing, 1 withdrawn, 3 extra (status WARN, accepted)."
+  ],
+  "carried": [
+    "Reviewer independence: kenule500 is both author and reviewer. Recorded as accepted-by-owner in review.md and review.json; no command can grant independence, so a human must accept it.",
+    "Non-blocking observation: the implementation report header still reads 'T3.2 is open' while its own section 6 records it closed. Documentation only.",
+    "Dev-only advisories: 9 remaining (2 critical, 6 moderate, 1 low), all in test/build tooling (vitest, tinypool, @vitest/mocker, eslint>minimatch, @nestjs/cli>glob, deepmerge). Production is clean; they would only matter if AC-007's gate widened to all dependencies.",
+    "Pre-existing: $queryRawUnsafe wrapper exposed; its sole caller passes the constant 'SELECT 1'.",
+    "CLI version mismatch: .sdrive/ installed by specdrive-cli 0.1.57, CLI is 0.1.52. 'sdrive next --write' does not exist in 0.1.52, so this handoff is written by hand.",
+    "PR #2 is still a draft and must not be merged as part of archiving."
+  ]
+}

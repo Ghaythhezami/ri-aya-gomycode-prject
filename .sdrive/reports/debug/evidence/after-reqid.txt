@@ -1,0 +1,28 @@
+npm info using npm@11.21.0
+npm info using node@v24.20.0
+PASS src/logging/logging.config.spec.ts (7.564 s)
+PASS src/common/filters/http-exception-filter.spec.ts (12.206 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+PASS src/logging/logging.module.spec.ts (16.651 s)
+  ● Console
+
+    console.log
+      [32m✔[0m [33mConsole Ninja[0m extension is connected to [33mNest.js[0m, see [36mhttps://tinyurl.com/2vt8jxzw[0m
+
+      at new oA (../../../../.vscode/extensions/wallabyjs.console-ninja-1.0.547/out/buildHook/index.js:1:4289168)
+
+A worker process has failed to exit gracefully and has been force exited. This is likely caused by tests leaking due to improper teardown. Try running with --detectOpenHandles to find leaks. Active timers can also cause this, ensure that .unref() was called on them.
+
+Test Suites: 3 passed, 3 total
+Tests:       22 passed, 22 total
+Snapshots:   0 total
+Time:        19.353 s, estimated 20 s
+Ran all test suites matching /src\\logging|src\\common\\filters/i.
+Force exiting Jest: Have you considered using `--detectOpenHandles` to detect async operations that kept running after all tests finished?
+npm info ok

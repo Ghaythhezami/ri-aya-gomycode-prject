@@ -171,6 +171,215 @@
       "event": "feature_archived",
       "prevHash": "db64848dabaafbb376abf657524bd0fff8b9c02bc8ce93c68274ab3d065cf5c8",
       "hash": "2e0f00d8a287693e956fce94aba6a47acab3f2edfdb818ee7562536bbaee1ffe"
+    },
+    {
+      "timestamp": "2026-11-01T16:29:03.081Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 157695,
+      "event": "test_passed",
+      "prevHash": "2e0f00d8a287693e956fce94aba6a47acab3f2edfdb818ee7562536bbaee1ffe",
+      "hash": "e673f7bf410fe6847f4ea44574c3638d31a6cc193fd268b9781c2f8d6be27bd5"
+    },
+    {
+      "timestamp": "2026-11-01T16:32:52.412Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 87642,
+      "event": "test_passed",
+      "prevHash": "e673f7bf410fe6847f4ea44574c3638d31a6cc193fd268b9781c2f8d6be27bd5",
+      "hash": "54134bd3f18ca01dda5dec0ded765ca98b276a33dc4d8cf09a491be0b0b903c0"
+    },
+    {
+      "timestamp": "2026-11-01T16:56:28.361Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "54134bd3f18ca01dda5dec0ded765ca98b276a33dc4d8cf09a491be0b0b903c0",
+      "hash": "8f937ca9723ed3381905aa0c4ac9db777483c2447139d6285c68bb158b86e469"
+    },
+    {
+      "timestamp": "2026-11-01T17:03:53.326Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 107203,
+      "event": "test_passed",
+      "prevHash": "8f937ca9723ed3381905aa0c4ac9db777483c2447139d6285c68bb158b86e469",
+      "hash": "724f828247c3985d944098fb1d54df45456f50d81adb7c124af424d3a5deb9b1"
+    },
+    {
+      "timestamp": "2026-11-01T17:10:13.427Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 132482,
+      "event": "test_passed",
+      "prevHash": "724f828247c3985d944098fb1d54df45456f50d81adb7c124af424d3a5deb9b1",
+      "hash": "ba6db427ef40af7415df4c5fa192487789385a8bf15a34f62697a5579828ca1c"
+    },
+    {
+      "timestamp": "2026-11-01T17:22:39.584Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "gate": "implementation",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "ba6db427ef40af7415df4c5fa192487789385a8bf15a34f62697a5579828ca1c",
+      "hash": "d4c540d2e4c23befb60a36f45aaf6dcdfa06af7e196608a12ee49ddd37d6114d"
+    },
+    {
+      "timestamp": "2026-11-01T21:10:04.662Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 78074,
+      "event": "test_passed",
+      "prevHash": "d4c540d2e4c23befb60a36f45aaf6dcdfa06af7e196608a12ee49ddd37d6114d",
+      "hash": "82e3372f8cf15f082f50c1c2b633560fa5c3b6b531498acc74f10925e8c87062"
+    },
+    {
+      "timestamp": "2026-11-01T21:15:11.015Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 0,
+      "durationMs": 60994,
+      "event": "test_passed",
+      "prevHash": "82e3372f8cf15f082f50c1c2b633560fa5c3b6b531498acc74f10925e8c87062",
+      "hash": "2fd324b6cb9bbe707cedced8b74357432bb43f0accd5099489908469119d2361"
+    },
+    {
+      "timestamp": "2026-11-01T21:30:10.273Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "2fd324b6cb9bbe707cedced8b74357432bb43f0accd5099489908469119d2361",
+      "hash": "658a1b01fa85af60558b52184ec3bbc6b89bfc60140b03fc1e9cc1352d8dffd3"
+    },
+    {
+      "timestamp": "2026-11-01T21:48:15.420Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "gate": "specification",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "658a1b01fa85af60558b52184ec3bbc6b89bfc60140b03fc1e9cc1352d8dffd3",
+      "hash": "31c45c07867d71f630733f5d8c204b64deb58ff7fd74a2051e0fd3692e09a987"
+    },
+    {
+      "timestamp": "2026-11-01T22:08:01.395Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "gate": "planning",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "31c45c07867d71f630733f5d8c204b64deb58ff7fd74a2051e0fd3692e09a987",
+      "hash": "aeb1532232cdb78396fb9e1ebc57609a8db86b658fc6132d9636c770ff69673c"
+    },
+    {
+      "timestamp": "2026-11-02T10:23:30.154Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "total": 73,
+      "durationMs": 56461,
+      "event": "test_passed",
+      "prevHash": "aeb1532232cdb78396fb9e1ebc57609a8db86b658fc6132d9636c770ff69673c",
+      "hash": "57e7ffeb31c7e23613f1b87eccc326d4a3ebbaa066ce14a0e24855ae14969a4c"
+    },
+    {
+      "timestamp": "2026-11-03T11:43:13.691Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "gate": "implementation",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "57e7ffeb31c7e23613f1b87eccc326d4a3ebbaa066ce14a0e24855ae14969a4c",
+      "hash": "8eb63a48332b19f8827a46cf654e2f639829c3c4746a84f1dc9c5b252fcdc16b"
+    },
+    {
+      "timestamp": "2026-11-03T12:03:13.723Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "total": 73,
+      "durationMs": 171544,
+      "event": "test_passed",
+      "prevHash": "8eb63a48332b19f8827a46cf654e2f639829c3c4746a84f1dc9c5b252fcdc16b",
+      "hash": "c9a4ca7c69a441ff1ef34bd74aa7db0d6ac9f593a51541dfbe145b7681719f85"
+    },
+    {
+      "timestamp": "2026-11-03T12:24:04.608Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "exitCode": 124,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "c9a4ca7c69a441ff1ef34bd74aa7db0d6ac9f593a51541dfbe145b7681719f85",
+      "hash": "db208be04131617c0720f0204d69736d7ca6a444960499ceb0f2ede34c245d26"
+    },
+    {
+      "timestamp": "2026-11-03T12:26:02.989Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "db208be04131617c0720f0204d69736d7ca6a444960499ceb0f2ede34c245d26",
+      "hash": "68c62752701a5b0250580f993298dc906479e25e91feda5f9b530da137b3db34"
+    },
+    {
+      "timestamp": "2026-11-03T12:32:55.168Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "total": 73,
+      "durationMs": 105751,
+      "event": "test_passed",
+      "prevHash": "68c62752701a5b0250580f993298dc906479e25e91feda5f9b530da137b3db34",
+      "hash": "90025291490f8e3f2eee5fef0465f7cb3be9a1d938ad66665bc43d885a41d338"
+    },
+    {
+      "timestamp": "2026-11-03T12:50:01.736Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "total": 73,
+      "durationMs": 117459,
+      "event": "test_passed",
+      "prevHash": "90025291490f8e3f2eee5fef0465f7cb3be9a1d938ad66665bc43d885a41d338",
+      "hash": "e93ed2b5158dae88ac96f47fc0b862576baafb1db975a4aaab2053a33af8b171"
+    },
+    {
+      "timestamp": "2026-11-03T12:55:48.665Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "total": 73,
+      "durationMs": 165248,
+      "event": "test_passed",
+      "prevHash": "e93ed2b5158dae88ac96f47fc0b862576baafb1db975a4aaab2053a33af8b171",
+      "hash": "606788246ad2d14c7d6a9742b8355942dc935d860a9444f78b7f08329b62e621"
     }
   ]
 }

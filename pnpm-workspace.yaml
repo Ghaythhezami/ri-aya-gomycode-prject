@@ -2,3 +2,23 @@ packages:
   - web
   - server
   - backoffice
+
+# Patched versions for the production-reachable advisories (see
+# .sdrive/reports/security/security-audit-api-skeleton-and-ci-v1-2026-11-03.md).
+overrides:
+  postcss: ^8.5.32
+  deepmerge-ts: ^8.0.2
+  js-yaml: ^5.5.0
+  zod: ^4.6.7
+  body-parser: ^2.4.0
+  multer: ^2.5.0
+  follow-redirects: ^1.16.2
+  typeorm>glob: ^14.0.3
+
+# typeorm optional peers this project never loads (it only connects to Postgres).
+# auto-install-peers=false in .npmrc stops them being installed; this stops them
+# being reported as missing.
+peerDependencyRules:
+  ignoreMissing:
+    - sqlite3
+    - better-sqlite3

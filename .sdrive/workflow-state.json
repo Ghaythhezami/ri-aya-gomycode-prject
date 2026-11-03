@@ -170,6 +170,184 @@
           ]
         }
       ]
+    },
+    {
+      "name": "database-schema-and-migrations",
+      "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+      "base": "main",
+      "productItems": ["BP-002"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "ongoing",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            },
+            {
+              "event": "gate-specification-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-31T15:20:00.000Z"
+            },
+            {
+              "event": "plan-and-tasks-drafted",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:30:00.000Z"
+            },
+            {
+              "event": "specification-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-31T15:20:00.000Z"
+            },
+            {
+              "event": "planning-approved",
+              "by": "project-owner",
+              "timestamp": "2026-10-31T15:30:00.000Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-10-31T15:45:00.000Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-01T17:22:38.937Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-01T21:30:08.528Z"
+            },
+            {
+              "event": "archive-deferred",
+              "by": "project-owner",
+              "reason": "CON-611: this branch is shared with api-skeleton-and-ci, design-tokens-and-component-library and realtime-service, so it merges once when all four are ready. BP-002 is reviewed and its review gate is approved; the verdict will be re-cut at the final HEAD before archiving.",
+              "timestamp": "2026-11-01T21:40:00.000Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "api-skeleton-and-ci",
+      "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+      "base": "main",
+      "productItems": ["BP-003"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "ongoing",
+          "currentStep": "review",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/ongoing/api-skeleton-and-ci/v1/spec.md",
+                ".sdrive/governance/api-skeleton-and-ci/v1/spec.json"
+              ],
+              "summary": "10 acceptance criteria across 3 user stories: structured JSON logging with request correlation and redaction, a CI pipeline that finally runs green (prisma generate) plus audit and secret scan, and preservation of the existing validation, error and Swagger contract.",
+              "timestamp": "2026-11-01T22:00:00.000Z"
+            },
+            {
+              "event": "specification_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-01T21:48:14.559Z"
+            },
+            {
+              "event": "planning_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-01T22:08:00.444Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-02T00:00:00.000Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-02T00:00:00.000Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-03T11:43:13.476Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "outcome": "PASS",
+              "round": 2,
+              "commit": "e0d982659cb9a941f47359b08991fbade3c2fa70",
+              "timestamp": "2026-11-03T12:40:00.000Z",
+              "summary": "Round 2 PASS: all 10 round-1 findings closed or accepted, coverage 100%, 72 passed / 0 failed / 1 skipped at HEAD, production audit clean, CI green in 89 s."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "shared-package",
+      "branch": "feature/bp-045",
+      "base": "main",
+      "productItems": ["BP-045"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "timestamp": "2026-10-31T15:00:00.000Z"
+            }
+          ]
+        }
+      ]
     }
   ],
   "onboarding": {

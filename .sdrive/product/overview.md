@@ -85,7 +85,7 @@ Verified from the repository on 2026-10-27:
 | ------------ | ------------------------------------------------------------------------- | ------------- |
 | `web`        | Next.js 15 App Router, React 19, next-intl, Tailwind CSS 4                | 3000          |
 | `server`     | NestJS 11, Prisma 6, PostgreSQL, ioredis, argon2                          | 4000 (`/api`) |
-| `backoffice` | React 19, Vite 6, Redux Toolkit, react-hook-form + Zod, i18next, recharts | 5173          |
+| `backoffice` | React 19, Vite 6, Redux Toolkit, react-hook-form + Zod, i18next, recharts | 5174          |
 
 - Auth: JWT access (15 min) + refresh (7 days) in an HttpOnly cookie, with **token families** —
   reusing a rotated token revokes the family. Argon2 hashing. Account lockout after 5 failed

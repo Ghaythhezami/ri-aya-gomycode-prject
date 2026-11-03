@@ -4,11 +4,11 @@
 // come up and report healthy. It skips when no Docker daemon is available rather than
 // passing vacuously - the same convention as the Redis-gated AC-009 suite.
 //
-// The "pnpm dev serves 3000/4000/5173" half of AC-001 is NOT asserted here. That would make
+// The "pnpm dev serves 3000/4000/5174" half of AC-001 is NOT asserted here. That would make
 // the suite depend on a human leaving three long-running servers up, and a partially-running
-// stack (a stale Nest on :4000, Vite on :5174) makes it fail for reasons that have nothing to
+// stack (a stale Nest on :4000, Vite on :5175) makes it fail for reasons that have nothing to
 // do with this feature. It was verified manually and is recorded in the test report:
-// web 3000, API 4000 and backoffice [::1]:5173 all answering. Automating it properly means
+// web 3000, API 4000 and backoffice [::1]:5174 all answering. Automating it properly means
 // spawning and tearing down the dev stack inside the test - tracked as a follow-up, not
 // faked here.
 import test from "node:test";

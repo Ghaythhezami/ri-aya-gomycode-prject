@@ -79,7 +79,7 @@ export class TenancyController {
       invitedById: user.id,
     });
 
-    const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5173';
+    const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5174';
     const acceptUrl = `${backoffice}/accept-invite?token=${result.token}`;
     await this.mail.sendInvitation({
       email: dto.email,

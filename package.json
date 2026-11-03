@@ -5,7 +5,7 @@
   "description": "RI'AYA (رعاية) — multilingual clinic and appointment management platform",
   "packageManager": "pnpm@10.11.0",
   "engines": {
-    "node": ">=20"
+    "node": ">=24"
   },
   "scripts": {
     "dev": "concurrently -n web,server,backoffice -c cyan,green,magenta \"pnpm --filter web dev\" \"pnpm --filter server start:dev\" \"pnpm --filter backoffice dev\"",

@@ -10,16 +10,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          # gitleaks scans the diff on a pull request, which needs history.
+          fetch-depth: 0
       # No `version:` input: pnpm/action-setup@v4 errors when both this input and
       # package.json `packageManager` are set (ERR_PNPM_BAD_PM_VERSION). It reads
       # `packageManager: pnpm@10.11.0` on its own.
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # jsdom@30 requires ^22.22.2 || ^24.15.0 || >=26, and its undici@8
+          # requires >=22.19.0; undici's zstd decompress binds against
+          # zlib.createZstdDecompress, which Node 20 does not ship, so the
+          # backoffice suite crashes at import on Node 20. 24 is the LTS that
+          # satisfies both and matches the version the suite is verified on.
+          node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+
+      # FR-005: the Prisma client is generated into node_modules and is not
+      # committed, so a fresh checkout has no types for `@prisma/client`.
+      # Without this step `pnpm typecheck` fails on every file that imports
+      # PrismaClient, and the failure looks like a code error rather than a
+      # missing build step.
+      - run: pnpm --filter server exec prisma generate
+
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
       - run: pnpm build
+
+      # FR-006 / CON-520: fail the job on a high or critical advisory in the
+      # production dependency tree. `--prod` keeps dev-only advisories (test
+      # runners, linters) from blocking a release.
+      - name: Audit production dependencies
+        run: pnpm audit --prod --audit-level=high
+
+      # FR-006 / CON-519: block a commit that carries a credential. The scan is
+      # diff-scoped on a pull request and full-history on a push to main.
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
