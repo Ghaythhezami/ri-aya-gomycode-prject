@@ -182,9 +182,22 @@ export class OnboardingService {
   /**
    * Issue an invitation (FR-007). Any earlier unconsumed invitation for the
    * same email + clinic is revoked so only the newest token works (FR-031).
+   *
+   * `clinicId` arrives from the request body, so the caller supplies the target:
+   * the clinic MUST belong to the caller's own organization. A clinic in another
+   * organization is reported as not found, never as forbidden, so the route does
+   * not disclose that it exists.
    */
-  async invite(params: { email: string; clinicId: string; role: UserRole; invitedById: string }) {
-    const clinic = await this.prisma.clinic.findUnique({ where: { id: params.clinicId } });
+  async invite(params: {
+    email: string;
+    clinicId: string;
+    organizationId: string;
+    role: UserRole;
+    invitedById: string;
+  }) {
+    const clinic = await this.prisma.clinic.findFirst({
+      where: { id: params.clinicId, organizationId: params.organizationId },
+    });
     if (!clinic) {
       throw new NotFoundException({ code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' });
     }

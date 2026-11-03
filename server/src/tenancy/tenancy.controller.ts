@@ -75,6 +75,9 @@ export class TenancyController {
     const result = await this.onboarding.invite({
       email: dto.email,
       clinicId: dto.clinicId,
+      // The clinic must be resolved inside the caller's own organization: the
+      // body is attacker-controlled and a foreign clinic id must not be honoured.
+      organizationId: scope.organizationId,
       role: dto.role,
       invitedById: user.id,
     });
