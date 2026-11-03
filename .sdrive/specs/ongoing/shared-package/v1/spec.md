@@ -129,6 +129,7 @@ compile error rather than a runtime surprise.
 - **FR-005:** `server/` and `backoffice/` MUST each be able to consume `@riaya/shared`, and `backoffice/` MUST use the shared schema in place of the locally declared login form schema. (AC-002, AC-007)
 - **FR-006:** The package MUST contain only schema and type modules: no HTTP client, no UI-framework import, no user-facing message strings, and no environment or secret access. (AC-005)
 - **FR-007:** The shared login and register schemas MUST match the corresponding `class-validator` DTOs field for field, including optionality. (AC-007, AC-008)
+- **FR-008:** A consumer MUST take its types from the shared schemas rather than declaring them alongside them, so removing a field from a schema surfaces as a compile error at every consumer that still reads that field. (AC-004)
 
 ## 4. Non-functional requirements
 
@@ -136,6 +137,7 @@ compile error rather than a runtime surprise.
 - **NFR-002:** Adding the package MUST NOT change the dependency set of `web/` or `server/` beyond `@riaya/shared` itself, and MUST NOT add a UI dependency to `server/`. (AC-005)
 - **NFR-003:** The package MUST expose no compile-time or runtime dependency on a specific app, so no import may reach outside `packages/shared/src`. (AC-005)
 - **NFR-004:** No environment variable, credential or connection string may be read by the package (CON-519). (AC-005)
+- **NFR-005:** The package and both consumer apps MUST typecheck on a single `typescript` major version, so one workspace-wide typecheck passes without version skew between packages. (AC-006)
 
 ## 5. Edge cases
 

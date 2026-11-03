@@ -59,7 +59,7 @@
 - [x] **T2.4 — Replace the placeholder with the real exports**
   - `src/index.ts` re-exports every schema and every inferred type (`z.infer`); each type is derived,
     never re-declared. Typecheck the package and both consumers.
-  - Requirements: FR-003 · Acceptance: AC-002, AC-004, AC-006
+  - Requirements: FR-003, NFR-005 · Acceptance: AC-002, AC-004, AC-006
 
 ## Phase 3 — Consumer wiring
 
@@ -69,12 +69,12 @@
   - `backoffice/src/pages/LoginPage.tsx`: remove the local `z.object({ email, password })` and import
     the shared schema plus its inferred type. The page keeps its own i18n error messages and its
     submit handling unchanged.
-  - Requirements: FR-005 · Acceptance: AC-004
+  - Requirements: FR-005, FR-008 · Acceptance: AC-004
 
 - [x] **T3.2 — Use the shared schema on the reset-password page**
   - `backoffice/src/pages/ResetPasswordPage.tsx`: same swap where a local object duplicates
     `change-password.dto.ts` or `reset-password.dto.ts`; local messages are preserved.
-  - Requirements: FR-005 · Acceptance: AC-004
+  - Requirements: FR-005, FR-008 · Acceptance: AC-004
 
 - [x] **T3.3 — Make sure no local duplicate remains**
   - Search `backoffice/src` and `web/src` for any other `z.object` that restates an API DTO. Move
