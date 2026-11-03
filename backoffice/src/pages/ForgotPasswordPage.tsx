@@ -11,9 +11,7 @@ import { Field, Input } from '../common/Input';
 export function ForgotPasswordPage() {
   const { t } = useTranslation();
   const [sent, setSent] = useState(false);
-  const schema = forgotPasswordSchema.extend({
-    email: forgotPasswordSchema.shape.email.min(1, t('auth.emailRequired')),
-  });
+  const schema = forgotPasswordSchema;
   const form = useForm({ resolver: zodResolver(schema), defaultValues: { email: '' } });
 
   return (

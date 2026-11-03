@@ -47,11 +47,14 @@ describe('@riaya/shared consumed from the backoffice', () => {
   // TEST-008 → AC-002
   it('AC-002: the login page validates through the shared schema instead of its own copy', () => {
     expect(loginPage).toContain("from '@riaya/shared'");
-    expect(loginPage).toMatch(/const schema = loginSchema\.extend\(/);
+    expect(loginPage).toMatch(/const schema = loginSchema(\.extend\()?/);
 
     // The local rules are refinements of the shared fields, not a new object.
     expect(loginPage).not.toMatch(/z\.object\(/);
     expect(loginPage).not.toMatch(/z\.string\(\)\.email\(/);
+
+    // Re-applying .min(1) shadows the shared message with zod's default text.
+    expect(loginPage).not.toMatch(/\.min\(1,/);
   });
 
   // TEST-009 → AC-002
@@ -82,16 +85,18 @@ describe('@riaya/shared consumed from the backoffice', () => {
   });
 
   // TEST-011 → AC-002
-  it('AC-002: a consumer can attach its own translated messages by extending a field', () => {
-    const schema = loginSchema.extend({
-      password: loginSchema.shape.password.min(1, 'auth.passwordRequired'),
-    });
+  it('AC-002: a consuming form receives the translated message, not a zod default', () => {
+    const schema = loginSchema;
     const result = schema.safeParse({ email: 'owner@clinic.example', password: '' });
 
     expect(result.success).toBe(false);
 
-    // The custom message is queued after zod's own check on the same field.
+    // The first issue is the one the form renders; it must be the i18n key.
     const messages = result.error?.issues.map((issue) => issue.message) ?? [];
-    expect(messages).toContain('auth.passwordRequired');
+    expect(messages[0]).toBe('auth.passwordRequired');
+
+    // Re-applying .min(1) only queues a second issue behind zod's own text, so a
+    // translated message must live on the shared schema to reach the form.
+    expect(messages).not.toContain('Too small: expected string to have >=1 characters');
   });
 });

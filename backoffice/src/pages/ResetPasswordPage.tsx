@@ -18,7 +18,7 @@ export function ResetPasswordPage() {
 
   const schema = z
     .object({
-      password: resetPasswordSchema.shape.password.min(10, t('auth.weakPassword')),
+      password: resetPasswordSchema.shape.password,
       confirm: z.string(),
     })
     .refine((value) => value.password === value.confirm, {

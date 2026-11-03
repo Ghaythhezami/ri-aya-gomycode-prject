@@ -18,10 +18,8 @@ export function LoginPage() {
   const [show, setShow] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const schema = loginSchema.extend({
-    email: loginSchema.shape.email.min(1, t('auth.emailRequired')),
-    password: loginSchema.shape.password.min(1, t('auth.passwordRequired')),
-  });
+  // The shared schema already carries the required-field messages.
+  const schema = loginSchema;
 
   const form = useForm({
     resolver: zodResolver(schema),

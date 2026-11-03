@@ -1,4 +1,5 @@
 import type { InputHTMLAttributes, ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
 
 export function Field({
   label,
@@ -9,13 +10,15 @@ export function Field({
   error?: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   return (
     <label className="block">
       <span className="mb-1.5 block text-sm font-medium text-text">{label}</span>
       {children}
       {error ? (
         <span className="mt-1 block text-sm text-error" role="alert">
-          {error}
+          {/* Shared schemas emit i18n keys; a literal server message falls through unchanged. */}
+          {t(error)}
         </span>
       ) : null}
     </label>

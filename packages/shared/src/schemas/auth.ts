@@ -14,8 +14,8 @@ import { z } from 'zod';
 
 /** `LoginDto` — email is trimmed and lower-cased by the API before it is validated. */
 export const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(1),
+  email: z.email({ message: 'auth.emailRequired' }),
+  password: z.string().min(1, { message: 'auth.passwordRequired' }),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -30,14 +30,14 @@ export type SwitchWorkspaceInput = z.infer<typeof switchWorkspaceSchema>;
 /** `ChangePasswordDto` — the new password is at least 10 characters. */
 export const changePasswordSchema = z.object({
   currentPassword: z.string(),
-  newPassword: z.string().min(10),
+  newPassword: z.string().min(10, { message: 'auth.weakPassword' }),
 });
 
 export type ChangePasswordInput = z.infer<typeof changePasswordSchema>;
 
 /** `ForgotPasswordDto` — email is trimmed and lower-cased by the API. */
 export const forgotPasswordSchema = z.object({
-  email: z.email(),
+  email: z.email({ message: 'auth.emailRequired' }),
 });
 
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
@@ -45,7 +45,7 @@ export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
 /** `ResetPasswordDto` — the emailed token plus the new password (at least 10 characters). */
 export const resetPasswordSchema = z.object({
   token: z.string(),
-  password: z.string().min(10),
+  password: z.string().min(10, { message: 'auth.weakPassword' }),
 });
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
