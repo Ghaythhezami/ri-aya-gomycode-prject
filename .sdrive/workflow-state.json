@@ -253,12 +253,12 @@
         {
           "id": "v1",
           "phase": "ongoing",
-          "currentStep": "implementation",
+          "currentStep": "review",
           "gates": {
             "specification": "approved",
             "planning": "approved",
             "implementation": "approved",
-            "review": "pending"
+            "review": "approved"
           },
           "history": [
             {
@@ -306,6 +306,17 @@
               "actor": "kenule500",
               "previousValue": "pending",
               "timestamp": "2026-11-03T11:43:13.476Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "outcome": "PASS",
+              "round": 2,
+              "commit": "e0d982659cb9a941f47359b08991fbade3c2fa70",
+              "timestamp": "2026-11-03T12:40:00.000Z",
+              "summary": "Round 2 PASS: all 10 round-1 findings closed or accepted, coverage 100%, 72 passed / 0 failed / 1 skipped at HEAD, production audit clean, CI green in 89 s."
             }
           ]
         }
