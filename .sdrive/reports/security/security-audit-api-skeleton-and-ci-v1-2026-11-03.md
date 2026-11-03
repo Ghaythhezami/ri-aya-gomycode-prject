@@ -6,17 +6,24 @@
 - **Auditor:** AI Security Agent (`/sdrive:secure`)
 - **Feature Version:** v1
 - **Branch:** `feature/bp-002-bp-003-bp-006-bp-031`
-- **Overall Risk Level:** High (was Critical before remediation)
+- **Overall Risk Level:** Low (was Critical before remediation)
 - **Total Vulnerabilities Found:** 26 dependency advisories (Critical: 1, High: 15, Med: 9, Low: 1)
+- **Remaining after remediation (pass 2):** 0
 
 This run was scoped to the one thing review had already recorded as `fail`: the
 dependency audit that gates CI. Per the `/sdrive:review` relationship rule, findings
 review already recorded were not re-audited from scratch — the analysis was confirmed
 to still reproduce, and the work went into remediation.
 
-**Outcome:** the Critical and the entire 12-advisory `tar` chain are cleared. The
-audit still exits 1 with 13 advisories (0 Critical, 7 High, 5 Moderate, 0 Low), so the
-CI audit step remains red. This is recorded as an open finding, not a pass.
+**Outcome:** all 26 advisories are cleared across two passes and **`pnpm audit --prod
+--audit-level=high` now exits 0**. Pass 1 removed the Critical `tar` chain; pass 2
+overrode the remaining production-reachable packages to their patched versions.
+
+| Pass         | Critical | High | Moderate | Low | Exit |
+| ------------ | -------- | ---- | -------- | --- | ---- |
+| Before       | 1        | 15   | 9        | 1   | 1    |
+| After pass 1 | 0        | 7    | 5        | 0   | 1    |
+| After pass 2 | 0        | 0    | 0        | 0   | 0    |
 
 ## 2. Threat Model Summary
 
@@ -50,7 +57,7 @@ CI audit step remains red. This is recorded as an open finding, not a pass.
   fixed this. Removing the node was the only route.
 - **Status:** Fixed
 
-### VULN-002: Production-reachable high advisories (remaining, open)
+### VULN-002: Production-reachable high advisories
 
 - **Severity:** High
 - **Location:** `backoffice>axios>follow-redirects` (GHSA-mrwp-f3q8-3g9p, CVSS 5.9),
@@ -60,33 +67,53 @@ CI audit step remains red. This is recorded as an open finding, not a pass.
   `server>@prisma/client>prisma>@prisma/config>deepmerge-ts` (GHSA-ggr8-5vv4-36mx)
 - **Description:** Five high-severity advisories in packages that _are_ on a real request
   or build path, unlike VULN-001.
-- **Impact:** genuinely reachable and not excuseable as tooling-only.
-- **Status:** **Open.** Deliberately deferred — the approved scope for this run was
-  VULN-001 only, so that any test failure could be attributed to a single change.
-  These need a second remediation pass with a re-test.
+- **Impact:** genuinely reachable and not excusable as tooling-only.
+- **Remediation (pass 2):** `overrides` in `pnpm-workspace.yaml` pinning
+  `postcss@^8.5.32`, `deepmerge-ts@^8.0.2`, `js-yaml@^5.5.0`, `zod@^4.6.7`,
+  `body-parser@^2.4.0`, `multer@^2.5.0` and `follow-redirects@^1.16.2`. `backoffice`
+  declares `zod` itself, so its range was raised to `^4.6.7` too.
+- **Status:** Fixed
 
-### VULN-003: Moderate advisories (remaining, open)
+Two of these are **major** version jumps: `zod` 3 → 4 and `js-yaml` 4 → 5.
+`js-yaml` is used only inside swagger, so the jump is invisible here. `zod` backs three
+form schemas in `backoffice/src/pages` that use `z.object`, `z.string().email()` and
+`z.string().min()` — all still valid in v4 — and `@hookform/resolvers` declares
+`zod: ^3.25.0 || ^4.0.0`. typecheck, lint and the backoffice suite all pass after the
+bump. `z.string().email()` is deprecated in v4 (warns, still works); moving to `z.email()`
+is a tidy-up, not a security fix.
+
+### VULN-003: Moderate advisories
 
 - **Severity:** Moderate
 - **Location:** `web>next>postcss` (4 advisories), `server>@nestjs/swagger>js-yaml`,
   `server>typeorm>glob`, `server>typeorm>glob>minimatch`
-- **Status:** **Open.** Same deferral as VULN-002.
+- **Remediation (pass 2):** covered by the `postcss`/`js-yaml` overrides above, plus a
+  scoped override `typeorm>glob: ^14.0.3`, which lifts `minimatch` past its patch too.
+- **Status:** Fixed
+
+**A scoping failure worth recording.** The first attempt used an unscoped
+`glob: ^14.0.3`. That broke `@jest/reporters@29`, which declares `glob@^7.1.3` and calls
+`glob.default.sync()` — removed in glob v9. The coverage **threshold check** threw
+`TypeError: Cannot read properties of undefined (reading 'sync')`, failing `pnpm test`
+even though all 72 tests passed and coverage was 82.78%, above the 80% threshold.
+Restricting the override to `typeorm` fixed it. A global override is not a safe default
+when a package is widely shared transitively.
 
 ## 4. Security Regression Verification
 
-- [x] Dependency audit re-run after the fix. Advisory count went 26 → 13; Critical 1 → 0;
-      the whole `tar` node and its `node-gyp`/`@tootallnate/once` tail are gone.
-      **The audit still exits 1** because of VULN-002 and VULN-003.
-- [x] Functional tests run after the dependency change: server 13 suites / 72 tests
-      passed (1 skipped), web and backoffice passed. `pnpm typecheck` and `pnpm lint`
-      both exit 0 (one pre-existing `<img>` warning in `web/src/components/BrandLogo.tsx`).
+- [x] Dependency audit passed. `pnpm audit --prod --audit-level=high` exits **0** with
+      zero advisories in every severity band (Critical 0, High 0, Moderate 0, Low 0).
+- [x] Functional tests passed after the dependency change: server 13 suites / 72 tests
+      passed (1 skipped), web and backoffice passed. `pnpm lint`, `pnpm typecheck` and
+      `pnpm build` all exit 0 (one pre-existing `<img>` warning in
+      `web/src/components/BrandLogo.tsx`).
 - [ ] Secret scan **not run in this pass.** Review recorded `secrets: not_verified`;
       no `gitleaks`/`trufflehog` result is claimed here.
 - **Limitations:**
   - CVE details were taken from the advisory metadata returned by the audit itself, not
     cross-checked against NVD records this run.
-  - The CI job has not been re-run since this change, so the CI audit step is unproven.
-  - `sdrive verify` and `validate-governance` were not re-run for this change.
+  - The local gate now passes, but the CI job has not been re-run since the second pass,
+    so the CI audit step is still unproven until the next push goes green.
 
 ## 5. Security Baseline (CON-51x)
 
@@ -110,9 +137,8 @@ live exploit, and fixing it here would have mixed concerns into the security com
 
 ## 6. Recommendations
 
-1. Run a second remediation pass for VULN-002 and VULN-003 — a single coordinated bump of
-   `zod`, `axios`/`follow-redirects`, `body-parser`, `multer`, `postcss`, then the full
-   suite, so CI's audit step can go green and T3.2 can close.
+1. Let the next pushed commit run CI to green so T3.2 (measure latency cost, record the CI
+   result) can close — the audit gate that blocked it is now clear locally.
 2. Consider `minimumReleaseAge` in `.npmrc` so newly published, possibly compromised
    versions are not adopted immediately — relevant given how VULN-001 arrived.
 3. Keel `auto-install-peers=false` as a deliberate decision. It is why the tree is now

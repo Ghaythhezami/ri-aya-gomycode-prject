@@ -32,13 +32,5 @@
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx,json,md,css,yml,yaml}": "prettier --write"
-  },
-  "pnpm": {
-    "peerDependencyRules": {
-      "ignoreMissing": [
-        "sqlite3",
-        "better-sqlite3"
-      ]
-    }
   }
 }
