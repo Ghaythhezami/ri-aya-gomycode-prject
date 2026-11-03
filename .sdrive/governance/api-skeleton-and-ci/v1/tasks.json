@@ -83,7 +83,7 @@
           "description": "Measure p95 on the health endpoint before and after wiring the logger (NFR-001), and record both, plus the CI run outcome and duration, in the implementation report.",
           "linkedRequirements": ["NFR-001", "NFR-003"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-005"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.3",

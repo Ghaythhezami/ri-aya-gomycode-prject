@@ -15,7 +15,7 @@
 | T2.1 | `.github/workflows/ci.yml` — `prisma generate` step                              | done    |
 | T2.2 | `.github/workflows/ci.yml` — `pnpm audit --prod --audit-level=high` and gitleaks | done    |
 | T3.1 | `CONTRIBUTING.md` — "Logging" section                                            | done    |
-| T3.2 | p95 measurement recorded (§5); **CI run outcome not yet available**              | partial |
+| T3.2 | p95 −0.50 ms (§5); CI green in 89 s at `c80821a` (§6)                            | done    |
 | T3.3 | Gates run locally (§7); `sdrive verify` not run                                  | partial |
 
 ## 2. Logging module
@@ -84,6 +84,9 @@ draft pull request (#2) rather than by pushing to `main`.
 | ---------------------------------------------------------------------------------------------- | --------- | ----------- | -------- | ------------------------------- |
 | [41609991296](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41609991296) | `c2cb8a1` | **failure** | 59 s     | `pnpm test`                     |
 | [41610436318](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41610436318) | `899ebd4` | **failure** | 54 s     | `Audit production dependencies` |
+| [41623644668](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41623644668) | `0bff853` | **failure** | 44 s     | `Audit production dependencies` |
+| [41627472802](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41627472802) | `4a18b07` | **failure** | 39 s     | `pnpm test`                     |
+| [41629291551](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41629291551) | `c80821a` | **success** | 89 s     | `Complete job`                  |
 
 The first run exposed a real CI-only defect: CI pinned `node-version: 20`, but `jsdom@30.1.3`
 requires `^22.22.2 || ^24.15.0 || >=26.0.0` and its transitive `undici@8.12.3` requires `>=22.19.0`.
@@ -94,14 +97,27 @@ The fix (`899ebd4`) moves the workflow to Node 24 and the root `engines.node` to
 run, install, `prisma generate`, lint, typecheck, **test** and **build** all pass; only the audit step
 still fails, which is the pre-existing vulnerability set described below, not a regression.
 
-**Still partial. NFR-003 remains `not_verified`.** No run has reached the end of the job, so there is
-no green duration to compare against the 15-minute cap. The observed timings (~1 minute to the audit
-step) are well inside it, but an aborted run is not evidence of a passing one.
+**T3.2 closed.** Run [41629291551](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41629291551)
+at `c80821a` is the first to finish the whole job: every step green, including
+`pnpm test`, `Audit production dependencies` and `Secret scan`. Duration **89 s**, comfortably under
+the 15-minute cap, so **NFR-003 is verified**.
 
-### Known blocker: the audit step fails today
+The two runs in between exposed two separate problems, both since fixed:
 
-`pnpm audit --prod --audit-level=high` exits **1** on the current tree: 26 vulnerabilities, 15 high
-and 1 critical. The new step will therefore fail CI on its first run until the tree is cleaned.
+| Run       | Real failure                                                                                                                                                                                                                                                                                                                                                                                  |
+| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `0bff853` | Audit still red: 13 advisories remained after removing the `tar` chain (pass 1).                                                                                                                                                                                                                                                                                                              |
+| `4a18b07` | Audit green (0 advisories), but `pnpm test` failed in `backoffice`: `Cannot find package '@testing-library/dom'`. Setting `auto-install-peers=false` stopped the peer being installed, and no package declared it. It passed locally only against a stale, orphaned copy in the pnpm store, so the gap appeared **only** on a clean clone. Fixed by declaring it in `backoffice` (`c80821a`). |
+
+That last one is worth remembering: a green local `pnpm test` did not mean CI would pass, because the
+local tree had resolution state a fresh clone never gets. `pnpm why @testing-library/dom -r` reporting
+no provider was the tell.
+
+### Resolved blocker: the audit step
+
+`pnpm audit --prod --audit-level=high` now exits **0** with zero advisories (was 26, including 1
+critical). The remediation is recorded in
+`.sdrive/reports/security/security-audit-api-skeleton-and-ci-v1-2026-11-03.md`.
 
 The critical advisory is `tar` (decompression DoS), reached only through
 `server > typeorm > sqlite3 > tar`. `typeorm` is imported by `server/src/database/data-source.ts`
@@ -121,7 +137,7 @@ raised as its own backlog item rather than patched here.
 | `pnpm --filter server lint`                          | exit 0 (`--max-warnings=0`)                                                    |
 | `prettier --check` on changed files                  | exit 0                                                                         |
 | `prisma generate`                                    | exit 0 (Prisma Client v6.19.3)                                                 |
-| `pnpm audit --prod --audit-level=high`               | **exit 1** (see §6)                                                            |
+| `pnpm audit --prod --audit-level=high`               | exit 0 — 0 advisories (see §6)                                                 |
 | `node .sdrive/scripts/validate-governance.js`        | exit 0 — all governance files valid                                            |
 | `node .sdrive/scripts/verify.js api-skeleton-and-ci` | **PASS** — 9 matched, 0 missing, 1 withdrawn (after the scanner repair in §10) |
 
