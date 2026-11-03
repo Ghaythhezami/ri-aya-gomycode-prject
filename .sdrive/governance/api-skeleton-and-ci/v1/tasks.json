@@ -91,7 +91,8 @@
           "description": "Run pnpm lint, pnpm typecheck, prettier --check on the changed files, sdrive verify api-skeleton-and-ci, and node .sdrive/scripts/validate-governance.js; record the exit codes.",
           "linkedRequirements": ["NFR-004"],
           "linkedAcceptanceCriteria": [],
-          "completed": false
+          "completed": true,
+          "evidence": "Report §7; gates re-run at 899ebd4: lint 0, typecheck 0, prettier 0, sdrive verify PASS (9 matched/0 missing), validate-governance 0."
         }
       ]
     }

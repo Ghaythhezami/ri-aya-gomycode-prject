@@ -76,8 +76,27 @@ secret scan), pnpm setup, node setup, install, `prisma generate`, lint, typechec
 committed, so a fresh checkout has no types for `@prisma/client` and `pnpm typecheck` fails on every
 file that imports `PrismaClient`.
 
-**T3.2 is partial.** The workflow has not run on GitHub yet, so the CI duration (NFR-003, cap 15
-minutes) and the job outcome cannot be recorded. Both must be filled in from the first real run.
+**T3.2 is now recorded.** The workflow has only a `push` trigger on `main`/`master` plus
+`pull_request`, so pushes to a feature branch produce no run. CI was therefore exercised through a
+draft pull request (#2) rather than by pushing to `main`.
+
+| Run                                                                                            | Commit    | Outcome     | Duration | Ends at                         |
+| ---------------------------------------------------------------------------------------------- | --------- | ----------- | -------- | ------------------------------- |
+| [41609991296](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41609991296) | `c2cb8a1` | **failure** | 59 s     | `pnpm test`                     |
+| [41610436318](https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41610436318) | `899ebd4` | **failure** | 54 s     | `Audit production dependencies` |
+
+The first run exposed a real CI-only defect: CI pinned `node-version: 20`, but `jsdom@30.1.3`
+requires `^22.22.2 || ^24.15.0 || >=26.0.0` and its transitive `undici@8.12.3` requires `>=22.19.0`.
+`undici` binds `zlib.createZstdDecompress` at module load, and Node 20 does not ship that API, so all
+four `backoffice` test files threw `TypeError: Cannot read properties of undefined (reading 'bind')`
+before collecting a single test. It never reproduced locally because the workstation runs Node 24.
+The fix (`899ebd4`) moves the workflow to Node 24 and the root `engines.node` to `>=24`. On the second
+run, install, `prisma generate`, lint, typecheck, **test** and **build** all pass; only the audit step
+still fails, which is the pre-existing vulnerability set described below, not a regression.
+
+**Still partial. NFR-003 remains `not_verified`.** No run has reached the end of the job, so there is
+no green duration to compare against the 15-minute cap. The observed timings (~1 minute to the audit
+step) are well inside it, but an aborted run is not evidence of a passing one.
 
 ### Known blocker: the audit step fails today
 
