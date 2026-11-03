@@ -1,34 +1,29 @@
 {
   "feature": "api-skeleton-and-ci",
   "version": "v1",
-  "recordedAt": "2026-11-02T11:45:00.000Z",
-  "by": "sdrive:review",
-  "verdict": "review-failed",
+  "recordedAt": "2026-11-03T12:05:00.000Z",
+  "by": "sdrive:apply",
+  "verdict": "ready-for-review",
+  "commit": "f9f06a14b35a5a9096d24def88b178b04058caa5",
+  "branch": "feature/bp-002-bp-003-bp-006-bp-031",
+  "base": "main",
   "steps": [
     {
-      "command": "sdrive approve api-skeleton-and-ci implementation",
-      "kind": "human",
-      "why": "The implementation gate is still pending. Reviewer independence is also unresolved: kenule500 is both author and reviewer. No command can grant this."
-    },
-    {
-      "command": "/sdrive:secure api-skeleton-and-ci",
-      "kind": "agent",
-      "why": "Clear the 26 audit advisories (1 critical, 15 high) so AC-007 s audit step can pass, and settle CON-515."
-    },
-    {
-      "command": "/sdrive:apply api-skeleton-and-ci",
-      "kind": "agent",
-      "why": "Correct AC-009 s wording to the implemented {code,message,details,requestId} shape and close T3.2 and T3.3."
-    },
-    {
-      "command": "/sdrive:test api-skeleton-and-ci",
-      "kind": "agent",
-      "why": "Re-stamp test-evidence.json at the new HEAD (currently b496f36, HEAD is a09e8da) and record the CI run outcome."
-    },
-    {
       "command": "/sdrive:review api-skeleton-and-ci",
-      "kind": "human",
-      "why": "Round 2 of 3. A PASS clears the feature for /sdrive:archive; a third failure on the same finding goes to a human."
+      "kind": "agent",
+      "why": "Round 2 of 3. Implementation gate approved, 9/9 tasks complete, audit 0 advisories, CI green in 89 s, test evidence 72 passed at f9f06a1. A PASS clears the feature for /sdrive:archive; a third failure on the same finding goes to a human."
     }
+  ],
+  "resolved": [
+    "Implementation gate: pending -> approved (2026-11-03).",
+    "Audit: 26 advisories (1 critical, 15 high) -> 0, so the AC-007 audit step passes.",
+    "T3.2 and T3.3: closed. CI run 41629291551 completed the whole job in 89 s, so NFR-003 is verified.",
+    "test-evidence.json: re-stamped from b496f36 to f9f06a1; 72 passed, 0 failed, 1 skipped.",
+    "verify.js: 9 matched, 0 missing, 1 withdrawn, 3 extra (status WARN, as recorded before)."
+  ],
+  "carried": [
+    "CON-515 (logging.config.ts hand-validates process.env) still FAIL by user decision.",
+    "Reviewer independence: kenule500 is both author and reviewer. No command can grant this; a human must acknowledge it.",
+    "CLI version mismatch: .sdrive/ installed by specdrive-cli 0.1.57, CLI is 0.1.52. The review agent assumes 'sdrive next --write', which 0.1.52 does not have, so the handoff is written by hand."
   ]
 }
