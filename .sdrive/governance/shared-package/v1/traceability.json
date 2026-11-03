@@ -8,7 +8,7 @@
       "planSection": "Architecture > packages/shared/package.json, pnpm-workspace.yaml (Phase 1)",
       "taskIds": ["T1.1", "T1.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-002",
@@ -16,7 +16,7 @@
       "planSection": "Data model (Phase 2)",
       "taskIds": ["T2.1", "T2.2", "T2.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-003",
@@ -24,7 +24,7 @@
       "planSection": "Architecture > packages/shared/src/index.ts (Phase 2)",
       "taskIds": ["T1.4", "T2.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-004",
@@ -32,7 +32,7 @@
       "planSection": "Dependencies (Phase 1, Phase 4)",
       "taskIds": ["T1.1", "T4.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-005",
@@ -40,7 +40,7 @@
       "planSection": "Architecture > server/package.json, backoffice/package.json, LoginPage.tsx (Phase 3)",
       "taskIds": ["T1.4", "T3.1", "T3.2", "T3.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-006",
@@ -48,7 +48,7 @@
       "planSection": "Components (anti-redundancy), Security considerations (Phase 1, Phase 4)",
       "taskIds": ["T1.1", "T1.3", "T4.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-007",
@@ -56,7 +56,7 @@
       "planSection": "Risks, Phase 4 verification",
       "taskIds": ["T1.2", "T1.4", "T4.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-001",
@@ -64,7 +64,7 @@
       "planSection": "Performance considerations",
       "taskIds": ["T4.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-002",
@@ -72,7 +72,7 @@
       "planSection": "Security considerations, T4.4",
       "taskIds": ["T4.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-003",
@@ -80,7 +80,7 @@
       "planSection": "Security considerations, T4.2/T4.4",
       "taskIds": ["T4.2", "T4.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-004",
@@ -88,7 +88,7 @@
       "planSection": "Security considerations (CON-519), T4.2",
       "taskIds": ["T4.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     }
   ]
 }
