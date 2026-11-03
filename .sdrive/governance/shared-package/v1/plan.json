@@ -1,0 +1,218 @@
+{
+  "feature": "shared-package",
+  "version": 1,
+  "architecture": {
+    "approach": "Add one private workspace package, packages/shared (@riaya/shared), that holds a zod schema per shared contract and infers each type from it, exported from a single entry point. Consumers resolve TypeScript source through the workspace link (no build step). pnpm-workspace.yaml gains packages/*; server and backoffice add the dependency; the two back-office pages that locally duplicate a login/change-password shape move to the shared schema while keeping their own i18n messages. The API keeps validating through class-validator and its ValidationPipe.",
+    "components": [
+      {
+        "name": "packages/shared/package.json",
+        "action": "create",
+        "description": "Private @riaya/shared manifest; main/types at src/index.ts; zod at the workspace override range ^4.6.7; no build scripts."
+      },
+      {
+        "name": "packages/shared/tsconfig.json",
+        "action": "create",
+        "description": "Strict, noEmit, ES2022; include src/**/*."
+      },
+      {
+        "name": "packages/shared/src/index.ts",
+        "action": "create",
+        "description": "Single entry point re-exporting every schema and inferred type."
+      },
+      {
+        "name": "packages/shared/src/schemas/auth.ts",
+        "action": "create",
+        "description": "loginSchema, registerSchema, switchWorkspaceSchema, changePasswordSchema mirroring the server auth and register DTO rules."
+      },
+      {
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "action": "create",
+        "description": "invitationSchema and accept-invitation payload mirroring invitation.dto.ts, including the role enum."
+      },
+      {
+        "name": "packages/shared/src/schemas/membership.ts",
+        "action": "create",
+        "description": "membershipViewSchema mirroring MembershipView in tenancy.service.ts."
+      },
+      {
+        "name": "pnpm-workspace.yaml",
+        "action": "modify",
+        "description": "Add packages/* to the workspace packages list; overrides untouched."
+      },
+      {
+        "name": "server/package.json",
+        "action": "modify",
+        "description": "Add @riaya/shared: workspace:*. class-validator and the DTOs stay authoritative."
+      },
+      {
+        "name": "backoffice/package.json",
+        "action": "modify",
+        "description": "Add @riaya/shared: workspace:*. Existing zod ^4.6.7 reused."
+      },
+      {
+        "name": "backoffice/src/pages/LoginPage.tsx",
+        "action": "modify",
+        "description": "Replace the local z.object({email,password}) with the shared login schema and inferred type; keep local messages."
+      },
+      {
+        "name": "backoffice/src/pages/ResetPasswordPage.tsx",
+        "action": "modify",
+        "description": "Same swap where a local object duplicates the change/reset password DTO; keep local messages."
+      },
+      {
+        "name": "server/src/auth/dto/login.dto.ts",
+        "action": "reuse",
+        "description": "Comparison source for AC-007. Not edited; the API keeps class-validator."
+      },
+      {
+        "name": "server/src/tenancy/dto/register.dto.ts",
+        "action": "reuse",
+        "description": "Comparison source for AC-008. Not edited."
+      },
+      {
+        "name": "server/src/tenancy/dto/invitation.dto.ts",
+        "action": "reuse",
+        "description": "Shape source for the invitation schemas. Not edited."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004"
+    ]
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "LoginInput",
+        "action": "create",
+        "fields": [
+          { "name": "email", "type": "string", "action": "add" },
+          { "name": "password", "type": "string", "action": "add" }
+        ]
+      },
+      {
+        "name": "RegisterInput",
+        "action": "create",
+        "fields": [
+          { "name": "email", "type": "string", "action": "add" },
+          { "name": "password", "type": "string", "action": "add" },
+          { "name": "firstName", "type": "string", "action": "add" },
+          { "name": "lastName", "type": "string", "action": "add" },
+          { "name": "organizationName", "type": "string", "action": "add" },
+          { "name": "clinicName", "type": "string", "action": "add" },
+          { "name": "preferredLocale", "type": "string", "nullable": true, "action": "add" }
+        ]
+      },
+      {
+        "name": "SwitchWorkspaceInput",
+        "action": "create",
+        "fields": [{ "name": "clinicId", "type": "string (uuid)", "action": "add" }]
+      },
+      {
+        "name": "ChangePasswordInput",
+        "action": "create",
+        "fields": [
+          { "name": "currentPassword", "type": "string", "action": "add" },
+          { "name": "newPassword", "type": "string", "action": "add" }
+        ]
+      },
+      {
+        "name": "InvitationInput",
+        "action": "create",
+        "fields": [
+          { "name": "email", "type": "string", "action": "add" },
+          { "name": "clinicId", "type": "string (uuid)", "action": "add" },
+          { "name": "role", "type": "enum", "action": "add" }
+        ]
+      },
+      {
+        "name": "MembershipView",
+        "action": "create",
+        "fields": [
+          { "name": "id", "type": "string", "action": "add" },
+          { "name": "userId", "type": "string", "action": "add" },
+          { "name": "clinicId", "type": "string", "action": "add" },
+          { "name": "role", "type": "enum", "action": "add" },
+          { "name": "status", "type": "enum", "action": "add" }
+        ]
+      }
+    ],
+    "flowDescription": "No database change. A consumer imports a schema and its inferred type from @riaya/shared, validates the input it owns with schema.parse, and uses the type for payloads it sends or receives. No endpoint, Prisma model or stored data is affected."
+  },
+  "apiContracts": [],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-002",
+      "description": "The package declares only zod, so server gains no UI dependency; its dependency graph is inspected after the install."
+    },
+    {
+      "requirementId": "NFR-003",
+      "description": "No import may reach outside packages/shared/src, and no env or network access is allowed; verified by reading the whole package tree."
+    },
+    {
+      "requirementId": "NFR-004",
+      "description": "CON-519: the package reads no environment variable and contains no credential; the schemas describe password rules, never values."
+    },
+    {
+      "requirementId": "NFR-001",
+      "description": "CON-515: the API keeps validating through class-validator and the ValidationPipe; the shared schema is not substituted into any guard, pipe or interceptor in this version."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-001",
+      "strategy": "No build step and no dist: consumers resolve TypeScript source through the workspace link, so there is no artefact to keep in sync or rebuild."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "zod",
+      "type": "library",
+      "action": "add",
+      "notes": "New dependency of @riaya/shared at the workspace override range ^4.6.7 (single major). Skill: zod - install the approved skill directory in .sdrive/skills/ before writing schema code."
+    },
+    {
+      "name": "typescript",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already ^5.8.3 across web, server and backoffice; the package uses the same major."
+    },
+    {
+      "name": "pnpm workspaces",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "pnpm-workspace.yaml gains one glob entry; no new tooling."
+    }
+  ],
+  "risks": [
+    {
+      "description": "The package points main/types at TypeScript source and a consumer's tooling refuses it.",
+      "mitigation": "Phase 1 finishes with a workspace install plus a typecheck of both consumers importing a trivial export, before any schema exists."
+    },
+    {
+      "description": "The shared schema and a class-validator DTO disagree after an API change.",
+      "mitigation": "FR-007 makes the comparison explicit; AC-007/AC-008 are the checks and the DTO stays the API's source of truth."
+    },
+    {
+      "description": "Removing the local login schema breaks a page's message handling.",
+      "mitigation": "EC-003: the page keeps its own i18n messages; only the structure moves, and the page is typechecked after the swap."
+    },
+    {
+      "description": "The package becomes a home for client code or UI strings.",
+      "mitigation": "FR-006/NFR-003 constrain it, the component list states exactly what may exist, and AC-005 inspects the tree."
+    },
+    {
+      "description": "A second zod major enters the workspace through the new dependency.",
+      "mitigation": "FR-004/EC-004 require the override's range; the installed tree is inspected for a single resolved zod version."
+    }
+  ]
+}
