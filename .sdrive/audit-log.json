@@ -215,6 +215,17 @@
       "event": "test_passed",
       "prevHash": "bc5c9d186bb0a1722cd1250b63076e8ea6055d420541d1c4e534e19334875ff2",
       "hash": "e887112d992a6a3c9383a5458e38a1a942f7cddbd315daf5fae41c6c8e1252b3"
+    },
+    {
+      "timestamp": "2026-11-03T18:21:49.529Z",
+      "actor": "kenule500",
+      "feature": "shared-package",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 1,
+      "event": "test_failed",
+      "prevHash": "e887112d992a6a3c9383a5458e38a1a942f7cddbd315daf5fae41c6c8e1252b3",
+      "hash": "7324648945dc4f988c43b645eef58824168d4d2bbb3db28994e45faab3ee6562"
     }
   ]
 }
