@@ -123,6 +123,12 @@ interface AppointmentRecord {
 }
 
 type MembershipWhere = {
+  /**
+   * Membership id. May be a plain value or a Prisma `not` filter, as used by
+   * the last-SUPER_ADMIN count. Omitting the id here made every id-scoped
+   * lookup match the first row of the tenant instead of the requested one.
+   */
+  id?: string | { not?: string };
   userId?: string;
   clinicId?: string;
   organizationId?: string;
@@ -408,14 +414,18 @@ export class MemoryPrisma {
     findFirst: async ({
       where,
       orderBy,
+      select,
     }: {
       where: MembershipWhere;
       orderBy?: { createdAt: 'asc' | 'desc' };
+      select?: Partial<Record<keyof MembershipRecord, boolean>>;
     }) => {
       const matches = [...this.memberships.values()].filter((item) =>
         this.membershipMatches(item, where),
       );
-      return this.sortByCreatedAt(matches, orderBy)[0] ?? null;
+      const found = this.sortByCreatedAt(matches, orderBy)[0] ?? null;
+      if (!found) return null;
+      return select ? this.pick(found, select as Record<string, boolean>) : found;
     },
     findMany: async ({
       where,
@@ -452,11 +462,9 @@ export class MemoryPrisma {
       this.memberships.set(where.id, next);
       return next;
     },
-    count: async ({ where }: { where: MembershipWhere & { id?: { not?: string } } }) => {
-      return [...this.memberships.values()].filter(
-        (item) =>
-          this.membershipMatches(item, where) && (where.id?.not ? item.id !== where.id.not : true),
-      ).length;
+    count: async ({ where }: { where: MembershipWhere }) => {
+      return [...this.memberships.values()].filter((item) => this.membershipMatches(item, where))
+        .length;
     },
   };
 
@@ -973,6 +981,8 @@ export class MemoryPrisma {
   }
 
   private membershipMatches(item: MembershipRecord, where: MembershipWhere): boolean {
+    if (typeof where.id === 'string' && item.id !== where.id) return false;
+    if (typeof where.id === 'object' && where.id.not && item.id === where.id.not) return false;
     if (where.userId && item.userId !== where.userId) return false;
     if (where.clinicId && item.clinicId !== where.clinicId) return false;
     if (where.organizationId && item.organizationId !== where.organizationId) return false;
