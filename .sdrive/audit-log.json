@@ -380,6 +380,24 @@
       "event": "test_passed",
       "prevHash": "e93ed2b5158dae88ac96f47fc0b862576baafb1db975a4aaab2053a33af8b171",
       "hash": "606788246ad2d14c7d6a9742b8355942dc935d860a9444f78b7f08329b62e621"
+    },
+    {
+      "timestamp": "2026-11-03T13:05:06.743Z",
+      "actor": "kenule500",
+      "feature": "database-schema-and-migrations",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "606788246ad2d14c7d6a9742b8355942dc935d860a9444f78b7f08329b62e621",
+      "hash": "088f62afe3dbd3d627483f328417d6e55db2d41c09048be2d9d5e9597b9fe1a7"
+    },
+    {
+      "timestamp": "2026-11-03T13:05:59.914Z",
+      "actor": "kenule500",
+      "feature": "api-skeleton-and-ci",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "088f62afe3dbd3d627483f328417d6e55db2d41c09048be2d9d5e9597b9fe1a7",
+      "hash": "1b57974402150c0fcb7bb3d66fec20454aab4f8128e1a806298a066fe03fc903"
     }
   ]
 }

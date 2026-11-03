@@ -4,7 +4,15 @@
       "name": "authentication-onboarding-and-access-control",
       "branch": "feature/auth-onboarding",
       "base": "main",
-      "productItems": ["BP-004", "BP-008", "BP-009", "BP-012", "BP-014", "BP-046", "BP-047"],
+      "productItems": [
+        "BP-004",
+        "BP-008",
+        "BP-009",
+        "BP-012",
+        "BP-014",
+        "BP-046",
+        "BP-047"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -92,7 +100,9 @@
       "name": "monorepo-and-local-environment",
       "branch": "feature/BP-001",
       "base": "main",
-      "productItems": ["BP-001"],
+      "productItems": [
+        "BP-001"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -175,12 +185,14 @@
       "name": "database-schema-and-migrations",
       "branch": "feature/bp-002-bp-003-bp-006-bp-031",
       "base": "main",
-      "productItems": ["BP-002"],
+      "productItems": [
+        "BP-002"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
           "id": "v1",
-          "phase": "ongoing",
+          "phase": "completed",
           "currentStep": "implementation",
           "gates": {
             "specification": "approved",
@@ -238,6 +250,14 @@
               "by": "project-owner",
               "reason": "CON-611: this branch is shared with api-skeleton-and-ci, design-tokens-and-component-library and realtime-service, so it merges once when all four are ready. BP-002 is reviewed and its review gate is approved; the verdict will be re-cut at the final HEAD before archiving.",
               "timestamp": "2026-11-01T21:40:00.000Z"
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "70e9dd1558d6e55df87125e85930ff3e413c0141",
+              "timestamp": "2026-11-03T13:05:06.732Z"
             }
           ]
         }
@@ -247,12 +267,14 @@
       "name": "api-skeleton-and-ci",
       "branch": "feature/bp-002-bp-003-bp-006-bp-031",
       "base": "main",
-      "productItems": ["BP-003"],
+      "productItems": [
+        "BP-003"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
           "id": "v1",
-          "phase": "ongoing",
+          "phase": "completed",
           "currentStep": "review",
           "gates": {
             "specification": "approved",
@@ -317,6 +339,14 @@
               "commit": "e0d982659cb9a941f47359b08991fbade3c2fa70",
               "timestamp": "2026-11-03T12:40:00.000Z",
               "summary": "Round 2 PASS: all 10 round-1 findings closed or accepted, coverage 100%, 72 passed / 0 failed / 1 skipped at HEAD, production audit clean, CI green in 89 s."
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "70e9dd1558d6e55df87125e85930ff3e413c0141",
+              "timestamp": "2026-11-03T13:05:59.862Z"
             }
           ]
         }
@@ -326,7 +356,9 @@
       "name": "shared-package",
       "branch": "feature/bp-045",
       "base": "main",
-      "productItems": ["BP-045"],
+      "productItems": [
+        "BP-045"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
