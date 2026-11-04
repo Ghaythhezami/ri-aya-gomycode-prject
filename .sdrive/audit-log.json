@@ -237,6 +237,39 @@
       "event": "test_passed",
       "prevHash": "7324648945dc4f988c43b645eef58824168d4d2bbb3db28994e45faab3ee6562",
       "hash": "86c21f48f7d0ea2939402522d5fd58d05a0386a2e5f4c33057dff9546dfff035"
+    },
+    {
+      "timestamp": "2026-11-04T09:33:42.141Z",
+      "actor": "KENULE-NWINEE",
+      "feature": "shared-package",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "86c21f48f7d0ea2939402522d5fd58d05a0386a2e5f4c33057dff9546dfff035",
+      "hash": "344ba9882b53c7fb5dfd8293ac481ce98e76987119429ece34d2a7fa606aea02"
+    },
+    {
+      "timestamp": "2026-11-04T09:39:39.896Z",
+      "actor": "kenule500",
+      "feature": "shared-package",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 1,
+      "event": "test_failed",
+      "prevHash": "344ba9882b53c7fb5dfd8293ac481ce98e76987119429ece34d2a7fa606aea02",
+      "hash": "c2b701be590175509f0bcdfa4afb10a4bd48eef7fd0625976b4b0509e1e2d568"
+    },
+    {
+      "timestamp": "2026-11-04T09:54:09.257Z",
+      "actor": "kenule500",
+      "feature": "shared-package",
+      "version": "v1",
+      "total": 64,
+      "durationMs": 169224,
+      "event": "test_passed",
+      "prevHash": "c2b701be590175509f0bcdfa4afb10a4bd48eef7fd0625976b4b0509e1e2d568",
+      "hash": "2ee7f1e3102bea859baa5fd2d3646451d992230aae1be6d8b367b3558b39272f"
     }
   ]
 }

@@ -2,13 +2,13 @@
 
 ## 1. Summary
 
-- **Date:** 2026-11-03
+- **Date:** 2026-11-04
 - **Feature:** shared-package
 - **Version:** 1
 - **Total ACs:** 8
 - **Tested ACs:** 8
 - **Coverage:** 100%
-- **Tests Passed:** 32/32
+- **Tests Passed:** 63/63
 
 ## 2. AC → Test Mapping
 
@@ -55,10 +55,12 @@
 
 ## 4. Notes
 
-- Frameworks follow the constitution: Vitest for `backoffice/test/**` (19 tests), Jest for `server/src/**/*.spec.ts` (13 tests). Judge by exit code: `BACKOFFICE_EXIT=0`, `SERVER_EXIT=0`. Raw log: `.sdrive/reports/tests/raw/shared-package-v1-2026-11-03.log`.
+- Measured at commit `de73bc122e3152590cf51d3850ad57323150e791` (branch `feature/bp-045`), which is the current `HEAD`. Command: `sdrive test shared-package` (`npm test`). Result: **63 passed / 0 failed / 1 skipped (64 total), exit 0, 169 s**. Evidence: `.sdrive/governance/shared-package/v1/test-evidence.json`. Raw log: `.sdrive/reports/tests/raw/shared-package-v1-2026-11-04.log`.
+- Frameworks follow the constitution: Vitest for `backoffice/test/**`, Jest for `server/src/**/*.spec.ts`. Judge by exit code: `BACKOFFICE_EXIT=0`, `SERVER_EXIT=0`.
+- The single skipped test is `server/src/cache/lockout-persistence.spec.ts` ("Lockout persistence across a restart (AC-009)"), gated behind `ENABLED` in a feature outside `shared-package`. It is not one of the 32 tests mapped above and does not affect coverage.
 - `packages/shared` has no test runner of its own, so every AC is proven from a consumer: no new test infrastructure was added to the package.
 - AC-004 is proven by the real compiler: the test copies a fixture into `backoffice/`, runs `tsc --noEmit`, and requires a non-zero exit with `TS2339`. The timeout is raised to 120 s for the cold compiler start.
+- Suite duration is sensitive to machine load. Two earlier attempts on 2026-11-04 failed with the _same class_ of error, a Vitest 5 s default timeout under full CPU saturation (`register-wizard.test.tsx`, then `accept-invite.test.tsx` in `authentication-onboarding-and-access-control`), neither of which is a test of this feature. This run completed on an uncontended machine with 0 failures.
 - **Observation (not a test failure, production code NOT modified):** the three pages extend a shared field with `.min(1, 'auth.…Required')`, but the shared fields are already `min(1)`, so zod reports its own check first. The resolver therefore yields `"Invalid email address"` and `"Too small: expected string to have >=1 characters"` instead of the translated strings. Worth a follow-up decision; AC-002 is satisfied either way.
 - `server` does not declare `zod` and resolves none of its own; it consumes the package's zod through `@riaya/shared`. The parity spec therefore types the schema structurally instead of importing zod types on the server side.
 - AC-005 excludes any self-reference to `.sdrive`: the package boundary is checks on `packages/shared` only.
-- `sdrive verify shared-package` still needs to be run for this phase (see the closing summary).
