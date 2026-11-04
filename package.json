@@ -12,6 +12,7 @@
     "dev:web": "pnpm --filter web dev",
     "dev:server": "pnpm --filter server start:dev",
     "dev:backoffice": "pnpm --filter backoffice dev",
+    "dev:realtime": "pnpm --filter realtime start:dev",
     "build": "pnpm -r --if-present run build",
     "lint": "pnpm -r --if-present run lint",
     "test": "pnpm -r --if-present run test",

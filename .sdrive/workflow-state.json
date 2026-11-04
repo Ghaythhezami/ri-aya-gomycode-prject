@@ -483,8 +483,8 @@
       "versions": [
         {
           "id": "v1",
-          "phase": "backlog",
-          "currentStep": "specification",
+          "phase": "ongoing",
+          "currentStep": "implementation",
           "gates": {
             "specification": "approved",
             "planning": "approved",
@@ -535,6 +535,13 @@
               "actor": "kenule500",
               "previousValue": "pending",
               "timestamp": "2026-11-04T15:20:42.252Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "from": ".sdrive/specs/backlog/realtime-service/v1",
+              "to": ".sdrive/specs/ongoing/realtime-service/v1",
+              "timestamp": "2026-11-04T15:24:00.000Z"
             }
           ]
         }

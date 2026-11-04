@@ -1,16 +1,21 @@
 {
-  "feature": "design-tokens-and-component-library",
+  "feature": "realtime-service",
   "version": "v1",
-  "recordedAt": "2026-11-04T14:29:18.247Z",
+  "recordedAt": "2026-11-04T15:55:59.646Z",
   "by": null,
   "steps": [
     {
-      "command": "sdrive test design-tokens-and-component-library",
+      "command": "sdrive verify realtime-service",
       "kind": "cli",
-      "why": "Review needs passing test evidence; run the tests first."
+      "why": "Verify compares plan.json to the code before any gate reads it."
     },
     {
-      "command": "sdrive approve design-tokens-and-component-library review",
+      "command": "sdrive test realtime-service",
+      "kind": "cli",
+      "why": "The implementation gate needs a recorded passing run."
+    },
+    {
+      "command": "sdrive approve realtime-service implementation",
       "kind": "human",
       "why": "Approving is a sign-off, so it stays with you."
     }

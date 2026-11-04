@@ -10,3 +10,4 @@
 export * from './schemas/auth';
 export * from './schemas/tenancy';
 export * from './schemas/membership';
+export * from './schemas/realtime';

@@ -1,0 +1,11 @@
+node_modules
+**/node_modules
+**/dist
+.git
+.github
+.sdrive
+web
+backoffice
+server
+test
+*.log

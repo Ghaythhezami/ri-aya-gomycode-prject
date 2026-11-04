@@ -5,114 +5,189 @@
     "approach": "A fourth pnpm workspace package, realtime/, is a headless NestJS service that owns authenticated, tenant-scoped fan-out delivery and nothing else. One Express process on REALTIME_PORT (default 4001) hosts both the Socket.IO server on /socket.io and the two health probes. Three responsibilities stay separable: admission (the handshake verifies the access token server already issues, derives userId/clinicId/role from its claims, joins user:<id> and clinic:<id> server-side, and refuses any room the claims do not name), transport (Socket.IO with the Redis adapter over three ioredis connections - a normal pub client, a duplicated sub client in subscriber mode for the adapter, and a separate events subscriber for riaya:events, because a connection in subscriber mode cannot issue normal commands), and relay (one Redis subscription, one Zod validation against packages/shared, one emit of the unchanged envelope under its own event name into clinic:<clinicId>). No persistence, no replay, no deduplication, no presence: delivery is at-most-once and consumers refetch after reconnect. There is no collection in MongoDB; the Mongoose connection exists only to prove reachability and to report readiness. Nothing in realtime/src imports from server/src (CON-106); the pino configuration, the health controller and the ioredis reconnect pattern are copied from server as prior art, not imported. Health is deliberately asymmetric and matches the acceptance criteria: Redis down returns 200 degraded because sockets still work and the adapter self-heals, while Mongo down returns 503 naming Mongo because an unreachable database is a configuration error a deploy should see. Every Nest package is pinned to its 11.x line - @nestjs/websockets and @nestjs/mongoose at 12.x would resolve a second @nestjs/common and break dependency injection at runtime.",
     "components": [
       {
-        "name": "workspace-manifest",
+        "name": "pnpm-workspace.yaml",
         "action": "modify",
-        "description": "pnpm-workspace.yaml - add realtime to packages, leaving packages/* and every existing entry untouched."
+        "description": "Add realtime to the packages list, leaving packages/* and every existing entry untouched."
       },
       {
-        "name": "realtime-package",
+        "name": "realtime/package.json",
         "action": "create",
-        "description": "realtime/package.json - scripts mirroring server (nest build, eslint --max-warnings=0, tsc --noEmit, jest --runInBand) so pnpm -r in CI needs no new workflow."
+        "description": "Scripts mirroring server (build, lint --max-warnings=0, typecheck, start) so pnpm -r in CI needs no new workflow. Build runs nest build then scripts/build-shared.cjs, because packages/shared ships TypeScript source."
       },
       {
-        "name": "realtime-tsconfig",
+        "name": "realtime/tsconfig.json",
         "action": "create",
-        "description": "realtime/tsconfig.json and tsconfig.build.json - strict, noUnusedLocals, noUnusedParameters, same module settings as server."
+        "description": "Strict compiler options matching server, with types [\"node\"] since realtime has no test types."
       },
       {
-        "name": "realtime-nest-cli-and-eslint",
+        "name": "realtime/tsconfig.build.json",
         "action": "create",
-        "description": "realtime/nest-cli.json and the flat realtime/eslint.config.mjs - lint fails on a warning rather than reporting it (CON-205)."
+        "description": "Build-time overrides; incremental disabled so nest build cannot reuse a deleted dist."
       },
       {
-        "name": "realtime-jest-config",
+        "name": "realtime/nest-cli.json",
         "action": "create",
-        "description": "realtime/jest.config.cjs - rootDir src, testRegex .*\\.spec\\.ts$, matching CON-403's colocated shape."
+        "description": "Nest build configuration with sourceRoot src."
       },
       {
-        "name": "realtime-bootstrap",
+        "name": "realtime/eslint.config.mjs",
         "action": "create",
-        "description": "realtime/src/main.ts - Express adapter, helmet(), pino logger, enableShutdownHooks, REALTIME_PORT default 4001, no global path prefix so /health/live is reachable as written."
+        "description": "Flat ESLint config matching server, so lint fails on a warning rather than reporting it (CON-205)."
       },
       {
-        "name": "realtime-config",
+        "name": "realtime/scripts/build-shared.cjs",
         "action": "create",
-        "description": "realtime/src/config/ - reads and validates every environment variable at boot, fails naming the missing variable, never logs a value."
+        "description": "Compiles packages/shared to CommonJS into dist/node_modules/@riaya/shared so node dist/main.js resolves the contract at runtime without changing the shared package contract."
       },
       {
-        "name": "realtime-logging",
+        "name": "realtime/.env.example",
         "action": "create",
-        "description": "realtime/src/logging/ - same pino record shape, level resolution and redact list as server, copied because a cross-app import would violate CON-106, extended with token, accessToken and clinicId."
+        "description": "Every new variable, with no value that works as a production default (NFR-008)."
       },
       {
-        "name": "realtime-app-module",
+        "name": "realtime/Dockerfile",
         "action": "create",
-        "description": "realtime/src/app.module.ts - module graph ordered so the logger exists before any module that logs during construction."
+        "description": "Multi-stage pnpm workspace build producing a runnable image without dev dependencies (NFR-007)."
       },
       {
-        "name": "socket-auth",
+        "name": ".dockerignore",
         "action": "create",
-        "description": "realtime/src/auth/ - token extraction from handshake auth.token then Authorization: Bearer, verification against JWT_ACCESS_SECRET with exp enforced, strict claim validation, and one generic refusal reason for every failure."
+        "description": "Keeps the build context to the manifests, packages/shared and realtime; without it the Dockerfile copies are fine but the context includes every node_modules tree."
       },
       {
-        "name": "socket-gateway",
+        "name": "realtime/src/main.ts",
         "action": "create",
-        "description": "realtime/src/realtime/realtime.gateway.ts - writes { userId, clinicId, role, exp } to socket.data, joins the two rooms, registers the constrained room:join handler, and arms a clamped expiry timer that disconnects at exp."
+        "description": "Express adapter, helmet, pino logger, shutdown hooks, REALTIME_PORT default 4001, no global path prefix."
       },
       {
-        "name": "connect-throttle",
+        "name": "realtime/src/app.module.ts",
         "action": "create",
-        "description": "realtime/src/realtime/connect-throttle.ts - per-IP fixed-window counter in the allowRequest hook with a process-local fallback; refuses over-limit attempts and never throws out of the hook."
+        "description": "Module graph ordered so the logger exists before any module that logs during construction."
       },
       {
-        "name": "redis-clients-and-adapter",
+        "name": "realtime/src/io-adapter.ts",
         "action": "create",
-        "description": "realtime/src/redis/ - three lazyConnect ioredis clients (pub, sub, events subscriber) with a capped retry strategy, plus the @socket.io/redis-adapter wiring and the reconnect state the readiness probe reads."
+        "description": "Creates the Socket.IO server with the validated CORS allow-list, the 16 KB frame limit and the Redis adapter."
       },
       {
-        "name": "event-relay",
+        "name": "realtime/src/config/env.ts",
         "action": "create",
-        "description": "realtime/src/relay/event-relay.service.ts - subscribes riaya:events, parses, validates against the shared schema, checks the room cluster-wide with fetchSockets(), and emits the unchanged envelope under its own event name; every failure path logs and drops without throwing."
+        "description": "Validates every environment variable at boot and never logs a value."
       },
       {
-        "name": "health-controller",
+        "name": "realtime/src/config/config.module.ts",
         "action": "create",
-        "description": "realtime/src/health/ - GET /health/live always 200; GET /health/ready reports Redis and Mongo separately, 200 degraded when only Redis is down and 503 when Mongo is down."
+        "description": "Global module providing the validated environment under the ENV token."
       },
       {
-        "name": "mongo-connection",
+        "name": "realtime/src/logging/logging.config.ts",
         "action": "create",
-        "description": "realtime/src/database/mongo.module.ts - MongooseModule.forRootAsync on MONGO_URI with serverSelectionTimeoutMS around 2s, no forFeature, no @Schema, no model anywhere in the package."
+        "description": "Level resolution and redact list, copied from server because CON-106 forbids the cross-app import; extended with token, accessToken, authorization and clinicId."
       },
       {
-        "name": "event-contract",
+        "name": "realtime/src/logging/logging.module.ts",
         "action": "create",
-        "description": "packages/shared/src/schemas/realtime.ts - RealtimeEvent envelope (event, contractVersion literal 1, clinicId, occurredAt, payload) plus strict payload schemas for appointment.created, appointment.cancelled, appointment.rescheduled and queue.updated, following the zod skill."
+        "description": "nestjs-pino module wiring the config into the application."
       },
       {
-        "name": "shared-index",
+        "name": "realtime/src/auth/claims.ts",
+        "action": "create",
+        "description": "Strict Zod schema for the access-token claims server issues."
+      },
+      {
+        "name": "realtime/src/auth/token.service.ts",
+        "action": "create",
+        "description": "Verifies the access token with JWT_ACCESS_SECRET and returns the connection scope, refusing every failure with one generic reason."
+      },
+      {
+        "name": "realtime/src/auth/auth.module.ts",
+        "action": "create",
+        "description": "JwtModule registration and the TokenService provider."
+      },
+      {
+        "name": "realtime/src/realtime/socket-scope.ts",
+        "action": "create",
+        "description": "Room naming from token values only, and handshake token extraction."
+      },
+      {
+        "name": "realtime/src/realtime/connect-throttle.service.ts",
+        "action": "create",
+        "description": "Per-IP fixed-window connect-attempt throttle in Redis with a process-local fallback."
+      },
+      {
+        "name": "realtime/src/realtime/realtime.gateway.ts",
+        "action": "create",
+        "description": "Namespace middleware admission, automatic room joins, the constrained room:join handler and the expiry disconnect timer."
+      },
+      {
+        "name": "realtime/src/realtime/realtime.module.ts",
+        "action": "create",
+        "description": "Gateway and throttle providers."
+      },
+      {
+        "name": "realtime/src/redis/redis-clients.service.ts",
+        "action": "create",
+        "description": "Three lazy ioredis clients (publisher, adapter subscriber, riaya:events subscriber) with capped retries and a reconnect state for readiness."
+      },
+      {
+        "name": "realtime/src/redis/redis.module.ts",
+        "action": "create",
+        "description": "Provides the Redis clients."
+      },
+      {
+        "name": "realtime/src/relay/event-relay.service.ts",
+        "action": "create",
+        "description": "Subscribes riaya:events, validates each payload against the shared schema, emits locally to clinic:<clinicId> and logs invalid payloads without crashing."
+      },
+      {
+        "name": "realtime/src/relay/relay.module.ts",
+        "action": "create",
+        "description": "Relay provider."
+      },
+      {
+        "name": "realtime/src/database/mongo-connection.service.ts",
+        "action": "create",
+        "description": "Reads connection readyState for readiness and attaches an error listener; no query is ever issued."
+      },
+      {
+        "name": "realtime/src/database/mongo.module.ts",
+        "action": "create",
+        "description": "MongooseModule.forRootAsync with lazyConnection and no forFeature, schema or model."
+      },
+      {
+        "name": "realtime/src/health/health.controller.ts",
+        "action": "create",
+        "description": "GET /health/live and GET /health/ready, reporting Redis and Mongo separately."
+      },
+      {
+        "name": "realtime/src/health/health.module.ts",
+        "action": "create",
+        "description": "Health controller module."
+      },
+      {
+        "name": "realtime/src/common/dependency-status.ts",
+        "action": "create",
+        "description": "Shared up/down vocabulary for the dependency probes."
+      },
+      {
+        "name": "packages/shared/src/schemas/realtime.ts",
+        "action": "create",
+        "description": "RealtimeEvent envelope and four strict payload schemas, following the zod skill."
+      },
+      {
+        "name": "packages/shared/src/index.ts",
         "action": "modify",
-        "description": "packages/shared/src/index.ts - one re-export line so consumers import the contract from @riaya/shared and never from a deep path."
+        "description": "One re-export line so consumers import the contract from @riaya/shared."
       },
       {
-        "name": "realtime-env-example",
-        "action": "create",
-        "description": "realtime/.env.example - REALTIME_PORT, JWT_ACCESS_SECRET, REDIS_URL, MONGO_URI, REALTIME_CORS_ORIGINS, LOG_LEVEL, NODE_ENV, with no value that works as a production default."
-      },
-      {
-        "name": "realtime-dockerfile",
-        "action": "create",
-        "description": "realtime/Dockerfile - multi-stage pnpm workspace build producing a runnable image without dev dependencies."
-      },
-      {
-        "name": "compose-service",
+        "name": "docker-compose.yml",
         "action": "modify",
-        "description": "docker-compose.yml - add a realtime service depending on the existing redis and mongo health checks; the two dependency services themselves are unchanged."
+        "description": "Add the realtime service; the existing redis and mongo services are unchanged."
       },
       {
-        "name": "root-scripts",
+        "name": "package.json",
         "action": "modify",
-        "description": "package.json - add dev:realtime only; the existing dev script is left alone so pnpm dev still works without Redis and Mongo running."
+        "description": "Add dev:realtime only; the existing dev script is left alone."
       }
     ],
     "referencedRequirementIds": [
@@ -148,68 +223,10 @@
     ]
   },
   "dataModel": {
-    "entities": [
-      {
-        "name": "RealtimeEvent",
-        "action": "create",
-        "fields": [
-          {
-            "name": "event",
-            "type": "'appointment.created' | 'appointment.cancelled' | 'appointment.rescheduled' | 'queue.updated'",
-            "action": "add"
-          },
-          {
-            "name": "contractVersion",
-            "type": "1",
-            "action": "add"
-          },
-          {
-            "name": "clinicId",
-            "type": "string",
-            "action": "add"
-          },
-          {
-            "name": "occurredAt",
-            "type": "string (ISO 8601)",
-            "action": "add"
-          },
-          {
-            "name": "payload",
-            "type": "event-specific strict object",
-            "action": "add"
-          }
-        ]
-      },
-      {
-        "name": "MongoConnection",
-        "action": "no_change",
-        "fields": [
-          {
-            "name": "readyState",
-            "type": "number",
-            "action": "no_change"
-          }
-        ]
-      }
-    ],
+    "entities": [],
     "flowDescription": "Nothing is persisted. A producer publishes one message to riaya:events; the relay validates it against the shared Zod schema and emits it unchanged under its own event name to clinic:<clinicId>; every socket already joined to that room receives it once. No step in this feature reads or writes a database, and no collection is declared in MongoDB."
   },
-  "apiContracts": [
-    {
-      "method": "GET",
-      "path": "/health/live",
-      "action": "create",
-      "authenticationRequired": false,
-      "linkedRequirements": ["FR-011", "NFR-012", "NFR-018"]
-    },
-    {
-      "method": "GET",
-      "path": "/health/ready",
-      "action": "create",
-      "authenticationRequired": false,
-      "linkedRequirements": ["FR-011", "FR-007"]
-    }
-  ],
+  "apiContracts": [],
   "securityConsiderations": [
     {
       "requirementId": "NFR-010",
@@ -349,7 +366,12 @@
       "name": "socket.io-client",
       "type": "library",
       "action": "add",
-      "notes": "Dev-only. Used by the colocated specs and never imported by production code."
+      "notes": "Dev-only. Used by the colocated specs and never imported by production code.",
+      "resolution": {
+        "kind": "deferred",
+        "reason": "Test-only client for the colocated specs. Deferred with T1.5 to /sdrive:test, which owns the runner and its client; production code never imports it.",
+        "at": "2026-11-04"
+      }
     },
     {
       "name": "jest",
