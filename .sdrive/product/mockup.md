@@ -21,7 +21,7 @@ Two front-end surfaces plus two back ends:
                                   │  links to
                                   ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│  backoffice (React + Vite, :5173) — authenticated staff application       │
+│  backoffice (React + Vite, :5174) — authenticated staff application       │
 └──────────────────────────────────────────────────────────────────────────┘
                                   │  HTTPS /api
                                   ▼

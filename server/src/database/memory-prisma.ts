@@ -81,7 +81,54 @@ interface AuditLogRecord {
   createdAt: Date;
 }
 
+type AppointmentStatusValue =
+  'SCHEDULED' | 'CONFIRMED' | 'CHECKED_IN' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
+
+interface PatientRecord {
+  id: string;
+  clinicId: string;
+  firstName: string;
+  lastName: string;
+  dateOfBirth: Date;
+  phone: string;
+  email: string | null;
+  gender: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface DoctorRecord {
+  id: string;
+  clinicId: string;
+  userId: string | null;
+  specialty: string;
+  licenseNumber: string | null;
+  consultationMinutes: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+interface AppointmentRecord {
+  id: string;
+  clinicId: string;
+  patientId: string;
+  doctorId: string;
+  startsAt: Date;
+  endsAt: Date;
+  status: AppointmentStatusValue;
+  reason: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
 type MembershipWhere = {
+  /**
+   * Membership id. May be a plain value or a Prisma `not` filter, as used by
+   * the last-SUPER_ADMIN count. Omitting the id here made every id-scoped
+   * lookup match the first row of the tenant instead of the requested one.
+   */
+  id?: string | { not?: string };
   userId?: string;
   clinicId?: string;
   organizationId?: string;
@@ -98,6 +145,9 @@ interface MemorySnapshot {
   memberships: Map<string, MembershipRecord>;
   invitations: Map<string, InvitationRecord>;
   auditLogs: Map<string, AuditLogRecord>;
+  patients: Map<string, PatientRecord>;
+  doctors: Map<string, DoctorRecord>;
+  appointments: Map<string, AppointmentRecord>;
 }
 
 export class MemoryPrisma {
@@ -109,6 +159,9 @@ export class MemoryPrisma {
   private memberships = new Map<string, MembershipRecord>();
   private invitations = new Map<string, InvitationRecord>();
   private auditLogs = new Map<string, AuditLogRecord>();
+  private patients = new Map<string, PatientRecord>();
+  private doctors = new Map<string, DoctorRecord>();
+  private appointments = new Map<string, AppointmentRecord>();
 
   readonly user = {
     findUnique: async ({ where }: { where: { id?: string; email?: string } }) => {
@@ -291,6 +344,15 @@ export class MemoryPrisma {
       return row;
     },
     findUnique: async ({ where }: { where: { id: string } }) => this.clinics.get(where.id) ?? null,
+    findFirst: async ({ where }: { where: { id?: string; organizationId?: string } }) => {
+      return (
+        [...this.clinics.values()].find(
+          (item) =>
+            (!where.id || item.id === where.id) &&
+            (!where.organizationId || item.organizationId === where.organizationId),
+        ) ?? null
+      );
+    },
   };
 
   readonly userMembership = {
@@ -361,14 +423,18 @@ export class MemoryPrisma {
     findFirst: async ({
       where,
       orderBy,
+      select,
     }: {
       where: MembershipWhere;
       orderBy?: { createdAt: 'asc' | 'desc' };
+      select?: Partial<Record<keyof MembershipRecord, boolean>>;
     }) => {
       const matches = [...this.memberships.values()].filter((item) =>
         this.membershipMatches(item, where),
       );
-      return this.sortByCreatedAt(matches, orderBy)[0] ?? null;
+      const found = this.sortByCreatedAt(matches, orderBy)[0] ?? null;
+      if (!found) return null;
+      return select ? this.pick(found, select as Record<string, boolean>) : found;
     },
     findMany: async ({
       where,
@@ -405,11 +471,9 @@ export class MemoryPrisma {
       this.memberships.set(where.id, next);
       return next;
     },
-    count: async ({ where }: { where: MembershipWhere & { id?: { not?: string } } }) => {
-      return [...this.memberships.values()].filter(
-        (item) =>
-          this.membershipMatches(item, where) && (where.id?.not ? item.id !== where.id.not : true),
-      ).length;
+    count: async ({ where }: { where: MembershipWhere }) => {
+      return [...this.memberships.values()].filter((item) => this.membershipMatches(item, where))
+        .length;
     },
   };
 
@@ -505,12 +569,20 @@ export class MemoryPrisma {
       select,
       orderBy,
     }: {
-      where: { clinicId?: string; consumedAt?: Date | null; expiresAt?: { gt?: Date } };
+      where: {
+        clinicId?: string;
+        organizationId?: string;
+        email?: string;
+        consumedAt?: Date | null;
+        expiresAt?: { gt?: Date };
+      };
       select?: Record<string, boolean>;
       orderBy?: { createdAt: 'asc' | 'desc' };
     }) => {
       const matches = [...this.invitations.values()].filter((item) => {
         if (where.clinicId && item.clinicId !== where.clinicId) return false;
+        if (where.organizationId && item.organizationId !== where.organizationId) return false;
+        if (where.email && item.email !== where.email) return false;
         if (where.consumedAt === null && item.consumedAt !== null) return false;
         if (where.expiresAt?.gt && item.expiresAt.getTime() <= where.expiresAt.gt.getTime()) {
           return false;
@@ -554,6 +626,299 @@ export class MemoryPrisma {
     },
   };
 
+  readonly patient = {
+    create: async ({
+      data,
+    }: {
+      data: {
+        id?: string;
+        clinicId: string;
+        firstName: string;
+        lastName: string;
+        dateOfBirth: Date;
+        phone: string;
+        email?: string | null;
+        gender?: string | null;
+      };
+    }) => {
+      const now = new Date();
+      const row: PatientRecord = {
+        id: data.id ?? randomUUID(),
+        clinicId: data.clinicId,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        dateOfBirth: data.dateOfBirth,
+        phone: data.phone,
+        email: data.email ?? null,
+        gender: data.gender ?? null,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.patients.set(row.id, row);
+      return row;
+    },
+    findUnique: async ({ where }: { where: { id: string } }) => {
+      return this.patients.get(where.id) ?? null;
+    },
+    findFirst: async ({
+      where,
+    }: {
+      where?: { clinicId?: string; firstName?: string; lastName?: string; dateOfBirth?: Date };
+    } = {}) => {
+      return [...this.patients.values()].find((row) => this.patientMatches(row, where)) ?? null;
+    },
+    findMany: async ({
+      where,
+      orderBy,
+      skip,
+      take,
+    }: {
+      where?: { clinicId?: string; lastName?: string };
+      orderBy?: { createdAt?: 'asc' | 'desc'; lastName?: 'asc' | 'desc' };
+      skip?: number;
+      take?: number;
+    } = {}) => {
+      let rows = [...this.patients.values()].filter((row) => this.patientMatches(row, where));
+      if (orderBy?.lastName) {
+        const direction = orderBy.lastName === 'desc' ? -1 : 1;
+        rows = rows.sort((a, b) => a.lastName.localeCompare(b.lastName) * direction);
+      } else {
+        rows = this.sortByCreatedAt(
+          rows,
+          orderBy?.createdAt ? { createdAt: orderBy.createdAt } : undefined,
+        );
+      }
+      if (skip) rows = rows.slice(skip);
+      if (take) rows = rows.slice(0, take);
+      return rows;
+    },
+    count: async ({ where }: { where?: { clinicId?: string } } = {}) => {
+      return [...this.patients.values()].filter((row) => this.patientMatches(row, where)).length;
+    },
+    deleteMany: async ({ where }: { where?: { clinicId?: string } } = {}) => {
+      let count = 0;
+      for (const [id, row] of this.patients) {
+        if (this.patientMatches(row, where)) {
+          this.patients.delete(id);
+          count += 1;
+        }
+      }
+      return { count };
+    },
+  };
+
+  readonly doctor = {
+    create: async ({
+      data,
+    }: {
+      data: {
+        id?: string;
+        clinicId: string;
+        userId?: string | null;
+        specialty: string;
+        licenseNumber?: string | null;
+        consultationMinutes?: number;
+        isActive?: boolean;
+      };
+    }) => {
+      const now = new Date();
+      const row: DoctorRecord = {
+        id: data.id ?? randomUUID(),
+        clinicId: data.clinicId,
+        userId: data.userId ?? null,
+        specialty: data.specialty,
+        licenseNumber: data.licenseNumber ?? null,
+        consultationMinutes: data.consultationMinutes ?? 30,
+        isActive: data.isActive ?? true,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.doctors.set(row.id, row);
+      return row;
+    },
+    findUnique: async ({ where }: { where: { id: string } }) => {
+      return this.doctors.get(where.id) ?? null;
+    },
+    findFirst: async ({
+      where,
+    }: {
+      where?: { clinicId?: string; userId?: string; specialty?: string; licenseNumber?: string };
+    } = {}) => {
+      return [...this.doctors.values()].find((row) => this.doctorMatches(row, where)) ?? null;
+    },
+    findMany: async ({
+      where,
+      orderBy,
+      skip,
+      take,
+    }: {
+      where?: { clinicId?: string; isActive?: boolean; specialty?: string };
+      orderBy?: { createdAt?: 'asc' | 'desc'; specialty?: 'asc' | 'desc' };
+      skip?: number;
+      take?: number;
+    } = {}) => {
+      let rows = [...this.doctors.values()].filter((row) => this.doctorMatches(row, where));
+      if (orderBy?.specialty) {
+        const direction = orderBy.specialty === 'desc' ? -1 : 1;
+        rows = rows.sort((a, b) => a.specialty.localeCompare(b.specialty) * direction);
+      } else {
+        rows = this.sortByCreatedAt(
+          rows,
+          orderBy?.createdAt ? { createdAt: orderBy.createdAt } : undefined,
+        );
+      }
+      if (skip) rows = rows.slice(skip);
+      if (take) rows = rows.slice(0, take);
+      return rows;
+    },
+    count: async ({ where }: { where?: { clinicId?: string; isActive?: boolean } } = {}) => {
+      return [...this.doctors.values()].filter((row) => this.doctorMatches(row, where)).length;
+    },
+    deleteMany: async ({ where }: { where?: { clinicId?: string } } = {}) => {
+      let count = 0;
+      for (const [id, row] of this.doctors) {
+        if (this.doctorMatches(row, where)) {
+          this.doctors.delete(id);
+          count += 1;
+        }
+      }
+      return { count };
+    },
+  };
+
+  readonly appointment = {
+    create: async ({
+      data,
+    }: {
+      data: {
+        id?: string;
+        clinicId: string;
+        patientId: string;
+        doctorId: string;
+        startsAt: Date;
+        endsAt: Date;
+        status?: AppointmentStatusValue;
+        reason?: string | null;
+      };
+    }) => {
+      const now = new Date();
+      const row: AppointmentRecord = {
+        id: data.id ?? randomUUID(),
+        clinicId: data.clinicId,
+        patientId: data.patientId,
+        doctorId: data.doctorId,
+        startsAt: data.startsAt,
+        endsAt: data.endsAt,
+        status: data.status ?? 'SCHEDULED',
+        reason: data.reason ?? null,
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.appointments.set(row.id, row);
+      return row;
+    },
+    findUnique: async ({ where }: { where: { id: string } }) => {
+      return this.appointments.get(where.id) ?? null;
+    },
+    findFirst: async ({
+      where,
+    }: {
+      where?: {
+        clinicId?: string;
+        patientId?: string;
+        doctorId?: string;
+        startsAt?: Date;
+        status?: AppointmentStatusValue;
+      };
+    } = {}) => {
+      return (
+        [...this.appointments.values()].find((row) => this.appointmentMatches(row, where)) ?? null
+      );
+    },
+    /**
+     * Doctor day and patient history both read through this method; `startsAt`
+     * ordering is what the (doctorId, startsAt) index serves (FR-005).
+     */
+    findMany: async ({
+      where,
+      orderBy,
+      skip,
+      take,
+    }: {
+      where?: {
+        clinicId?: string;
+        patientId?: string;
+        doctorId?: string;
+        status?: AppointmentStatusValue;
+        startsAt?: { gte?: Date; lt?: Date; lte?: Date };
+      };
+      orderBy?: { startsAt?: 'asc' | 'desc'; createdAt?: 'asc' | 'desc' };
+      skip?: number;
+      take?: number;
+    } = {}) => {
+      let rows = [...this.appointments.values()].filter((row) =>
+        this.appointmentMatches(row, where),
+      );
+      if (orderBy?.startsAt) {
+        const direction = orderBy.startsAt === 'desc' ? -1 : 1;
+        rows = rows.sort((a, b) => (a.startsAt.getTime() - b.startsAt.getTime()) * direction);
+      } else {
+        rows = this.sortByCreatedAt(rows, { createdAt: orderBy?.createdAt ?? 'asc' });
+      }
+      if (skip) rows = rows.slice(skip);
+      if (take) rows = rows.slice(0, take);
+      return rows;
+    },
+    count: async ({
+      where,
+    }: {
+      where?: {
+        clinicId?: string;
+        patientId?: string;
+        doctorId?: string;
+        status?: AppointmentStatusValue;
+      };
+    } = {}) => {
+      return [...this.appointments.values()].filter((row) => this.appointmentMatches(row, where))
+        .length;
+    },
+    update: async ({
+      where,
+      data,
+    }: {
+      where: { id: string };
+      data: {
+        status?: AppointmentStatusValue;
+        startsAt?: Date;
+        endsAt?: Date;
+        reason?: string | null;
+      };
+    }) => {
+      const existing = this.appointments.get(where.id);
+      if (!existing) {
+        throw new Error(`Appointment ${where.id} not found`);
+      }
+      const row: AppointmentRecord = {
+        ...existing,
+        ...data,
+        reason: data.reason === undefined ? existing.reason : data.reason,
+        updatedAt: new Date(),
+      };
+      this.appointments.set(row.id, row);
+      return row;
+    },
+    deleteMany: async ({ where }: { where?: { clinicId?: string } } = {}) => {
+      let count = 0;
+      for (const [id, row] of this.appointments) {
+        if (this.appointmentMatches(row, where)) {
+          this.appointments.delete(id);
+          count += 1;
+        }
+      }
+      return { count };
+    },
+  };
+
   async $connect() {
     return undefined;
   }
@@ -573,7 +938,68 @@ export class MemoryPrisma {
     }
   }
 
+  private patientMatches(
+    row: PatientRecord,
+    where?: { clinicId?: string; firstName?: string; lastName?: string; dateOfBirth?: Date },
+  ): boolean {
+    if (!where) return true;
+    if (where.clinicId && row.clinicId !== where.clinicId) return false;
+    if (where.firstName && row.firstName !== where.firstName) return false;
+    if (where.lastName && row.lastName !== where.lastName) return false;
+    if (where.dateOfBirth && row.dateOfBirth.getTime() !== where.dateOfBirth.getTime())
+      return false;
+    return true;
+  }
+
+  private doctorMatches(
+    row: DoctorRecord,
+    where?: {
+      clinicId?: string;
+      userId?: string;
+      specialty?: string;
+      licenseNumber?: string;
+      isActive?: boolean;
+    },
+  ): boolean {
+    if (!where) return true;
+    if (where.clinicId && row.clinicId !== where.clinicId) return false;
+    if (where.userId && row.userId !== where.userId) return false;
+    if (where.specialty && row.specialty !== where.specialty) return false;
+    if (where.licenseNumber && row.licenseNumber !== where.licenseNumber) return false;
+    if (where.isActive !== undefined && row.isActive !== where.isActive) return false;
+    return true;
+  }
+
+  private appointmentMatches(
+    row: AppointmentRecord,
+    where?: {
+      clinicId?: string;
+      patientId?: string;
+      doctorId?: string;
+      status?: AppointmentStatusValue;
+      startsAt?: Date | { gte?: Date; lt?: Date; lte?: Date };
+    },
+  ): boolean {
+    if (!where) return true;
+    if (where.clinicId && row.clinicId !== where.clinicId) return false;
+    if (where.patientId && row.patientId !== where.patientId) return false;
+    if (where.doctorId && row.doctorId !== where.doctorId) return false;
+    if (where.status && row.status !== where.status) return false;
+    if (where.startsAt instanceof Date) {
+      if (row.startsAt.getTime() !== where.startsAt.getTime()) return false;
+    } else if (where.startsAt) {
+      const { gte, lte, lt } = where.startsAt;
+      const value = row.startsAt.getTime();
+      if (gte && value < gte.getTime()) return false;
+      if (lte && value > lte.getTime()) return false;
+      if (lt && value >= lt.getTime()) return false;
+    }
+    return true;
+  }
+
   private membershipMatches(item: MembershipRecord, where: MembershipWhere): boolean {
+    if (typeof where.id === 'string' && item.id !== where.id) return false;
+    if (typeof where.id === 'object' && where.id.not && item.id === where.id.not) return false;
     if (where.userId && item.userId !== where.userId) return false;
     if (where.clinicId && item.clinicId !== where.clinicId) return false;
     if (where.organizationId && item.organizationId !== where.organizationId) return false;
@@ -612,6 +1038,9 @@ export class MemoryPrisma {
       memberships: copy(this.memberships),
       invitations: copy(this.invitations),
       auditLogs: copy(this.auditLogs),
+      patients: copy(this.patients),
+      doctors: copy(this.doctors),
+      appointments: copy(this.appointments),
     };
   }
 
@@ -624,6 +1053,9 @@ export class MemoryPrisma {
     this.memberships = snapshot.memberships;
     this.invitations = snapshot.invitations;
     this.auditLogs = snapshot.auditLogs;
+    this.patients = snapshot.patients;
+    this.doctors = snapshot.doctors;
+    this.appointments = snapshot.appointments;
   }
 
   async $disconnect() {

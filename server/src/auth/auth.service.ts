@@ -219,7 +219,7 @@ export class AuthService {
       },
     });
 
-    const backoffice = this.config.get<string>('BACKOFFICE_URL', 'http://localhost:5173');
+    const backoffice = this.config.get<string>('BACKOFFICE_URL', 'http://localhost:5174');
     const resetUrl = `${backoffice}/reset-password?token=${raw}`;
     await this.mail.sendPasswordReset(user.email, resetUrl);
     return generic;

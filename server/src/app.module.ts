@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { LoggingModule } from './logging/logging.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { HealthModule } from './health/health.module';
@@ -12,6 +13,9 @@ import { AuditModule } from './audit/audit.module';
 
 @Module({
   imports: [
+    // FR-001: the logger must exist before any other module initialises, so a
+    // module that logs during construction already has a sink to write to.
+    LoggingModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env', '../.env'],

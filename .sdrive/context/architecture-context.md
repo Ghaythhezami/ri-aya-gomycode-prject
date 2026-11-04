@@ -14,7 +14,7 @@ Three deployable applications in one pnpm workspace. There is **no shared librar
   - Global route prefix `api` (`app.setGlobalPrefix('api')`).
   - `app.use(helmet()` — security headers.
   - `app.use(cookieParser())` — HttpOnly refresh-token cookie.
-  - CORS allow-list parsed from `CORS_ORIGINS` (fallback `http://localhost:3000,http://localhost:5173`), with `credentials: true`.
+  - CORS allow-list parsed from `CORS_ORIGINS` (fallback `http://localhost:3000,http://localhost:5174`), with `credentials: true`.
   - Global `ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true })`.
   - Global `HttpExceptionFilter`.
   - Swagger/OpenAPI at `api/docs` with `addBearerAuth()` and `addCookieAuth('refresh_token')`.

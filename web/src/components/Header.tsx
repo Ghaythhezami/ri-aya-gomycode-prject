@@ -7,7 +7,7 @@ import { Link, usePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { BrandLogo } from './BrandLogo';
 
-const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5173';
+const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174';
 
 export function Header() {
   const t = useTranslations('nav');

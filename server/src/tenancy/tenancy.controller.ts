@@ -75,11 +75,14 @@ export class TenancyController {
     const result = await this.onboarding.invite({
       email: dto.email,
       clinicId: dto.clinicId,
+      // The clinic must be resolved inside the caller's own organization: the
+      // body is attacker-controlled and a foreign clinic id must not be honoured.
+      organizationId: scope.organizationId,
       role: dto.role,
       invitedById: user.id,
     });
 
-    const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5173';
+    const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5174';
     const acceptUrl = `${backoffice}/accept-invite?token=${result.token}`;
     await this.mail.sendInvitation({
       email: dto.email,
@@ -114,7 +117,15 @@ export class TenancyController {
         message: 'Only clinic admins can suspend memberships',
       });
     }
-    await this.tenancy.suspendMembership(id);
+    // The id comes from the path, so it is attacker-controlled: it MUST be
+    // resolved inside the caller's own organization. A super admin is
+    // organization-wide, every other role may only act within their clinic.
+    const organizationWide = scope.role === UserRole.SUPER_ADMIN;
+    await this.tenancy.suspendMembership({
+      membershipId: id,
+      organizationId: scope.organizationId,
+      clinicId: organizationWide ? null : scope.clinicId,
+    });
     return { success: true };
   }
 }

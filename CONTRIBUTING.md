@@ -40,7 +40,7 @@ Never commit `.env`. Only `.env.example` belongs in version control.
 ### Local development
 
 ```bash
-pnpm dev          # all three apps (web :3000, server :4000, backoffice :5173)
+pnpm dev          # all three apps (web :3000, server :4000, backoffice :5174)
 pnpm dev:web
 pnpm dev:server
 pnpm dev:backoffice
@@ -118,6 +118,30 @@ bypass hooks with `--no-verify`.
 - Seed accounts (`*@riaya.local`) are **local-only** and must never be reused elsewhere.
 - Redis is optional: without it the API degrades to an in-memory cache.
 
+## Logging
+
+The API emits one structured JSON record per request through `nestjs-pino`. The configuration
+lives in `server/src/logging/`; do not configure a logger anywhere else.
+
+- **`LOG_LEVEL` is the only knob.** Accepted values are `fatal`, `error`, `warn`, `info`, `debug`,
+  `trace` and `silent`; unset defaults to `info`. An unrecognised value falls back to `info` and
+  logs one warning at startup naming the bad value — it never stops the API from booting.
+- **Severity follows the status code.** 5xx logs at `error`, 4xx at `warn`, everything else at
+  `info`. This is `customLogLevel` in `logging.config.ts`, not something a handler chooses.
+- **The redact list lives in one place:** `SENSITIVE_KEYS` in `logging.config.ts`. To protect a new
+  field, add its key there — not a path. The list is expanded to four levels of nesting
+  automatically, so `password`, `*.password` and `*.*.password` all come from one entry. The three
+  request/response header paths are listed explicitly above the expansion.
+- **Logging is silent in tests.** Under `NODE_ENV=test` the level is `silent` so a suite does not
+  emit thousands of records. A test that needs to assert on output opts back in by setting
+  `LOG_LEVEL` explicitly before the module is imported.
+- **Call sites do not change.** `main.ts` attaches the pino logger with `app.useLogger`, so an
+  existing `new Logger(SomeService.name)` keeps working and inherits the request id. There is no
+  reason to import `nestjs-pino` in a feature module.
+- **Correlation:** every request carries an `X-Request-Id` header, echoed in the response and in
+  the `requestId` field of an error body. A client-supplied id is accepted only if it matches
+  `^[A-Za-z0-9_-]{1,128}$`; otherwise a UUID is generated.
+
 ## Branching and review
 
 - Feature work uses SpecDrive (`/sdrive:*` commands); see `AGENTS.md`.
@@ -154,7 +178,7 @@ deliberately modified, so after any CLI upgrade:
 | ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `.sdrive/scripts/verify.js`           | Adds NestJS decorator detection, `.prisma` and the `backoffice`/`web` roots, and treats an **existing path outside every scanned root** as present (`existsOnDisk`). Stock scans `server` only and can never match repo-root components such as `README.md`, `package.json`, `scripts/*.mjs` or `*.env.example`, which then fail verification as "missing". |
 | `.sdrive/commands/gates.js`           | `commitStillDescribesHead()` compares the recorded commit's **tree** with HEAD, ignoring `.sdrive/`. Stock compares `commit === HEAD`, which makes `review.json` impossible to commit (a file cannot contain its own hash) and leaves archiving only satisfiable with an uncommitted tree.                                                                  |
-| `.sdrive/scripts/lib/product-plan.js` | Treats a dependency cell with no letter or digit as "no dependency". Stock matches only `[-—–]`, so the double-encoded em-dash this backlog actually contains (`â€”`) was read as an outside blocker — making BP-001 ineligible and blocking the whole `start` wave.                                                                                        |
+| `.sdrive/scripts/lib/product-plan.js` | Treats a dependency cell with no letter or digit as "no dependency". Stock matches only `[-—–]`, so the double-encoded em-dash this backlog actually contains (`—`) was read as an outside blocker — making BP-001 ineligible and blocking the whole `start` wave.                                                                                          |
 
 Changing either stops the gate from doing what it was patched to do:
 

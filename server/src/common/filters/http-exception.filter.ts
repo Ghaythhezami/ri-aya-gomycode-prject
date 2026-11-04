@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { REQUEST_ID_HEADER } from '../../logging/logging.config';
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -16,6 +17,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
+
+    // FR-002 / FR-008: the id pino-http assigned to this request. Read it from
+    // the request rather than generating a new one, so the body, the response
+    // header and the log records all carry the same value (AC-002, AC-009).
+    const requestId = this.resolveRequestId(request, response);
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let code = 'INTERNAL_ERROR';
@@ -46,10 +52,32 @@ export class HttpExceptionFilter implements ExceptionFilter {
       );
     }
 
+    // The shape stays as it was; `requestId` is the only addition (FR-008).
     response.status(status).json({
       code,
       message,
       details: details ?? null,
+      requestId,
     });
+  }
+
+  /**
+   * The correlation id for this response.
+   *
+   * `req.id` is set by pino-http's `genReqId`, which already validated any
+   * client-supplied value (EC-002). The header is the fallback for the case
+   * where the filter runs outside the pino middleware, so the body never
+   * carries `null` on a request the client can trace.
+   */
+  private resolveRequestId(request: Request, response: Response): string | null {
+    const fromRequest = (request as Request & { id?: unknown }).id;
+
+    if (typeof fromRequest === 'string' && fromRequest.length > 0) {
+      return fromRequest;
+    }
+
+    const fromHeader = response.getHeader(REQUEST_ID_HEADER);
+
+    return typeof fromHeader === 'string' && fromHeader.length > 0 ? fromHeader : null;
   }
 }

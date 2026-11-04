@@ -5,7 +5,22 @@ argument-hint: Specify the feature to implement (e.g., "Implement user-login"), 
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools: ['read', 'edit', 'create', 'search', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
+tools:
+  [
+    'read',
+    'edit',
+    'create',
+    'search',
+    'execute',
+    'web',
+    'todo',
+    'vscode/askQuestions',
+    'exa:search',
+    'exa:fetch',
+    'ux-ui-library',
+    'stackwise',
+    'context7',
+  ]
 agents: []
 ---
 
@@ -17,6 +32,7 @@ You operate within the current version folder only.
 
 <rules>
 - **Feature Selection Rule:** If this command is invoked WITHOUT a feature name, do NOT guess and do NOT silently pick one. Detect the ongoing features by listing `.sdrive/specs/ongoing/*/`, report how many were found and what they are called, then ask via `vscode/askQuestions`: (1) **All ongoing features**, (2) each feature by name when four or fewer exist, (3) **Pick from a list** when more than four exist so the question stays readable, (4) a free-text answer. If no ongoing feature exists, STOP and say so instead of asking. `/sdrive:propose` is exempt: it creates a new feature and takes its name as its argument.
+- **Secret File Rule:** NEVER read, print, copy, or edit a file whose purpose is to hold credentials — `.env`, `.env.*`, `*.pem`, `*.key`, `*.p12`, `*.pfx`, `id_rsa*`, `credentials.*`, `secrets.*`, `.npmrc`, `.netrc`, or anything `.sdrive/constitution.md` marks as secret. You do not need the values: verify configuration by variable NAME instead (`env.example`, the config schema, `process.env.X` usage, an IaC secret declaration). When a secret must be reported, cite the variable name and location, redacted — `STRIPE_SECRET_KEY in env/dev (sk-****)`. If a task genuinely cannot proceed without a value, STOP and ask the user; never open the file to look. A leaked value is ROTATED, not rewritten: editing or deleting it does not un-leak it.
 - ALWAYS read `.sdrive/constitution.md` first. If it does not exist, STOP and ask the user to run the Constitution Agent. Do not write code without governance.
 - **Version Detection Rule:** Before reading feature files, read `.sdrive/workflow-state.json`:
   - Find the feature by name.
@@ -99,7 +115,7 @@ You operate within the current version folder only.
 
 1. **Resume the feature branch (chosen by `/sdrive:propose` — do not create one)**
 
-   Branch creation moved to `/sdrive:propose`, where the base is decided *before*
+   Branch creation moved to `/sdrive:propose`, where the base is decided _before_
    the spec is written. By the time you run, the branch already exists and is
    recorded. Your job is to get onto it and verify it, not to choose it.
 
@@ -221,7 +237,22 @@ You operate within the current version folder only.
      `/sdrive:propose <feature>`. Never ask
      the user to pick or confirm a merge target here.
    - Report: "Implementation complete on `<feature.branch>`, based on
-     `<feature.base>`. Next: run `/sdrive:test <feature>`."
+     `<feature.base>`."
+   - **Run the mechanical close-out yourself. Do not ask the user to type it.**
+     `sdrive verify <feature>` and `sdrive test <feature>` are scripts, not prompts, so
+     an agent with a terminal has no reason to hand them over:
+     - `sdrive verify` compares `plan.json` to the code and writes `verification.json`.
+     - `sdrive test` runs the suite and records `test-evidence.json` — the file the
+       implementation gate reads. It does not _write_ tests (that is `/sdrive:test`),
+       so running it here is in scope and is not the "confirm verification" the rule
+       above forbids.
+     - Report both outcomes honestly, including a failure and including "no test
+       command configured". Never claim a run you did not perform.
+   - Then run `sdrive next <feature> --write` so the next step is recorded in
+     `.sdrive/handoff.json`. A session that ends here must be resumable in another
+     editor without reading this conversation.
+   - Close with the one thing that is genuinely the user's: "Next is your call:
+     approve implementation once `verify` and the test run look right."
    - **Do not ask which branch to merge into and do not offer a branch menu.**
      That decision was made by `/sdrive:propose`; `/sdrive:archive` merges into
      `<feature.base>` after review and asks only whether to merge now and whether
@@ -260,7 +291,7 @@ When invoked as `/sdrive:apply --all`, implement every ongoing feature sequentia
 4. **Report**
    - Summarize the run: which features are ready for `/sdrive:test`, which failed and why, and the branch name for each.
    - Recommend next steps: `/sdrive:test --all` to test every ongoing feature.
-</all-mode>
+   </all-mode>
 
 <definition-of-done>
 The implementation phase is NOT complete until:
@@ -309,7 +340,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-   Use the prefix `specdrive(<command>):`.
+     Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 

@@ -3,6 +3,15 @@ import { PrismaService } from '../database/prisma.service';
 import { UserRole } from '../users/user-role.enum';
 import type { TenantScope } from './tenant-context';
 
+/** The caller's verified scope, plus the membership they target. */
+export interface SuspendMembershipRequest {
+  membershipId: string;
+  /** Organization from the caller's token scope; never from the request. */
+  organizationId: string;
+  /** Clinic from the caller's token scope, or null for an organization-wide role. */
+  clinicId: string | null;
+}
+
 export interface MembershipView {
   membershipId: string;
   organizationId: string;
@@ -75,11 +84,16 @@ export class TenancyService {
     };
   }
 
-  /** Suspend a membership (FR-018). Audit history is untouched (FR-020). */
-  async suspendMembership(membershipId: string): Promise<void> {
-    const membership = await this.prisma.userMembership.findUnique({
-      where: { id: membershipId },
-    });
+  /**
+   * Suspend a membership (FR-018). Audit history is untouched (FR-020).
+   *
+   * The membership id arrives from the request path, so the caller supplies the
+   * target: it MUST be resolved inside the caller's own tenant. A membership in
+   * another organization is reported as not found, never as forbidden, so the
+   * route does not disclose that it exists.
+   */
+  async suspendMembership(request: SuspendMembershipRequest): Promise<void> {
+    const membership = await this.findMembershipInTenant(request);
     if (!membership) {
       throw new NotFoundException({
         code: 'MEMBERSHIP_NOT_FOUND',
@@ -94,7 +108,7 @@ export class TenancyService {
           organizationId: membership.organizationId,
           role: UserRole.SUPER_ADMIN,
           status: 'ACTIVE',
-          id: { not: membershipId },
+          id: { not: membership.id },
         },
       });
       if (remaining === 0) {
@@ -106,8 +120,26 @@ export class TenancyService {
     }
 
     await this.prisma.userMembership.update({
-      where: { id: membershipId },
+      where: { id: membership.id },
       data: { status: 'SUSPENDED' },
+    });
+  }
+
+  /**
+   * Locate a membership inside the caller's tenant, or return null. When
+   * `clinicId` is null the caller is organization-wide and may reach any clinic
+   * in their organization; otherwise the membership must belong to that clinic.
+   */
+  private async findMembershipInTenant(
+    request: SuspendMembershipRequest,
+  ): Promise<{ id: string; role: string; organizationId: string } | null> {
+    return this.prisma.userMembership.findFirst({
+      where: {
+        id: request.membershipId,
+        organizationId: request.organizationId,
+        ...(request.clinicId ? { clinicId: request.clinicId } : {}),
+      },
+      select: { id: true, role: true, organizationId: true },
     });
   }
 }
