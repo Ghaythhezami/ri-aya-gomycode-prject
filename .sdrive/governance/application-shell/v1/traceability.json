@@ -7,7 +7,7 @@
       "acceptanceCriteriaIds": ["AC-001"],
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.1", "T1.2"],
-      "testIds": [],
+      "testIds": ["TEST-061"],
       "status": "complete"
     },
     {
@@ -15,7 +15,7 @@
       "acceptanceCriteriaIds": ["AC-003"],
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.5"],
-      "testIds": [],
+      "testIds": ["TEST-063"],
       "status": "complete"
     },
     {
@@ -23,7 +23,7 @@
       "acceptanceCriteriaIds": ["AC-002"],
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.3"],
-      "testIds": [],
+      "testIds": ["TEST-062"],
       "status": "complete"
     },
     {
@@ -31,7 +31,7 @@
       "acceptanceCriteriaIds": ["AC-004"],
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.4"],
-      "testIds": [],
+      "testIds": ["TEST-064"],
       "status": "complete"
     },
     {
@@ -39,7 +39,7 @@
       "acceptanceCriteriaIds": ["AC-005"],
       "planSection": "plan.md §1, §3 P2",
       "taskIds": ["T2.1"],
-      "testIds": [],
+      "testIds": ["TEST-065"],
       "status": "complete"
     },
     {
@@ -47,7 +47,7 @@
       "acceptanceCriteriaIds": ["AC-006"],
       "planSection": "plan.md §1, §3 P2",
       "taskIds": ["T2.2", "T2.3"],
-      "testIds": [],
+      "testIds": ["TEST-066"],
       "status": "complete"
     },
     {
@@ -55,7 +55,7 @@
       "acceptanceCriteriaIds": ["AC-007"],
       "planSection": "plan.md §1, §3 P3",
       "taskIds": ["T3.1"],
-      "testIds": [],
+      "testIds": ["TEST-067"],
       "status": "complete"
     },
     {
@@ -63,7 +63,7 @@
       "acceptanceCriteriaIds": ["AC-008"],
       "planSection": "plan.md §1, §3 P3",
       "taskIds": ["T3.2"],
-      "testIds": [],
+      "testIds": ["TEST-068"],
       "status": "complete"
     },
     {
@@ -71,7 +71,7 @@
       "acceptanceCriteriaIds": ["AC-009", "AC-011"],
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.3"],
-      "testIds": [],
+      "testIds": ["TEST-069", "TEST-071"],
       "status": "complete"
     },
     {
@@ -79,7 +79,7 @@
       "acceptanceCriteriaIds": ["AC-010", "AC-012"],
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.1", "T4.2"],
-      "testIds": [],
+      "testIds": ["TEST-070", "TEST-072"],
       "status": "complete"
     },
     {
@@ -87,7 +87,7 @@
       "acceptanceCriteriaIds": ["AC-012"],
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.1"],
-      "testIds": [],
+      "testIds": ["TEST-072"],
       "status": "complete"
     },
     {
@@ -95,7 +95,7 @@
       "acceptanceCriteriaIds": ["AC-011"],
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.3"],
-      "testIds": [],
+      "testIds": ["TEST-071"],
       "status": "complete"
     },
     {
@@ -103,7 +103,7 @@
       "acceptanceCriteriaIds": ["AC-002", "AC-009"],
       "planSection": "plan.md §1, §3 P1, P4",
       "taskIds": ["T1.3", "T4.3", "T4.5"],
-      "testIds": [],
+      "testIds": ["TEST-062", "TEST-069"],
       "status": "complete"
     },
     {
@@ -111,7 +111,7 @@
       "acceptanceCriteriaIds": ["AC-010"],
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.2"],
-      "testIds": [],
+      "testIds": ["TEST-070"],
       "status": "complete"
     },
     {
@@ -119,7 +119,7 @@
       "acceptanceCriteriaIds": ["AC-007"],
       "planSection": "plan.md §1, §3 P3",
       "taskIds": ["T3.1"],
-      "testIds": [],
+      "testIds": ["TEST-067"],
       "status": "complete"
     },
     {
@@ -127,7 +127,7 @@
       "acceptanceCriteriaIds": ["AC-011"],
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.4", "T4.5"],
-      "testIds": [],
+      "testIds": ["TEST-071"],
       "status": "complete"
     },
     {
@@ -135,7 +135,7 @@
       "acceptanceCriteriaIds": ["AC-004"],
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.4"],
-      "testIds": [],
+      "testIds": ["TEST-064"],
       "status": "complete"
     }
   ]

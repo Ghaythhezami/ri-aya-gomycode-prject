@@ -4,7 +4,7 @@ import { CAPABILITY_ROLES, type Capability, type UserRole } from '@riaya/shared'
  * Navigation key to capability. The capabilities and their roles live in
  * `@riaya/shared`, so this file only maps the shell's menu keys onto them.
  */
-const NAV_CAPABILITIES: Record<string, Capability> = {
+export const NAV_CAPABILITIES: Record<string, Capability> = {
   overview: 'viewOverview',
   appointments: 'viewAppointments',
   calendar: 'viewCalendar',

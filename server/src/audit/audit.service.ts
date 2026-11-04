@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { TenantContext, organizationWhere } from '../tenancy/tenant-context';
+import { TenantContext, clinicWhere } from '../tenancy/tenant-context';
 
 export interface AuditEntry {
   actorUserId?: string | null;
@@ -87,7 +87,7 @@ export class AuditService {
     const scope = this.tenant.peek();
 
     return this.prisma.auditLog.findMany({
-      where: { entity, entityId, ...(scope ? organizationWhere(scope) : {}) },
+      where: { entity, entityId, ...(scope ? clinicWhere(scope) : {}) },
       orderBy: { createdAt: 'desc' },
       take: limit,
     });
