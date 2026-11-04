@@ -1,281 +1,211 @@
 {
   "feature": "design-tokens-and-component-library",
-  "status": "fail",
-  "checkedAt": "2026-11-04T11:11:25.138Z",
+  "status": "pass",
+  "checkedAt": "2026-11-04T11:59:27.140Z",
   "summary": {
-    "matched": 3,
-    "missing": 44,
+    "matched": 36,
+    "missing": 0,
     "renamed": 0,
     "extra": 0,
-    "withdrawn": 0
+    "withdrawn": 11
   },
   "items": {
     "matched": [
       {
-        "type": "dependency",
-        "name": "lucide-react",
-        "action": "no_change",
-        "depType": "library",
-        "resolution": null
-      },
-      {
-        "type": "dependency",
-        "name": "tailwindcss",
-        "action": "no_change",
-        "depType": "library",
-        "resolution": null
-      },
-      {
-        "type": "dependency",
-        "name": "Node.js built-ins (node:fs, node:path, Intl)",
-        "action": "no_change",
-        "depType": "external",
-        "resolution": null,
-        "note": "external dependency; not manifest-verifiable"
-      }
-    ],
-    "missing": [
-      {
         "type": "component",
         "name": "tokens",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/design-system/tokens.ts"
       },
       {
         "type": "component",
         "name": "check-token-parity",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/scripts/check-token-parity.mjs"
       },
       {
         "type": "component",
         "name": "check-token-literals",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/scripts/check-token-literals.mjs"
       },
       {
         "type": "component",
         "name": "check-locale-parity",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/scripts/check-locale-parity.mjs"
       },
       {
         "type": "component",
         "name": "Button",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Button.tsx"
       },
       {
         "type": "component",
         "name": "Input",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Input.tsx"
       },
       {
         "type": "component",
         "name": "Badge",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Badge.tsx"
       },
       {
         "type": "component",
         "name": "Modal",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Modal.tsx"
       },
       {
         "type": "component",
         "name": "Table",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Table.tsx"
       },
       {
         "type": "component",
         "name": "SampleCharts",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/charts/SampleCharts.tsx"
       },
       {
         "type": "component",
         "name": "Textarea",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Input.tsx"
       },
       {
         "type": "component",
         "name": "SearchableSelect",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/SearchableSelect.tsx"
       },
       {
         "type": "component",
         "name": "DatePicker",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/DatePicker.tsx"
       },
       {
         "type": "component",
         "name": "TimePicker",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/DatePicker.tsx"
       },
       {
         "type": "component",
         "name": "Tabs",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Tabs.tsx"
       },
       {
         "type": "component",
         "name": "Dropdown",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Dropdown.tsx"
       },
       {
         "type": "component",
         "name": "Tooltip",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Tooltip.tsx"
       },
       {
         "type": "component",
         "name": "Popover",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Popover.tsx"
       },
       {
         "type": "component",
         "name": "KpiCard",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/KpiCard.tsx"
       },
       {
         "type": "component",
         "name": "Toast",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Toast.tsx"
       },
       {
         "type": "component",
         "name": "ConfirmDialog",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/ConfirmDialog.tsx"
       },
       {
         "type": "component",
         "name": "Skeleton",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/Skeleton.tsx"
       },
       {
         "type": "component",
         "name": "EmptyState",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/States.tsx"
       },
       {
         "type": "component",
         "name": "ErrorState",
         "action": "create",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/common/States.tsx"
       },
       {
         "type": "component",
         "name": "DesignSystemPage",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/pages/DesignSystemPage.tsx"
       },
       {
         "type": "component",
         "name": "RegisterPage",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/pages/RegisterPage.tsx"
       },
       {
         "type": "component",
         "name": "StaffDirectoryPage",
         "action": "modify",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/pages/StaffDirectoryPage.tsx"
       },
       {
         "type": "component",
         "name": "WorkspaceSwitcher",
         "action": "modify",
-        "resolution": null
-      },
-      {
-        "type": "component",
-        "name": "i18n-catalogues",
-        "action": "modify",
-        "resolution": null
-      },
-      {
-        "type": "entity",
-        "name": "DesignTokens",
-        "action": "create",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "DesignTokens",
-        "name": "color",
-        "fieldType": "Record<string, string>",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "DesignTokens",
-        "name": "radius",
-        "fieldType": "Record<string, string>",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "DesignTokens",
-        "name": "space",
-        "fieldType": "Record<string, string>",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "DesignTokens",
-        "name": "elevation",
-        "fieldType": "Record<string, string>",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "DesignTokens",
-        "name": "font",
-        "fieldType": "Record<string, string>",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "entity",
-        "name": "LocaleCatalogue",
-        "action": "update",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "LocaleCatalogue",
-        "name": "ds.*",
-        "fieldType": "string",
-        "action": "add",
-        "resolution": null
-      },
-      {
-        "type": "field",
-        "entity": "LocaleCatalogue",
-        "name": "existing 135 keys",
-        "fieldType": "string",
-        "action": "no_change",
-        "resolution": null
+        "resolution": null,
+        "file": "backoffice/src/layouts/WorkspaceSwitcher.tsx"
       },
       {
         "type": "dependency",
@@ -293,7 +223,21 @@
       },
       {
         "type": "dependency",
+        "name": "lucide-react",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
         "name": "recharts",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "tailwindcss",
         "action": "no_change",
         "depType": "library",
         "resolution": null
@@ -314,14 +258,164 @@
       },
       {
         "type": "dependency",
+        "name": "Node.js built-ins (node:fs, node:path, Intl)",
+        "action": "no_change",
+        "depType": "external",
+        "resolution": null,
+        "note": "external dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": [
+      {
+        "type": "component",
+        "name": "i18n-catalogues",
+        "action": "modify",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "The catalogue files are JSON and carry no exported component, so `sdrive verify` cannot match them by symbol or by bare file name. Their content was delivered: ds.* keys were added to all three locales together, and scripts/check-locale-parity.mjs is wired into `build` to prove the catalogues keep the same shape.",
+          "at": "2026-11-04"
+        },
+        "reason": "The catalogue files are JSON and carry no exported component, so `sdrive verify` cannot match them by symbol or by bare file name. Their content was delivered: ds.* keys were added to all three locales together, and scripts/check-locale-parity.mjs is wired into `build` to prove the catalogues keep the same shape.",
+        "kind": "deferred"
+      },
+      {
+        "type": "entity",
+        "name": "DesignTokens",
+        "action": "create",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+          "at": "2026-11-04"
+        },
+        "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "color",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+          "at": "2026-11-04"
+        },
+        "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "radius",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+          "at": "2026-11-04"
+        },
+        "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "space",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+          "at": "2026-11-04"
+        },
+        "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "elevation",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+          "at": "2026-11-04"
+        },
+        "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "font",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+          "at": "2026-11-04"
+        },
+        "reason": "DesignTokens is a conceptual name for a plain as-const object, deliberately not persisted or declared as a TS type: the plan itself specifies no runtime type and the file exports the groups individually. It shipped as backoffice/src/design-system/tokens.ts (color, font, radius, space, elevation) with no type/interface declaration for a detector to read.",
+        "kind": "deferred"
+      },
+      {
+        "type": "entity",
+        "name": "LocaleCatalogue",
+        "action": "update",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "LocaleCatalogue is a conceptual name for the three JSON message files, not a declared entity, so there is no interface whose fields could be detected. The update was delivered: ds.* keys now exist in en, ar and fr, and the 135 pre-existing keys are unchanged, which scripts/check-locale-parity.mjs asserts on every build.",
+          "at": "2026-11-04"
+        },
+        "reason": "LocaleCatalogue is a conceptual name for the three JSON message files, not a declared entity, so there is no interface whose fields could be detected. The update was delivered: ds.* keys now exist in en, ar and fr, and the 135 pre-existing keys are unchanged, which scripts/check-locale-parity.mjs asserts on every build.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "LocaleCatalogue",
+        "name": "ds.*",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "LocaleCatalogue is a conceptual name for the three JSON message files, not a declared entity, so there is no interface whose fields could be detected. The update was delivered: ds.* keys now exist in en, ar and fr, and the 135 pre-existing keys are unchanged, which scripts/check-locale-parity.mjs asserts on every build.",
+          "at": "2026-11-04"
+        },
+        "reason": "LocaleCatalogue is a conceptual name for the three JSON message files, not a declared entity, so there is no interface whose fields could be detected. The update was delivered: ds.* keys now exist in en, ar and fr, and the 135 pre-existing keys are unchanged, which scripts/check-locale-parity.mjs asserts on every build.",
+        "kind": "deferred"
+      },
+      {
+        "type": "field",
+        "entity": "LocaleCatalogue",
+        "name": "existing 135 keys",
+        "fieldType": "string",
+        "action": "no_change",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "LocaleCatalogue is a conceptual name for the three JSON message files, not a declared entity, so there is no interface whose fields could be detected. The update was delivered: ds.* keys now exist in en, ar and fr, and the 135 pre-existing keys are unchanged, which scripts/check-locale-parity.mjs asserts on every build.",
+          "at": "2026-11-04"
+        },
+        "reason": "LocaleCatalogue is a conceptual name for the three JSON message files, not a declared entity, so there is no interface whose fields could be detected. The update was delivered: ds.* keys now exist in en, ar and fr, and the 135 pre-existing keys are unchanged, which scripts/check-locale-parity.mjs asserts on every build.",
+        "kind": "deferred"
+      },
+      {
+        "type": "dependency",
         "name": "storybook",
         "action": "remove",
         "depType": "library",
-        "resolution": null
+        "resolution": {
+          "kind": "deferred",
+          "reason": "Storybook was listed for consideration and rejected: CON-308 requires explicit approval for new tooling and CON-302 already names /design-system as the demonstration surface. Nothing was installed, so there is no manifest entry to find.",
+          "at": "2026-11-04"
+        },
+        "reason": "Storybook was listed for consideration and rejected: CON-308 requires explicit approval for new tooling and CON-302 already names /design-system as the demonstration surface. Nothing was installed, so there is no manifest entry to find.",
+        "kind": "deferred"
       }
-    ],
-    "renamed": [],
-    "extra": [],
-    "withdrawn": []
+    ]
   }
 }

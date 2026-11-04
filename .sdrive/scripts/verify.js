@@ -195,14 +195,102 @@ function readConstitutionSources() {
     .filter((top) => top && CANDIDATE_ROOTS.includes(top));
 }
 
+// Packages a monorepo declares as workspaces, read from the root manifest so they are
+// scanned like any other source root.
+//
+// CANDIDATE_ROOTS is a fixed list of conventional folder names, which a workspace
+// package need not use. This project is a pnpm workspace of `web`, `server` and
+// `backoffice`, and the fixed list knew only `server`: a feature implemented entirely in
+// `backoffice/` had all 44 of its planned components reported missing while every one
+// of them sat on disk. Reading the declared workspaces (plus pnpm-workspace.yaml and
+// lerna.json for pnpm and Lerna repos) makes the scanner follow the repo's real layout
+// instead of guessing at names.
+function readWorkspacePackages() {
+  const globs = [];
+
+  const rootManifest = path.join(projectRoot, 'package.json');
+
+  if (fs.existsSync(rootManifest)) {
+    try {
+      const pkg = JSON.parse(fs.readFileSync(rootManifest, 'utf8'));
+      const workspaces = pkg.workspaces;
+
+      // `"workspaces": ["packages/*"]`, or the Yarn form
+      // `"workspaces": { "packages": ["packages/*"] }`.
+      const entries = Array.isArray(workspaces) ? workspaces : (workspaces?.packages ?? []);
+
+      entries.forEach((entry) => globs.push(entry));
+    } catch (error) {
+      // An unreadable root manifest is not fatal: the conventional roots still apply.
+    }
+  }
+
+  const pnpmWorkspace = path.join(projectRoot, 'pnpm-workspace.yaml');
+
+  if (fs.existsSync(pnpmWorkspace)) {
+    for (const line of readFileContent(pnpmWorkspace).split(/\r?\n/)) {
+      const match = line.match(/^\s*-\s*['"]?([^'"#]+?)['"]?\s*$/);
+
+      if (match) globs.push(match[1]);
+    }
+  }
+
+  const lernaConfig = path.join(projectRoot, 'lerna.json');
+
+  if (fs.existsSync(lernaConfig)) {
+    try {
+      const lerna = JSON.parse(readFileContent(lernaConfig));
+
+      (lerna.packages || []).forEach((entry) => globs.push(entry));
+    } catch (error) {
+      // Same reasoning as above.
+    }
+  }
+
+  const packages = new Set();
+
+  for (const glob of globs) {
+    const pattern = String(glob).trim();
+    const top = pattern.split(/[/\\]/)[0].replace(/\*+$/, '');
+
+    if (!top || top === '.' || IGNORED_DIRS.has(top) || IGNORED_FILES.has(top)) continue;
+
+    const topDir = path.join(projectRoot, top);
+
+    if (!fs.existsSync(topDir) || !fs.statSync(topDir).isDirectory()) continue;
+
+    // A plain entry is the package itself. A wildcard entry (`packages/*`) names a parent
+    // whose children are the packages, so the parent must not be scanned as a root of
+    // its own or every file under it would be read twice.
+    if (!/[*?]/.test(pattern)) {
+      packages.add(top);
+      continue;
+    }
+
+    for (const entry of fs.readdirSync(topDir, { withFileTypes: true })) {
+      if (!entry.isDirectory()) continue;
+      if (IGNORED_DIRS.has(entry.name) || entry.name.startsWith('.')) continue;
+
+      const child = path.join(top, entry.name);
+
+      // A workspace member is a package; the wildcard may also match a data folder.
+      if (fs.existsSync(path.join(projectRoot, child, 'package.json'))) packages.add(child);
+    }
+  }
+
+  return [...packages];
+}
+
 function detectSourceRoots() {
   const fromConstitution = readConstitutionSources();
+  const fromWorkspaces = readWorkspacePackages();
   const detected = CANDIDATE_ROOTS.filter((r) => fs.existsSync(path.join(projectRoot, r)));
 
-  // Union the constitution's declared roots with the conventional roots that
-  // actually exist. Relying on the constitution alone misses real source
-  // folders (e.g. lib/, messages/) that the document simply did not list.
-  const roots = [...new Set([...fromConstitution, ...detected])];
+  // Union the constitution's declared roots, the packages the root manifest declares as
+  // workspaces, and the conventional roots that actually exist. Relying on the
+  // constitution alone misses real source folders (e.g. lib/, messages/) that the
+  // document simply did not list.
+  const roots = [...new Set([...fromConstitution, ...fromWorkspaces, ...detected])];
 
   return roots.filter((r) => fs.existsSync(path.join(projectRoot, r)));
 }
@@ -264,14 +352,27 @@ function detectComponents(files) {
     const relative = path.relative(projectRoot, file).replace(/\\/g, '/');
     const basename = path.basename(file, path.extname(file));
 
-    // React / Vue / Svelte components
-    const componentMatches = content.match(
-      /(?:export\s+)?(?:function|const|class)\s+([A-Z][A-Za-z0-9_]+)/,
+    // React / Vue / Svelte components. The exported symbol can live anywhere in the
+    // package: this project keeps its primitives in `backoffice/src/common/`, and a
+    // `components/` path gate hid `Textarea`, `EmptyState` and `ErrorState` there, so a
+    // plan naming them by symbol was told they do not exist.
+    //
+    // Every exported PascalCase symbol is recorded, not just the first. A module often
+    // exports several primitives (this project's `States.tsx` exports `Shell`,
+    // `EmptyState` and `ErrorState`); taking only the first match reported the rest as
+    // missing even though they exist in the scanned file.
+    const componentMatches = content.matchAll(
+      /(?:export\s+)?(?:function|const|class)\s+([A-Z][A-Za-z0-9_]+)/g,
     );
 
-    if (componentMatches && /components?\//i.test(relative)) {
+    const exportedNames = new Set();
+
+    for (const match of componentMatches) {
+      if (exportedNames.has(match[1])) continue;
+
+      exportedNames.add(match[1]);
       components.push({
-        name: componentMatches[1],
+        name: match[1],
         file: relative,
         basename,
       });
@@ -286,6 +387,19 @@ function detectComponents(files) {
       basename,
       isPath: true,
     });
+
+    // ...and by bare file name. A plan writes `tokens`, `check-token-parity` or
+    // `i18n-catalogues` for a module that exports no PascalCase symbol; without this the
+    // only recorded name was the full path, and the file was reported as a rename of
+    // itself rather than a match.
+    if (basename) {
+      components.push({
+        name: basename,
+        file: relative,
+        basename,
+        isPath: true,
+      });
+    }
   });
 
   return components;
