@@ -59,7 +59,7 @@ const queueUpdated = () => ({
 
 describe('realtime event contract', () => {
   // TEST-014 → AC-014
-  it('AC-014: every contract event declares its required fields', () => {
+  it('TEST-014/AC-014: every contract event declares its required fields', () => {
     const events = [
       appointmentCreated(),
       appointmentCancelled(),
@@ -86,14 +86,14 @@ describe('realtime event contract', () => {
   });
 
   // TEST-014 → AC-014
-  it('AC-014: the contract version is pinned, so a silent producer bump is rejected', () => {
+  it('TEST-014/AC-014: the contract version is pinned, so a silent producer bump is rejected', () => {
     const bumped = { ...appointmentCreated(), contractVersion: 2 };
 
     expect(realtimeEventSchema.safeParse(bumped).success).toBe(false);
   });
 
   // TEST-014 → AC-014
-  it('AC-014: an event missing a required field is rejected', () => {
+  it('TEST-014/AC-014: an event missing a required field is rejected', () => {
     const incomplete = appointmentCreated();
     delete (incomplete.payload as Partial<typeof incomplete.payload>).doctorId;
 
@@ -101,14 +101,14 @@ describe('realtime event contract', () => {
   });
 
   // TEST-014 → AC-014
-  it('AC-014: an unknown field is rejected rather than ignored', () => {
+  it('TEST-014/AC-014: an unknown field is rejected rather than ignored', () => {
     const extra = { ...queueUpdated(), unauthorised: true } as Record<string, unknown>;
 
     expect(realtimeEventSchema.safeParse(extra).success).toBe(false);
   });
 
   // TEST-014 → AC-014
-  it('AC-014: the wire channel is the one the relay subscribes to', () => {
+  it('TEST-014/AC-014: the wire channel is the one the relay subscribes to', () => {
     expect(REALTIME_EVENTS_CHANNEL).toBe('riaya:events');
   });
 });

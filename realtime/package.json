@@ -10,7 +10,7 @@
     "build": "nest build && node scripts/build-shared.cjs",
     "lint": "eslint \"src/**/*.ts\" --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "jest --coverage --runInBand"
+    "test": "jest --coverage --runInBand --verbose"
   },
   "dependencies": {
     "@nestjs/common": "^11.1.3",

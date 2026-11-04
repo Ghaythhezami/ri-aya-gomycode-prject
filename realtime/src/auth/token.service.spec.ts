@@ -29,7 +29,7 @@ const verifyError = async (token: unknown): Promise<ConnectionRefusedError> => {
 
 describe('TokenService', () => {
   // TEST-001 → AC-001
-  it('AC-001: a connection with no token is refused', async () => {
+  it('TEST-001/AC-001: a connection with no token is refused', async () => {
     await expect(service().verify(undefined)).rejects.toBeInstanceOf(ConnectionRefusedError);
     await expect(service().verify('')).rejects.toBeInstanceOf(ConnectionRefusedError);
     await expect(service().verify(null)).rejects.toBeInstanceOf(ConnectionRefusedError);
@@ -39,7 +39,7 @@ describe('TokenService', () => {
   });
 
   // TEST-002 → AC-002
-  it('AC-002: a bad signature and an expired token give the same generic reason', async () => {
+  it('TEST-002/AC-002: a bad signature and an expired token give the same generic reason', async () => {
     const forged = sign(claims(), OTHER_SECRET);
     const expired = sign(claims(), SECRET, -1);
 
@@ -53,14 +53,14 @@ describe('TokenService', () => {
     expect(forgedError.message).toBe(expiredError.message);
   });
 
-  it('AC-002: a token missing a required claim is refused with the same reason', async () => {
+  it('TEST-002/AC-002: a token missing a required claim is refused with the same reason', async () => {
     const error = await verifyError(sign(claims({ clinic_id: undefined })));
 
     expect(error.message).toBe(UNAUTHORIZED_REASON);
   });
 
   // TEST-003 → AC-003
-  it('AC-003: a valid token is bound to its user, clinic, role and expiry', async () => {
+  it('TEST-003/AC-003: a valid token is bound to its user, clinic, role and expiry', async () => {
     const scope = await service().verify(sign(claims()));
 
     expect(scope.userId).toBe('user-1');

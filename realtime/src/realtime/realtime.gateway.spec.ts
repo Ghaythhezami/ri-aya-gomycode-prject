@@ -79,7 +79,7 @@ const admit = async (gateway: RealtimeGateway, socket: FakeSocket): Promise<Erro
 
 describe('RealtimeGateway', () => {
   // TEST-001 → AC-001
-  it('AC-001: a connection with no token is refused and joins nothing', async () => {
+  it('TEST-001/AC-001: a connection with no token is refused and joins nothing', async () => {
     const tokens = {
       verify: jest.fn().mockRejectedValue(new ConnectionRefusedError()),
     } as unknown as TokenService;
@@ -97,7 +97,7 @@ describe('RealtimeGateway', () => {
   });
 
   // TEST-002 → AC-002
-  it('AC-002: every admission failure reaches the client as the same reason', async () => {
+  it('TEST-002/AC-002: every admission failure reaches the client as the same reason', async () => {
     jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined);
 
     const refused = await admit(build(new ConnectionRefusedError()).gateway, fakeSocket());
@@ -111,7 +111,7 @@ describe('RealtimeGateway', () => {
   });
 
   // TEST-002 → AC-001
-  it('AC-001: a throttled connection attempt is refused before authentication', async () => {
+  it('TEST-001/AC-001: a throttled connection attempt is refused before authentication', async () => {
     const { gateway } = build(scope(), false);
     const socket = fakeSocket({ token: 'anything' });
 
@@ -122,7 +122,7 @@ describe('RealtimeGateway', () => {
   });
 
   // TEST-003 → AC-003
-  it('AC-003: an accepted connection is bound to its user and clinic rooms', async () => {
+  it('TEST-003/AC-003: an accepted connection is bound to its user and clinic rooms', async () => {
     const { gateway } = build(scope());
     const socket = fakeSocket({ token: 'token' });
 
@@ -135,7 +135,7 @@ describe('RealtimeGateway', () => {
   });
 
   // TEST-004 → AC-004
-  it('AC-004: joining another clinic is refused and adds no membership', async () => {
+  it('TEST-004/AC-004: joining another clinic is refused and adds no membership', async () => {
     const { gateway } = build(scope());
     const socket = fakeSocket({ token: 'token' });
 
@@ -149,7 +149,7 @@ describe('RealtimeGateway', () => {
     expect(socket.emit).toHaveBeenCalledWith('room:denied', { reason: 'ROOM_DENIED' });
   });
 
-  it('AC-004: re-joining a room the connection already owns is a silent no-op', async () => {
+  it('TEST-004/AC-004: re-joining a room the connection already owns is a silent no-op', async () => {
     const { gateway } = build(scope());
     const socket = fakeSocket({ token: 'token' });
 
@@ -161,7 +161,7 @@ describe('RealtimeGateway', () => {
     expect(socket.emit).not.toHaveBeenCalled();
   });
 
-  it('AC-004: a malformed join request is refused', async () => {
+  it('TEST-004/AC-004: a malformed join request is refused', async () => {
     const { gateway } = build(scope());
     const socket = fakeSocket({ token: 'token' });
 
@@ -173,7 +173,7 @@ describe('RealtimeGateway', () => {
   });
 
   // TEST-006 → AC-006
-  it('AC-006: a reconnecting client is rejoined without any client-side join', async () => {
+  it('TEST-006/AC-006: a reconnecting client is rejoined without any client-side join', async () => {
     const { gateway } = build(scope());
     const first = fakeSocket({ token: 'token' });
     const second = fakeSocket({ token: 'token' });
@@ -190,7 +190,7 @@ describe('RealtimeGateway', () => {
   });
 
   // TEST-007 → AC-007
-  it('AC-007: the socket is disconnected when the token expires', async () => {
+  it('TEST-007/AC-007: the socket is disconnected when the token expires', async () => {
     jest.useFakeTimers();
 
     try {
@@ -209,7 +209,7 @@ describe('RealtimeGateway', () => {
     }
   });
 
-  it('AC-007: a connection whose token is already expired is disconnected at once', () => {
+  it('TEST-007/AC-007: a connection whose token is already expired is disconnected at once', () => {
     const { gateway } = build(scope({ expiresAt: Date.now() - 1 }));
     const socket = fakeSocket({ token: 'token' });
 
@@ -218,7 +218,7 @@ describe('RealtimeGateway', () => {
     expect(socket.disconnect).toHaveBeenCalledWith(true);
   });
 
-  it('AC-001: a socket that reaches the connection event without a scope is dropped', () => {
+  it('TEST-001/AC-001: a socket that reaches the connection event without a scope is dropped', () => {
     const { gateway } = build(scope());
     const socket = fakeSocket();
 
@@ -228,7 +228,7 @@ describe('RealtimeGateway', () => {
     expect(socket.disconnect).toHaveBeenCalledWith(true);
   });
 
-  it('AC-007: disconnecting clears the expiry timer', async () => {
+  it('TEST-007/AC-007: disconnecting clears the expiry timer', async () => {
     jest.useFakeTimers();
 
     try {
