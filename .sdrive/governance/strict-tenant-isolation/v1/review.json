@@ -1,0 +1,176 @@
+{
+  "feature": "strict-tenant-isolation",
+  "version": "v1",
+  "status": "PASS",
+  "commit": "a83226e5f2958a09e7f658e641646fdc4d8b55f0",
+  "base": "main",
+  "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-04T22:14:03.213Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "spec-convergence",
+      "status": "pass",
+      "detail": "All 9 ACs verified: server-derived scope per request, body/query never trusted, membership re-verification, scoped audit reads and writes, refresh-token scope, and the additive migration."
+    },
+    {
+      "id": "task-completion",
+      "status": "pass",
+      "detail": "9/9 tasks complete across four phases; tasks.md and tasks.json agree."
+    },
+    {
+      "id": "traceability",
+      "status": "pass",
+      "detail": "15/15 FR/NFR rows complete, each with at least one test ID from the e2e, scope and audit suites."
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "detail": "100% (9/9 ACs; 12/12 feature tests)."
+    },
+    {
+      "id": "test-report",
+      "status": "pass",
+      "detail": "Present at .sdrive/reports/tests/test-report-strict-tenant-isolation-v1-2026-11-04.md, added after the spec and plan; summary 9/9 ACs, 100%, 12/12."
+    },
+    {
+      "id": "test-evidence",
+      "status": "pass",
+      "detail": "Present, exitCode 0, zero failures, 116 results (115 passed, 1 unrelated skip), commit a83226e equals HEAD."
+    },
+    {
+      "id": "change-scope",
+      "status": "pass",
+      "detail": "The shared branch carries the four owner-approved group features (CON-611); the isolation paths trace to its plan, with no unplanned file and a clean tree."
+    },
+    {
+      "id": "test-quality",
+      "status": "pass",
+      "detail": "Every test names its AC ID; no .only, xit, skips or empty assertions in the isolation suites."
+    },
+    {
+      "id": "code-quality",
+      "status": "pass",
+      "detail": "Server lint (--max-warnings=0), typecheck and nest build pass at HEAD."
+    },
+    {
+      "id": "security",
+      "status": "pass",
+      "detail": "No secrets; no dependency change. The feature is authorization hardening: server-derived scope, scoped reads and writes, scoped audit, and the refresh-token clinic binding (CON-511/512/515/516)."
+    },
+    {
+      "id": "testing",
+      "status": "pass",
+      "detail": "Isolation suite 12/12; full workspace 115 passed, 0 failed, 1 unrelated environmental skip."
+    },
+    {
+      "id": "documentation",
+      "status": "pass",
+      "detail": "plan.md, tasks.md and the traceability rows describe the scope derivation, the audit scoping and the refresh-token migration."
+    },
+    {
+      "id": "nfr-evidence",
+      "status": "pass",
+      "detail": "All six NFR rows are isolation, validation and data-integrity constraints, verified by the service and e2e suites. There are no performance, accessibility or SEO NFRs."
+    },
+    {
+      "id": "definition-of-done",
+      "status": "pass",
+      "detail": "All DoD items satisfied except reviewer independence, which is escalated and owner-confirmed."
+    },
+    {
+      "id": "spec-to-code-verification",
+      "status": "pass",
+      "detail": "sdrive verify returns pass: 14 matched, 0 missing."
+    },
+    {
+      "id": "ci",
+      "status": "not_verified",
+      "detail": "No pull request exists for the shared branch and the workflow does not run on feature-branch pushes, so there is no CI run for a83226e."
+    },
+    {
+      "id": "permission",
+      "status": "pass",
+      "detail": "check-permission.js slash /sdrive:review allowed kenule500 (admin)."
+    },
+    {
+      "id": "reviewer-independence",
+      "status": "pass",
+      "detail": "The implementer and reviewer share kenule500. Escalated and explicitly confirmed by the owner, who accepted the independence gap for this verdict."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "issue": "Patient-scoped queries beyond the workspace scope are explicitly deferred to BP-015; the deferral is documented in the spec and plan.",
+      "location": "server/src/patients/ (not touched)",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "CI is not verified: the shared branch has no pull request and the workflow does not run on feature-branch pushes.",
+      "location": "GitHub Actions",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "verification": ".sdrive/governance/strict-tenant-isolation/v1/verification.json",
+    "testEvidence": ".sdrive/governance/strict-tenant-isolation/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-strict-tenant-isolation-v1-2026-11-04.md",
+    "audit": ".sdrive/handoff.json"
+  },
+  "security": {
+    "status": "pass",
+    "reason": "The feature is the authorization hardening itself. Tenant scope is derived per request on the server from the JWT, never from the body or query; membership is re-verified; reads and writes run through scoped filters, including audit; the refresh token validates its clinic. The e2e suite proves cross-tenant refusals. No secret or dependency was added.",
+    "secrets": "clean",
+    "dependencies": "clean",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "pass",
+        "detail": "Refresh tokens carry and validate clinicId; membership is re-verified before the scope is trusted."
+      },
+      {
+        "id": "CON-512",
+        "status": "pass",
+        "detail": "Server-derived scope; e2e tests prove cross-tenant refusals."
+      },
+      {
+        "id": "CON-513",
+        "status": "not_applicable",
+        "detail": "No headers or transport configuration changed."
+      },
+      { "id": "CON-514", "status": "not_applicable", "detail": "No new routes were added." },
+      {
+        "id": "CON-515",
+        "status": "pass",
+        "detail": "The switch-workspace DTO validates its input."
+      },
+      {
+        "id": "CON-516",
+        "status": "pass",
+        "detail": "Prisma reads and writes are scoped, including the audit service."
+      },
+      { "id": "CON-517", "status": "not_applicable", "detail": "No HTML rendering surface." },
+      {
+        "id": "CON-518",
+        "status": "not_applicable",
+        "detail": "No cookie, CORS or state-changing route handling changed."
+      },
+      { "id": "CON-519", "status": "not_applicable", "detail": "No .env file read or modified." },
+      {
+        "id": "CON-520",
+        "status": "not_applicable",
+        "detail": "No transport configuration changed."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_applicable",
+    "reason": "The spec has no performance, accessibility or SEO NFRs; its NFRs are isolation and data-integrity constraints, all verified by the suite.",
+    "method": "Service and e2e assertions; no browser measurement applies.",
+    "nfr": [],
+    "seo": "not_applicable"
+  }
+}

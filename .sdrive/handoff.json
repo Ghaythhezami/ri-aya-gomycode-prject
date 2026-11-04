@@ -1,18 +1,33 @@
 {
-  "feature": "application-shell",
+  "feature": "localised-data-and-api-messages",
   "version": "v1",
-  "recordedAt": "2026-11-04T17:52:48.337Z",
+  "recordedAt": "2026-11-04T22:22:06.843Z",
   "by": null,
   "steps": [
     {
-      "command": "sdrive test application-shell",
-      "kind": "cli",
-      "why": "Review needs passing test evidence; run the tests first."
-    },
-    {
       "command": "sdrive approve application-shell review",
       "kind": "human",
-      "why": "Approving is a sign-off, so it stays with you."
+      "why": "All four group reviews pass at a83226e; approving is a sign-off, so it stays with you."
+    },
+    {
+      "command": "sdrive approve strict-tenant-isolation review",
+      "kind": "human",
+      "why": "PASS review recorded; the review gate needs the owner's sign-off."
+    },
+    {
+      "command": "sdrive approve role-based-access-control-and-clinic-scoping review",
+      "kind": "human",
+      "why": "PASS review recorded; the review gate needs the owner's sign-off."
+    },
+    {
+      "command": "sdrive approve localised-data-and-api-messages review",
+      "kind": "human",
+      "why": "PASS review recorded; the review gate needs the owner's sign-off."
+    },
+    {
+      "command": "sdrive archive --all",
+      "kind": "human",
+      "why": "The four features share one branch and, per CON-611, merge once when every review gate is approved."
     }
   ]
 }

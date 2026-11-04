@@ -1,0 +1,178 @@
+{
+  "feature": "localised-data-and-api-messages",
+  "version": "v1",
+  "status": "PASS",
+  "commit": "a83226e5f2958a09e7f658e641646fdc4d8b55f0",
+  "base": "main",
+  "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-04T22:14:03.213Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "spec-convergence",
+      "status": "pass",
+      "detail": "All 12 ACs verified: locale negotiation from Accept-Language with an English fallback, the shared error catalogue, code-preserving filter localization, Intl formatters, the membership clinic timezone, and 230-key parity across en/ar/fr."
+    },
+    {
+      "id": "task-completion",
+      "status": "pass",
+      "detail": "9/9 tasks complete across four phases; tasks.md and tasks.json agree."
+    },
+    {
+      "id": "traceability",
+      "status": "pass",
+      "detail": "14/14 FR/NFR rows complete, each with at least one test ID from the filter, formatter and membership-timezone suites."
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "detail": "100% (12/12 ACs; 13/13 feature tests)."
+    },
+    {
+      "id": "test-report",
+      "status": "pass",
+      "detail": "Present at .sdrive/reports/tests/test-report-localised-data-and-api-messages-v1-2026-11-04.md, added after the spec and plan; summary 12/12 ACs, 100%, 13/13."
+    },
+    {
+      "id": "test-evidence",
+      "status": "pass",
+      "detail": "Present, exitCode 0, zero failures, 116 results (115 passed, 1 unrelated skip), commit a83226e equals HEAD."
+    },
+    {
+      "id": "change-scope",
+      "status": "pass",
+      "detail": "The shared branch carries the four owner-approved group features (CON-611); the localization paths trace to its plan, with no unplanned file and a clean tree."
+    },
+    {
+      "id": "test-quality",
+      "status": "pass",
+      "detail": "Every test names its AC ID; no .only, xit, skips or empty assertions in the localization suites."
+    },
+    {
+      "id": "code-quality",
+      "status": "pass",
+      "detail": "Server and backoffice lint/typecheck/build pass at HEAD; the build includes the locale-parity guard (230 keys per locale)."
+    },
+    {
+      "id": "security",
+      "status": "pass",
+      "detail": "No secrets; no dependency change. The error filter maps known codes and never emits a stack or internal text; unknown codes keep the supplied message. No other security surface changed."
+    },
+    {
+      "id": "testing",
+      "status": "pass",
+      "detail": "Localization suite 13/13; full workspace 115 passed, 0 failed, 1 unrelated environmental skip."
+    },
+    {
+      "id": "documentation",
+      "status": "pass",
+      "detail": "The locale negotiation, the error catalogue and the formatter contract are documented in the plan and reflected in the tests."
+    },
+    {
+      "id": "nfr-evidence",
+      "status": "pass",
+      "detail": "The locale-parity and formatting constraints are verified; there are no performance or SEO NFRs. The Arabic rendering and direction check is structural (low finding)."
+    },
+    {
+      "id": "definition-of-done",
+      "status": "pass",
+      "detail": "All DoD items satisfied except reviewer independence, which is escalated and owner-confirmed."
+    },
+    {
+      "id": "spec-to-code-verification",
+      "status": "pass",
+      "detail": "sdrive verify returns pass: 14 matched, 0 missing."
+    },
+    {
+      "id": "ci",
+      "status": "not_verified",
+      "detail": "No pull request exists for the shared branch and the workflow does not run on feature-branch pushes, so there is no CI run for a83226e."
+    },
+    {
+      "id": "permission",
+      "status": "pass",
+      "detail": "check-permission.js slash /sdrive:review allowed kenule500 (admin)."
+    },
+    {
+      "id": "reviewer-independence",
+      "status": "pass",
+      "detail": "The implementer and reviewer share kenule500. Escalated and explicitly confirmed by the owner, who accepted the independence gap for this verdict."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "issue": "The Arabic date/number rendering and document direction are asserted structurally, not measured in a browser.",
+      "location": "backoffice/test/localised-data-and-api-messages/",
+      "fixRequired": false,
+      "acIds": ["AC-007"]
+    },
+    {
+      "severity": "low",
+      "issue": "CI is not verified: the shared branch has no pull request and the workflow does not run on feature-branch pushes.",
+      "location": "GitHub Actions",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "verification": ".sdrive/governance/localised-data-and-api-messages/v1/verification.json",
+    "testEvidence": ".sdrive/governance/localised-data-and-api-messages/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-localised-data-and-api-messages-v1-2026-11-04.md",
+    "audit": ".sdrive/handoff.json"
+  },
+  "security": {
+    "status": "pass",
+    "reason": "The change is a localization layer: shared locale negotiation and formatters, a shared error catalogue, and a filter that localizes known codes while preserving the code, details and bespoke messages. No stack or internal error text is emitted; no secret or dependency was added; no request, authorization, data-access or transport surface changed.",
+    "secrets": "clean",
+    "dependencies": "clean",
+    "baseline": [
+      {
+        "id": "CON-507",
+        "status": "pass",
+        "detail": "No stack or internal error text in responses; unknown codes keep the supplied message."
+      },
+      {
+        "id": "CON-511",
+        "status": "not_applicable",
+        "detail": "No authentication surface changed."
+      },
+      {
+        "id": "CON-512",
+        "status": "not_applicable",
+        "detail": "No authorization surface changed."
+      },
+      {
+        "id": "CON-513",
+        "status": "not_applicable",
+        "detail": "No headers or transport configuration changed."
+      },
+      { "id": "CON-514", "status": "not_applicable", "detail": "No new routes were added." },
+      {
+        "id": "CON-515",
+        "status": "pass",
+        "detail": "Validation details are preserved and the summary is localized; input validation itself is unchanged."
+      },
+      { "id": "CON-516", "status": "not_applicable", "detail": "No data-access layer changed." },
+      { "id": "CON-517", "status": "not_applicable", "detail": "No raw-HTML rendering." },
+      {
+        "id": "CON-518",
+        "status": "not_applicable",
+        "detail": "No cookie, CORS or state-changing route handling changed."
+      },
+      { "id": "CON-519", "status": "not_applicable", "detail": "No .env file read or modified." },
+      {
+        "id": "CON-520",
+        "status": "not_applicable",
+        "detail": "No transport configuration changed."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_applicable",
+    "reason": "The spec has no performance or SEO NFRs; its NFRs are localization and formatting constraints, verified by the suites. The Arabic rendering and direction check is a low finding.",
+    "method": "Filter, formatter and timezone assertions; no browser measurement applies.",
+    "nfr": [],
+    "seo": "not_applicable"
+  }
+}

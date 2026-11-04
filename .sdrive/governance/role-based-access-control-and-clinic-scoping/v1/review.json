@@ -1,0 +1,181 @@
+{
+  "feature": "role-based-access-control-and-clinic-scoping",
+  "version": "v1",
+  "status": "PASS",
+  "commit": "a83226e5f2958a09e7f658e641646fdc4d8b55f0",
+  "base": "main",
+  "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-04T22:14:03.213Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "spec-convergence",
+      "status": "pass",
+      "detail": "All 9 ACs verified: one capability matrix in @riaya/shared, @Roles covering user/invite/suspend, the ad-hoc invite and suspend branches deleted, derived NAV_ROLES, capability-based RoleRoute, localized ForbiddenPage, and the endpoint classification in plan 1.4."
+    },
+    {
+      "id": "task-completion",
+      "status": "pass",
+      "detail": "11/11 tasks complete across four phases; tasks.md and tasks.json agree."
+    },
+    {
+      "id": "traceability",
+      "status": "pass",
+      "detail": "14/14 FR/NFR rows complete, each with at least one test ID from the guard, metadata, forbidden-page and role-refresh suites."
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "detail": "100% (9/9 ACs; 12/12 feature tests)."
+    },
+    {
+      "id": "test-report",
+      "status": "pass",
+      "detail": "Present at .sdrive/reports/tests/test-report-role-based-access-control-and-clinic-scoping-v1-2026-11-04.md, added after the spec and plan; summary 9/9 ACs, 100%, 12/12."
+    },
+    {
+      "id": "test-evidence",
+      "status": "pass",
+      "detail": "Present, exitCode 0, zero failures, 116 results (115 passed, 1 unrelated skip), commit a83226e equals HEAD."
+    },
+    {
+      "id": "change-scope",
+      "status": "pass",
+      "detail": "The shared branch carries the four owner-approved group features (CON-611); the RBAC paths trace to its plan, with no unplanned file and a clean tree."
+    },
+    {
+      "id": "test-quality",
+      "status": "pass",
+      "detail": "Every test names its AC ID; no .only, xit, skips or empty assertions in the RBAC suites."
+    },
+    {
+      "id": "code-quality",
+      "status": "pass",
+      "detail": "Server lint, typecheck and nest build pass; backoffice lint, typecheck and build pass, including the three design guards."
+    },
+    {
+      "id": "security",
+      "status": "pass",
+      "detail": "No secrets; no dependency change. The feature centralizes authorization: server guards remain authoritative on every endpoint and the shared matrix is the single source (CON-512/515)."
+    },
+    {
+      "id": "testing",
+      "status": "pass",
+      "detail": "RBAC suite 12/12; full workspace 115 passed, 0 failed, 1 unrelated environmental skip."
+    },
+    {
+      "id": "documentation",
+      "status": "pass",
+      "detail": "The matrix, the endpoint classification in plan 1.4 and the capability route are documented and reflected in the tests."
+    },
+    {
+      "id": "nfr-evidence",
+      "status": "pass",
+      "detail": "All six NFR rows are authorization, consistency and accessibility constraints, verified structurally by the suites. There are no performance or SEO NFRs; the forbidden page's rendering is browser-untested (low finding)."
+    },
+    {
+      "id": "definition-of-done",
+      "status": "pass",
+      "detail": "All DoD items satisfied except reviewer independence, which is escalated and owner-confirmed."
+    },
+    {
+      "id": "spec-to-code-verification",
+      "status": "pass",
+      "detail": "sdrive verify returns pass: 16 matched, 0 missing."
+    },
+    {
+      "id": "ci",
+      "status": "not_verified",
+      "detail": "No pull request exists for the shared branch and the workflow does not run on feature-branch pushes, so there is no CI run for a83226e."
+    },
+    {
+      "id": "permission",
+      "status": "pass",
+      "detail": "check-permission.js slash /sdrive:review allowed kenule500 (admin)."
+    },
+    {
+      "id": "reviewer-independence",
+      "status": "pass",
+      "detail": "The implementer and reviewer share kenule500. Escalated and explicitly confirmed by the owner, who accepted the independence gap for this verdict."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "issue": "The forbidden page's RTL and WCAG rendering is asserted structurally (translated text, document direction, roles), not measured in a browser.",
+      "location": "backoffice/test/role-based-access-control-and-clinic-scoping/",
+      "fixRequired": false,
+      "acIds": ["AC-009"]
+    },
+    {
+      "severity": "low",
+      "issue": "CI is not verified: the shared branch has no pull request and the workflow does not run on feature-branch pushes.",
+      "location": "GitHub Actions",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "verification": ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/verification.json",
+    "testEvidence": ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-role-based-access-control-and-clinic-scoping-v1-2026-11-04.md",
+    "audit": ".sdrive/handoff.json"
+  },
+  "security": {
+    "status": "pass",
+    "reason": "Authorization is centralized and server-enforced. The capability matrix in @riaya/shared is the single source for the API, the route guards and the navigation; @Roles covers the user, invite and suspend endpoints; the ad-hoc invite and suspend branches were deleted; plan 1.4 classifies every endpoint and the guard/metadata tests enforce it. No secret or dependency was added.",
+    "secrets": "clean",
+    "dependencies": "clean",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "not_applicable",
+        "detail": "No token handling changed in this feature."
+      },
+      {
+        "id": "CON-512",
+        "status": "pass",
+        "detail": "Server-side guards remain authoritative on every endpoint; the matrix and tests enforce the classification."
+      },
+      {
+        "id": "CON-513",
+        "status": "not_applicable",
+        "detail": "No headers or transport configuration changed."
+      },
+      {
+        "id": "CON-514",
+        "status": "not_applicable",
+        "detail": "No new routes were added; existing routes were classified."
+      },
+      {
+        "id": "CON-515",
+        "status": "pass",
+        "detail": "Invite and suspend inputs are validated; the manual role branch was removed."
+      },
+      { "id": "CON-516", "status": "not_applicable", "detail": "No data-access layer changed." },
+      {
+        "id": "CON-517",
+        "status": "not_applicable",
+        "detail": "No raw-HTML rendering; the forbidden page is React-rendered."
+      },
+      {
+        "id": "CON-518",
+        "status": "not_applicable",
+        "detail": "No cookie, CORS or state-changing route handling changed."
+      },
+      { "id": "CON-519", "status": "not_applicable", "detail": "No .env file read or modified." },
+      {
+        "id": "CON-520",
+        "status": "not_applicable",
+        "detail": "No transport configuration changed."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_applicable",
+    "reason": "The spec has no performance or SEO NFRs; its NFRs are authorization, consistency and accessibility constraints, verified structurally. The forbidden page's visual rendering is a low finding.",
+    "method": "Guard, metadata and React test assertions; no browser measurement applies.",
+    "nfr": [],
+    "seo": "not_applicable"
+  }
+}
