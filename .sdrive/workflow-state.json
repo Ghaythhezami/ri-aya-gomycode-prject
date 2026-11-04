@@ -516,6 +516,151 @@
           ]
         }
       ]
+    },
+    {
+      "name": "application-shell",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-007"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/application-shell/v1/spec.md",
+                ".sdrive/governance/application-shell/v1/spec.json",
+                ".sdrive/governance/application-shell/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: scope reuses the existing shell and adds only the documented gaps.",
+              "timestamp": "2026-11-04T15:18:57.795Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/application-shell/v1/plan.md",
+                ".sdrive/specs/backlog/application-shell/v1/tasks.md",
+                ".sdrive/governance/application-shell/v1/plan.json",
+                ".sdrive/governance/application-shell/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:18:57.795Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: 4 phases, 15 production tasks, no new dependency.",
+              "timestamp": "2026-11-04T15:19:29.729Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-tenant-isolation",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-010"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "role-based-access-control-and-clinic-scoping",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-011"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "localised-data-and-api-messages",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-013"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            }
+          ]
+        }
+      ]
     }
   ],
   "onboarding": {

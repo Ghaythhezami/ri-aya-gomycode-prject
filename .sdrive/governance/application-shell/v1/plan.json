@@ -1,0 +1,173 @@
+{
+  "feature": "application-shell",
+  "version": 1,
+  "architecture": {
+    "approach": "Finish the existing shell rather than replace it: add a persisted collapsed rail and breadcrumbs, lift memberships into a single WorkspaceProvider consumed by both the switcher and the sidebar footer, drive navigation filtering and route guards from the same role matrix, and render the unbuilt notification, chat and search affordances as explicit disabled placeholders that use the existing shell.comingSoon copy. Reuse the BP-006 tokens and primitives and add no dependency.",
+    "components": [
+      {
+        "name": "AppShell",
+        "action": "modify",
+        "description": "Adds the collapsed rail, breadcrumbs, active clinic/organization footer, disabled bell/chat affordances, the search placeholder and the Dropdown-based user menu."
+      },
+      {
+        "name": "Breadcrumbs",
+        "action": "create",
+        "description": "Renders Overview plus the section and optional detail from a route-to-i18n-key map with aria-current on the final segment."
+      },
+      {
+        "name": "WorkspaceProvider",
+        "action": "create",
+        "description": "Owns memberships, the active membership and the workspace switch so the switcher and the shell footer share one source."
+      },
+      {
+        "name": "WorkspaceSwitcher",
+        "action": "modify",
+        "description": "Becomes a view over WorkspaceProvider instead of fetching and holding memberships locally."
+      },
+      {
+        "name": "sidebar-preference",
+        "action": "create",
+        "description": "Reads and writes the collapsed preference in localStorage with a safe fallback to expanded."
+      },
+      {
+        "name": "roles",
+        "action": "modify",
+        "description": "Keeps NAV_ROLES and canSee as the single role source used by both navigation and route guards."
+      },
+      {
+        "name": "App",
+        "action": "modify",
+        "description": "Passes roles from NAV_ROLES to RoleRoute so guarded routes and visible navigation cannot drift."
+      },
+      {
+        "name": "Button",
+        "action": "reuse",
+        "description": "Existing primitive for shell affordances."
+      },
+      {
+        "name": "Dropdown",
+        "action": "reuse",
+        "description": "Existing menu-button primitive for the user menu, giving Escape close and focus return."
+      },
+      {
+        "name": "Tooltip",
+        "action": "reuse",
+        "description": "Existing primitive for collapsed-rail labels and coming-soon hints."
+      },
+      {
+        "name": "LanguageSwitcher",
+        "action": "reuse",
+        "description": "Existing switcher is unchanged."
+      },
+      {
+        "name": "tokens",
+        "action": "reuse",
+        "description": "BP-006 token module supplies spacing, radius, colour and elevation; no new token."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "FR-009",
+      "FR-010",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004",
+      "NFR-005",
+      "NFR-006",
+      "NFR-007"
+    ]
+  },
+  "dataModel": {
+    "entities": [],
+    "flowDescription": "No persisted entity and no schema change. The only stored value is the sidebar preference (expanded or collapsed) in localStorage, read and written through src/layouts/sidebar-preference.ts with a fallback when storage is unavailable."
+  },
+  "apiContracts": [
+    {
+      "method": "GET",
+      "path": "/api/auth/memberships",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-006"]
+    }
+  ],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-007",
+      "description": "Filtering navigation by role is a usability mirror, not the authorization boundary. The server-side RolesGuard remains authoritative and RoleRoute mirrors the same roles; no new request path, DTO or data access is added, and no raw-HTML injection API is introduced (CON-517)."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-006",
+      "strategy": "Fixed rail width and logical utilities, verified at 375, 768, 1024 and 1440 px with a horizontal-overflow check."
+    },
+    {
+      "requirementId": "NFR-002",
+      "strategy": "Every shell control keeps the min-h-10/min-w-10 floor already used by the BP-006 primitives."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "react-router-dom",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Routes and guards already exist."
+    },
+    {
+      "name": "lucide-react",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Icons for the rail, bell and chat affordances."
+    },
+    {
+      "name": "i18next / react-i18next",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Shell strings and breadcrumb labels."
+    },
+    {
+      "name": "tailwindcss (@tailwindcss/vite)",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Token utilities already generated from index.css."
+    },
+    {
+      "name": "BP-006 design tokens and primitives",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "Reused as the only styling and interaction source."
+    },
+    {
+      "name": "GET /api/auth/memberships",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "Supplies memberships and the active clinic; no server change."
+    }
+  ],
+  "risks": [
+    {
+      "description": "The disabled bell and chat entries can look broken.",
+      "mitigation": "A localized coming-soon hint, an accessible explanation and no navigation on activation."
+    },
+    {
+      "description": "NAV_ROLES and RoleRoute can drift, showing a link a role cannot open.",
+      "mitigation": "One role source feeds both the sidebar filter and the App.tsx guards."
+    },
+    {
+      "description": "The active clinic can be duplicated between the switcher and the shell footer.",
+      "mitigation": "WorkspaceProvider is the only owner; the switcher and footer are views."
+    },
+    {
+      "description": "The collapsed rail can shift layout or overflow under RTL.",
+      "mitigation": "Fixed rail width, logical utilities and the four-breakpoint overflow check."
+    }
+  ]
+}

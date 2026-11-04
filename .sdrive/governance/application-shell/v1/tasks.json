@@ -1,0 +1,154 @@
+{
+  "feature": "application-shell",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Shell navigation",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Add the sidebar preference helper",
+          "description": "Add src/layouts/sidebar-preference.ts reading and writing the collapsed preference in localStorage, returning expanded when storage is unavailable.",
+          "linkedRequirements": ["FR-001"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": false
+        },
+        {
+          "id": "T1.2",
+          "title": "Add the collapsible desktop sidebar",
+          "description": "Add the toggle to AppShell with aria-expanded, an accessible label, expanded (icon and label) and collapsed (icon only) states, restoring the stored preference.",
+          "linkedRequirements": ["FR-001"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": false
+        },
+        {
+          "id": "T1.3",
+          "title": "Make the rail accessible and mark the active route",
+          "description": "Keep each collapsed icon's accessible name, mark the active route with aria-current=page and a non-colour cue, and keep the rail keyboard operable.",
+          "linkedRequirements": ["FR-003", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-002"],
+          "completed": false
+        },
+        {
+          "id": "T1.4",
+          "title": "Use one role matrix for navigation and guards",
+          "description": "Derive App.tsx guard roles from NAV_ROLES and keep canSee as the sidebar filter, so navigation and guarded routes cannot drift apart.",
+          "linkedRequirements": ["FR-004", "NFR-007"],
+          "linkedAcceptanceCriteria": ["AC-004"],
+          "completed": false
+        },
+        {
+          "id": "T1.5",
+          "title": "Keep the mobile drawer complete",
+          "description": "Keep the below-lg drawer with Escape, backdrop and navigation close paths, focus trapped while open and restored to the menu button.",
+          "linkedRequirements": ["FR-002"],
+          "linkedAcceptanceCriteria": ["AC-003"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Location and workspace",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Add route-derived breadcrumbs",
+          "description": "Add src/layouts/Breadcrumbs.tsx rendering Overview plus the section and detail from a route-to-i18n-key map, with the final crumb aria-current=page and not linked.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-005"],
+          "completed": false
+        },
+        {
+          "id": "T2.2",
+          "title": "Lift memberships into WorkspaceProvider",
+          "description": "Add src/auth/WorkspaceContext.tsx owning memberships, the active membership and the switch, and refactor WorkspaceSwitcher to consume it instead of fetching locally.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": false
+        },
+        {
+          "id": "T2.3",
+          "title": "Show the active clinic and organization",
+          "description": "Render the active clinic and organization in the sidebar footer, show a neutral label with no memberships, and truncate long names without overflowing the header.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Future affordances",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Add disabled notification and chat entry points",
+          "description": "Add disabled notification-bell and chat affordances in the top bar with localized accessible names and coming-soon hints, performing no navigation.",
+          "linkedRequirements": ["FR-007", "NFR-005"],
+          "linkedAcceptanceCriteria": ["AC-007"],
+          "completed": false
+        },
+        {
+          "id": "T3.2",
+          "title": "Make the search box an explicit placeholder",
+          "description": "Turn the global search input into a disabled placeholder that announces the coming-soon hint and issues no network request.",
+          "linkedRequirements": ["FR-008"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Accessibility, RTL and verification",
+      "dependencies": ["P2", "P3"],
+      "tasks": [
+        {
+          "id": "T4.1",
+          "title": "Add the shell strings to all three catalogues",
+          "description": "Add every new shell string to en, ar and fr in the same change and run the locale-parity guard.",
+          "linkedRequirements": ["FR-010", "NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-012"],
+          "completed": false
+        },
+        {
+          "id": "T4.2",
+          "title": "Make the shell direction-aware",
+          "description": "Replace any physical-direction utility in the layouts with logical equivalents and confirm the sidebar, drawer and breadcrumbs mirror under dir=rtl.",
+          "linkedRequirements": ["FR-010", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T4.3",
+          "title": "Finish keyboard access and target sizes",
+          "description": "Ensure every interactive shell target is at least 40 by 40 px, the skip link is first, and the Dropdown user menu opens with Enter or Space, closes with Escape and restores focus.",
+          "linkedRequirements": ["FR-009", "NFR-002", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-009", "AC-011"],
+          "completed": false
+        },
+        {
+          "id": "T4.4",
+          "title": "Check the shell at four breakpoints",
+          "description": "Check the shell at 375, 768, 1024 and 1440 px for horizontal overflow and fix any finding.",
+          "linkedRequirements": ["NFR-006"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": false
+        },
+        {
+          "id": "T4.5",
+          "title": "Run lint, typecheck, guards and governance checks",
+          "description": "Run pnpm --filter backoffice lint, tsc --noEmit, backoffice design-system:check, sdrive verify application-shell and validate-governance.js; all must pass. Do not run the test suite.",
+          "linkedRequirements": ["NFR-003", "FR-010"],
+          "linkedAcceptanceCriteria": ["AC-009", "AC-012"],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
