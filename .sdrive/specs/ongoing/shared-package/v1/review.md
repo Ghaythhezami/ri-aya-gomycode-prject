@@ -2,7 +2,7 @@
 status: FAIL
 feature: shared-package
 version: v1
-commit: 1a057070d72d82861bb0924fb033b827b72f5fbd
+commit: 19f248cc3aa474dc0ed70fd2460936a50b0a4737
 branch: feature/bp-045
 base: main
 reviewedBy: kenule500
@@ -19,7 +19,7 @@ evidence: .sdrive/governance/shared-package/v1/test-evidence.json
 - **Date:** 2026-11-04
 - **Reviewer:** kenule500 (independent: no — the reviewer is the feature's assignee)
 - **Version:** v1
-- **Commit:** 1a057070d72d82861bb0924fb033b827b72f5fbd
+- **Commit:** 19f248cc3aa474dc0ed70fd2460936a50b0a4737
 - **Branch / base:** feature/bp-045 / main
 
 Re-review after the fix cycle. The blocking criterion from the previous review — a test
@@ -35,8 +35,8 @@ the reviewer is the assignee without an explicit escalation.
 - Test evidence: `.sdrive/governance/shared-package/v1/test-evidence.json` — exit 0, 63 passed / 0 failed / 1 skipped (64), commit `de73bc1` (the commit the report measures)
 - Test report: `.sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md` — regenerated, newer than `spec.md` (11-03 18:59) and `plan.md` (11-03 18:48)
 - Verification: `.sdrive/governance/shared-package/v1/verification.json` — pass (44 matched, 0 missing, 0 renamed, 0 extra, 0 withdrawn)
-- Audit chain: `.sdrive/audit-log.json` — 25 hashed events verified
-- CI: not verified — no run exists for `1a05707`; `origin/feature/bp-045` is still at `0210769`
+- Audit chain: `.sdrive/audit-log.json` — 46 hashed events verified
+- CI: **not verified, escalated** — branch is pushed (`origin/feature/bp-045` = `19f248c`) and PR #7 is open, yet GitHub reports no check-runs and no statuses for the commit; cause is account permission, not workflow configuration (see §5)
 
 ## 3. Criteria Check
 
@@ -55,7 +55,7 @@ the reviewer is the assignee without an explicit escalation.
 - [x] NFR Evidence: NFR-001..NFR-005 are structural and each bound to a tested AC; no performance/a11y/SEO NFR
 - [x] Definition of Done: all items met, including the test-report recency requirement
 - [x] Spec-to-Code Verification: `sdrive verify` pass, `sdrive validate` and `sdrive check` exit 0 with no blockers
-- [ ] CI: not verified — no run exists for the reviewed commit
+- [ ] CI: **not verified (escalated 2026-11-04)** — no run exists for `19f248c` despite the push and an open PR; workflow configuration ruled out, blocker is Actions permission on a repo the reviewer does not own
 - [x] Permission: `check-permission.js slash /sdrive:review` allowed
 - [!] Reviewer Independence: **warn** — `reviewedBy` equals the feature assignee; needs an independent reviewer or explicit escalation
 
@@ -69,15 +69,15 @@ the reviewer is the assignee without an explicit escalation.
 
 ## 5. Issues Found (If any)
 
-| Severity | Issue                                                                                                                                                | Location                                                                              | AC  | Fix Required |
-| -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --- | ------------ |
-| Medium   | No CI run for the reviewed commit; branch not pushed past `0210769`                                                                                  | `origin/feature/bp-045`                                                               | —   | No           |
-| Medium   | Reviewer is the feature's assignee                                                                                                                   | `.sdrive/workflow-state.json`                                                         | —   | No           |
-| Low      | Test evidence binds to `de73bc1`, one commit behind HEAD (`1a05707`, which only adds the report); evidence must be produced last in any future cycle | `.sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md`                   | —   | No           |
-| Low      | Two tests outside this feature still use the 5s default and time out when the machine is CPU-saturated                                               | `backoffice/test/authentication-onboarding-and-access-control/accept-invite.test.tsx` | —   | No           |
-| Low      | Pre-existing unused `tmpdir` import; `backoffice` lint script covers `src` only                                                                      | `backoffice/test/shared-package/schema-type-inference.test.ts:3`                      | —   | No           |
-| Low      | Dead `test:e2e` script points at a non-existent config                                                                                               | `server/package.json`                                                                 | —   | No           |
-| Info     | No `gitleaks`/`trufflehog`; scan was a diff pattern search                                                                                           | —                                                                                     | —   | No           |
+| Severity | Issue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Location                                                                              | AC  | Fix Required |
+| -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --- | ------------ |
+| Medium   | No CI run for `19f248c` despite the push and open PR #7. Ruled out: workflow config (`ci.yml` identical to `main`, workflow `active`, `pull_request` unfiltered, five runs green 2026-11-03 on other branches). Cause: reviewing account has `admin:false`/`maintain:false` on a repo owned by another user, so the Actions policy endpoint returns 403, and `ci.yml` has no `workflow_dispatch` (dispatch returns 422). Escalated for owner action or explicit acceptance of local evidence. | `origin/feature/bp-045`                                                               | —   | No           |
+| Medium   | Reviewer is the feature's assignee                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `.sdrive/workflow-state.json`                                                         | —   | No           |
+| Low      | Test evidence binds to `de73bc1`, several commits behind HEAD (`19f248c`, which adds the merge of `main` and the governance splice). No file this feature owns (`packages/shared`, `backoffice/test/shared-package`) changed since `de73bc1`, so the evidence still describes this feature, but the merge brought 43 files from `main` that the run never covered; evidence must be produced last in any future cycle.                                                                        | `.sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md`                   | —   | No           |
+| Low      | Two tests outside this feature still use the 5s default and time out when the machine is CPU-saturated                                                                                                                                                                                                                                                                                                                                                                                        | `backoffice/test/authentication-onboarding-and-access-control/accept-invite.test.tsx` | —   | No           |
+| Low      | Pre-existing unused `tmpdir` import; `backoffice` lint script covers `src` only                                                                                                                                                                                                                                                                                                                                                                                                               | `backoffice/test/shared-package/schema-type-inference.test.ts:3`                      | —   | No           |
+| Low      | Dead `test:e2e` script points at a non-existent config                                                                                                                                                                                                                                                                                                                                                                                                                                        | `server/package.json`                                                                 | —   | No           |
+| Info     | No `gitleaks`/`trufflehog`; scan was a diff pattern search                                                                                                                                                                                                                                                                                                                                                                                                                                    | —                                                                                     | —   | No           |
 
 ### Fixed since the previous review
 
@@ -90,8 +90,8 @@ the reviewer is the assignee without an explicit escalation.
 
 ## 6. Recommendations
 
-- Push the branch so CI can produce a run for the reviewed commit, then record the run URL.
-- Have someone other than `kenule500` confirm the verdict, or record an explicit escalation.
+- CI cannot be unblocked from this account: the repository owner must either allow the run (Settings → Actions → General) or a commit must land on `main`, whose `push` trigger demonstrably works. Once a run exists, record its URL and re-review.
+- Have someone other than `kenule500` confirm the verdict, or record an explicit escalation accepted by the owner (as done for `api-skeleton-and-ci`).
 - Consider a shared `setupFiles` timeout for `backoffice` so the suite stops being sensitive
   to machine load.
 
