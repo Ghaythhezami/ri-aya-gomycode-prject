@@ -1,23 +1,18 @@
 {
   "feature": "design-tokens-and-component-library",
   "version": "v1",
-  "recordedAt": "2026-11-04T11:13:49.738Z",
+  "recordedAt": "2026-11-04T11:44:43.114Z",
   "by": null,
   "steps": [
     {
-      "command": "/sdrive:test design-tokens-and-component-library",
-      "kind": "slash",
-      "why": "high severity, round 1 of 3: No test exists for any of the 11 acceptance criteria; coverage is 0%, and test-evidence.json and the test report are missing."
-    },
-    {
       "command": "/sdrive:apply design-tokens-and-component-library",
       "kind": "slash",
-      "why": "high severity, round 1 of 3: sdrive verify returns fail with 44 unmatched plan artefacts, and traceability.json statuses still read not_started."
+      "why": "The test run is red on a production defect: AC-006 fails because DesignSystemPage.tsx:265 nests a <Button> inside <Dropdown>, which already renders its own <button>. AC-005 and AC-010 also need a browser-measured overflow check that jsdom cannot give."
     },
     {
-      "command": "/sdrive:performance design-tokens-and-component-library",
-      "kind": "slash",
-      "why": "low severity, round 1 of 3: NFR-004/005/006/009 verified by code inspection only, with no browser measurement."
+      "command": "sdrive verify design-tokens-and-component-library",
+      "kind": "cli",
+      "why": "verify still exits 7 with 44 unmatched plan artefacts (path-shape mismatch between plan.json and the real tree). Unchanged by the test work, but review will read it as a FAIL."
     },
     {
       "command": "sdrive test design-tokens-and-component-library",
@@ -32,7 +27,7 @@
     {
       "command": "/sdrive:review design-tokens-and-component-library",
       "kind": "slash",
-      "why": "Review re-audits the new commit and clears the verdict."
+      "why": "Round 2 review cannot clear the round 1 verdict until the defect and the verify mismatch are resolved."
     }
   ]
 }
