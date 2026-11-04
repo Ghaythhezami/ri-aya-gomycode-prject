@@ -2,11 +2,11 @@
 status: PASS
 feature: design-tokens-and-component-library
 version: v1
-commit: 4bb0620f102d28fa0ea5ea3d8fd0d760feb3a447
+commit: 20dc62ce06bd5672100d98ea0791c49cef6c3ff5
 branch: feature/BP-006
 base: main
 reviewedBy: kenule500
-reviewedAt: 2026-11-04T14:34:23.047Z
+reviewedAt: 2026-11-04T14:45:59.654Z
 coverage: 100
 evidence: .sdrive/governance/design-tokens-and-component-library/v1/test-evidence.json
 ---
@@ -20,7 +20,7 @@ evidence: .sdrive/governance/design-tokens-and-component-library/v1/test-evidenc
 - **Reviewer:** kenule500 (independent: no — same identity authored the implementation; escalated in
   round 1 and explicitly confirmed by the owner for this verdict)
 - **Version:** v1
-- **Commit:** `4bb0620` (full SHA in `review.json`)
+- **Commit:** `20dc62c` (full SHA in `review.json`)
 - **Branch / base:** `feature/BP-006` / `main`
 - **Coverage:** 100% (11 of 11 ACs tested; 47/47 feature tests passing)
 
@@ -146,7 +146,7 @@ values rather than the original brief hex. No code change is required for this f
 
 1. Commit and push the review artifacts (this report and `review.json`).
 2. Run `/sdrive:archive design-tokens-and-component-library`. Archiving re-cuts the verdict at the final
-   HEAD: this record is bound to `4bb0620`, and the merge commit will replace it, as the previous batch
+   HEAD: this record is bound to `20dc62c`, and the merge commit will replace it, as the previous batch
    did.
 3. Optional but recommended before later screens consume the primitives: `/sdrive:performance` for the
    browser-measured NFRs.
