@@ -93,8 +93,8 @@ export function RegisterPage() {
 
   return (
     <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-semibold text-[#172B4D]">{t('register.title')}</h1>
-      <p className="mt-1 text-sm text-[#697586]">{t('register.subtitle')}</p>
+      <h1 className="text-2xl font-semibold text-text">{t('register.title')}</h1>
+      <p className="mt-1 text-sm text-muted">{t('register.subtitle')}</p>
 
       <ol className="mt-6 flex items-center gap-2 text-xs" aria-label={t('register.progress')}>
         {[1, 2, 3].map((n) => (
@@ -103,10 +103,10 @@ export function RegisterPage() {
             aria-current={step === n ? 'step' : undefined}
             className={`flex-1 rounded-full px-3 py-1 text-center ${
               step === n
-                ? 'bg-[#0F766E] text-white'
+                ? 'bg-primary text-white'
                 : step > n
-                  ? 'bg-[#DDF6F3] text-[#0F766E]'
-                  : 'bg-[#F7F9FC] text-[#697586]'
+                  ? 'bg-accent text-primary'
+                  : 'bg-bg text-muted'
             }`}
           >
             {t(`register.step${n}`)}
@@ -133,7 +133,7 @@ export function RegisterPage() {
             <Field label={t('register.password')}>
               <Input type="password" value={form.password} onChange={set('password')} required />
             </Field>
-            <p className="text-xs text-[#697586]">{t('register.passwordHint')}</p>
+            <p className="text-xs text-muted">{t('register.passwordHint')}</p>
           </>
         )}
 
@@ -160,7 +160,7 @@ export function RegisterPage() {
         )}
 
         {error && (
-          <p role="alert" className="text-sm text-[#DC2626]">
+          <p role="alert" className="text-sm text-error">
             {error}
           </p>
         )}
@@ -185,9 +185,9 @@ export function RegisterPage() {
         </div>
       </form>
 
-      <p className="mt-6 text-sm text-[#697586]">
+      <p className="mt-6 text-sm text-muted">
         {t('register.haveAccount')}{' '}
-        <Link className="text-[#0F766E] underline" to="/login">
+        <Link className="text-primary underline" to="/login">
           {t('auth.signIn')}
         </Link>
       </p>

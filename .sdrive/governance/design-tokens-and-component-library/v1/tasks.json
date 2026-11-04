@@ -84,7 +84,7 @@
           "description": "Replace literal radii (rounded-[12px], rounded-[16px]) and literal colours in the five existing primitives with token radii and token utilities, using logical utilities only.",
           "linkedRequirements": ["FR-003", "NFR-005"],
           "linkedAcceptanceCriteria": ["AC-004", "AC-005"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.2",
@@ -92,7 +92,7 @@
           "description": "Add a visible focus ring, aria-invalid and aria-describedby wiring for error and help text, and extract a Field shell that Textarea can reuse.",
           "linkedRequirements": ["FR-003", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.3",
@@ -100,7 +100,7 @@
           "description": "Add a focus trap, aria-modal, Esc to close, background inerting and focus restored to the invoking element, using the overlay elevation token.",
           "linkedRequirements": ["FR-003", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.4",
@@ -108,7 +108,7 @@
           "description": "Convey each status tone with an icon or text label as well as colour.",
           "linkedRequirements": ["FR-003", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.5",
@@ -116,7 +116,7 @@
           "description": "Point common/charts/SampleCharts.tsx at token values instead of the hard-coded #0F766E and #E5EAF0.",
           "linkedRequirements": ["FR-003", "NFR-009"],
           "linkedAcceptanceCriteria": ["AC-008"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.6",
@@ -124,7 +124,7 @@
           "description": "Replace the 15 arbitrary-value colour classes in RegisterPage.tsx, StaffDirectoryPage.tsx and WorkspaceSwitcher.tsx with token utilities.",
           "linkedRequirements": ["FR-012"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.7",
@@ -132,7 +132,7 @@
           "description": "Remove the literal tokens array in DesignSystemPage.tsx and read tokens.ts instead, so the page can no longer drift from the stylesheet.",
           "linkedRequirements": ["FR-009", "FR-012"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.8",
@@ -140,7 +140,7 @@
           "description": "Apply the spacing token floor so every button, input, select, tab and icon-only control in backoffice/src/common reaches at least 40 by 40 px, including icon-only triggers where the visual glyph is smaller than the target.",
           "linkedRequirements": ["NFR-002"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         }
       ]
     },

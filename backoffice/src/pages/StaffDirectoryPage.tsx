@@ -73,7 +73,7 @@ export function StaffDirectoryPage() {
 
       <form
         onSubmit={invite}
-        className="flex flex-wrap items-end gap-3 rounded-[12px] border border-border bg-white p-4"
+        className="flex flex-wrap items-end gap-3 rounded-md border border-border bg-surface p-4"
       >
         <div className="min-w-56 flex-1">
           <Field label={t('staff.email')}>
@@ -85,7 +85,7 @@ export function StaffDirectoryPage() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="min-h-11 rounded-[12px] border border-border bg-white px-3 text-text"
+              className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
             >
               <option value="CLINIC_ADMIN">{t('roles.CLINIC_ADMIN')}</option>
               <option value="DOCTOR">{t('roles.DOCTOR')}</option>
@@ -98,21 +98,21 @@ export function StaffDirectoryPage() {
         </Button>
       </form>
 
-      {message && <p className="text-sm text-[#16A34A]">{message}</p>}
+      {message && <p className="text-sm text-success">{message}</p>}
       {error && (
-        <p role="alert" className="text-sm text-[#DC2626]">
+        <p role="alert" className="text-sm text-error">
           {error}
         </p>
       )}
 
-      <section className="rounded-[12px] border border-border bg-white">
+      <section className="rounded-md border border-border bg-surface">
         <h2 className="border-b border-border px-4 py-3 text-sm font-medium text-text">
           {t('staff.pending')}
         </h2>
         {loading ? (
           <div className="space-y-2 p-4" aria-busy="true">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-10 animate-pulse rounded bg-[#F7F9FC]" />
+              <div key={i} className="h-10 animate-pulse rounded bg-bg" />
             ))}
           </div>
         ) : invitations.length === 0 ? (

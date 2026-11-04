@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 export function PlaceholderPage({ titleKey }: { titleKey: string }) {
   const { t } = useTranslation();
   return (
-    <section className="flex min-h-[60vh] flex-col items-center justify-center rounded-[16px] border border-dashed border-border bg-white p-10 text-center">
+    <section className="flex min-h-[60vh] flex-col items-center justify-center rounded-lg border border-dashed border-border bg-surface p-10 text-center">
       <span className="grid size-16 place-items-center rounded-full bg-accent text-primary">
         <Construction size={28} />
       </span>

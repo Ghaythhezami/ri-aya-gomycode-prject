@@ -12,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { color } from '../../design-system/tokens';
 
 const volume = [
   { day: 'Mon', value: 42 },
@@ -31,21 +32,21 @@ const wait = [
 ];
 
 const status = [
-  { name: 'Confirmed', value: 32, color: '#0F766E' },
-  { name: 'Checked in', value: 8, color: '#16A34A' },
-  { name: 'In progress', value: 4, color: '#15283F' },
-  { name: 'Scheduled', value: 6, color: '#94A3B8' },
+  { name: 'Confirmed', value: 32, color: color.primary },
+  { name: 'Checked in', value: 8, color: color.success },
+  { name: 'In progress', value: 4, color: color.navy },
+  { name: 'Scheduled', value: 6, color: color['border-strong'] },
 ];
 
 export function WeeklyVolumeChart() {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={volume}>
-        <CartesianGrid stroke="#E5EAF0" vertical={false} />
+        <CartesianGrid stroke={color.border} vertical={false} />
         <XAxis dataKey="day" tickLine={false} axisLine={false} />
         <YAxis hide />
         <Tooltip />
-        <Bar dataKey="value" fill="#0F766E" radius={[8, 8, 0, 0]} />
+        <Bar dataKey="value" fill={color.primary} radius={[8, 8, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
@@ -55,11 +56,11 @@ export function WaitTrendChart() {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={wait}>
-        <CartesianGrid stroke="#E5EAF0" />
+        <CartesianGrid stroke={color.border} />
         <XAxis dataKey="hour" tickLine={false} />
         <YAxis hide />
         <Tooltip />
-        <Line type="monotone" dataKey="value" stroke="#0F766E" strokeWidth={2} dot={false} />
+        <Line type="monotone" dataKey="value" stroke={color.primary} strokeWidth={2} dot={false} />
       </LineChart>
     </ResponsiveContainer>
   );

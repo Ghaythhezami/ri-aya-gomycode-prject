@@ -4,19 +4,33 @@ import { Button } from '../common/Button';
 import { Modal } from '../common/Modal';
 import { DataTable, StatusCell } from '../common/Table';
 import { StatusDonutChart, WaitTrendChart, WeeklyVolumeChart } from '../common/charts/SampleCharts';
+import { color, elevation, font, radius, space } from '../design-system/tokens';
 
-const tokens = [
-  ['primary', '#0F766E'],
-  ['navy', '#15283F'],
-  ['background', '#F7F9FC'],
-  ['surface', '#FFFFFF'],
-  ['text', '#172B4D'],
-  ['secondary text', '#697586'],
-  ['border', '#E5EAF0'],
-  ['success', '#16A34A'],
-  ['warning', '#F59E0B'],
-  ['error', '#DC2626'],
-  ['accent', '#DDF6F3'],
+/** Rendered from the token module, so this page cannot drift from the stylesheet. */
+const swatches: { name: string; value: string }[] = [
+  { name: 'primary', value: color.primary },
+  { name: 'primary-dark', value: color['primary-dark'] },
+  { name: 'navy', value: color.navy },
+  { name: 'bg', value: color.bg },
+  { name: 'surface', value: color.surface },
+  { name: 'text', value: color.text },
+  { name: 'muted', value: color.muted },
+  { name: 'border', value: color.border },
+  { name: 'border-strong', value: color['border-strong'] },
+  { name: 'success', value: color.success },
+  { name: 'warning', value: color.warning },
+  { name: 'error', value: color.error },
+  { name: 'accent', value: color.accent },
+];
+
+const scales: { group: string; entries: { name: string; value: string }[] }[] = [
+  { group: 'radius', entries: Object.entries(radius).map(([name, value]) => ({ name, value })) },
+  { group: 'space', entries: Object.entries(space).map(([name, value]) => ({ name, value })) },
+  {
+    group: 'elevation',
+    entries: Object.entries(elevation).map(([name, value]) => ({ name, value })),
+  },
+  { group: 'font', entries: Object.entries(font).map(([name, value]) => ({ name, value })) },
 ];
 
 const rows = [
@@ -60,14 +74,30 @@ export function DesignSystemPage() {
       <section>
         <h2 className="mb-4 text-lg font-semibold">{t('ds.tokens')}</h2>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {tokens.map(([name, value]) => (
-            <div key={name} className="rounded-[16px] border border-border bg-white p-4">
-              <div
-                className="h-12 rounded-[12px] border border-border"
-                style={{ background: value }}
-              />
+          {swatches.map(({ name, value }) => (
+            <div key={name} className="rounded-lg border border-border bg-surface p-4">
+              <div className="h-12 rounded-md border border-border" style={{ background: value }} />
               <p className="mt-3 text-sm font-medium capitalize">{name}</p>
               <p className="text-xs text-muted">{value}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section>
+        <h2 className="mb-4 text-lg font-semibold">{t('ds.scales')}</h2>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {scales.map(({ group, entries }) => (
+            <div key={group} className="rounded-lg border border-border bg-surface p-4">
+              <h3 className="text-sm font-medium capitalize">{group}</h3>
+              <dl className="mt-2 space-y-1">
+                {entries.map(({ name, value }) => (
+                  <div key={name} className="flex items-baseline justify-between gap-3 text-xs">
+                    <dt className="font-medium">{name}</dt>
+                    <dd className="truncate text-muted">{value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           ))}
         </div>
@@ -126,13 +156,13 @@ export function DesignSystemPage() {
         <h2 className="mb-4 text-lg font-semibold">{t('ds.charts')}</h2>
         <p className="mb-3 text-xs text-muted">{t('ds.sample')}</p>
         <div className="grid gap-4 lg:grid-cols-3">
-          <div className="rounded-[16px] border border-border bg-white p-4">
+          <div className="rounded-lg border border-border bg-surface p-4">
             <WeeklyVolumeChart />
           </div>
-          <div className="rounded-[16px] border border-border bg-white p-4">
+          <div className="rounded-lg border border-border bg-surface p-4">
             <StatusDonutChart />
           </div>
-          <div className="rounded-[16px] border border-border bg-white p-4">
+          <div className="rounded-lg border border-border bg-surface p-4">
             <WaitTrendChart />
           </div>
         </div>

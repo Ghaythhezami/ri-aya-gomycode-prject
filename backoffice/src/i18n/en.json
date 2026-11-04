@@ -78,6 +78,7 @@
     "title": "Shared UI primitives",
     "intro": "Reusable building blocks for the RI'AYA backoffice. These live in src/common and will be reused by future clinic modules.",
     "tokens": "Color tokens",
+    "scales": "Scales",
     "buttons": "Buttons",
     "modal": "Modal",
     "table": "Table",

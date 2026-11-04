@@ -78,6 +78,7 @@
     "title": "Composants partagés",
     "intro": "Blocs réutilisables du back-office RI'AYA. Ils se trouvent dans src/common.",
     "tokens": "Jetons de couleur",
+    "scales": "Échelles",
     "buttons": "Boutons",
     "modal": "Modale",
     "table": "Tableau",

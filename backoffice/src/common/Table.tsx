@@ -17,7 +17,7 @@ export function DataTable<T extends { id: string }>({
   caption?: string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-[16px] border border-border bg-white">
+    <div className="overflow-x-auto rounded-lg border border-border bg-surface">
       <table className="w-full min-w-[720px] text-start text-sm">
         {caption ? <caption className="sr-only">{caption}</caption> : null}
         <thead className="bg-bg text-muted">

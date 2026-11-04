@@ -31,14 +31,14 @@ Production code only. Test authoring and execution belong to `/sdrive:test`.
 
 ## P2 — Migrate existing components onto tokens
 
-- [ ] T2.1 — Replace literal radii in `Button`, `Input`, `Badge`, `Modal` and `Table` with token radii and token colours; use logical utilities only. (FR-003, NFR-005)
-- [ ] T2.2 — Add a visible focus ring, error/help text wiring via `aria-describedby`, and `aria-invalid` to `Input`; add a `Textarea`-compatible `Field` shell. (FR-003, NFR-004)
-- [ ] T2.3 — Add focus trap, `aria-modal`, Esc-to-close and background inerting to `Modal`; add focus restoration to the invoking element. (FR-003, NFR-004)
-- [ ] T2.4 — Ensure `Badge` conveys status by icon or text as well as colour. (FR-003, NFR-004)
-- [ ] T2.5 — Point `common/charts/SampleCharts.tsx` series colours at `tokens.ts`. (FR-003, NFR-009)
-- [ ] T2.6 — Replace the 15 arbitrary colour classes in `RegisterPage.tsx`, `StaffDirectoryPage.tsx` and `WorkspaceSwitcher.tsx` with token utilities. (FR-012)
-- [ ] T2.7 — Delete the hard-coded `tokens` array from `DesignSystemPage.tsx` and read `tokens.ts` instead, so the page cannot drift again. (FR-009, FR-012)
-- [ ] T2.8 — Apply the spacing token floor so every button, input, select, tab and icon-only control in `backoffice/src/common` reaches at least 40 × 40 px, including icon-only triggers whose glyph is smaller than the target. (NFR-002)
+- [x] T2.1 — Replace literal radii in `Button`, `Input`, `Badge`, `Modal` and `Table` with token radii and token colours; use logical utilities only. (FR-003, NFR-005)
+- [x] T2.2 — Add a visible focus ring, error/help text wiring via `aria-describedby`, and `aria-invalid` to `Input`; add a `Textarea`-compatible `Field` shell. (FR-003, NFR-004)
+- [x] T2.3 — Add focus trap, `aria-modal`, Esc-to-close and background inerting to `Modal`; add focus restoration to the invoking element. (FR-003, NFR-004)
+- [x] T2.4 — Ensure `Badge` conveys status by icon or text as well as colour. (FR-003, NFR-004)
+- [x] T2.5 — Point `common/charts/SampleCharts.tsx` series colours at `tokens.ts`. (FR-003, NFR-009)
+- [x] T2.6 — Replace the 15 arbitrary colour classes in `RegisterPage.tsx`, `StaffDirectoryPage.tsx` and `WorkspaceSwitcher.tsx` with token utilities. (FR-012)
+- [x] T2.7 — Delete the hard-coded `tokens` array from `DesignSystemPage.tsx` and read `tokens.ts` instead, so the page cannot drift again. (FR-009, FR-012)
+- [x] T2.8 — Apply the spacing token floor so every button, input, select, tab and icon-only control in `backoffice/src/common` reaches at least 40 × 40 px, including icon-only triggers whose glyph is smaller than the target. (NFR-002)
 
 ## P3 — New primitives: forms and navigation
 

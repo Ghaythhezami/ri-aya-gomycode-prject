@@ -52,8 +52,8 @@ function NavItems({ onNavigate }: { onNavigate?: () => void }) {
               end={item.to === '/'}
               onClick={onNavigate}
               className={({ isActive }) =>
-                `flex min-h-11 items-center gap-3 rounded-[12px] px-3 text-sm ${
-                  isActive ? 'bg-primary text-white' : 'text-white/75 hover:bg-white/10'
+                `flex min-h-11 items-center gap-3 rounded-md px-3 text-sm ${
+                  isActive ? 'bg-primary text-white' : 'text-white/75 hover:bg-surface/10'
                 }`
               }
             >
@@ -111,7 +111,11 @@ export function AppShell() {
                 />
                 <p className="text-sm font-semibold">{t('app.name')}</p>
               </div>
-              <button className="grid size-10 place-items-center" onClick={() => setOpen(false)}>
+              <button
+                className="grid size-11 place-items-center rounded-md"
+                onClick={() => setOpen(false)}
+                aria-label={t('shell.closeMenu')}
+              >
                 <X size={18} />
               </button>
             </div>
@@ -122,9 +126,9 @@ export function AppShell() {
         </div>
       ) : null}
       <div className="lg:ps-64">
-        <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-white/90 px-4 backdrop-blur lg:px-8">
+        <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur lg:px-8">
           <button
-            className="grid size-11 place-items-center rounded-[12px] border border-border lg:hidden"
+            className="grid size-11 place-items-center rounded-md border border-border lg:hidden"
             onClick={() => setOpen(true)}
             aria-label={t('shell.openMenu')}
           >
@@ -148,7 +152,7 @@ export function AppShell() {
                   </span>
                   {user?.firstName}
                 </summary>
-                <div className="absolute end-0 mt-2 w-44 rounded-[12px] border border-border bg-white p-2 shadow-(--shadow-card)">
+                <div className="absolute end-0 mt-2 w-44 rounded-md border border-border bg-surface p-2 shadow-(--shadow-card)">
                   <button
                     className="flex min-h-10 w-full items-center gap-2 rounded-lg px-2 text-sm text-error"
                     onClick={async () => {

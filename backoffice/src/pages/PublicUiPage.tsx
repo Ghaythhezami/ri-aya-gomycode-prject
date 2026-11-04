@@ -10,7 +10,7 @@ export function PublicUiPage() {
 
   return (
     <div className="min-h-screen bg-bg">
-      <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-white/90 px-4 backdrop-blur lg:px-8">
+      <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur lg:px-8">
         <div className="flex items-center gap-3">
           <img
             src="/logo.png"
@@ -28,7 +28,7 @@ export function PublicUiPage() {
             {t('ds.backHome')}
           </a>
           <Link
-            className="rounded-[12px] bg-primary px-4 py-2 text-sm font-medium text-white"
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-white"
             to="/login"
           >
             {t('auth.signIn')}

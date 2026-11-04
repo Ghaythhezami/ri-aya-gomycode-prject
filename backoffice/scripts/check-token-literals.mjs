@@ -3,10 +3,13 @@
  * Fails when a component bypasses the design tokens, or uses a physical-direction
  * utility that breaks under RTL.
  *
- * Two rules:
+ * Three rules:
  *   1. No `#rrggbb` literal and no `[#…]` arbitrary colour class under src/, outside
  *      tokens.ts and index.css. Colour values belong in the token module (FR-012).
- *   2. No physical-direction utility under src/common — `ml-*`, `mr-*`, `pl-*`, `pr-*`,
+ *   2. No arbitrary-value radius class (`rounded-[16px]`) or raw palette class
+ *      (`bg-red-50`). Both bypass the radius/elevation scale in the token module and
+ *      drift silently, which is exactly what FR-012 forbids.
+ *   3. No physical-direction utility under src/common — `ml-*`, `mr-*`, `pl-*`, `pr-*`,
  *      `text-left`, `text-right`, `rounded-l-*`, `rounded-r-*`, `left-*`, `right-*`.
  *      Logical equivalents (ms-/me-/ps-/pe-/text-start/text-end/inset-inline-*) are
  *      direction-aware and are what NFR-005 requires.
@@ -28,6 +31,9 @@ const TOKEN_FILES = new Set(['src/index.css', 'src/design-system/tokens.ts']);
 
 const HEX = /#[0-9a-f]{6}\b/i;
 const ARBITRARY_COLOUR = /\b(?:text|bg|border|ring|fill|stroke|from|via|to)-\[#/;
+const ARBITRARY_RADIUS = /\brounded-[\w-]*\[(?!var\()/;
+const RAW_PALETTE =
+  /\b(?:text|bg|border|ring|fill|stroke|from|via|to)-(?:red|green|amber|slate|blue|gray|grey|emerald|teal|indigo|purple|pink|orange|yellow|lime|cyan|sky|violet|fuchsia|rose|zinc|neutral|stone)-[0-9]{2,3}\b/;
 const PHYSICAL = [
   /(?<![\w-])(?:ml|mr|pl|pr)-[0-9]/, // physical margin/padding
   /(?<![\w-])(?:left|right)-[0-9]/, // physical inset
@@ -59,6 +65,10 @@ for (const file of walk(src)) {
         errors.push(`${at} raw hex colour literal — use a token or a token utility`);
       } else if (ARBITRARY_COLOUR.test(line)) {
         errors.push(`${at} arbitrary-value colour class — use a token utility`);
+      } else if (ARBITRARY_RADIUS.test(line)) {
+        errors.push(`${at} arbitrary-value radius class — use rounded-sm/md/lg/full`);
+      } else if (RAW_PALETTE.test(line)) {
+        errors.push(`${at} raw Tailwind palette class — use a token utility`);
       }
 
       if (isCommon) {
@@ -80,4 +90,6 @@ if (errors.length > 0) {
   process.exit(1);
 }
 
-console.log('✓ Token lint: no colour literals or physical-direction utilities outside the token files');
+console.log(
+  '✓ Token lint: no colour literals, arbitrary radii, raw palette or physical-direction utilities',
+);
