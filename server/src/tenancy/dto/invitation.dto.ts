@@ -7,7 +7,10 @@ export class InviteDto {
   @IsEmail()
   email!: string;
 
-  @ApiProperty({ description: 'Clinic the invitee joins' })
+  @ApiProperty({
+    description:
+      'Clinic the invitee joins. A selector, not a scope claim: it is resolved inside the caller’s own organization.',
+  })
   @IsUUID()
   clinicId!: string;
 

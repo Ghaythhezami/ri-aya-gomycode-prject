@@ -12,6 +12,22 @@ export interface TenantScope {
 }
 
 /**
+ * The filter every clinic-scoped query MUST use (FR-003, FR-005).
+ *
+ * Built from the verified scope only — never from a request body, query or
+ * header. A service that hand-writes this predicate is exactly the drift this
+ * helper exists to prevent.
+ */
+export function clinicWhere(scope: TenantScope): { organizationId: string; clinicId: string } {
+  return { organizationId: scope.organizationId, clinicId: scope.clinicId };
+}
+
+/** The filter for organization-wide reads and writes (SUPER_ADMIN actions). */
+export function organizationWhere(scope: TenantScope): { organizationId: string } {
+  return { organizationId: scope.organizationId };
+}
+
+/**
  * One mutable frame per HTTP request.
  *
  * The frame object is created once by the middleware and then MUTATED when the

@@ -43,11 +43,6 @@
         "name": "JwtStrategy",
         "action": "reuse",
         "description": "Existing scope resolution and active-membership check; unchanged."
-      },
-      {
-        "name": "ValidationPipe",
-        "action": "reuse",
-        "description": "Existing whitelist and forbidNonWhitelisted rejection path; unchanged."
       }
     ],
     "referencedRequirementIds": [
@@ -85,36 +80,7 @@
     ],
     "flowDescription": "Login issues a refresh token carrying the active scope's clinicId; a workspace switch re-issues it with the selected clinic; refresh resolves that membership, rejects an inactive one, and rotates with the same clinic. Legacy rows with clinicId null fall back to the default scope once, then carry the scope."
   },
-  "apiContracts": [
-    {
-      "method": "POST",
-      "path": "/api/auth/switch-workspace",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-006", "FR-009"]
-    },
-    {
-      "method": "POST",
-      "path": "/api/invitations",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-002", "FR-004"]
-    },
-    {
-      "method": "GET",
-      "path": "/api/invitations",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-003"]
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/memberships/:id/suspend",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-004"]
-    }
-  ],
+  "apiContracts": [],
   "securityConsiderations": [
     {
       "requirementId": "NFR-001",
@@ -131,16 +97,28 @@
   ],
   "dependencies": [
     {
-      "name": "Prisma client",
+      "name": "@prisma/client",
       "type": "library",
       "action": "no_change",
-      "notes": "Parameterised queries only; one additive migration adds refresh_tokens.clinic_id."
+      "notes": "Parameterised queries only; one additive migration adds refresh_tokens.clinicId."
     },
     {
-      "name": "NestJS JwtStrategy, guards and ValidationPipe",
+      "name": "@nestjs/common",
       "type": "library",
       "action": "no_change",
-      "notes": "Scope resolution and validation already exist; this feature reuses them."
+      "notes": "Existing exceptions and decorators; reused."
+    },
+    {
+      "name": "@nestjs/passport",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Existing JWT strategy; unchanged."
+    },
+    {
+      "name": "class-validator",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Existing DTO validation, including the selector fields."
     }
   ],
   "risks": [

@@ -77,7 +77,7 @@ export class TenancyController {
       clinicId: dto.clinicId,
       // The clinic must be resolved inside the caller's own organization: the
       // body is attacker-controlled and a foreign clinic id must not be honoured.
-      organizationId: scope.organizationId,
+      scope,
       role: dto.role,
       invitedById: user.id,
     });
@@ -102,7 +102,7 @@ export class TenancyController {
   @ApiOperation({ summary: 'List pending invitations for the active clinic' })
   listInvitations() {
     const scope = this.tenant.get();
-    return this.onboarding.listPendingInvitations(scope.clinicId);
+    return this.onboarding.listPendingInvitations(scope);
   }
 
   @Patch('memberships/:id/suspend')
@@ -121,11 +121,7 @@ export class TenancyController {
     // resolved inside the caller's own organization. A super admin is
     // organization-wide, every other role may only act within their clinic.
     const organizationWide = scope.role === UserRole.SUPER_ADMIN;
-    await this.tenancy.suspendMembership({
-      membershipId: id,
-      organizationId: scope.organizationId,
-      clinicId: organizationWide ? null : scope.clinicId,
-    });
+    await this.tenancy.suspendMembership({ membershipId: id, organizationWide });
     return { success: true };
   }
 }
