@@ -1,0 +1,215 @@
+{
+  "feature": "realtime-service",
+  "version": "v1",
+  "status": "PASS",
+  "commit": "9d2d225950675adb39983b60ef0f78c984ec3286",
+  "base": "main",
+  "branch": "feature/realtime-service",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-04T16:55:00.000Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "Spec Convergence",
+      "status": "pass",
+      "detail": "All 16 acceptance criteria are implemented and each is bound to at least one passing test."
+    },
+    {
+      "id": "Task Completion",
+      "status": "pass",
+      "detail": "45 of 45 tasks are complete in tasks.json and checked in tasks.md."
+    },
+    {
+      "id": "Traceability",
+      "status": "pass",
+      "detail": "All 16 acceptance criteria are mapped. AC-007 was missing from the matrix and archive:check caught it; it is now mapped to NFR-010, whose row carries TEST-001, TEST-002, TEST-003 and TEST-007. 29/29 rows carry task and test IDs."
+    },
+    {
+      "id": "Coverage",
+      "status": "pass",
+      "detail": "100% - 16 of 16 acceptance criteria carry a test ID backed by the recorded evidence, 46 of 46 tests pass. No criterion is withdrawn."
+    },
+    {
+      "id": "Test Report",
+      "status": "pass",
+      "detail": ".sdrive/reports/tests/test-report-realtime-service-v1-2026-11-04.md exists and is newer than spec.md and plan.md."
+    },
+    {
+      "id": "Test Evidence",
+      "status": "pass",
+      "detail": "test-evidence.json records exitCode 0, summary.failed 0, summary.total 46, commit 9d2d225 which equals HEAD, and 16 AC IDs plus 16 TEST IDs captured from a --verbose run."
+    },
+    {
+      "id": "Change Scope",
+      "status": "pass",
+      "detail": "60 files changed against main...HEAD, all planned. No unplanned files and no other feature's commits. main is one bookkeeping commit ahead (design-tokens archive) which the merge will bring in."
+    },
+    {
+      "id": "Test Quality",
+      "status": "pass",
+      "detail": "No .only, xit or skipped tests; every test name carries its AC ID; assertions check behaviour rather than existence."
+    },
+    {
+      "id": "Code Quality",
+      "status": "pass",
+      "detail": "pnpm --filter realtime lint, typecheck, build and prettier --check all pass at the reviewed commit."
+    },
+    {
+      "id": "Security",
+      "status": "not_verified",
+      "detail": "Secret scanning used a diff pattern search because gitleaks is unavailable (not installed, Docker Hub unreachable); nothing found, manual scan still required. Production dependency audit is clean and every CON-51x control is wired except CON-518 which is documented NOT APPLICABLE."
+    },
+    {
+      "id": "Testing",
+      "status": "pass",
+      "detail": "46 of 46 tests pass at the reviewed commit. The root pnpm test is red for an unrelated, pre-existing backoffice React.act failure."
+    },
+    {
+      "id": "Documentation",
+      "status": "warn",
+      "detail": "README's workspace table lists web, server and backoffice but not the new realtime package. Low severity, non-blocking."
+    },
+    {
+      "id": "NFR Evidence",
+      "status": "not_verified",
+      "detail": "NFR-002 (p95 <= 500 ms at 200 connections) is unmeasured. SEO and accessibility are not applicable to a headless service."
+    },
+    {
+      "id": "Definition of Done",
+      "status": "pass",
+      "detail": "The constitution's DoD checklist is satisfied for the reviewed scope."
+    },
+    {
+      "id": "Spec-to-Code Verification",
+      "status": "pass",
+      "detail": "sdrive verify returns warn with 0 missing, 0 renamed, 1 withdrawn (socket.io-client, deferred to /sdrive:test) and 28 extra entries that are pre-existing shared-package files."
+    },
+    {
+      "id": "CI",
+      "status": "not_verified",
+      "detail": "No workflow run exists for this branch; CI triggers on pull requests and pushes to main only."
+    },
+    {
+      "id": "Permission",
+      "status": "pass",
+      "detail": "check-permission allowed kenule500 (admin) for /sdrive:review."
+    },
+    {
+      "id": "Reviewer Independence",
+      "status": "warn",
+      "detail": "Self-review: no assignee is recorded for this feature, so the reviewer is also the author. The owner confirmed the verdict explicitly before it was written."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "issue": "AC-007 was absent from the traceability matrix, so archive:check refused the feature. Three passing AC-007 tests already existed; the row is now mapped to NFR-010.",
+      "location": ".sdrive/governance/realtime-service/v1/traceability.json",
+      "fixRequired": false,
+      "acIds": ["AC-007"]
+    },
+    {
+      "severity": "low",
+      "issue": "README's workspace table lists web, server and backoffice but not the new realtime package.",
+      "location": "README.md:12",
+      "fixRequired": false
+    },
+    {
+      "severity": "info",
+      "issue": "NFR-002 (p95 <= 500 ms at 200 connections) is unmeasured, so its traceability row stays not_started.",
+      "location": ".sdrive/governance/realtime-service/v1/traceability.json",
+      "fixRequired": false,
+      "acIds": ["AC-008"]
+    },
+    {
+      "severity": "info",
+      "issue": "Secret scanning fell back to a diff pattern search: gitleaks is not installed and the Docker Hub pull failed. Nothing was found, but a manual scan is still required.",
+      "location": "repository-wide",
+      "fixRequired": false
+    },
+    {
+      "severity": "info",
+      "issue": "No CI run exists for this branch; the workflow triggers on pull requests and pushes to main only.",
+      "location": ".github/workflows/ci.yml",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "testEvidence": ".sdrive/governance/realtime-service/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-realtime-service-v1-2026-11-04.md",
+    "verification": ".sdrive/governance/realtime-service/v1/verification.json",
+    "audit": ".sdrive/audit-log.json"
+  },
+  "security": {
+    "status": "not_verified",
+    "reason": "gitleaks is not installed and the Docker Hub image pull failed, so no deterministic secret scan was possible; a pattern search over the diff found nothing but manual scanning is still required. Production dependency audit is clean and the CON-51x baseline is wired, with CON-518 recorded NOT APPLICABLE.",
+    "secrets": "not_verified",
+    "dependencies": "clean",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "pass",
+        "detail": "The Socket.IO handshake verifies the access token with JWT_ACCESS_SECRET and enforces exp; a refresh token is never accepted (TokenService, AC-001/AC-002)."
+      },
+      {
+        "id": "CON-512",
+        "status": "pass",
+        "detail": "Room membership is derived from the token's clinic and role; room:join accepts only rooms already owned by the connection (RealtimeGateway, AC-004)."
+      },
+      {
+        "id": "CON-513",
+        "status": "pass",
+        "detail": "helmet() is applied to the HTTP surface in main.ts before the server listens."
+      },
+      {
+        "id": "CON-514",
+        "status": "pass",
+        "detail": "Connection attempts are throttled per IP by ConnectThrottleService in the namespace middleware, with a Redis counter and a local fallback (NFR-013)."
+      },
+      {
+        "id": "CON-515",
+        "status": "pass",
+        "detail": "Handshake claims and every relayed payload are validated with strict Zod schemas; unknown fields are rejected (AC-012)."
+      },
+      {
+        "id": "CON-516",
+        "status": "pass",
+        "detail": "No raw Mongo access and no collection exists; the Mongoose connection is the whole Mongo surface (NFR-015)."
+      },
+      {
+        "id": "CON-517",
+        "status": "pass",
+        "detail": "Payloads are transported as data only; the service constructs no HTML."
+      },
+      {
+        "id": "CON-518",
+        "status": "not_applicable",
+        "detail": "Sockets authenticate with a bearer token in the handshake, not an ambient cookie, and the only HTTP routes are idempotent GET health probes. Recorded in spec.md under Security Baseline."
+      },
+      {
+        "id": "CON-519",
+        "status": "pass",
+        "detail": "Every variable is read from the environment, validated at boot and never logged; the pino redact list covers token, accessToken, authorization and clinicId."
+      },
+      {
+        "id": "CON-520",
+        "status": "pass",
+        "detail": "Helmet's HSTS is enabled; the service sets no cookies, so COOKIE_SECURE has no surface here."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_verified",
+    "reason": "NFR-002 sets a p95 target of 500 ms at 200 concurrent connections, and no load harness exists in the repository to measure it. End-to-end delivery was observed manually during implementation, which is not a benchmark.",
+    "method": "Not measured. The relay performs no I/O beyond one Redis message and one local emit, which are single-observation timings rather than a p95.",
+    "nfr": [
+      {
+        "id": "NFR-002",
+        "target": "p95 publish-to-delivery <= 500 ms at 200 concurrent connections on one instance",
+        "measured": "not measured",
+        "status": "not_verified"
+      }
+    ],
+    "seo": "not_applicable"
+  }
+}

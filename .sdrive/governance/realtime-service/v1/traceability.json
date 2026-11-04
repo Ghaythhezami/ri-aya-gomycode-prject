@@ -164,11 +164,11 @@
     },
     {
       "requirementId": "NFR-010",
-      "acceptanceCriteriaIds": ["AC-001", "AC-002", "AC-003"],
+      "acceptanceCriteriaIds": ["AC-001", "AC-002", "AC-003", "AC-007"],
       "planSection": "1.3 Connection lifecycle",
       "taskIds": ["T3.1", "T3.2", "T3.3", "T3.6"],
       "status": "complete",
-      "testIds": ["TEST-001", "TEST-002", "TEST-003"]
+      "testIds": ["TEST-001", "TEST-002", "TEST-003", "TEST-007"]
     },
     {
       "requirementId": "NFR-011",
