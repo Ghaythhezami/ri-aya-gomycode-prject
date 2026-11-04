@@ -2,11 +2,11 @@
   "feature": "strict-tenant-isolation",
   "version": "v1",
   "status": "PASS",
-  "commit": "a83226e5f2958a09e7f658e641646fdc4d8b55f0",
+  "commit": "acd119f0ddf7a1c823f8e281ca60135a895a305e",
   "base": "main",
   "branch": "feature/bp-007-bp-010-bp-011-bp-013",
   "reviewedBy": "kenule500",
-  "reviewedAt": "2026-11-04T22:14:03.213Z",
+  "reviewedAt": "2026-11-04T23:03:38.782Z",
   "coverage": 100,
   "criteria": [
     {
@@ -141,7 +141,11 @@
         "status": "not_applicable",
         "detail": "No headers or transport configuration changed."
       },
-      { "id": "CON-514", "status": "not_applicable", "detail": "No new routes were added." },
+      {
+        "id": "CON-514",
+        "status": "not_applicable",
+        "detail": "No new routes were added."
+      },
       {
         "id": "CON-515",
         "status": "pass",
@@ -152,13 +156,21 @@
         "status": "pass",
         "detail": "Prisma reads and writes are scoped, including the audit service."
       },
-      { "id": "CON-517", "status": "not_applicable", "detail": "No HTML rendering surface." },
+      {
+        "id": "CON-517",
+        "status": "not_applicable",
+        "detail": "No HTML rendering surface."
+      },
       {
         "id": "CON-518",
         "status": "not_applicable",
         "detail": "No cookie, CORS or state-changing route handling changed."
       },
-      { "id": "CON-519", "status": "not_applicable", "detail": "No .env file read or modified." },
+      {
+        "id": "CON-519",
+        "status": "not_applicable",
+        "detail": "No .env file read or modified."
+      },
       {
         "id": "CON-520",
         "status": "not_applicable",

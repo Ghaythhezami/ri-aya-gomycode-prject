@@ -757,6 +757,86 @@
       "event": "gate_approved",
       "prevHash": "64c9264a418778fdd9c95580499bef9a2132c1f3b98db523eacb8998109d76ae",
       "hash": "3589a776127fc0a89a29ef2702e5a875da0321fcb0ced3c358e48e7f857ec03a"
+    },
+    {
+      "timestamp": "2026-11-04T23:11:39.435Z",
+      "actor": "kenule500",
+      "feature": "application-shell",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "3589a776127fc0a89a29ef2702e5a875da0321fcb0ced3c358e48e7f857ec03a",
+      "hash": "f9a67f9f99addf67eb6339908b1300dbad817a2fff45348c149e684c74509b4d"
+    },
+    {
+      "timestamp": "2026-11-04T23:11:44.596Z",
+      "actor": "kenule500",
+      "feature": "strict-tenant-isolation",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "f9a67f9f99addf67eb6339908b1300dbad817a2fff45348c149e684c74509b4d",
+      "hash": "ac7e8c15f8a0807ce89c9866cefedef60404c863134cd0eb33ad4fa20c3e5e9f"
+    },
+    {
+      "timestamp": "2026-11-04T23:11:45.191Z",
+      "actor": "kenule500",
+      "feature": "role-based-access-control-and-clinic-scoping",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "ac7e8c15f8a0807ce89c9866cefedef60404c863134cd0eb33ad4fa20c3e5e9f",
+      "hash": "7dcd4d17ca13917f8d52dc188529bf5deac82ab65572160efedefe91f81f476f"
+    },
+    {
+      "timestamp": "2026-11-04T23:11:45.807Z",
+      "actor": "kenule500",
+      "feature": "localised-data-and-api-messages",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "7dcd4d17ca13917f8d52dc188529bf5deac82ab65572160efedefe91f81f476f",
+      "hash": "ecc3eaece33ad4af97dee4a6662fe7d7f50ecbb925b4d0d9f2dd418005c565b0"
+    },
+    {
+      "timestamp": "2026-11-04T23:13:01.114Z",
+      "actor": "kenule500",
+      "feature": "application-shell",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "ecc3eaece33ad4af97dee4a6662fe7d7f50ecbb925b4d0d9f2dd418005c565b0",
+      "hash": "00933cabc97cec6d75c3352aeda1c73cb3e51913ea509472f3ed39eb61c54f11"
+    },
+    {
+      "timestamp": "2026-11-04T23:13:03.739Z",
+      "actor": "kenule500",
+      "feature": "strict-tenant-isolation",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "00933cabc97cec6d75c3352aeda1c73cb3e51913ea509472f3ed39eb61c54f11",
+      "hash": "e989a3669d42872cadaf6812144f67b779e74ec3e211c3bcec0a32270b3c2b1f"
+    },
+    {
+      "timestamp": "2026-11-04T23:13:05.838Z",
+      "actor": "kenule500",
+      "feature": "role-based-access-control-and-clinic-scoping",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "e989a3669d42872cadaf6812144f67b779e74ec3e211c3bcec0a32270b3c2b1f",
+      "hash": "7f40472f77e0f597768f5184ae10515f42617c13499e1ba9818dc43ef58182c3"
+    },
+    {
+      "timestamp": "2026-11-04T23:13:07.488Z",
+      "actor": "kenule500",
+      "feature": "localised-data-and-api-messages",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "7f40472f77e0f597768f5184ae10515f42617c13499e1ba9818dc43ef58182c3",
+      "hash": "c4d17c328d67573e32599a179bfe6bfed135ecc00c6b06bd076cf77c0fa896cc"
     }
   ]
 }

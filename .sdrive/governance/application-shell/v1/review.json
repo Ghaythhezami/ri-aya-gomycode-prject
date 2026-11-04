@@ -2,11 +2,11 @@
   "feature": "application-shell",
   "version": "v1",
   "status": "PASS",
-  "commit": "a2710b1458ec306dd567679d3a31371fec1b77be",
+  "commit": "acd119f0ddf7a1c823f8e281ca60135a895a305e",
   "base": "main",
   "branch": "feature/bp-007-bp-010-bp-011-bp-013",
   "reviewedBy": "kenule500",
-  "reviewedAt": "2026-11-04T17:51:12.674Z",
+  "reviewedAt": "2026-11-04T23:03:38.782Z",
   "coverage": 100,
   "criteria": [
     {
@@ -142,13 +142,21 @@
         "status": "not_applicable",
         "detail": "No server headers; backoffice is a static SPA."
       },
-      { "id": "CON-514", "status": "not_applicable", "detail": "No server routes added." },
+      {
+        "id": "CON-514",
+        "status": "not_applicable",
+        "detail": "No server routes added."
+      },
       {
         "id": "CON-515",
         "status": "not_applicable",
         "detail": "No DTOs or server-side validation added."
       },
-      { "id": "CON-516", "status": "not_applicable", "detail": "No data access added." },
+      {
+        "id": "CON-516",
+        "status": "not_applicable",
+        "detail": "No data access added."
+      },
       {
         "id": "CON-517",
         "status": "pass",
@@ -159,7 +167,11 @@
         "status": "not_applicable",
         "detail": "No cookies, CORS or state-changing routes touched."
       },
-      { "id": "CON-519", "status": "not_applicable", "detail": "No .env file read or modified." },
+      {
+        "id": "CON-519",
+        "status": "not_applicable",
+        "detail": "No .env file read or modified."
+      },
       {
         "id": "CON-520",
         "status": "not_applicable",
