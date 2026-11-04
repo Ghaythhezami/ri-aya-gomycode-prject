@@ -1,0 +1,153 @@
+{
+  "feature": "shared-package",
+  "version": "v1",
+  "status": "FAIL",
+  "commit": "f7d5ed8e6133239d4cdc2e85bfb7f8ee46116384",
+  "base": "main",
+  "branch": "feature/bp-045",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-04T09:16:52.110Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "C01-spec-convergence",
+      "status": "pass",
+      "detail": "All 8 acceptance criteria (AC-001..AC-008) are implemented and `sdrive verify shared-package` reports pass: 44 items matched, 0 missing, 0 renamed, 0 extra, 0 withdrawn."
+    },
+    {
+      "id": "C02-task-completion",
+      "status": "pass",
+      "detail": "Every task in tasks.md is checked and completed: true in tasks.json."
+    },
+    {
+      "id": "C03-traceability",
+      "status": "pass",
+      "detail": "traceability.json has 13 rows, all status complete; every AC-001..AC-008 has at least one linked task and test ID, and every linked TEST-### ID was found in the codebase."
+    },
+    {
+      "id": "C04-coverage",
+      "status": "pass",
+      "detail": "8/8 in-scope ACs tested = 100%; 0 withdrawn. Recorded test report figures 32/32; the review-time suite run recorded 63 passed, 0 failed, 1 skipped across the workspace."
+    },
+    {
+      "id": "C05-test-report",
+      "status": "fail",
+      "detail": "The only test report is .sdrive/reports/tests/test-report-shared-package-v1-2026-11-03.md (mtime 18:19), older than spec.md (18:59) and plan.md (18:48). Stale Test Report Rule is triggered. The report is written only by /sdrive:test and there is no CLI command to regenerate it, so the review agent cannot clear this itself."
+    },
+    {
+      "id": "C06-test-evidence",
+      "status": "pass",
+      "detail": "test-evidence.json exists, exitCode 0, 0 failed, total 64 (>0), commit f7d5ed8e === HEAD f7d5ed8e, branch feature/bp-045."
+    },
+    {
+      "id": "C07-change-scope",
+      "status": "pass",
+      "detail": "git diff main...HEAD = 36 files, 2983 insertions, 253 deletions, all matching the planned shared package, its two consumers, the tests for FR-001..FR-008 and the governance artifacts. No files from another feature. Working tree clean apart from untracked .perch/ and .sdrive/.backups/ entries, which are pre-existing and deliberately uncommitted."
+    },
+    {
+      "id": "C08-test-quality",
+      "status": "pass",
+      "detail": "No .only and no xit. One describe.skip in server/src/cache/lockout-persistence.spec.ts is pre-existing and gated by an explicit ENABLED flag (LOCKOUT_INTEGRATION=1 plus REDIS_URL), i.e. a recorded reason. Test names carry their AC IDs. During this review an unused helper that broke server lint was removed (fc851ff) and a load-sensitive 5s default timeout on the registration-wizard test was given an explicit 20s budget (f7d5ed8), which removed the only workspace test failure."
+    },
+    {
+      "id": "C09-code-quality",
+      "status": "pass",
+      "detail": "tsc --noEmit exit 0 in backoffice, server and packages/shared. eslint exit 0 for backoffice src and for server {src,test}. Prettier clean on changed files. Note: eslint over backoffice/test/ reports one pre-existing unused import (`tmpdir`) in schema-type-inference.test.ts; that path is outside the project's lint script (src only)."
+    },
+    {
+      "id": "C10-security",
+      "status": "pass",
+      "detail": "No gitleaks or trufflehog is available, so the fallback pattern scan of the diff was used and found no hardcoded credentials; NFR-004 is satisfied (the package reads no environment variable). No new third-party dependency was added to production code: server/package.json and pnpm-workspace.yaml only gain the workspace link to @riaya/shared."
+    },
+    {
+      "id": "C11-testing",
+      "status": "pass",
+      "detail": "sdrive test shared-package at the reviewed commit: 63 passed, 0 failed, 1 skipped, exit 0."
+    },
+    {
+      "id": "C12-documentation",
+      "status": "pass",
+      "detail": "The specification, plan, tasks and traceability artifacts are updated and internally consistent; the package exposes a documented single entry point. No user-facing README/CHANGELOG change was planned for this internal package."
+    },
+    {
+      "id": "C13-nfr-evidence",
+      "status": "pass",
+      "detail": "NFR-001..NFR-005 are structural (no standalone runtime, no dependency growth, no import escaping packages/shared/src, no environment reads, single TypeScript major) and are each bound to an AC with complete test evidence. No performance, accessibility or SEO NFR exists in this feature, so no /sdrive:performance report or not_verified mark is required."
+    },
+    {
+      "id": "C14-definition-of-done",
+      "status": "pass",
+      "detail": "Constitution DoD items are met except the test-report recency requirement of C05, which is the sole blocker."
+    },
+    {
+      "id": "C15-spec-to-code-verification",
+      "status": "pass",
+      "detail": "sdrive verify shared-package status pass; sdrive validate exit 0 (ok true)."
+    },
+    {
+      "id": "C16-ci",
+      "status": "not_verified",
+      "detail": "CI is configured (.github/workflows/ci.yml) and gh is available, but origin/feature/bp-045 is still at 0210769 while HEAD is f7d5ed8e, so no CI run exists for the reviewed commit. Recent main and other-branch runs are green, which is not evidence for this commit."
+    },
+    {
+      "id": "C17-permission",
+      "status": "pass",
+      "detail": "node .sdrive/scripts/check-permission.js slash /sdrive:review allowed the review."
+    },
+    {
+      "id": "C18-reviewer-independence",
+      "status": "warn",
+      "detail": "reviewedBy (kenule500, from git config) equals the feature assignee, so this is a self-review. The conflict is recorded here and needs an independent reviewer or an explicit human escalation before PASS may be written."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "issue": "Test report is older than spec.md and plan.md, so it must be treated as stale; a fresh report has to be produced by /sdrive:test before the review can pass.",
+      "location": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-03.md",
+      "fixRequired": true
+    },
+    {
+      "severity": "medium",
+      "issue": "No CI run exists for the reviewed commit because the branch has not been pushed past 0210769; criterion C16 is not_verified.",
+      "location": "origin/feature/bp-045",
+      "fixRequired": false
+    },
+    {
+      "severity": "medium",
+      "issue": "The reviewer is the feature assignee (kenule500); an independent reviewer or explicit escalation is required before a PASS.",
+      "location": ".sdrive/workflow-state.json",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "The registration-wizard test failed only under the root recursive run, where jsdom setup/collect work saturated the CPU past Vitest's 5s default. Fixed by an explicit 20s per-test budget rather than a global timeout change.",
+      "location": "backoffice/test/authentication-onboarding-and-access-control/register-wizard.test.tsx:21",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "eslint over backoffice/test/ reports a pre-existing unused `tmpdir` import; the project's lint script only covers src, so this is not part of any configured check.",
+      "location": "backoffice/test/shared-package/schema-type-inference.test.ts:3",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "server/package.json keeps a dead test:e2e script pointing at a non-existent ./test/jest-e2e.json.",
+      "location": "server/package.json",
+      "fixRequired": false
+    },
+    {
+      "severity": "info",
+      "issue": "Manual secret scan required: neither gitleaks nor trufflehog is installed, so the scan was a pattern search over the diff.",
+      "location": "n/a",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "testEvidence": ".sdrive/governance/shared-package/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-03.md",
+    "verification": ".sdrive/governance/shared-package/v1/verification.json",
+    "audit": ".sdrive/audit-log.json"
+  }
+}
