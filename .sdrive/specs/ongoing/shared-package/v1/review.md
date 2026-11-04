@@ -57,7 +57,7 @@ the reviewer is the assignee without an explicit escalation.
 - [x] Spec-to-Code Verification: `sdrive verify` pass, `sdrive validate` and `sdrive check` exit 0 with no blockers
 - [ ] CI: **not verified (escalated 2026-11-04)** — no run exists for `19f248c` despite the push and an open PR; workflow configuration ruled out, blocker is Actions permission on a repo the reviewer does not own
 - [x] Permission: `check-permission.js slash /sdrive:review` allowed
-- [!] Reviewer Independence: **warn** — `reviewedBy` equals the feature assignee; needs an independent reviewer or explicit escalation
+- [!] Reviewer Independence: **warn** — `reviewedBy` equals the feature assignee; **owner decision pending (2026-11-04)**, see §6
 
 ## 4. Change Scope
 
@@ -71,8 +71,7 @@ the reviewer is the assignee without an explicit escalation.
 
 | Severity | Issue                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Location                                                                              | AC  | Fix Required |
 | -------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | --- | ------------ |
-| Medium   | No CI run for `19f248c` despite the push and open PR #7. Ruled out: workflow config (`ci.yml` identical to `main`, workflow `active`, `pull_request` unfiltered, five runs green 2026-11-03 on other branches). Cause: reviewing account has `admin:false`/`maintain:false` on a repo owned by another user, so the Actions policy endpoint returns 403, and `ci.yml` has no `workflow_dispatch` (dispatch returns 422). Escalated for owner action or explicit acceptance of local evidence. | `origin/feature/bp-045`                                                               | —   | No           |
-| Medium   | Reviewer is the feature's assignee                                                                                                                                                                                                                                                                                                                                                                                                                                                            | `.sdrive/workflow-state.json`                                                         | —   | No           |
+| Medium   | No CI run for `19f248c` despite the push and open PR #7. Ruled out: workflow config (`ci.yml` identical to `main`, workflow `active`, `pull_request` unfiltered, five runs green 2026-11-03 on other branches). Cause: reviewing account has `admin:false`/`maintain:false` on a repo owned by another user, so the Actions policy endpoint returns 403, and `ci.yml` has no `workflow_dispatch` (dispatch returns 422). Escalated for owner action or explicit acceptance of local evidence. | `origin/feature/bp-045`                                                               | —   | No           |     | Medium | Reviewer is the feature's assignee, so this is a self-review and independence cannot be granted by any command. **Owner decision required**: (a) a reviewer other than `kenule500` confirms the verdict, or (b) the repository owner explicitly accepts the self-review (precedent: `api-skeleton-and-ci`). Recorded as a pending yes/no request, not a waiver claimed by the reviewer. | `.sdrive/workflow-state.json` | —   | No  |
 | Low      | Test evidence binds to `de73bc1`, several commits behind HEAD (`19f248c`, which adds the merge of `main` and the governance splice). No file this feature owns (`packages/shared`, `backoffice/test/shared-package`) changed since `de73bc1`, so the evidence still describes this feature, but the merge brought 43 files from `main` that the run never covered; evidence must be produced last in any future cycle.                                                                        | `.sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md`                   | —   | No           |
 | Low      | Two tests outside this feature still use the 5s default and time out when the machine is CPU-saturated                                                                                                                                                                                                                                                                                                                                                                                        | `backoffice/test/authentication-onboarding-and-access-control/accept-invite.test.tsx` | —   | No           |
 | Low      | Pre-existing unused `tmpdir` import; `backoffice` lint script covers `src` only                                                                                                                                                                                                                                                                                                                                                                                                               | `backoffice/test/shared-package/schema-type-inference.test.ts:3`                      | —   | No           |
@@ -91,7 +90,17 @@ the reviewer is the assignee without an explicit escalation.
 ## 6. Recommendations
 
 - CI cannot be unblocked from this account: the repository owner must either allow the run (Settings → Actions → General) or a commit must land on `main`, whose `push` trigger demonstrably works. Once a run exists, record its URL and re-review.
-- Have someone other than `kenule500` confirm the verdict, or record an explicit escalation accepted by the owner (as done for `api-skeleton-and-ci`).
+
+### Two decisions this review is waiting on
+
+Both are for the repository owner (`Ghaythhezami`); neither can be granted from this account.
+
+1. **Reviewer independence (C18).** Either a reviewer other than `kenule500` confirms the verdict, or the owner explicitly accepts the self-review — preface `api-skeleton-and-ci` was accepted this way and the acceptance was recorded in its `review.md` header. **Accept / reject:**
+2. **CI evidence (C16).** Either permit the Actions run for this branch, or explicitly accept the substitution of local evidence (`lint`, `typecheck`, `test`, `build` all exit 0 at `19f248c`). **Accept / reject:**
+
+When either is answered, record the answer here and in `review.json`; the criterion moves off
+`not_verified`/`warn` only at that point.
+
 - Consider a shared `setupFiles` timeout for `backoffice` so the suite stops being sensitive
   to machine load.
 
