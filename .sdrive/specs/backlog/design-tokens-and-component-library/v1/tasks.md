@@ -42,11 +42,11 @@ Production code only. Test authoring and execution belong to `/sdrive:test`.
 
 ## P3 — New primitives: forms and navigation
 
-- [ ] T3.1 — `Textarea` sharing the `Input` field shell. (FR-004)
-- [ ] T3.2 — `SearchableSelect` following the combobox pattern with keyboard selection and type-ahead. (FR-004, NFR-004)
-- [ ] T3.3 — `DatePicker` and `TimePicker` using `Intl` for display, with locale-independent stored values. (FR-004, FR-010)
-- [ ] T3.4 — `Tabs` with roving tabindex and correct `tablist`/`tab`/`tabpanel` roles. (FR-004, NFR-004)
-- [ ] T3.5 — `Dropdown` following the menu-button pattern, with Esc, arrow keys and focus return. (FR-004, NFR-004)
+- [x] T3.1 — `Textarea` sharing the `Input` field shell. (FR-004)
+- [x] T3.2 — `SearchableSelect` following the combobox pattern with keyboard selection and type-ahead. (FR-004, NFR-004)
+- [x] T3.3 — `DatePicker` and `TimePicker` using `Intl` for display, with locale-independent stored values. (FR-004, FR-010)
+- [x] T3.4 — `Tabs` with roving tabindex and correct `tablist`/`tab`/`tabpanel` roles. (FR-004, NFR-004)
+- [x] T3.5 — `Dropdown` following the menu-button pattern, with Esc, arrow keys and focus return. (FR-004, NFR-004)
 
 ## P4 — New primitives: feedback and display
 

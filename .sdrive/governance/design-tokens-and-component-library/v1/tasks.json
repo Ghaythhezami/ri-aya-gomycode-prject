@@ -155,7 +155,7 @@
           "description": "Add backoffice/src/common/Textarea.tsx reusing the Field shell and token styling from T2.2.",
           "linkedRequirements": ["FR-004"],
           "linkedAcceptanceCriteria": ["AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.2",
@@ -163,7 +163,7 @@
           "description": "Add backoffice/src/common/SearchableSelect.tsx following the combobox pattern with type-ahead, arrow-key navigation and aria-activedescendant.",
           "linkedRequirements": ["FR-004", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.3",
@@ -171,7 +171,7 @@
           "description": "Add both pickers under backoffice/src/common, formatting and parsing display values with Intl and the active locale while the stored value stays locale-independent.",
           "linkedRequirements": ["FR-004", "FR-010"],
           "linkedAcceptanceCriteria": ["AC-005", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.4",
@@ -179,7 +179,7 @@
           "description": "Add backoffice/src/common/Tabs.tsx with roving tabindex and the tablist, tab and tabpanel roles.",
           "linkedRequirements": ["FR-004", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.5",
@@ -187,7 +187,7 @@
           "description": "Add backoffice/src/common/Dropdown.tsx following the menu-button pattern with Esc, arrow keys, focus return and viewport-aware placement.",
           "linkedRequirements": ["FR-004", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
-          "completed": false
+          "completed": true
         }
       ]
     },
