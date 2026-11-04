@@ -136,7 +136,7 @@ export function StaffDirectoryPage() {
                   <td className="px-4 py-2 text-muted">{t(`roles.${inv.role}`)}</td>
                   <td className="px-4 py-2 text-muted">
                     {formatDate(
-                      inv.expiresAt,
+                      new Date(inv.expiresAt),
                       negotiateLocale(i18n.resolvedLanguage),
                       active?.clinicTimezone,
                     )}

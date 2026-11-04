@@ -13,37 +13,31 @@ export function resolveTimeZone(timeZone?: string | null): string {
   if (!timeZone) return DEFAULT_TIME_ZONE;
 
   try {
-    new Intl.DateTimeFormat('en', { timeZone }).format(new Date());
+    // A fixed timestamp validates the zone without reading the clock, which
+    // this package must not do (the shared-package boundary forbids `new Date`).
+    new Intl.DateTimeFormat('en', { timeZone }).format(0);
     return timeZone;
   } catch {
     return DEFAULT_TIME_ZONE;
   }
 }
 
-export function formatDate(
-  value: string | number | Date,
-  locale: Locale,
-  timeZone?: string | null,
-): string {
+export function formatDate(value: Date | number, locale: Locale, timeZone?: string | null): string {
   return new Intl.DateTimeFormat(locale, {
     dateStyle: 'medium',
     timeZone: resolveTimeZone(timeZone),
-  }).format(new Date(value));
+  }).format(value);
 }
 
-export function formatTime(
-  value: string | number | Date,
-  locale: Locale,
-  timeZone?: string | null,
-): string {
+export function formatTime(value: Date | number, locale: Locale, timeZone?: string | null): string {
   return new Intl.DateTimeFormat(locale, {
     timeStyle: 'short',
     timeZone: resolveTimeZone(timeZone),
-  }).format(new Date(value));
+  }).format(value);
 }
 
 export function formatDateTime(
-  value: string | number | Date,
+  value: Date | number,
   locale: Locale,
   timeZone?: string | null,
 ): string {
@@ -51,7 +45,7 @@ export function formatDateTime(
     dateStyle: 'medium',
     timeStyle: 'short',
     timeZone: resolveTimeZone(timeZone),
-  }).format(new Date(value));
+  }).format(value);
 }
 
 export function formatNumber(
