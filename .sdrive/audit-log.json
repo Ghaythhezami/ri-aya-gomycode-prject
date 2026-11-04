@@ -508,6 +508,28 @@
       "event": "test_passed",
       "prevHash": "19257de64653bf92eb1e93bf1fa79449ec81acd3f08bfa1098f6bc56d9bbf967",
       "hash": "74e5fd68d37ecbe1933f9b32c685088c3863ace3077331a8c849175e0fd2d950"
+    },
+    {
+      "timestamp": "2026-11-04T12:34:43.829Z",
+      "actor": "kenule500",
+      "feature": "shared-package",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 31,
+      "event": "test_failed",
+      "prevHash": "74e5fd68d37ecbe1933f9b32c685088c3863ace3077331a8c849175e0fd2d950",
+      "hash": "737c74e0253690db65bb234ee2870e5489a33e53e17d0ae65141bf4dc7f915e1"
+    },
+    {
+      "timestamp": "2026-11-04T12:38:43.190Z",
+      "actor": "kenule500",
+      "feature": "shared-package",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 23,
+      "event": "test_failed",
+      "prevHash": "737c74e0253690db65bb234ee2870e5489a33e53e17d0ae65141bf4dc7f915e1",
+      "hash": "b48b7714df2fce084254145043867251980752eb470f4ed94e04551223a2b553"
     }
   ]
 }
