@@ -20,12 +20,12 @@ export const color = {
   bg: '#f7f9fc',
   surface: '#ffffff',
   text: '#172b4d',
-  muted: '#697586',
+  muted: '#5f6875',
   border: '#e5eaf0',
   'border-strong': '#7b8698',
-  success: '#16a34a',
-  warning: '#f59e0b',
-  error: '#dc2626',
+  success: '#166534',
+  warning: '#92400e',
+  error: '#b91c1c',
   accent: '#ddf6f3',
 } as const;
 

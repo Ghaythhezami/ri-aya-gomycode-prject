@@ -68,10 +68,10 @@ Production code only. Test authoring and execution belong to `/sdrive:test`.
 
 ## P6 — Verification
 
-- [ ] T6.1 — Run `pnpm --filter backoffice lint` and resolve every finding without suppressing rules. (NFR-004)
-- [ ] T6.2 — Run `pnpm --filter backoffice typecheck` and resolve every error. (FR-001)
-- [ ] T6.3 — Run the three guard scripts and `node .sdrive/scripts/validate-governance.js`; all must pass. (FR-001, FR-012, NFR-001)
-- [ ] T6.4 — Manually check `/design-system` at 375, 768 and 1440 px for horizontal overflow. (NFR-007)
-- [ ] T6.5 — Manually check the page in Arabic, and with JavaScript disabled for static content. (NFR-005, NFR-008)
-- [ ] T6.6 — Confirm no `dangerouslySetInnerHTML` was introduced in any primitive. (NFR-009)
-- [ ] T6.7 — Check each foreground/background token pair that renders text against a 4.5:1 ratio — `muted` on `bg`, `text` on `surface`, each status tone on its tinted background — and record the results beside the token table. (NFR-003)
+- [x] T6.1 — Run `pnpm --filter backoffice lint` and resolve every finding without suppressing rules. (NFR-004)
+- [x] T6.2 — Run `pnpm --filter backoffice typecheck` and resolve every error. (FR-001)
+- [x] T6.3 — Run the three guard scripts and `node .sdrive/scripts/validate-governance.js`; all must pass. (FR-001, FR-012, NFR-001)
+- [x] T6.4 — Manually check `/design-system` at 375, 768 and 1440 px for horizontal overflow. (NFR-007)
+- [x] T6.5 — Manually check the page in Arabic, and with JavaScript disabled for static content. (NFR-005, NFR-008)
+- [x] T6.6 — Confirm no `dangerouslySetInnerHTML` was introduced in any primitive. (NFR-009)
+- [x] T6.7 — Check each foreground/background token pair that renders text against a 4.5:1 ratio — `muted` on `bg`, `text` on `surface`, each status tone on its tinted background — and record the results beside the token table. (NFR-003)

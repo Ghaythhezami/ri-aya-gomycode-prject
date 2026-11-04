@@ -312,7 +312,7 @@
           "description": "Run pnpm --filter backoffice lint and resolve every finding without disabling rules.",
           "linkedRequirements": ["NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T6.2",
@@ -320,7 +320,7 @@
           "description": "Run pnpm --filter backoffice typecheck and resolve every error.",
           "linkedRequirements": ["FR-001"],
           "linkedAcceptanceCriteria": ["AC-001"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T6.3",
@@ -328,7 +328,7 @@
           "description": "Run the token parity, literal and locale guard scripts and node .sdrive/scripts/validate-governance.js; all must pass.",
           "linkedRequirements": ["FR-001", "FR-012", "NFR-001"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-011"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T6.4",
@@ -336,7 +336,7 @@
           "description": "Check /design-system at 375, 768 and 1440 px for horizontal overflow.",
           "linkedRequirements": ["NFR-007"],
           "linkedAcceptanceCriteria": ["AC-010"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T6.5",
@@ -344,7 +344,7 @@
           "description": "Check the page in Arabic and with JavaScript disabled, confirming static content is present in the markup without client state.",
           "linkedRequirements": ["NFR-005", "NFR-008"],
           "linkedAcceptanceCriteria": ["AC-005", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T6.6",
@@ -352,7 +352,7 @@
           "description": "Confirm no primitive introduced dangerouslySetInnerHTML and that no third-party UI library was added.",
           "linkedRequirements": ["NFR-009"],
           "linkedAcceptanceCriteria": ["AC-008"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T6.7",
@@ -360,7 +360,7 @@
           "description": "Check each foreground/background token pair that renders text against a 4.5:1 ratio, including muted on bg, text on surface and status tones on their tinted backgrounds, and record the results next to the token table.",
           "linkedRequirements": ["NFR-003"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         }
       ]
     }
