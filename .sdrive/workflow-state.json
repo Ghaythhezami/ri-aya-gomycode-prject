@@ -651,8 +651,8 @@
           "phase": "backlog",
           "currentStep": "specification",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
+            "specification": "approved",
+            "planning": "approved",
             "implementation": "pending",
             "review": "pending"
           },
@@ -662,6 +662,39 @@
               "by": "specification-agent",
               "base": "main",
               "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/role-based-access-control-and-clinic-scoping/v1/spec.md",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/spec.json",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:28:38.773Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: shared matrix, @Roles everywhere, derived NAV_ROLES, localized 403 page.",
+              "timestamp": "2026-11-04T15:29:35.531Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/role-based-access-control-and-clinic-scoping/v1/plan.md",
+                ".sdrive/specs/backlog/role-based-access-control-and-clinic-scoping/v1/tasks.md",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/plan.json",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:29:35.531Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: shared matrix, consistent server enforcement, capability guards and the 403 page.",
+              "timestamp": "2026-11-04T15:29:57.830Z"
             }
           ]
         }

@@ -1,0 +1,253 @@
+{
+  "feature": "role-based-access-control-and-clinic-scoping",
+  "title": "Role-based access control and clinic scoping",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The role primitives exist (UserRole, @Roles, RolesGuard, RoleRoute and the backoffice NAV_ROLES map), but enforcement is inconsistent: only UsersController applies @Roles, the invitation and suspension endpoints check roles by hand, and every future controller can forget the guard. The client keeps its own role map that is not derived from any server source, RoleRoute silently redirects an unauthorised user home, and no document states which role may do what.",
+    "proposedSolution": "Make one role matrix the source of truth in the existing @riaya/shared package, consumed by both the server guard and the backoffice navigation/guards; apply it through the existing @Roles() + RolesGuard on every role-sensitive endpoint; delete the hand-written role checks; and give the backoffice a localized 403 page instead of a silent redirect. Tenant scoping stays with BP-010: a role failure is 403, a tenant failure is 404.",
+    "targetAudience": "All four backoffice roles and the API surface that serves them, plus reviewers who need one authoritative matrix instead of scattered conditionals.",
+    "assumptions": [
+      "The four roles in server/src/users/user-role.enum.ts are exhaustive for this release; a role absent from a matrix entry is denied (fail closed).",
+      "packages/shared is already a dependency of both server and backoffice; a framework-free permissions module there does not violate CON-106 because it is a shared library, not application-source cross-imports.",
+      "Public endpoints (register, accept-invite, login, refresh, forgot/reset password, health, Swagger) stay unauthenticated and are classified explicitly in the matrix.",
+      "BP-010 owns tenant filtering and BP-007 owns shell rendering; this feature decides who may call a capability.",
+      "Clinical screens and their finer-grained rules arrive later; this feature defines the matrix and the four roles it must cover."
+    ],
+    "outOfScope": [
+      "Tenant filtering and refresh-token scope (BP-010).",
+      "Shell layout, collapsed rail and breadcrumbs (BP-007).",
+      "Field-level permissions, per-clinic custom roles, or delegated administration.",
+      "Changes to authentication, token issuance or invitations themselves."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "One matrix decides who may do what",
+      "role": "security reviewer",
+      "want": "one documented role matrix consumed by the API and the backoffice",
+      "benefit": "a permission cannot mean one thing on the server and another in the UI",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given the shared permissions module, when a role-sensitive endpoint is defined, then its allowed roles come from that module through @Roles(), and no hand-written role comparison remains in the reviewed controllers or services."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given a permitted role, when it calls a protected endpoint, then the request reaches the handler; given a role outside the allowed set, then the request fails with 403 FORBIDDEN before the handler runs."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given the matrix, when it is reviewed, then every endpoint is classified as public, authenticated-any, or role-gated, and no endpoint is left unclassified."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given the matrix, when it is changed once, then both the server guard and the backoffice navigation/guards reflect the change without a second edit."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "The interface explains a refusal",
+      "role": "staff member",
+      "want": "a clear page when my role cannot open a screen",
+      "benefit": "I know why I was stopped instead of being bounced silently",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given an authenticated user opening a route their role cannot access, when the route guard runs, then a localized 403 page is shown with a link back to an allowed destination, and no silent redirect to / occurs."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given the backoffice navigation, when it renders for a role, then it shows exactly the destinations the matrix allows for that role and hides the rest; every shown destination is allowed by the same matrix."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given the 403 page in en, ar or fr, then its text is translated, mirrors under RTL, and uses the shell tokens and primitives."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Role changes do not leave stale access",
+      "role": "user who switches workspace and role",
+      "want": "the guards and navigation to reflect my new role",
+      "benefit": "I neither keep a permission I lost nor lose one I gained",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given a workspace switch that changes the user's role, when the session reloads, then the route guards and navigation reflect the new role, with no stale entry from the previous role."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given a role that does not exist in the matrix, when any protected endpoint or guarded route is evaluated, then access is denied rather than allowed by default."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "A single framework-free role matrix MUST live in @riaya/shared and define every capability and route policy for the four roles.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-004"]
+    },
+    {
+      "id": "FR-002",
+      "text": "Every role-sensitive endpoint MUST enforce the matrix through @Roles() and RolesGuard; hand-written role comparisons MUST be removed.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-002"]
+    },
+    {
+      "id": "FR-003",
+      "text": "A role failure MUST return 403 FORBIDDEN before the handler; a tenant failure remains BP-010's 404, so the two are never conflated.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "FR-004",
+      "text": "Every endpoint MUST be classified as public, authenticated-any, or role-gated.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "FR-005",
+      "text": "The backoffice navigation and route guards MUST consume the same matrix, with NAV_ROLES derived from it rather than maintained separately.",
+      "linkedAcceptanceCriteria": ["AC-004", "AC-006"]
+    },
+    {
+      "id": "FR-006",
+      "text": "An authenticated but unauthorised route MUST render a localized 403 page with a way back, not a silent redirect.",
+      "linkedAcceptanceCriteria": ["AC-005", "AC-007"]
+    },
+    {
+      "id": "FR-007",
+      "text": "An unknown or missing role MUST fail closed for both the API and the guarded routes.",
+      "linkedAcceptanceCriteria": ["AC-009"]
+    },
+    {
+      "id": "FR-008",
+      "text": "A workspace switch that changes the role MUST leave the guards and navigation reflecting the new role after reload.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "The server MUST remain the authorization boundary; client hiding is never sufficient (CON-512).",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-006"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "The feature MUST add no dependency; it uses the existing @riaya/shared package, @Roles, RolesGuard and RoleRoute.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-004"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "Every role-gated endpoint MUST be covered by a role-by-role test (authored by /sdrive:test).",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-003"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "A 403 for a role failure MUST NOT reveal whether a tenant-scoped row exists; tenant lookups remain 404 (BP-010).",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "NFR-005",
+      "text": "Changing a permission MUST be a one-line change in the shared matrix, with no second copy in either application.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "NFR-006",
+      "text": "The 403 page MUST meet WCAG 2.1 AA, be localized in en/ar/fr, and use logical direction utilities.",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "An unauthenticated user opens a protected route.",
+      "expectedBehavior": "ProtectedRoute sends them to login, never to the 403 page."
+    },
+    {
+      "id": "EC-002",
+      "description": "An authenticated user with the wrong role opens a protected route.",
+      "expectedBehavior": "The 403 page renders and no data request is issued for that screen."
+    },
+    {
+      "id": "EC-003",
+      "description": "A role string is missing from the matrix.",
+      "expectedBehavior": "Access is denied (fail closed)."
+    },
+    {
+      "id": "EC-004",
+      "description": "A workspace switch changes the role.",
+      "expectedBehavior": "Navigation and guards reflect the new role after reload."
+    },
+    {
+      "id": "EC-005",
+      "description": "A public endpoint is called with a valid token.",
+      "expectedBehavior": "It remains public; the token neither narrows nor widens it."
+    },
+    {
+      "id": "EC-006",
+      "description": "A role-gated endpoint receives a foreign tenant id.",
+      "expectedBehavior": "The role check passes or fails first; a permitted role with a foreign id still gets 404, never data."
+    },
+    {
+      "id": "EC-007",
+      "description": "A new endpoint has no matrix entry.",
+      "expectedBehavior": "It is denied, and the gap is visible in review."
+    },
+    {
+      "id": "EC-008",
+      "description": "A deep link targets a forbidden route.",
+      "expectedBehavior": "The 403 page renders inside the shell with a working back link."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@riaya/shared",
+      "type": "internal",
+      "notes": "Modify: add the framework-free permissions module; already a dependency of both apps."
+    },
+    {
+      "name": "RolesGuard and @Roles()",
+      "type": "internal",
+      "notes": "Reuse and extend their application to every role-sensitive endpoint."
+    },
+    {
+      "name": "RoleRoute",
+      "type": "internal",
+      "notes": "Modify: render the 403 page instead of redirecting to /."
+    },
+    {
+      "name": "Backoffice roles.ts / NAV_ROLES",
+      "type": "internal",
+      "notes": "Modify: derive from the shared matrix."
+    },
+    {
+      "name": "react-router-dom and lucide-react",
+      "type": "library",
+      "notes": "Already installed; no change."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "The shared matrix drifts from the actual endpoint list as controllers are added.",
+      "mitigation": "Every endpoint is classified (FR-004) and the review checks the inventory."
+    },
+    {
+      "id": "RISK-002",
+      "description": "A manual role check survives the refactor and disagrees with the matrix.",
+      "mitigation": "Remove the checks, and the test agent exercises each role against each protected endpoint."
+    },
+    {
+      "id": "RISK-003",
+      "description": "The 403 page could leak which routes exist.",
+      "mitigation": "It is generic and shows no route data."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Client and server disagree during a role change.",
+      "mitigation": "One matrix and a reload after workspace switch (AC-008)."
+    }
+  ]
+}

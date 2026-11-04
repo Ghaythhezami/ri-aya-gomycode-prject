@@ -1,0 +1,187 @@
+{
+  "feature": "role-based-access-control-and-clinic-scoping",
+  "version": 1,
+  "architecture": {
+    "approach": "Put one capability-based role matrix in @riaya/shared, consume it from the existing @Roles + RolesGuard on the server and from the backoffice navigation and route guards, delete the hand-written role checks, and render a localized 403 page for authenticated users whose role cannot open a route. Tenant scoping remains BP-010's concern: a role failure is 403, a tenant failure is 404.",
+    "components": [
+      {
+        "name": "permissions",
+        "action": "create",
+        "description": "Framework-free module in packages/shared with the four roles, the capability list, CAPABILITY_ROLES and can(role, capability)."
+      },
+      {
+        "name": "RolesGuard",
+        "action": "modify",
+        "description": "Accepts the shared role-name list and denies when the role is missing, unknown, or not listed."
+      },
+      {
+        "name": "Roles",
+        "action": "modify",
+        "description": "Decorator signature accepts the shared role-name type."
+      },
+      {
+        "name": "UsersController",
+        "action": "modify",
+        "description": "Uses the staff-management matrix entry instead of a literal role list."
+      },
+      {
+        "name": "TenancyController",
+        "action": "modify",
+        "description": "Adds RolesGuard and the matrix entries to invite and suspend, and removes the hand-written role branches."
+      },
+      {
+        "name": "OnboardingService",
+        "action": "modify",
+        "description": "Removes assertCanInvite; the guard owns the role decision."
+      },
+      {
+        "name": "roles",
+        "action": "modify",
+        "description": "Backoffice NAV_ROLES and canSee derive from the shared capabilities."
+      },
+      {
+        "name": "RoleRoute",
+        "action": "modify",
+        "description": "Takes a capability and renders ForbiddenPage instead of redirecting to /."
+      },
+      {
+        "name": "App",
+        "action": "modify",
+        "description": "Route guards use capabilities from the shared matrix."
+      },
+      {
+        "name": "ForbiddenPage",
+        "action": "create",
+        "description": "Localized 403 page inside the shell with a back link."
+      },
+      {
+        "name": "Button",
+        "action": "reuse",
+        "description": "Back link on the 403 page."
+      },
+      {
+        "name": "tokens",
+        "action": "reuse",
+        "description": "Visual tokens for the 403 page."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004",
+      "NFR-005",
+      "NFR-006"
+    ]
+  },
+  "dataModel": {
+    "entities": [],
+    "flowDescription": "No persistence change. The role matrix is code in @riaya/shared; no Prisma model or migration is touched."
+  },
+  "apiContracts": [
+    {
+      "method": "POST",
+      "path": "/api/users",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-002", "FR-003"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/invitations",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-002", "FR-003"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/invitations",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-004"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/memberships/:id/suspend",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-002", "FR-003"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/organizations",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-004"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/memberships",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-004"]
+    }
+  ],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-001",
+      "description": "The server is the authorization boundary. Client navigation hiding mirrors the same matrix but is never sufficient; every role-gated endpoint enforces @Roles before its handler."
+    },
+    {
+      "requirementId": "NFR-004",
+      "description": "A role failure returns 403 without revealing whether a tenant-scoped row exists; tenant lookups keep BP-010's 404."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@riaya/shared",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "Already a dependency of both apps; the permissions module is added inside it."
+    },
+    {
+      "name": "react-router-dom",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Route guards and the 403 route already exist."
+    },
+    {
+      "name": "lucide-react",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Icon for the 403 page."
+    },
+    {
+      "name": "NestJS guards and decorators",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Existing @Roles and RolesGuard are extended, not replaced."
+    }
+  ],
+  "risks": [
+    {
+      "description": "The matrix drifts from the endpoint list as controllers are added.",
+      "mitigation": "The classification table in plan.md is part of review, and a new endpoint must be added to it."
+    },
+    {
+      "description": "A manual role check survives the refactor.",
+      "mitigation": "Delete assertCanInvite and the suspend branch; the test agent exercises every role."
+    },
+    {
+      "description": "The 403 page leaks route data.",
+      "mitigation": "Generic copy with no path display."
+    },
+    {
+      "description": "Stale client role after a workspace switch.",
+      "mitigation": "The switch reloads, and the matrix is read from the reloaded session."
+    }
+  ]
+}
