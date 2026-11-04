@@ -2,6 +2,7 @@ packages:
   - web
   - server
   - backoffice
+  - realtime
   - packages/*
 
 # Patched versions for the production-reachable advisories (see

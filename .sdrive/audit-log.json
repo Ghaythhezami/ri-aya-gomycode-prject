@@ -715,6 +715,125 @@
       "hash": "39dd57a9a36c66a51b7739cb49c36f472c4323996500c574add1bdca8a47517d"
     },
     {
+      "timestamp": "2026-11-04T14:55:37.558Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "gate": "specification",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "39dd57a9a36c66a51b7739cb49c36f472c4323996500c574add1bdca8a47517d",
+      "hash": "8f027e533fb83f3203526003b2e82f277017acfda4b956c4d45de5cf2645e155"
+    },
+    {
+      "timestamp": "2026-11-04T15:20:42.496Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "gate": "planning",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "8f027e533fb83f3203526003b2e82f277017acfda4b956c4d45de5cf2645e155",
+      "hash": "26178a3cdb6b7911be7f0a4369c3f5851ec71188070dd9acf4e47b2f10d55225"
+    },
+    {
+      "timestamp": "2026-11-04T16:31:28.264Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 13,
+      "event": "test_failed",
+      "prevHash": "26178a3cdb6b7911be7f0a4369c3f5851ec71188070dd9acf4e47b2f10d55225",
+      "hash": "b9fcdca01e9edb3fdb981fecaa1e1255c93ff8df17c70b98c1a045c8bc6a9f7b"
+    },
+    {
+      "timestamp": "2026-11-04T16:35:34.108Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "total": 46,
+      "durationMs": 50894,
+      "event": "test_passed",
+      "prevHash": "b9fcdca01e9edb3fdb981fecaa1e1255c93ff8df17c70b98c1a045c8bc6a9f7b",
+      "hash": "08d6ae7409a503571474a27a8cbeb862a26f07f70d70469e119b73da6a739856"
+    },
+    {
+      "timestamp": "2026-11-04T16:42:05.116Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "total": 46,
+      "durationMs": 47808,
+      "event": "test_passed",
+      "prevHash": "08d6ae7409a503571474a27a8cbeb862a26f07f70d70469e119b73da6a739856",
+      "hash": "d58c52342095ea394567e4b65817402ec06273789e5746df2e9d877f4670c929"
+    },
+    {
+      "timestamp": "2026-11-04T16:46:28.412Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "gate": "implementation",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "d58c52342095ea394567e4b65817402ec06273789e5746df2e9d877f4670c929",
+      "hash": "563559dd400f9ab876b4eba3b15b2358ab5ef45e9d4f8739580ccc7b2dd82b15"
+    },
+    {
+      "timestamp": "2026-11-04T16:48:30.904Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "total": 46,
+      "durationMs": 38243,
+      "event": "test_passed",
+      "prevHash": "563559dd400f9ab876b4eba3b15b2358ab5ef45e9d4f8739580ccc7b2dd82b15",
+      "hash": "04661572adb102692dcfb771933f6e2cb13599967deb73bae2011728b4fe3a6c"
+    },
+    {
+      "timestamp": "2026-11-04T16:51:26.472Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "total": 46,
+      "durationMs": 48138,
+      "event": "test_passed",
+      "prevHash": "04661572adb102692dcfb771933f6e2cb13599967deb73bae2011728b4fe3a6c",
+      "hash": "4e3899b1031b2fc0b67b8a2711c62cae20c41e71468a710698556e949f5fca6f"
+    },
+    {
+      "timestamp": "2026-11-04T17:00:21.959Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "4e3899b1031b2fc0b67b8a2711c62cae20c41e71468a710698556e949f5fca6f",
+      "hash": "64667a7604e700827579a82f99d03ae91661f5325af60c1dcb032b840d85e8fb"
+    },
+    {
+      "timestamp": "2026-11-04T17:09:37.684Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "total": 46,
+      "durationMs": 138371,
+      "event": "test_passed",
+      "prevHash": "64667a7604e700827579a82f99d03ae91661f5325af60c1dcb032b840d85e8fb",
+      "hash": "9a6870aac5bce59eac24bfec08a16843876e605a190a9c660fba059155dd463a"
+    },
+    {
+      "timestamp": "2026-11-04T17:11:02.145Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "event": "feature_archived",
+      "prevHash": "9a6870aac5bce59eac24bfec08a16843876e605a190a9c660fba059155dd463a",
+      "hash": "3d3157a19a7dc824c594a3025d4248b67451735cbf32c5aaf39120dcd6411cb8"
+    },
+    {
       "timestamp": "2026-11-04T17:38:25.090Z",
       "actor": "kenule500",
       "feature": "application-shell",
@@ -722,8 +841,8 @@
       "gate": "implementation",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "39dd57a9a36c66a51b7739cb49c36f472c4323996500c574add1bdca8a47517d",
-      "hash": "70e4b67abd9c7e9797a2aadb8b18793f47330ba04a50dcd8201eb5acc0db13bc"
+      "prevHash": "3d3157a19a7dc824c594a3025d4248b67451735cbf32c5aaf39120dcd6411cb8",
+      "hash": "ac0bba85b9887f0f157a1bb03be097d1b45edbc395c20125f5c4b7e356903c1f"
     },
     {
       "timestamp": "2026-11-04T17:38:54.573Z",
@@ -733,8 +852,8 @@
       "gate": "implementation",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "70e4b67abd9c7e9797a2aadb8b18793f47330ba04a50dcd8201eb5acc0db13bc",
-      "hash": "423e16c1acef101386fd67de365e292bc40741a21d2233d46bc3f79c1adc1fe3"
+      "prevHash": "ac0bba85b9887f0f157a1bb03be097d1b45edbc395c20125f5c4b7e356903c1f",
+      "hash": "196bcc533e0e94636a4b27228c4894df56c0a94ab529090c44966f9cec8dc782"
     },
     {
       "timestamp": "2026-11-04T17:39:17.405Z",
@@ -744,8 +863,8 @@
       "gate": "implementation",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "423e16c1acef101386fd67de365e292bc40741a21d2233d46bc3f79c1adc1fe3",
-      "hash": "64c9264a418778fdd9c95580499bef9a2132c1f3b98db523eacb8998109d76ae"
+      "prevHash": "196bcc533e0e94636a4b27228c4894df56c0a94ab529090c44966f9cec8dc782",
+      "hash": "37935f4eb5d8ffd2d40bdc2504f4c91d006b1271569a2cd60bcc0c1da19b8c02"
     },
     {
       "timestamp": "2026-11-04T17:39:33.572Z",
@@ -755,8 +874,8 @@
       "gate": "implementation",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "64c9264a418778fdd9c95580499bef9a2132c1f3b98db523eacb8998109d76ae",
-      "hash": "3589a776127fc0a89a29ef2702e5a875da0321fcb0ced3c358e48e7f857ec03a"
+      "prevHash": "37935f4eb5d8ffd2d40bdc2504f4c91d006b1271569a2cd60bcc0c1da19b8c02",
+      "hash": "17be61d7c8adf7dd02371b4d80990c245bcaf47bcbc8efe388b644dbf02fd325"
     },
     {
       "timestamp": "2026-11-04T23:11:39.435Z",
@@ -766,8 +885,8 @@
       "gate": "review",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "3589a776127fc0a89a29ef2702e5a875da0321fcb0ced3c358e48e7f857ec03a",
-      "hash": "f9a67f9f99addf67eb6339908b1300dbad817a2fff45348c149e684c74509b4d"
+      "prevHash": "17be61d7c8adf7dd02371b4d80990c245bcaf47bcbc8efe388b644dbf02fd325",
+      "hash": "e8cc848aafc3bc27c74b61f164229ed6d2ee94e78507e0c9a1a69cb98d7a2e2b"
     },
     {
       "timestamp": "2026-11-04T23:11:44.596Z",
@@ -777,8 +896,8 @@
       "gate": "review",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "f9a67f9f99addf67eb6339908b1300dbad817a2fff45348c149e684c74509b4d",
-      "hash": "ac7e8c15f8a0807ce89c9866cefedef60404c863134cd0eb33ad4fa20c3e5e9f"
+      "prevHash": "e8cc848aafc3bc27c74b61f164229ed6d2ee94e78507e0c9a1a69cb98d7a2e2b",
+      "hash": "c94b44b14fe6d7483b13860896510e4d4caee9c8f8e456ea9345543fa6e761e6"
     },
     {
       "timestamp": "2026-11-04T23:11:45.191Z",
@@ -788,8 +907,8 @@
       "gate": "review",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "ac7e8c15f8a0807ce89c9866cefedef60404c863134cd0eb33ad4fa20c3e5e9f",
-      "hash": "7dcd4d17ca13917f8d52dc188529bf5deac82ab65572160efedefe91f81f476f"
+      "prevHash": "c94b44b14fe6d7483b13860896510e4d4caee9c8f8e456ea9345543fa6e761e6",
+      "hash": "6fa3e5f302050f83f859af44bf1f02ed5f51f41daba2ec8b84f2b51f22f5347e"
     },
     {
       "timestamp": "2026-11-04T23:11:45.807Z",
@@ -799,8 +918,8 @@
       "gate": "review",
       "previousValue": "pending",
       "event": "gate_approved",
-      "prevHash": "7dcd4d17ca13917f8d52dc188529bf5deac82ab65572160efedefe91f81f476f",
-      "hash": "ecc3eaece33ad4af97dee4a6662fe7d7f50ecbb925b4d0d9f2dd418005c565b0"
+      "prevHash": "6fa3e5f302050f83f859af44bf1f02ed5f51f41daba2ec8b84f2b51f22f5347e",
+      "hash": "a2c8298f63a74ab1b5de36de0102867858e6dbecc302839521225fa3cf4f921b"
     },
     {
       "timestamp": "2026-11-04T23:13:01.114Z",
@@ -808,8 +927,8 @@
       "feature": "application-shell",
       "version": "v1",
       "event": "feature_archived",
-      "prevHash": "ecc3eaece33ad4af97dee4a6662fe7d7f50ecbb925b4d0d9f2dd418005c565b0",
-      "hash": "00933cabc97cec6d75c3352aeda1c73cb3e51913ea509472f3ed39eb61c54f11"
+      "prevHash": "a2c8298f63a74ab1b5de36de0102867858e6dbecc302839521225fa3cf4f921b",
+      "hash": "5aa0c8d97afa91acacde96867b5608c1d98ec5e5c6ea2bf128e2e13f9dcd64e4"
     },
     {
       "timestamp": "2026-11-04T23:13:03.739Z",
@@ -817,8 +936,8 @@
       "feature": "strict-tenant-isolation",
       "version": "v1",
       "event": "feature_archived",
-      "prevHash": "00933cabc97cec6d75c3352aeda1c73cb3e51913ea509472f3ed39eb61c54f11",
-      "hash": "e989a3669d42872cadaf6812144f67b779e74ec3e211c3bcec0a32270b3c2b1f"
+      "prevHash": "5aa0c8d97afa91acacde96867b5608c1d98ec5e5c6ea2bf128e2e13f9dcd64e4",
+      "hash": "a17876f14c18a708894a5606a812ab6264a6cc22311070d2254f391bc0a857df"
     },
     {
       "timestamp": "2026-11-04T23:13:05.838Z",
@@ -826,8 +945,8 @@
       "feature": "role-based-access-control-and-clinic-scoping",
       "version": "v1",
       "event": "feature_archived",
-      "prevHash": "e989a3669d42872cadaf6812144f67b779e74ec3e211c3bcec0a32270b3c2b1f",
-      "hash": "7f40472f77e0f597768f5184ae10515f42617c13499e1ba9818dc43ef58182c3"
+      "prevHash": "a17876f14c18a708894a5606a812ab6264a6cc22311070d2254f391bc0a857df",
+      "hash": "2700e6eaf2f283badc315c02bbc09b8637705946672979a78a157fe12e827006"
     },
     {
       "timestamp": "2026-11-04T23:13:07.488Z",
@@ -835,8 +954,8 @@
       "feature": "localised-data-and-api-messages",
       "version": "v1",
       "event": "feature_archived",
-      "prevHash": "7f40472f77e0f597768f5184ae10515f42617c13499e1ba9818dc43ef58182c3",
-      "hash": "c4d17c328d67573e32599a179bfe6bfed135ecc00c6b06bd076cf77c0fa896cc"
+      "prevHash": "2700e6eaf2f283badc315c02bbc09b8637705946672979a78a157fe12e827006",
+      "hash": "4709cfe4b27a9f0e4325a5470cae0baa335da14d29fd631b50e5bb85a57ebad4"
     }
   ]
 }

@@ -1,0 +1,652 @@
+{
+  "feature": "realtime-service",
+  "status": "warn",
+  "checkedAt": "2026-11-04T16:42:36.180Z",
+  "summary": {
+    "matched": 68,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 28,
+    "withdrawn": 1
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "pnpm-workspace.yaml",
+        "action": "modify",
+        "resolution": null,
+        "file": "pnpm-workspace.yaml"
+      },
+      {
+        "type": "component",
+        "name": "realtime/package.json",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/package.json"
+      },
+      {
+        "type": "component",
+        "name": "realtime/tsconfig.json",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/tsconfig.json"
+      },
+      {
+        "type": "component",
+        "name": "realtime/tsconfig.build.json",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/tsconfig.build.json"
+      },
+      {
+        "type": "component",
+        "name": "realtime/nest-cli.json",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/nest-cli.json"
+      },
+      {
+        "type": "component",
+        "name": "realtime/eslint.config.mjs",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/eslint.config.mjs"
+      },
+      {
+        "type": "component",
+        "name": "realtime/scripts/build-shared.cjs",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/scripts/build-shared.cjs"
+      },
+      {
+        "type": "component",
+        "name": "realtime/.env.example",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/.env.example"
+      },
+      {
+        "type": "component",
+        "name": "realtime/Dockerfile",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/Dockerfile"
+      },
+      {
+        "type": "component",
+        "name": ".dockerignore",
+        "action": "create",
+        "resolution": null,
+        "file": ".dockerignore"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/main.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/main.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/app.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/app.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/io-adapter.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/io-adapter.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/config/env.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/config/env.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/config/config.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/config/config.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/logging/logging.config.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/logging/logging.config.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/logging/logging.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/logging/logging.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/auth/claims.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/auth/claims.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/auth/token.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/auth/token.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/auth/auth.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/auth/auth.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/socket-scope.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/realtime/socket-scope.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/connect-throttle.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/realtime/connect-throttle.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/realtime.gateway.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/realtime/realtime.gateway.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/realtime.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/realtime/realtime.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/redis/redis-clients.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/redis/redis-clients.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/redis/redis.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/redis/redis.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/relay/event-relay.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/relay/event-relay.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/relay/relay.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/relay/relay.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/database/mongo-connection.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/database/mongo-connection.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/database/mongo.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/database/mongo.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/health/health.controller.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/health/health.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/health/health.module.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/health/health.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/common/dependency-status.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "realtime/src/common/dependency-status.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/realtime.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/realtime.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/index.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "packages/shared/src/index.ts"
+      },
+      {
+        "type": "component",
+        "name": "docker-compose.yml",
+        "action": "modify",
+        "resolution": null,
+        "file": "docker-compose.yml"
+      },
+      {
+        "type": "component",
+        "name": "package.json",
+        "action": "modify",
+        "resolution": null,
+        "file": "package.json"
+      },
+      {
+        "type": "dependency",
+        "name": "socket.io",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/websockets",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/platform-socket.io",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/platform-express",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@socket.io/redis-adapter",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "ioredis",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/mongoose",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "mongoose",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/config",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/jwt",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "helmet",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "nestjs-pino",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "pino-http",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@riaya/shared",
+        "action": "add",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      },
+      {
+        "type": "dependency",
+        "name": "zod",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "jest",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "ts-jest",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@types/jest",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/cli",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/testing",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "typescript",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "eslint",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "typescript-eslint",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@eslint/js",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "globals",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "eslint-config-prettier",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@types/node",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "reflect-metadata",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "rxjs",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "dotenv",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "pino-pretty",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [
+      {
+        "type": "component",
+        "name": "realtime/jest.config.cjs",
+        "file": "realtime/jest.config.cjs"
+      },
+      {
+        "type": "component",
+        "name": "jest.config",
+        "file": "realtime/jest.config.cjs"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/auth/token.service.spec.ts",
+        "file": "realtime/src/auth/token.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "token.service.spec",
+        "file": "realtime/src/auth/token.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/health/health.controller.spec.ts",
+        "file": "realtime/src/health/health.controller.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "health.controller.spec",
+        "file": "realtime/src/health/health.controller.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/connect-throttle.service.spec.ts",
+        "file": "realtime/src/realtime/connect-throttle.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "connect-throttle.service.spec",
+        "file": "realtime/src/realtime/connect-throttle.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/realtime.gateway.spec.ts",
+        "file": "realtime/src/realtime/realtime.gateway.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime.gateway.spec",
+        "file": "realtime/src/realtime/realtime.gateway.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/socket-scope.spec.ts",
+        "file": "realtime/src/realtime/socket-scope.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "socket-scope.spec",
+        "file": "realtime/src/realtime/socket-scope.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/relay/event-relay.service.spec.ts",
+        "file": "realtime/src/relay/event-relay.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "event-relay.service.spec",
+        "file": "realtime/src/relay/event-relay.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/relay/realtime-contract.spec.ts",
+        "file": "realtime/src/relay/realtime-contract.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime-contract.spec",
+        "file": "realtime/src/relay/realtime-contract.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/auth.ts",
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "component",
+        "name": "auth",
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/membership.ts",
+        "file": "packages/shared/src/schemas/membership.ts"
+      },
+      {
+        "type": "component",
+        "name": "membership",
+        "file": "packages/shared/src/schemas/membership.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "component",
+        "name": "tenancy",
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/auth.ts",
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "component",
+        "name": "auth",
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/membership.ts",
+        "file": "packages/shared/src/schemas/membership.ts"
+      },
+      {
+        "type": "component",
+        "name": "membership",
+        "file": "packages/shared/src/schemas/membership.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "component",
+        "name": "tenancy",
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      }
+    ],
+    "withdrawn": [
+      {
+        "type": "dependency",
+        "name": "socket.io-client",
+        "action": "add",
+        "depType": "library",
+        "resolution": {
+          "kind": "deferred",
+          "reason": "Test-only client for the colocated specs. Deferred with T1.5 to /sdrive:test, which owns the runner and its client; production code never imports it.",
+          "at": "2026-11-04"
+        },
+        "reason": "Test-only client for the colocated specs. Deferred with T1.5 to /sdrive:test, which owns the runner and its client; production code never imports it.",
+        "kind": "deferred"
+      }
+    ]
+  }
+}

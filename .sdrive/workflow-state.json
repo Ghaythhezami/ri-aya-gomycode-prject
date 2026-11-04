@@ -491,20 +491,20 @@
     },
     {
       "name": "realtime-service",
-      "branch": "feature/BP-031",
+      "branch": "feature/realtime-service",
       "base": "main",
       "productItems": ["BP-031"],
       "currentVersion": "v1",
       "versions": [
         {
           "id": "v1",
-          "phase": "backlog",
-          "currentStep": "specification",
+          "phase": "completed",
+          "currentStep": "implementation",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
-            "implementation": "pending",
-            "review": "pending"
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
           },
           "history": [
             {
@@ -512,6 +512,73 @@
               "by": "specification-agent",
               "base": "main",
               "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "branch-recreated",
+              "by": "specification-agent",
+              "previousBranch": "feature/BP-031",
+              "branch": "feature/realtime-service",
+              "base": "main",
+              "reason": "feature/BP-031 was already merged into main and carried no realtime work; CON-607 requires feature/<feature-folder-name>.",
+              "timestamp": "2026-11-04T14:40:00.000Z"
+            },
+            {
+              "event": "specification_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T14:55:37.297Z"
+            },
+            {
+              "event": "plan-and-tasks-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/realtime-service/v1/plan.md",
+                ".sdrive/specs/backlog/realtime-service/v1/tasks.md",
+                ".sdrive/governance/realtime-service/v1/plan.json",
+                ".sdrive/governance/realtime-service/v1/tasks.json",
+                ".sdrive/governance/realtime-service/v1/traceability.json",
+                ".sdrive/skills/socket.io/SKILL.md",
+                ".sdrive/skills/mongoose/SKILL.md"
+              ],
+              "summary": "Nine phases, 45 production tasks, no test tasks. Plan pins every Nest package to its 11.x line, uses three ioredis connections (adapter pub, adapter sub, riaya:events subscriber), and records the CON-101 deviation, the missing membership re-verification and the two unverified skills as risks. Awaiting the planning gate; nothing is committed until it is approved.",
+              "timestamp": "2026-11-04T15:12:32.693Z"
+            },
+            {
+              "event": "planning_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T15:20:42.252Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "from": ".sdrive/specs/backlog/realtime-service/v1",
+              "to": ".sdrive/specs/ongoing/realtime-service/v1",
+              "timestamp": "2026-11-04T15:24:00.000Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T16:46:27.822Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T17:00:21.496Z"
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "e5967d7c57dd57a327f5cc733b3e61d65acbd833",
+              "timestamp": "2026-11-04T17:11:02.128Z"
             }
           ]
         }

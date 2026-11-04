@@ -49,6 +49,33 @@ services:
     volumes:
       - riaya_mongodata:/data/db
 
+  # BP-031. The service starts even when redis or mongo is unhealthy; the
+  # depends_on below only orders startup, and readiness reports the real state.
+  realtime:
+    build:
+      context: .
+      dockerfile: realtime/Dockerfile
+    container_name: riaya-realtime
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      REALTIME_PORT: '4001'
+      # Read from the host shell. Left empty on purpose: the service refuses to
+      # boot without a 32+ character secret, which is a clearer failure than
+      # making every other compose command depend on this variable being set.
+      JWT_ACCESS_SECRET: ${JWT_ACCESS_SECRET:-}
+      REDIS_URL: redis://redis:6379
+      MONGO_URI: mongodb://mongo:27017/riaya
+      REALTIME_CORS_ORIGINS: ${REALTIME_CORS_ORIGINS:-http://localhost:3000,http://localhost:5174}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    ports:
+      - '4001:4001'
+    depends_on:
+      redis:
+        condition: service_healthy
+      mongo:
+        condition: service_healthy
+
 volumes:
   riaya_pgdata:
   riaya_redisdata:
