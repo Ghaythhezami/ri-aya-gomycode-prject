@@ -20,14 +20,14 @@ Production code only. Test authoring and execution belong to `/sdrive:test`.
 
 ## P1 — Token foundation
 
-- [ ] T1.1 — Create `backoffice/src/design-system/tokens.ts` with colour, radius, spacing, elevation and font groups as `as const` objects whose keys mirror the CSS custom-property names. (FR-001, FR-002)
-- [ ] T1.2 — **Add** to the existing `@theme` block, without removing or reordering any current declaration: `--radius-sm`, `--radius-full`, `--shadow-overlay`, the spacing scale and the font group. Existing tokens (`--color-primary`, `--color-primary-dark`, `--color-navy`, `--color-bg`, `--color-surface`, `--color-text`, `--color-border`, `--color-border-strong`, `--color-success`, `--color-warning`, `--color-accent`, `--font-sans`, `--radius-md`, `--radius-lg`, `--shadow-card`) and their values stay exactly as they are. (FR-002)
-- [ ] T1.3 — Write `backoffice/scripts/check-token-parity.mjs` comparing `tokens.ts` against the `@theme` block in both directions and failing on any mismatch or one-sided token. (FR-001, AC-002)
-- [ ] T1.4 — Write `backoffice/scripts/check-token-literals.mjs` failing on any `#rrggbb` literal or `[#…]` arbitrary colour class under `backoffice/src` outside `tokens.ts` and `index.css`, and on any physical-direction utility under `backoffice/src/common`. (FR-012, NFR-005)
-- [ ] T1.5 — Write `backoffice/scripts/check-locale-parity.mjs` failing when `en`, `ar` and `fr` key sets differ. (NFR-001)
-- [ ] T1.6 — Wire the three scripts into `backoffice`'s `build` script before `tsc` so CI fails on a violation, and add a `design-system:check` script for local use. (FR-001, FR-012, NFR-001)
-- [ ] T1.7 — Correct only the two stale duplicate values, one line each: `--color-error #c81e1e` → `#dc2626` and `--color-muted #64707f` → `#697586`. No other existing value may change. (FR-001, FR-002)
-- [ ] T1.8 — Run the parity script and confirm it reports zero mismatches, then diff `index.css` against `main` and verify the only removed lines are those two corrections. (FR-001)
+- [x] T1.1 — Create `backoffice/src/design-system/tokens.ts` with colour, radius, spacing, elevation and font groups as `as const` objects whose keys mirror the CSS custom-property names. (FR-001, FR-002)
+- [x] T1.2 — **Add** to the existing `@theme` block, without removing or reordering any current declaration: `--radius-sm`, `--radius-full`, `--shadow-overlay`, the spacing scale and the font group. Existing tokens (`--color-primary`, `--color-primary-dark`, `--color-navy`, `--color-bg`, `--color-surface`, `--color-text`, `--color-border`, `--color-border-strong`, `--color-success`, `--color-warning`, `--color-accent`, `--font-sans`, `--radius-md`, `--radius-lg`, `--shadow-card`) and their values stay exactly as they are. (FR-002)
+- [x] T1.3 — Write `backoffice/scripts/check-token-parity.mjs` comparing `tokens.ts` against the `@theme` block in both directions and failing on any mismatch or one-sided token. (FR-001, AC-002)
+- [x] T1.4 — Write `backoffice/scripts/check-token-literals.mjs` failing on any `#rrggbb` literal or `[#…]` arbitrary colour class under `backoffice/src` outside `tokens.ts` and `index.css`, and on any physical-direction utility under `backoffice/src/common`. (FR-012, NFR-005)
+- [x] T1.5 — Write `backoffice/scripts/check-locale-parity.mjs` failing when `en`, `ar` and `fr` key sets differ. (NFR-001)
+- [x] T1.6 — Wire the three scripts into `backoffice`'s `build` script before `tsc` so CI fails on a violation, and add a `design-system:check` script for local use. (FR-001, FR-012, NFR-001)
+- [x] T1.7 — Correct only the two stale duplicate values, one line each: `--color-error #c81e1e` → `#dc2626` and `--color-muted #64707f` → `#697586`. No other existing value may change. (FR-001, FR-002)
+- [x] T1.8 — Run the parity script and confirm it reports zero mismatches, then diff `index.css` against `main` and verify the only removed lines are those two corrections. (FR-001)
 
 ## P2 — Migrate existing components onto tokens
 

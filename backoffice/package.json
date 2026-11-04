@@ -5,10 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit -p tsconfig.app.json && vite build",
+    "build": "pnpm run design-system:check && tsc --noEmit -p tsconfig.app.json && vite build",
     "preview": "vite preview",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0",
     "typecheck": "tsc --noEmit -p tsconfig.app.json",
+    "design-system:check": "node scripts/check-token-parity.mjs && node scripts/check-token-literals.mjs && node scripts/check-locale-parity.mjs",
     "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
