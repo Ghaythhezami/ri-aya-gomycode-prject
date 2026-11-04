@@ -15,23 +15,23 @@ updated: 2026-11-04
 ## Overview
 
 - **Problem Statement**: Design tokens already exist in this repository, and they exist **four
-times, in four disagreeing forms**. (1) `backoffice/src/index.css` and (2) `web/src/app/globals.css`
-each declare a hand-copied `@theme` block of the same eleven colours: `web` lists ten colours and no
-radii, `backoffice` lists twelve colours plus two radii, one shadow and a font stack, `backoffice`
-adds `--color-border-strong: #7b8698` that no other copy has, and the two disagree on two values —
-`--color-muted` is `#64707f` in backoffice and `#697586` in web, `--color-error` is `#c81e1e` in
-backoffice and `#dc2626` in web. (3) `DesignSystemPage.tsx` holds a third hard-coded array that
-calls `#697586` "secondary text". (4) Page components bypass tokens entirely: there are **34 hex
-literals across 5 backoffice files**, including **15 arbitrary-value Tailwind classes**
-(`text-[#697586]`, `bg-[#F7F9FC]`) in `RegisterPage.tsx`, `StaffDirectoryPage.tsx` and
-`WorkspaceSwitcher.tsx`, plus four `#0F766E` / `#E5EAF0` series colours hard-coded in
-`common/charts/SampleCharts.tsx`. Because TypeScript cannot import a CSS `@theme` block, tokens are
-not consumable programmatically at all, and there is no spacing or elevation scale beyond a single
-shadow. Only five primitives exist in `backoffice/src/common` (`Button`, `Input`, `Badge`, `Modal`,
-`Table`), so about half the brief's inventory is missing (searchable select, date/time pickers, tabs,
-dropdown, tooltip, popover, KPI card, toast, confirm dialog, skeleton, empty state, error state), and
-there is no Storybook so their states are undocumented. A separate chat thread is also working
-`web`'s own tokens (`feature/gate-binding` — see Dependencies & Risks).
+  times, in four disagreeing forms**. (1) `backoffice/src/index.css` and (2) `web/src/app/globals.css`
+  each declare a hand-copied `@theme` block of the same eleven colours: `web` lists ten colours and no
+  radii, `backoffice` lists twelve colours plus two radii, one shadow and a font stack, `backoffice`
+  adds `--color-border-strong: #7b8698` that no other copy has, and the two disagree on two values —
+  `--color-muted` is `#64707f` in backoffice and `#697586` in web, `--color-error` is `#c81e1e` in
+  backoffice and `#dc2626` in web. (3) `DesignSystemPage.tsx` holds a third hard-coded array that
+  calls `#697586` "secondary text". (4) Page components bypass tokens entirely: there are **34 hex
+  literals across 5 backoffice files**, including **15 arbitrary-value Tailwind classes**
+  (`text-[#697586]`, `bg-[#F7F9FC]`) in `RegisterPage.tsx`, `StaffDirectoryPage.tsx` and
+  `WorkspaceSwitcher.tsx`, plus four `#0F766E` / `#E5EAF0` series colours hard-coded in
+  `common/charts/SampleCharts.tsx`. Because TypeScript cannot import a CSS `@theme` block, tokens are
+  not consumable programmatically at all, and there is no spacing or elevation scale beyond a single
+  shadow. Only five primitives exist in `backoffice/src/common` (`Button`, `Input`, `Badge`, `Modal`,
+  `Table`), so about half the brief's inventory is missing (searchable select, date/time pickers, tabs,
+  dropdown, tooltip, popover, KPI card, toast, confirm dialog, skeleton, empty state, error state), and
+  there is no Storybook so their states are undocumented. A separate chat thread is also working
+  `web`'s own tokens (`feature/gate-binding` — see Dependencies & Risks).
 - **Proposed Solution**: Add one typed TypeScript token module inside `backoffice` as the source of
   truth, have the `@theme` block mirror it, and replace the 34 scattered hex literals and 15
   arbitrary-value colour classes with token utilities; migrate the physical-direction utilities in
@@ -47,7 +47,7 @@ there is no Storybook so their states are undocumented. A separate chat thread i
      "Does Storybook ship in the graded deliverable?" as open. `CON-308` requires explicit approval
      to add a component-documentation library, and `CON-302` already names the `/design-system` page
      as the demonstration surface. This spec therefore satisfies UI-1's requirement that every
-     component and state be *demonstrated* using the `/design-system` page, and records Storybook as
+     component and state be _demonstrated_ using the `/design-system` page, and records Storybook as
      out of scope. **This is an assumption the project owner must overturn at Gate 1 if Storybook is
      actually required.**
   2. **`#DC2626` is the correct error colour** (brief §1 and `design-system.md` §1, the majority of
