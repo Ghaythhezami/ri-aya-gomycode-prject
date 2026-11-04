@@ -1,0 +1,371 @@
+{
+  "feature": "shared-package",
+  "status": "pass",
+  "checkedAt": "2026-11-04T13:45:21.826Z",
+  "summary": {
+    "matched": 44,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "packages/shared/package.json",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/package.json"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/tsconfig.json",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/tsconfig.json"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/index.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/index.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/auth.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/membership.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/membership.ts"
+      },
+      {
+        "type": "component",
+        "name": "pnpm-workspace.yaml",
+        "action": "modify",
+        "resolution": null,
+        "file": "pnpm-workspace.yaml"
+      },
+      {
+        "type": "component",
+        "name": "server/package.json",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/package.json"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/package.json",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/package.json"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/LoginPage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/LoginPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/ResetPasswordPage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/ResetPasswordPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "server/src/auth/dto/login.dto.ts",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/src/auth/dto/login.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/register.dto.ts",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/register.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/invitation.dto.ts",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/invitation.dto.ts"
+      },
+      {
+        "type": "entity",
+        "name": "LoginInput",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "field",
+        "entity": "LoginInput",
+        "name": "email",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "field",
+        "entity": "LoginInput",
+        "name": "password",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "entity",
+        "name": "RegisterInput",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "email",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "password",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "firstName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "lastName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "organizationName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "clinicName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "RegisterInput",
+        "name": "preferredLocale",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "entity",
+        "name": "SwitchWorkspaceInput",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "field",
+        "entity": "SwitchWorkspaceInput",
+        "name": "clinicId",
+        "fieldType": "string (uuid)",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "entity",
+        "name": "ChangePasswordInput",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "field",
+        "entity": "ChangePasswordInput",
+        "name": "currentPassword",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "field",
+        "entity": "ChangePasswordInput",
+        "name": "newPassword",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/auth.ts"
+      },
+      {
+        "type": "entity",
+        "name": "InvitationInput",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "field",
+        "entity": "InvitationInput",
+        "name": "email",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "field",
+        "entity": "InvitationInput",
+        "name": "clinicId",
+        "fieldType": "string (uuid)",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "field",
+        "entity": "InvitationInput",
+        "name": "role",
+        "fieldType": "enum",
+        "action": "add",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "entity",
+        "name": "MembershipView",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "membershipId",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "organizationId",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "organizationName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "clinicId",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "clinicName",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "field",
+        "entity": "MembershipView",
+        "name": "role",
+        "fieldType": "enum",
+        "action": "add",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "dependency",
+        "name": "zod",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "typescript",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "pnpm workspaces",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}

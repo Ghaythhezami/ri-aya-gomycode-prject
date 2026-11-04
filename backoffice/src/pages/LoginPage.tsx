@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { loginSchema } from '@riaya/shared';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Eye, EyeOff } from 'lucide-react';
@@ -18,10 +18,8 @@ export function LoginPage() {
   const [show, setShow] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
 
-  const schema = z.object({
-    email: z.string().email(t('auth.emailRequired')),
-    password: z.string().min(1, t('auth.passwordRequired')),
-  });
+  // The shared schema already carries the required-field messages.
+  const schema = loginSchema;
 
   const form = useForm({
     resolver: zodResolver(schema),

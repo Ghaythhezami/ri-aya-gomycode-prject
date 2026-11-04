@@ -1,0 +1,226 @@
+{
+  "feature": "shared-package",
+  "title": "Shared Package",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The API contract is written four times: eight class-validator DTO decorator lists in server/, hand-built response literals in tenancy.service.ts and onboarding.service.ts, an untyped fetch layer in web/, and a locally declared zod form schema in backoffice/src/pages/LoginPage.tsx that re-states server/src/auth/dto/login.dto.ts. The duplicated client and server rules can drift apart with nothing to notice, and a renamed field reaches a page as a runtime surprise instead of a compile error.",
+    "proposedSolution": "Add a pnpm workspace package packages/shared (@riaya/shared) holding one zod schema per shared contract, each with its TypeScript type inferred through z.infer so the schema is the single definition. Keep the package to schemas and inferred types only - no API client, no UI framework, no message strings. Export everything from one package entry point and consume it from server/ and backoffice/, the two apps that already have zod.",
+    "targetAudience": "The API author who validates requests; the front-end author who gets a compile error when the contract moves; reviewers who can read a contract in one file instead of diffing three.",
+    "assumptions": [
+      "The shared contract covers DTOs, not entities: what crosses the HTTP boundary is shared, Prisma models stay in server/.",
+      "server/ keeps its class-validator DTOs in this version; the Nest ValidationPipe with whitelist and forbidNonWhitelisted is built around classes, so making the API validate through zod is a later version's decision.",
+      "web/ is not a consumer in this version because it has no zod dependency; the package is built so web/ can adopt it without modification.",
+      "The first schemas are the contracts both ends already share: login, register, switch-workspace, change-password and the invitation/membership views.",
+      "Validation messages are not shared; schemas carry structural rules and each front end supplies its own i18n text (BP-005, BP-013).",
+      "The repository is a pnpm workspace listing web, server and backoffice, and the root package.json has no build step for packages."
+    ],
+    "outOfScope": [
+      "API client functions, fetch wrappers, hooks or stores.",
+      "Replacing class-validator DTOs or changing a controller signature.",
+      "Adding zod to web/ or otherwise changing its dependency set.",
+      "Sharing database entity types or Prisma-generated types.",
+      "Response envelope design, error-code taxonomy or OpenAPI generation from the schemas.",
+      "Publishing the package to a registry."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "One definition of the shared contract",
+      "role": "developer",
+      "want": "the DTOs both ends use defined once",
+      "benefit": "a contract change is a compile error rather than a runtime surprise",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given the repository, when I add packages/shared to pnpm-workspace.yaml and run the install, then pnpm recognises @riaya/shared as a workspace package and the existing three apps still install."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given the package, when I import a shared schema in server/ and in backoffice/, then both resolve to the same declaration and neither app keeps a second hand-written copy of that contract."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Types inferred, never duplicated",
+      "role": "developer",
+      "want": "the type to come out of the schema",
+      "benefit": "the two cannot disagree",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-003",
+          "text": "Given a schema in the package, when I inspect its exported type, then that type is inferred from the schema with z.infer and no field is declared a second time by hand alongside it."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given a field is removed from a schema, when the affected app is typechecked, then the typecheck fails at the code that used that field."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "A package with no hidden surface",
+      "role": "reviewer",
+      "want": "the package to be schemas and types only",
+      "benefit": "it cannot grow a second transport or UI layer",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given packages/shared/src, when I inspect it, then it contains schema and type modules only - no HTTP client, no React import, no message strings, no environment or secret access."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given the package is built and typechecked, when I run the workspace typecheck, then it passes with the same typescript major version the apps use."
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "The shared rules still agree with the API",
+      "role": "maintainer",
+      "want": "the shared schema to match what the API actually accepts",
+      "benefit": "the package describes reality",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-007",
+          "text": "Given the login DTO in server/src/auth/dto/login.dto.ts, when I compare it with the shared login schema, then every field, optionality and structural constraint matches."
+        },
+        {
+          "id": "AC-008",
+          "text": "Given the register DTO in server/src/tenancy/dto/register.dto.ts, when I compare it with the shared register schema, then every field, optionality and structural constraint matches."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The repository MUST contain a workspace package packages/shared named @riaya/shared, listed in pnpm-workspace.yaml alongside the existing apps.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The package MUST export one zod schema per shared contract and MUST export each contract's TypeScript type inferred from that schema with z.infer.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "FR-003",
+      "text": "The package MUST export its schemas and types from a single package entry point, so a consumer imports both from @riaya/shared.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "FR-004",
+      "text": "packages/shared MUST declare zod as its own dependency at the version the workspace already resolves and MUST NOT introduce a second zod major version into the workspace.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-005",
+      "text": "server/ and backoffice/ MUST each be able to consume @riaya/shared, and backoffice/ MUST use the shared schema in place of the locally declared login form schema.",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-007"]
+    },
+    {
+      "id": "FR-006",
+      "text": "The package MUST contain only schema and type modules: no HTTP client, no UI-framework import, no user-facing message strings, and no environment or secret access.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "FR-007",
+      "text": "The shared login and register schemas MUST match the corresponding class-validator DTOs field for field, including optionality.",
+      "linkedAcceptanceCriteria": ["AC-007", "AC-008"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "The package MUST NOT require a standalone runtime, bundler or publishing step: consumers MUST be able to use it through the workspace's existing TypeScript path resolution.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Adding the package MUST NOT change the dependency set of web/ or server/ beyond @riaya/shared itself, and MUST NOT add a UI dependency to server/.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "The package MUST expose no compile-time or runtime dependency on a specific app, so no import may reach outside packages/shared/src.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "No environment variable, credential or connection string may be read by the package. (CON-519)",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "web/ has no zod dependency.",
+      "expectedBehavior": "The package is consumable without adding zod to web/ in this version; web/ stays unchanged and adopts the package later."
+    },
+    {
+      "id": "EC-002",
+      "description": "A shared schema and its class-validator DTO disagree after an API change.",
+      "expectedBehavior": "The DTO is the API's source of truth per FR-007; a divergence is a bug in the shared schema and AC-007 or AC-008 is what catches it."
+    },
+    {
+      "id": "EC-003",
+      "description": "A front end needs a translated validation message.",
+      "expectedBehavior": "The schema carries the rule only and the consumer supplies its own i18n message, so no user-facing string enters the package."
+    },
+    {
+      "id": "EC-004",
+      "description": "zod is overridden workspace-wide in pnpm-workspace.yaml overrides.",
+      "expectedBehavior": "The package declares the override's range rather than pinning a different major, so a single zod version is installed."
+    },
+    {
+      "id": "EC-005",
+      "description": "A consumer imports a file path inside the package instead of its root.",
+      "expectedBehavior": "Disallowed by NFR-003; the single entry point in FR-003 is the only supported import."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "zod",
+      "type": "library",
+      "notes": "New for the package. The workspace override already resolves zod ^4.6.7, so the package must declare that range rather than another major (FR-004, EC-004). Skill: zod."
+    },
+    {
+      "name": "pnpm workspace",
+      "type": "internal",
+      "notes": "packages/shared is added to pnpm-workspace.yaml; no new tooling is introduced."
+    },
+    {
+      "name": "typescript",
+      "type": "library",
+      "notes": "Already present in all three apps at ^5.8.3; the package uses the same major and installs nothing."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "The package duplicates the DTOs instead of replacing them, leaving four definitions again.",
+      "mitigation": "FR-007 binds each shared schema to its DTO by an explicit comparison, and FR-005 makes backoffice/ drop its local copy."
+    },
+    {
+      "id": "RISK-002",
+      "description": "A second zod major is installed through the new package.",
+      "mitigation": "FR-004 requires the override's range and EC-004 names the failure."
+    },
+    {
+      "id": "RISK-003",
+      "description": "The package quietly grows a client or UI layer and server/ starts importing it.",
+      "mitigation": "FR-006 and NFR-003 constrain the surface, and AC-005 checks it by inspection."
+    },
+    {
+      "id": "RISK-004",
+      "description": "The shared schema is trusted for API validation and weakens the ValidationPipe rules.",
+      "mitigation": "The CON-515 baseline row keeps the class-validator DTOs authoritative in this version; replacing them is out of scope."
+    },
+    {
+      "id": "RISK-005",
+      "description": "The package is adopted by one consumer and drifts for the other.",
+      "mitigation": "FR-005 requires both server/ and backoffice/ to consume it, so the workspace typecheck covers both sides of the contract."
+    }
+  ]
+}

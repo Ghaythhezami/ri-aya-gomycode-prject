@@ -2,6 +2,7 @@ packages:
   - web
   - server
   - backoffice
+  - packages/*
 
 # Patched versions for the production-reachable advisories (see
 # .sdrive/reports/security/security-audit-api-skeleton-and-ci-v1-2026-11-03.md).

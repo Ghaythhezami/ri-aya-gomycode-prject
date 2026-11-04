@@ -100,6 +100,13 @@ const CANDIDATE_ROOTS = [
   'apps',
   'packages',
   'crates',
+  // Applications of a pnpm/Nx monorepo. `packages` was the only workspace root a
+  // scanner looked in, so a plan naming `backoffice/src/pages/LoginPage.tsx`
+  // reported it missing while the file sat on disk in a scanned extension.
+  'web',
+  'backoffice',
+  'frontend',
+  'client',
   'components',
   'messages',
   'locales',
@@ -378,6 +385,19 @@ function detectComponents(files) {
       });
     }
 
+    // A type inferred from a schema is a named export like any other, but the plan
+    // names it as a symbol and it has no `type Name = {` body to match. Record it
+    // under its own name so an entity declared as `z.infer<typeof x>` is found.
+    for (const match of content.matchAll(
+      /(?:export\s+)?type\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:z\.)?infer\s*</g,
+    )) {
+      components.push({
+        name: match[1],
+        file: relative,
+        basename,
+      });
+    }
+
     // Every source file is also a valid "component" target when the plan
     // references it by path (e.g. "components/home/hero.tsx"). Plans commonly
     // name files rather than exported symbols, so record the path too.
@@ -512,9 +532,47 @@ function detectEntities(files) {
         file: relative,
       });
     }
+
+    // Schemas whose type is inferred rather than written out:
+    //
+    //   export const loginSchema = z.object({ ... });
+    //   export type LoginInput = z.infer<typeof loginSchema>;
+    //
+    // The type alias has no `{ ... }` body, so the block above never sees it. A plan
+    // that models its data as zod schemas declared these entities as missing while
+    // the schema sat in a scanned file. Only an inferred type is recorded, so a plain
+    // `export type X = string` does not become a phantom entity.
+    const inferredTypes = content.matchAll(
+      /(?:export\s+)?type\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:z\.)?infer\s*</g,
+    );
+    for (const match of inferredTypes) {
+      entities.push({
+        name: match[1],
+        file: relative,
+      });
+    }
   });
 
   return entities;
+}
+
+// The contents of the brace-delimited object that opens at `openIndex`, with nested
+// braces included. Returns null when the braces do not balance.
+function objectBodyAt(content, openIndex) {
+  let depth = 0;
+
+  for (let i = openIndex; i < content.length; i += 1) {
+    const char = content[i];
+
+    if (char === '{') depth += 1;
+    else if (char === '}') {
+      depth -= 1;
+
+      if (depth === 0) return content.slice(openIndex + 1, i);
+    }
+  }
+
+  return null;
 }
 
 function detectFields(files) {
@@ -614,6 +672,50 @@ function detectFields(files) {
         });
       }
     }
+
+    // zod schema fields: `email: z.string().min(1),` inside a
+    // `const xSchema = z.object({ ... })` body. The inferred type has no body of its
+    // own, so without this every planned field of a schema-modelled entity was
+    // reported missing even though the schema declared it.
+    // A schema's fields belong to whatever type infers from it
+    // (`LoginInput = z.infer<typeof loginSchema>`), falling back to the schema's own
+    // exported name when the file declares no inferred type.
+    const inferredFromSchema = new Map();
+    for (const match of content.matchAll(
+      /(?:export\s+)?type\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:z\.)?infer\s*<\s*typeof\s+(\w+)\s*>/g,
+    )) {
+      inferredFromSchema.set(match[2], match[1]);
+    }
+
+    // The body is extracted by counting braces rather than with a lazy pattern: a
+    // field's own options (`z.email({ message })`) contain a `}`, and a lazy match
+    // stops at the first one, truncating the schema and hiding every later field.
+    for (const declaration of content.matchAll(
+      /(?:export\s+)?(?:const|let|var)\s+(\w+)\s*(?::[^=]+)?=\s*z\s*\.\s*object\s*\(\s*\{/g,
+    )) {
+      const schemaSource = objectBodyAt(content, declaration.index + declaration[0].length - 1);
+
+      if (schemaSource === null) continue;
+
+      const schemaName = declaration[1];
+      const entity = inferredFromSchema.get(schemaName) ?? schemaName;
+
+      // Drop nested option objects, e.g. `.min(1, { message: ... })`. Their keys are
+      // not schema fields, and leaving them in makes a key look like part of the
+      // preceding field's value.
+      const body = schemaSource.replace(/(?:\.\w+\s*\([^()]*)?\{[^{}]*\}/g, (segment) =>
+        segment.slice(0, segment.indexOf('{')),
+      );
+      const fieldMatches = body.matchAll(/(?:^|[,{])\s*['"]?(\w+)['"]?\s*\??\s*:/gm);
+
+      for (const field of fieldMatches) {
+        fields.push({
+          entity,
+          name: field[1],
+          file: relative,
+        });
+      }
+    }
   });
 
   return fields;
@@ -680,19 +782,35 @@ function detectDependencies(sourceRoots = []) {
   }
 
   // A monorepo declares its libraries in each workspace manifest, not only in the root
-  // one. With the root read alone, every dependency of `server/` and `web/` - Prisma,
-  // Nest, React - was reported missing while sitting in the project's own package.json.
-  for (const root of sourceRoots) {
-    const workspacePkg = path.join(projectRoot, root, 'package.json');
+  // one. With the root read alone, every dependency of `server/`, `web/` and
+  // `backoffice/` - Prisma, Nest, React - was reported missing while sitting in the
+  // project's own manifests. Each source root is scanned, plus one level below it so
+  // `packages/*` members are included.
+  const manifestRoots = [projectRoot];
 
-    if (!fs.existsSync(workspacePkg)) continue;
+  for (const root of sourceRoots) {
+    const rootDir = path.join(projectRoot, root);
+
+    if (!fs.existsSync(rootDir)) continue;
+
+    manifestRoots.push(rootDir);
+
+    for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
+      if (entry.isDirectory()) manifestRoots.push(path.join(rootDir, entry.name));
+    }
+  }
+
+  for (const dir of manifestRoots) {
+    const manifestPath = path.join(dir, 'package.json');
+
+    if (!fs.existsSync(manifestPath)) continue;
 
     try {
-      const pkg = JSON.parse(fs.readFileSync(workspacePkg, 'utf8'));
+      const pkg = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
       Object.keys(pkg.dependencies || {}).forEach((name) => names.add(name));
       Object.keys(pkg.devDependencies || {}).forEach((name) => names.add(name));
     } catch (error) {
-      // Same reasoning as above: an unreadable manifest is skipped, not fatal.
+      // An unreadable member manifest is not a dependency answer; skip it, not fatal.
     }
   }
 
@@ -782,6 +900,21 @@ function diffPlanAgainstCode(planItems, code) {
     return match[2].split(',').map((part) => `${match[1]}${part.trim()}${match[3]}`);
   };
 
+  // A path the plan names that exists on disk, even though it is not scanned as
+  // source (manifests, YAML/JSON config). Kept separate from componentMatches so a
+  // missing source file is never excused by a same-named file elsewhere.
+  const isExistingDeclaredFile = (name) => {
+    if (!name || name.includes('{') || /\s/.test(name)) return false;
+
+    const target = path.join(projectRoot, name);
+
+    try {
+      return fs.existsSync(target) && fs.statSync(target).isFile();
+    } catch (error) {
+      return false;
+    }
+  };
+
   // A plan item matches a code component when the names are equal, when the
   // plan names the file path directly, or when the plan uses a brace glob that
   // expands to the file path.
@@ -818,6 +951,12 @@ function diffPlanAgainstCode(planItems, code) {
         // as matched against the real path rather than as a missing component.
         matched.push({ ...item, file: onDisk });
         claimedFiles.add(onDisk);
+      } else if (isExistingDeclaredFile(item.name)) {
+        // Plans name manifests and configs too (pnpm-workspace.yaml, a package.json
+        // under a workspace package). These exist on disk but are never scanned as
+        // source, so an existing path is proof of presence.
+        matched.push({ ...item, file: item.name });
+        claimedFiles.add(item.name);
       } else {
         // A rename claims that a similar file IS this plan item under another name.
         // The old test compared the first five characters of the whole path against

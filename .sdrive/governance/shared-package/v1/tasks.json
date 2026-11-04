@@ -1,0 +1,153 @@
+{
+  "feature": "shared-package",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Workspace plumbing",
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Add the private shared package manifest",
+          "description": "packages/shared/package.json: name @riaya/shared, private true, version 0.1.0, main and types both src/index.ts, zod dependency at the pnpm-workspace override range ^4.6.7, typescript at the apps' major ^5.8.3. No build or emit scripts.",
+          "linkedRequirements": ["FR-001", "FR-004", "FR-006"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-003", "AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T1.2",
+          "title": "Register the package as a workspace member",
+          "description": "Add packages/* to pnpm-workspace.yaml packages, leaving overrides and existing entries untouched. Update the lockfile through the workspace install; do not hand-edit it.",
+          "linkedRequirements": ["FR-001", "FR-007"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": true
+        },
+        {
+          "id": "T1.3",
+          "title": "Add the package tsconfig",
+          "description": "packages/shared/tsconfig.json: strict, noEmit, target ES2022, module/moduleResolution compatible with both consumers, include src/**/*.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T1.4",
+          "title": "Create the entry point and prove resolution",
+          "description": "packages/shared/src/index.ts with one placeholder export; add @riaya/shared workspace:* to server/package.json and backoffice/package.json; install with the workspace's package manager; import the placeholder from both apps and typecheck each. The placeholder is replaced in T2.4.",
+          "linkedRequirements": ["FR-003", "FR-005", "FR-007"],
+          "linkedAcceptanceCriteria": ["AC-002", "AC-003", "AC-004"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Schemas and types",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Add the auth input schemas",
+          "description": "src/schemas/auth.ts: loginSchema, registerSchema, switchWorkspaceSchema, changePasswordSchema, each a z.object whose rules mirror the matching server/src/auth/dto and tenancy/dto/register.dto.ts (email format, password length, uuid clinic id, optional preferred locale). Requires the zod skill.",
+          "linkedRequirements": ["FR-002", "FR-003"],
+          "linkedAcceptanceCriteria": ["AC-007", "AC-008"],
+          "completed": true
+        },
+        {
+          "id": "T2.2",
+          "title": "Add the tenancy schemas",
+          "description": "src/schemas/tenancy.ts: invitationSchema and accept-invitation payload mirroring tenancy/dto/invitation.dto.ts, including the role enum values the API accepts.",
+          "linkedRequirements": ["FR-002"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": true
+        },
+        {
+          "id": "T2.3",
+          "title": "Add the membership view schema",
+          "description": "src/schemas/membership.ts: membershipViewSchema mirroring MembershipView in tenancy.service.ts, plus registerResponseSchema only if that response type is consumed outside the app.",
+          "linkedRequirements": ["FR-002", "FR-003"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": true
+        },
+        {
+          "id": "T2.4",
+          "title": "Replace the placeholder with the real exports",
+          "description": "src/index.ts re-exports every schema and every inferred type (z.infer); each type is derived, never re-declared. Typecheck the package and both consumers.",
+          "linkedRequirements": ["FR-003"],
+          "linkedAcceptanceCriteria": ["AC-002", "AC-004", "AC-006"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Consumer wiring",
+      "dependencies": ["P2"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Use the shared login schema in the back office",
+          "description": "backoffice/src/pages/LoginPage.tsx: remove the local z.object({email,password}) and import the shared schema plus its inferred type. The page keeps its own i18n messages and submit handling unchanged.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-004"],
+          "completed": true
+        },
+        {
+          "id": "T3.2",
+          "title": "Use the shared schema on the reset-password page",
+          "description": "backoffice/src/pages/ResetPasswordPage.tsx: same swap where a local object duplicates change-password.dto.ts or reset-password.dto.ts; local messages preserved.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-004"],
+          "completed": true
+        },
+        {
+          "id": "T3.3",
+          "title": "Make sure no local duplicate remains",
+          "description": "Search backoffice/src and web/src for any other z.object that restates an API DTO. Move only the ones matching a shared schema; report the rest rather than inventing new schemas.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-004"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Verification",
+      "dependencies": ["P3"],
+      "tasks": [
+        {
+          "id": "T4.1",
+          "title": "Confirm one resolved zod major",
+          "description": "Inspect the installed dependency tree for zod: a single version matching the override range, no second major anywhere.",
+          "linkedRequirements": ["FR-004"],
+          "linkedAcceptanceCriteria": ["AC-003"],
+          "completed": true
+        },
+        {
+          "id": "T4.2",
+          "title": "Check the package's boundary",
+          "description": "Read the whole packages/shared tree: no process.env, no network client, no React, no message strings, no import reaching outside src. Record the file list that proves AC-005.",
+          "linkedRequirements": ["FR-006", "NFR-003", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-005"],
+          "completed": true
+        },
+        {
+          "id": "T4.3",
+          "title": "Run the apps' checks that cover the change",
+          "description": "server: typecheck plus the existing auth/tenancy unit suites; backoffice: typecheck and lint. Report any check that cannot run as a limitation.",
+          "linkedRequirements": ["FR-007", "NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-007", "AC-008"],
+          "completed": true
+        },
+        {
+          "id": "T4.4",
+          "title": "Confirm the API still validates through class-validator",
+          "description": "Verify no guard, pipe or interceptor depends on the package, and a malformed login still fails with the API's existing 400 shape (CON-515, RISK-004).",
+          "linkedRequirements": ["NFR-002", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-007"],
+          "completed": true
+        }
+      ]
+    }
+  ]
+}

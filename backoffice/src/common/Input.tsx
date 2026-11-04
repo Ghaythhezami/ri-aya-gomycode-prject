@@ -9,6 +9,7 @@ import {
   type SelectHTMLAttributes,
   type TextareaHTMLAttributes,
 } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * The shared control shell: `min-h-10` (40px) satisfies the NFR-002 interactive
@@ -74,6 +75,7 @@ export function Field({
   help?: string;
   children: ReactNode;
 }) {
+  const { t } = useTranslation();
   const reactId = useId();
   const helpId = `${reactId}-help`;
   const errorId = `${reactId}-error`;
@@ -101,7 +103,8 @@ export function Field({
       ) : null}
       {error ? (
         <span id={errorId} role="alert" className="mt-1 block text-sm text-error">
-          {error}
+          {/* Shared schemas emit i18n keys; a literal server message falls through unchanged. */}
+          {t(error)}
         </span>
       ) : null}
     </div>
