@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { formatDate, negotiateLocale } from '@riaya/shared';
 import { useAuth } from '../auth/AuthContext';
+import { useWorkspace } from '../auth/WorkspaceContext';
 import { clearFirstRun, isFirstRun } from '../lib/firstRun';
 
 export function OverviewPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const { active } = useWorkspace();
   const [firstRun, setFirstRun] = useState(isFirstRun);
   const hour = new Date().getHours();
   const key =
@@ -15,7 +18,7 @@ export function OverviewPage() {
   return (
     <section>
       <p className="text-xs font-semibold uppercase tracking-[0.16em] text-muted">
-        {new Date().toLocaleDateString()}
+        {formatDate(new Date(), negotiateLocale(i18n.resolvedLanguage), active?.clinicTimezone)}
       </p>
       <h1 className="mt-2 text-3xl font-semibold tracking-tight">
         {t(key, { name: user?.firstName ?? '' })}

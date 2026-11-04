@@ -255,5 +255,8 @@
     "title": "You don't have access",
     "body": "Your role doesn't include this section. If you think this is a mistake, ask a clinic administrator.",
     "back": "Back to overview"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again."
   }
 }

@@ -255,5 +255,8 @@
     "title": "Accès refusé",
     "body": "Votre rôle n'inclut pas cette section. Si vous pensez qu'il s'agit d'une erreur, contactez un administrateur de la clinique.",
     "back": "Retour à la vue d'ensemble"
+  },
+  "errors": {
+    "generic": "Une erreur est survenue. Veuillez réessayer."
   }
 }

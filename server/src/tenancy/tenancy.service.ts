@@ -16,6 +16,8 @@ export interface MembershipView {
   organizationName: string;
   clinicId: string;
   clinicName: string;
+  /** IANA zone the UI formats this clinic's timestamps in (BP-013). */
+  clinicTimezone: string;
   role: UserRole;
 }
 
@@ -54,6 +56,7 @@ export class TenancyService {
       organizationName: row.organization.name,
       clinicId: row.clinicId,
       clinicName: row.clinic.name,
+      clinicTimezone: row.clinic.timezone,
       role: row.role as UserRole,
     }));
   }

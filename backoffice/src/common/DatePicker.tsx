@@ -1,4 +1,5 @@
 import { useId, type ChangeEvent } from 'react';
+import { formatDate as intlDate, formatTime as intlTime, negotiateLocale } from '@riaya/shared';
 
 /**
  * Date and time inputs.
@@ -21,10 +22,8 @@ function formatDate(value: string, locale: string): string {
   const [year, month, day] = value.split('-').map(Number);
   if (!year || !month || !day) return '';
   const date = new Date(Date.UTC(year, month - 1, day));
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'long',
-    timeZone: 'UTC',
-  }).format(date);
+  // The value is a calendar date with no zone, so the echo stays in UTC.
+  return intlDate(date, negotiateLocale(locale), 'UTC');
 }
 
 function formatTime(value: string, locale: string): string {
@@ -32,11 +31,7 @@ function formatTime(value: string, locale: string): string {
   const [hours, minutes] = value.split(':').map(Number);
   if (Number.isNaN(hours) || Number.isNaN(minutes)) return '';
   const date = new Date(Date.UTC(2000, 0, 1, hours, minutes));
-  return new Intl.DateTimeFormat(locale, {
-    hour: 'numeric',
-    minute: '2-digit',
-    timeZone: 'UTC',
-  }).format(date);
+  return intlTime(date, negotiateLocale(locale), 'UTC');
 }
 
 export function DatePicker({

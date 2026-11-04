@@ -15,6 +15,7 @@ export interface Membership {
   organizationName: string;
   clinicId: string;
   clinicName: string;
+  clinicTimezone: string;
   role: string;
 }
 

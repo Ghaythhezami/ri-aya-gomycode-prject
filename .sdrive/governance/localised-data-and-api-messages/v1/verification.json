@@ -1,0 +1,120 @@
+{
+  "feature": "localised-data-and-api-messages",
+  "status": "pass",
+  "checkedAt": "2026-11-04T15:48:47.810Z",
+  "summary": {
+    "matched": 14,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "i18n",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/i18n.ts"
+      },
+      {
+        "type": "component",
+        "name": "format",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/format.ts"
+      },
+      {
+        "type": "component",
+        "name": "HttpExceptionFilter",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/common/filters/http-exception.filter.ts"
+      },
+      {
+        "type": "component",
+        "name": "TenancyService",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "api",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/lib/api.ts"
+      },
+      {
+        "type": "component",
+        "name": "OverviewPage",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/OverviewPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "StaffDirectoryPage",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/StaffDirectoryPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "DatePicker",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/common/DatePicker.tsx"
+      },
+      {
+        "type": "component",
+        "name": "WorkspaceSwitcher",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/layouts/WorkspaceSwitcher.tsx"
+      },
+      {
+        "type": "component",
+        "name": "tokens",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/design-system/tokens.ts"
+      },
+      {
+        "type": "dependency",
+        "name": "@riaya/shared",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      },
+      {
+        "type": "dependency",
+        "name": "i18next",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "react-i18next",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "Intl",
+        "action": "no_change",
+        "depType": "external",
+        "resolution": null,
+        "note": "external dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}

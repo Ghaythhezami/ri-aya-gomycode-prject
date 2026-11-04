@@ -7,6 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
+import { errorMessage, negotiateLocale } from '@riaya/shared';
 import { REQUEST_ID_HEADER } from '../../logging/logging.config';
 
 @Catch()
@@ -51,6 +52,13 @@ export class HttpExceptionFilter implements ExceptionFilter {
         exception instanceof Error ? exception.stack : undefined,
       );
     }
+
+    // Localize the human-readable message, never the stable code (FR-001,
+    // FR-002). An unknown code keeps the message the exception carried, so a
+    // new error path degrades to English instead of leaking a raw key.
+    const header = request.headers['accept-language'];
+    const locale = negotiateLocale(Array.isArray(header) ? header[0] : header);
+    message = errorMessage(code, locale) ?? message;
 
     // The shape stays as it was; `requestId` is the only addition (FR-008).
     response.status(status).json({

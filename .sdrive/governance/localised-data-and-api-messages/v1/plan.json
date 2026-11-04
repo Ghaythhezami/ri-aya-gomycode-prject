@@ -76,15 +76,7 @@
     "entities": [],
     "flowDescription": "No persistence change. Clinic.timezone already exists; the memberships response gains clinicTimezone. Stored timestamps stay UTC and are converted only at display time."
   },
-  "apiContracts": [
-    {
-      "method": "GET",
-      "path": "/api/auth/memberships",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-006"]
-    }
-  ],
+  "apiContracts": [],
   "securityConsiderations": [
     {
       "requirementId": "NFR-005",
@@ -99,10 +91,16 @@
       "notes": "Already consumed by both apps; the locale and format modules are added inside it."
     },
     {
-      "name": "i18next / react-i18next",
+      "name": "i18next",
       "type": "library",
       "action": "no_change",
       "notes": "Already installed; the active language is read at request time."
+    },
+    {
+      "name": "react-i18next",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already installed; supplies the active language to the client."
     },
     {
       "name": "Intl",

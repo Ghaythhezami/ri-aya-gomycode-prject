@@ -13,7 +13,7 @@
           "description": "Add packages/shared/src/i18n.ts with SUPPORTED_LOCALES, negotiateLocale(header) and ERROR_MESSAGES for en/ar/fr; export it from the package index.",
           "linkedRequirements": ["FR-001", "FR-002", "NFR-001"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-002"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T1.2",
@@ -21,7 +21,7 @@
           "description": "Update HttpExceptionFilter to negotiate Accept-Language and return the localized message for the stable code, keeping code, details and requestId; localize the validation summary and keep an unknown code's existing message.",
           "linkedRequirements": ["FR-001", "FR-002", "FR-003", "FR-008", "NFR-003", "NFR-005"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-003", "AC-004"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -36,7 +36,7 @@
           "description": "Add an axios request interceptor that sends Accept-Language from i18n.language at request time.",
           "linkedRequirements": ["FR-004"],
           "linkedAcceptanceCriteria": ["AC-005", "AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.2",
@@ -44,7 +44,7 @@
           "description": "Add a localized generic error string to en/ar/fr and use it in getErrorMessage when the server code is unknown.",
           "linkedRequirements": ["FR-008", "NFR-001", "NFR-006"],
           "linkedAcceptanceCriteria": ["AC-003", "AC-007"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -59,7 +59,7 @@
           "description": "Add packages/shared/src/format.ts with date/time/number/currency formatters that take the locale and clinic timezone and fall back to UTC.",
           "linkedRequirements": ["FR-005", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-008", "AC-009", "AC-011"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.2",
@@ -67,7 +67,7 @@
           "description": "Add clinicTimezone to MembershipView in TenancyService.listMemberships and to the backoffice membership type.",
           "linkedRequirements": ["FR-006"],
           "linkedAcceptanceCriteria": ["AC-010"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.3",
@@ -75,7 +75,7 @@
           "description": "Replace the ad-hoc formatting in OverviewPage, StaffDirectoryPage, DatePicker and TimePicker with the shared helpers.",
           "linkedRequirements": ["FR-005", "FR-006", "FR-007"],
           "linkedAcceptanceCriteria": ["AC-008", "AC-012"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -90,7 +90,7 @@
           "description": "Run server and backoffice lint and typecheck, build @riaya/shared, sdrive verify and validate-governance.js; all must pass. Do not run the test suite.",
           "linkedRequirements": ["NFR-001", "NFR-002"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.2",
@@ -98,7 +98,7 @@
           "description": "Grep the backoffice for argument-less toLocaleString/toLocaleDateString/toLocaleTimeString on user-facing values, confirm no dependency or lockfile change, and record the result.",
           "linkedRequirements": ["FR-007", "NFR-002"],
           "linkedAcceptanceCriteria": ["AC-012"],
-          "completed": false
+          "completed": true
         }
       ]
     }

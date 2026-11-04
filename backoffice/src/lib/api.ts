@@ -1,4 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
+import { errorMessage, negotiateLocale } from '@riaya/shared';
+import i18n from '../i18n';
 import type { ApiError } from './types';
 
 let accessToken: string | null = null;
@@ -26,6 +28,8 @@ api.interceptors.request.use((config) => {
   if (accessToken) {
     config.headers.Authorization = `Bearer ${accessToken}`;
   }
+  // Read at request time so a language switch applies without a reload (AC-005).
+  config.headers['Accept-Language'] = i18n.language;
   return config;
 });
 
@@ -63,7 +67,14 @@ api.interceptors.response.use(
   },
 );
 
-export function getErrorMessage(error: unknown, fallback: string) {
+export function getErrorMessage(error: unknown, fallback?: string) {
   const axiosError = error as AxiosError<ApiError>;
-  return axiosError.response?.data?.message ?? fallback;
+  const message = axiosError.response?.data?.message;
+  if (message) return message;
+
+  // The server localizes known codes; an unknown code or a network failure
+  // falls back to the shared catalogue, then to the caller's localized text.
+  const code = axiosError.response?.data?.code;
+  const locale = negotiateLocale(i18n.language);
+  return errorMessage(code, locale) ?? fallback ?? i18n.t('errors.generic');
 }
