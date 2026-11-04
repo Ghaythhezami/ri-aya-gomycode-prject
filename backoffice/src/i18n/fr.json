@@ -71,7 +71,13 @@
     "greetingAfternoon": "Bon après-midi, {{name}}",
     "greetingEvening": "Bonsoir, {{name}}",
     "subtitle": "Voici l'activité de votre clinique aujourd'hui.",
-    "language": "Langue"
+    "language": "Langue",
+    "skipToContent": "Aller au contenu",
+    "expandSidebar": "Développer la barre latérale",
+    "collapseSidebar": "Réduire la barre latérale",
+    "chat": "Discussion",
+    "userMenu": "Menu utilisateur",
+    "noWorkspace": "Aucune clinique"
   },
   "ds": {
     "kicker": "Système de design temporaire",
@@ -241,5 +247,8 @@
     "CLINIC_ADMIN": "Administrateur de clinique",
     "DOCTOR": "Médecin",
     "RECEPTIONIST": "Réceptionniste"
+  },
+  "breadcrumbs": {
+    "label": "Fil d'Ariane"
   }
 }

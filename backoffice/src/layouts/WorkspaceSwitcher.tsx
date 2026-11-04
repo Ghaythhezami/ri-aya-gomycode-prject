@@ -1,104 +1,58 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { api, setAccessToken } from '../lib/api';
-
-interface Membership {
-  membershipId: string;
-  organizationId: string;
-  organizationName: string;
-  clinicId: string;
-  clinicName: string;
-  role: string;
-}
+import { useWorkspace } from '../auth/WorkspaceContext';
 
 /**
  * Workspace switcher (FR-032, AC-011).
  *
- * Lists every clinic the user belongs to with their role in each, and switches
- * the session by calling POST /auth/switch-workspace, which re-issues a token
- * scoped to the chosen clinic (AC-012, AC-013).
+ * A view over `WorkspaceProvider`: the provider owns the memberships and the
+ * active clinic, so the sidebar footer and this menu can never disagree.
  */
 export function WorkspaceSwitcher() {
   const { t } = useTranslation();
-  const [memberships, setMemberships] = useState<Membership[]>([]);
-  const [activeClinicId, setActiveClinicId] = useState<string | null>(null);
+  const { memberships, active, switching, switchTo } = useWorkspace();
   const [open, setOpen] = useState(false);
-  const [busy, setBusy] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    api
-      .get<Membership[]>('/api/auth/memberships')
-      .then(({ data }) => {
-        if (cancelled) return;
-        setMemberships(data);
-        setActiveClinicId((current) => current ?? data[0]?.clinicId ?? null);
-      })
-      .catch(() => {
-        // A user with no memberships simply sees no switcher.
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  async function switchTo(clinicId: string) {
-    if (clinicId === activeClinicId) {
-      setOpen(false);
-      return;
-    }
-    setBusy(true);
-    try {
-      const { data } = await api.post<{ accessToken: string }>('/api/auth/switch-workspace', {
-        clinicId,
-      });
-      setAccessToken(data.accessToken);
-      setActiveClinicId(clinicId);
-      setOpen(false);
-      // Reload so every screen refetches under the new scope.
-      window.location.reload();
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (memberships.length === 0) return null;
-
-  const active = memberships.find((m) => m.clinicId === activeClinicId) ?? memberships[0];
+  if (!active) return null;
 
   return (
     <div className="relative">
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex min-h-10 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm text-text"
+        className="flex min-h-10 max-w-44 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm text-text"
       >
-        <span className="font-medium">{active.clinicName}</span>
-        <span className="text-xs text-muted">{active.role}</span>
+        <span className="truncate font-medium">{active.clinicName}</span>
+        <span className="hidden text-xs text-muted sm:inline">{active.role}</span>
       </button>
 
-      {open && (
+      {open ? (
         <ul
           role="listbox"
-          className="absolute z-20 mt-1 w-64 rounded-md border border-border bg-surface py-1 shadow-lg"
+          className="absolute end-0 z-20 mt-1 w-64 rounded-md border border-border bg-surface py-1 shadow-(--shadow-card)"
         >
-          {memberships.map((m) => (
-            <li key={m.membershipId}>
+          {memberships.map((membership) => (
+            <li key={membership.membershipId}>
               <button
                 type="button"
                 role="option"
-                aria-selected={m.clinicId === activeClinicId}
-                disabled={busy}
-                onClick={() => void switchTo(m.clinicId)}
-                className={`flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-bg ${
-                  m.clinicId === activeClinicId ? 'bg-accent' : ''
+                aria-selected={membership.clinicId === active.clinicId}
+                disabled={switching}
+                onClick={() => {
+                  setOpen(false);
+                  void switchTo(membership.clinicId);
+                }}
+                className={`flex w-full flex-col items-start px-3 py-2 text-start text-sm hover:bg-bg ${
+                  membership.clinicId === active.clinicId ? 'bg-accent' : ''
                 }`}
               >
-                <span className="font-medium text-text">{m.clinicName}</span>
-                <span className="text-xs text-muted">
-                  {m.organizationName} — {m.role}
+                <span className="w-full truncate font-medium text-text">
+                  {membership.clinicName}
+                </span>
+                <span className="w-full truncate text-xs text-muted">
+                  {membership.organizationName} — {membership.role}
                 </span>
               </button>
             </li>
@@ -109,7 +63,7 @@ export function WorkspaceSwitcher() {
             </a>
           </li>
         </ul>
-      )}
+      ) : null}
     </div>
   );
 }

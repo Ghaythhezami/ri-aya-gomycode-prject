@@ -71,7 +71,13 @@
     "greetingAfternoon": "مساء الخير، {{name}}",
     "greetingEvening": "مساء الخير، {{name}}",
     "subtitle": "هذا ما يحدث في عيادتك اليوم.",
-    "language": "اللغة"
+    "language": "اللغة",
+    "skipToContent": "تخطَّ إلى المحتوى",
+    "expandSidebar": "توسيع الشريط الجانبي",
+    "collapseSidebar": "طي الشريط الجانبي",
+    "chat": "المحادثات",
+    "userMenu": "قائمة المستخدم",
+    "noWorkspace": "لا توجد عيادة"
   },
   "ds": {
     "kicker": "نظام تصميم مؤقت",
@@ -241,5 +247,8 @@
     "CLINIC_ADMIN": "مسؤول العيادة",
     "DOCTOR": "طبيب",
     "RECEPTIONIST": "موظف استقبال"
+  },
+  "breadcrumbs": {
+    "label": "مسار التنقل"
   }
 }

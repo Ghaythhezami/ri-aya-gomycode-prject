@@ -71,7 +71,13 @@
     "greetingAfternoon": "Good afternoon, {{name}}",
     "greetingEvening": "Good evening, {{name}}",
     "subtitle": "Here's what's happening at your clinic today.",
-    "language": "Language"
+    "language": "Language",
+    "skipToContent": "Skip to content",
+    "expandSidebar": "Expand sidebar",
+    "collapseSidebar": "Collapse sidebar",
+    "chat": "Chat",
+    "userMenu": "User menu",
+    "noWorkspace": "No clinic"
   },
   "ds": {
     "kicker": "Temporary design system",
@@ -241,5 +247,8 @@
     "CLINIC_ADMIN": "Clinic admin",
     "DOCTOR": "Doctor",
     "RECEPTIONIST": "Receptionist"
+  },
+  "breadcrumbs": {
+    "label": "Breadcrumb"
   }
 }

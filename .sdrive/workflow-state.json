@@ -526,8 +526,8 @@
       "versions": [
         {
           "id": "v1",
-          "phase": "backlog",
-          "currentStep": "specification",
+          "phase": "ongoing",
+          "currentStep": "implementation",
           "gates": {
             "specification": "approved",
             "planning": "approved",
@@ -573,6 +573,16 @@
               "by": "project-owner",
               "note": "Approved: 4 phases, 15 production tasks, no new dependency.",
               "timestamp": "2026-11-04T15:19:29.729Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:37:00.346Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:37:00.346Z"
             }
           ]
         }

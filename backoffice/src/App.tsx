@@ -5,6 +5,8 @@ import { AuthProvider } from './auth/AuthContext';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { RoleRoute } from './auth/RoleRoute';
 import { AppShell } from './layouts/AppShell';
+import { WorkspaceProvider } from './auth/WorkspaceContext';
+import { NAV_ROLES } from './auth/roles';
 import { LoginPage } from './pages/LoginPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -33,7 +35,9 @@ export default function App() {
             <Route
               element={
                 <ProtectedRoute>
-                  <AppShell />
+                  <WorkspaceProvider>
+                    <AppShell />
+                  </WorkspaceProvider>
                 </ProtectedRoute>
               }
             >
@@ -47,7 +51,7 @@ export default function App() {
               <Route
                 path="/staff"
                 element={
-                  <RoleRoute roles={['SUPER_ADMIN', 'CLINIC_ADMIN']}>
+                  <RoleRoute roles={NAV_ROLES.staff}>
                     <StaffDirectoryPage />
                   </RoleRoute>
                 }
@@ -56,7 +60,7 @@ export default function App() {
               <Route
                 path="/analytics"
                 element={
-                  <RoleRoute roles={['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR']}>
+                  <RoleRoute roles={NAV_ROLES.analytics}>
                     <PlaceholderPage titleKey="nav.analytics" />
                   </RoleRoute>
                 }
@@ -68,7 +72,7 @@ export default function App() {
               <Route
                 path="/settings"
                 element={
-                  <RoleRoute roles={['SUPER_ADMIN', 'CLINIC_ADMIN']}>
+                  <RoleRoute roles={NAV_ROLES.settings}>
                     <PlaceholderPage titleKey="nav.settings" />
                   </RoleRoute>
                 }

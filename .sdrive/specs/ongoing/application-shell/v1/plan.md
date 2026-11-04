@@ -115,7 +115,8 @@ No persisted entity and no schema change. The only stored value is the sidebar p
 ## 4. Dependencies
 
 No dependency is added or upgraded. `react-router-dom`, `lucide-react`, `i18next`,
-`react-i18next` and the BP-006 primitives are already installed and are reused as-is.
+`react-i18next`, `tailwindcss` and the BP-006 primitives are already installed and are reused
+as-is.
 
 ## 5. Risks
 

@@ -8,7 +8,7 @@
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.1", "T1.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-002",
@@ -16,7 +16,7 @@
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.5"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-003",
@@ -24,7 +24,7 @@
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-004",
@@ -32,7 +32,7 @@
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-005",
@@ -40,7 +40,7 @@
       "planSection": "plan.md §1, §3 P2",
       "taskIds": ["T2.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-006",
@@ -48,7 +48,7 @@
       "planSection": "plan.md §1, §3 P2",
       "taskIds": ["T2.2", "T2.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-007",
@@ -56,7 +56,7 @@
       "planSection": "plan.md §1, §3 P3",
       "taskIds": ["T3.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-008",
@@ -64,7 +64,7 @@
       "planSection": "plan.md §1, §3 P3",
       "taskIds": ["T3.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-009",
@@ -72,7 +72,7 @@
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-010",
@@ -80,7 +80,7 @@
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.1", "T4.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-001",
@@ -88,7 +88,7 @@
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-002",
@@ -96,7 +96,7 @@
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-003",
@@ -104,7 +104,7 @@
       "planSection": "plan.md §1, §3 P1, P4",
       "taskIds": ["T1.3", "T4.3", "T4.5"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-004",
@@ -112,7 +112,7 @@
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-005",
@@ -120,7 +120,7 @@
       "planSection": "plan.md §1, §3 P3",
       "taskIds": ["T3.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-006",
@@ -128,7 +128,7 @@
       "planSection": "plan.md §1, §3 P4",
       "taskIds": ["T4.4", "T4.5"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-007",
@@ -136,7 +136,7 @@
       "planSection": "plan.md §1, §3 P1",
       "taskIds": ["T1.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     }
   ]
 }

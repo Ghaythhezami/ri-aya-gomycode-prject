@@ -89,15 +89,7 @@
     "entities": [],
     "flowDescription": "No persisted entity and no schema change. The only stored value is the sidebar preference (expanded or collapsed) in localStorage, read and written through src/layouts/sidebar-preference.ts with a fallback when storage is unavailable."
   },
-  "apiContracts": [
-    {
-      "method": "GET",
-      "path": "/api/auth/memberships",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-006"]
-    }
-  ],
+  "apiContracts": [],
   "securityConsiderations": [
     {
       "requirementId": "NFR-007",
@@ -128,13 +120,19 @@
       "notes": "Icons for the rail, bell and chat affordances."
     },
     {
-      "name": "i18next / react-i18next",
+      "name": "i18next",
       "type": "library",
       "action": "no_change",
       "notes": "Shell strings and breadcrumb labels."
     },
     {
-      "name": "tailwindcss (@tailwindcss/vite)",
+      "name": "react-i18next",
+      "type": "library",
+      "action": "no_change",
+      "notes": "React bindings for the shell strings."
+    },
+    {
+      "name": "tailwindcss",
       "type": "library",
       "action": "no_change",
       "notes": "Token utilities already generated from index.css."
