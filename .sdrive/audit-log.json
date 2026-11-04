@@ -704,6 +704,28 @@
       "event": "gate_approved",
       "prevHash": "b0ddbbfcba72be737ac27d1eb799f082286155e36e67887ea60e410e2fc2cfed",
       "hash": "4d9032ad49a8cd8d57345d2021111e460dff9b4cbd082e80918a33951e499b77"
+    },
+    {
+      "timestamp": "2026-11-04T16:31:28.264Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "exitCode": 1,
+      "failed": 13,
+      "event": "test_failed",
+      "prevHash": "4d9032ad49a8cd8d57345d2021111e460dff9b4cbd082e80918a33951e499b77",
+      "hash": "174341715a88f2731b16085531e1ecccfc878120cd1c35953b9e69e2c54fa62e"
+    },
+    {
+      "timestamp": "2026-11-04T16:35:34.108Z",
+      "actor": "kenule500",
+      "feature": "realtime-service",
+      "version": "v1",
+      "total": 46,
+      "durationMs": 50894,
+      "event": "test_passed",
+      "prevHash": "174341715a88f2731b16085531e1ecccfc878120cd1c35953b9e69e2c54fa62e",
+      "hash": "300ac80489a7b03b76382bffb46c7d56f369e13c03e2dd1c37747e06298a1402"
     }
   ]
 }

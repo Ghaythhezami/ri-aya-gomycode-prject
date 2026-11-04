@@ -1,12 +1,12 @@
 {
   "feature": "realtime-service",
   "status": "warn",
-  "checkedAt": "2026-11-04T15:55:33.025Z",
+  "checkedAt": "2026-11-04T16:36:01.961Z",
   "summary": {
     "matched": 68,
     "missing": 0,
     "renamed": 0,
-    "extra": 12,
+    "extra": 28,
     "withdrawn": 1
   },
   "items": {
@@ -492,6 +492,86 @@
     "missing": [],
     "renamed": [],
     "extra": [
+      {
+        "type": "component",
+        "name": "realtime/jest.config.cjs",
+        "file": "realtime/jest.config.cjs"
+      },
+      {
+        "type": "component",
+        "name": "jest.config",
+        "file": "realtime/jest.config.cjs"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/auth/token.service.spec.ts",
+        "file": "realtime/src/auth/token.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "token.service.spec",
+        "file": "realtime/src/auth/token.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/health/health.controller.spec.ts",
+        "file": "realtime/src/health/health.controller.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "health.controller.spec",
+        "file": "realtime/src/health/health.controller.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/connect-throttle.service.spec.ts",
+        "file": "realtime/src/realtime/connect-throttle.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "connect-throttle.service.spec",
+        "file": "realtime/src/realtime/connect-throttle.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/realtime.gateway.spec.ts",
+        "file": "realtime/src/realtime/realtime.gateway.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime.gateway.spec",
+        "file": "realtime/src/realtime/realtime.gateway.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/realtime/socket-scope.spec.ts",
+        "file": "realtime/src/realtime/socket-scope.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "socket-scope.spec",
+        "file": "realtime/src/realtime/socket-scope.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/relay/event-relay.service.spec.ts",
+        "file": "realtime/src/relay/event-relay.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "event-relay.service.spec",
+        "file": "realtime/src/relay/event-relay.service.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime/src/relay/realtime-contract.spec.ts",
+        "file": "realtime/src/relay/realtime-contract.spec.ts"
+      },
+      {
+        "type": "component",
+        "name": "realtime-contract.spec",
+        "file": "realtime/src/relay/realtime-contract.spec.ts"
+      },
       {
         "type": "component",
         "name": "packages/shared/src/schemas/auth.ts",

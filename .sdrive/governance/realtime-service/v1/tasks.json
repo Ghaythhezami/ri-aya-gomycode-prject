@@ -40,12 +40,7 @@
           "title": "Create the colocated Jest configuration",
           "description": "Create realtime/jest.config.cjs with rootDir src and testRegex .*\\.spec\\.ts$, matching CON-403's colocated shape.",
           "linkedRequirements": ["FR-001"],
-          "completed": false,
-          "resolution": {
-            "kind": "deferred",
-            "reason": "The implementation agent must not create test configuration (jest.config.*); /sdrive:test owns the runner config for realtime, so it is deferred to that command rather than faked here.",
-            "at": "2026-11-04"
-          }
+          "completed": true
         },
         {
           "id": "T1.6",

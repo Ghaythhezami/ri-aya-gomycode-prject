@@ -21,7 +21,7 @@ Acceptance criteria are linked there, not here, so this list does not drift from
 - [x] T1.2 - Create `realtime/package.json` with `start`, `start:dev`, `start:prod`, `build`, `lint` (`--max-warnings=0`), `typecheck` and `test` scripts mirroring `server`, and declare the dependencies from `plan.md` §6 at the pinned ranges. (FR-001, NFR-007)
 - [x] T1.3 - Create `realtime/tsconfig.json` and `tsconfig.build.json` with `strict`, `noUnusedLocals`, `noUnusedParameters` and the same module settings `server` uses. (FR-001, NFR-005)
 - [x] T1.4 - Create `realtime/nest-cli.json` and the flat `realtime/eslint.config.mjs` matching `server`'s rules, so lint fails on a warning rather than reporting it. (FR-001, NFR-005)
-- [ ] T1.5 - Create `realtime/jest.config.cjs` with `rootDir: 'src'` and `testRegex: '.*\\.spec\\.ts$'`, matching CON-403. (FR-001) **Deferred to `/sdrive:test`** - the implementation agent must not create test configuration.
+- [x] T1.5 - Create `realtime/jest.config.cjs` with `rootDir: 'src'` and `testRegex: '.*\\.spec\\.ts$'`, matching CON-403. (FR-001) Delivered by `/sdrive:test`.
 - [x] T1.6 - Create `realtime/.env.example` documenting `REALTIME_PORT`, `JWT_ACCESS_SECRET`, `REDIS_URL`, `MONGO_URI`, `REALTIME_CORS_ORIGINS`, `LOG_LEVEL` and `NODE_ENV`, with no value that works as a production default. (NFR-008, NFR-017)
 - [x] T1.7 - Create `realtime/Dockerfile` as a multi-stage pnpm workspace build that produces a runnable image without the dev dependencies. (NFR-007)
 

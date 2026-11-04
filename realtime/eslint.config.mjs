@@ -9,7 +9,7 @@ export default tseslint.config(
   prettier,
   {
     languageOptions: {
-      globals: { ...globals.node },
+      globals: { ...globals.node, ...globals.jest },
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
