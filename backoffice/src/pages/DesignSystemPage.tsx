@@ -262,7 +262,8 @@ function DesignSystemContent() {
             <div className="flex flex-wrap items-center gap-3">
               <Dropdown
                 label={t('ds.moreActions')}
-                trigger={<Button variant="secondary">{t('ds.moreActions')}</Button>}
+                // Dropdown renders its own <button>, so the trigger supplies content only.
+                trigger={<span>{t('ds.moreActions')}</span>}
                 items={[
                   { id: 'view', label: t('ds.view'), onSelect: () => toast.info(t('ds.view')) },
                   {
