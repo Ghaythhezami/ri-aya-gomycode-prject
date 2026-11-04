@@ -273,7 +273,7 @@
           "description": "Rebuild /design-system into Tokens, Forms, Navigation and overlays, Data display, Feedback and States sections, each demonstrating every component in every state side by side, replacing the current partial listing.",
           "linkedRequirements": ["FR-009"],
           "linkedAcceptanceCriteria": ["AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T5.2",
@@ -281,7 +281,7 @@
           "description": "Add a Tokens section that renders every token group from tokens.ts with its value and usage note, so the table cannot drift from the stylesheet.",
           "linkedRequirements": ["FR-009", "FR-001"],
           "linkedAcceptanceCriteria": ["AC-009", "AC-002"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T5.3",
@@ -289,7 +289,7 @@
           "description": "Confirm the whole page mirrors under RTL, that direction-implying icons flip while clocks, charts and numerals do not, and that no physical-direction utility is introduced.",
           "linkedRequirements": ["NFR-005", "NFR-006"],
           "linkedAcceptanceCriteria": ["AC-005"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T5.4",
@@ -297,7 +297,7 @@
           "description": "Add the ds.* keys for every new component string to en.json, ar.json and fr.json in the same change.",
           "linkedRequirements": ["FR-011", "NFR-001"],
           "linkedAcceptanceCriteria": ["AC-011"],
-          "completed": false
+          "completed": true
         }
       ]
     },

@@ -61,10 +61,10 @@ Production code only. Test authoring and execution belong to `/sdrive:test`.
 
 ## P5 — Documentation
 
-- [ ] T5.1 — Restructure `/design-system` into Tokens, Forms, Navigation and overlays, Data display, Feedback and States sections, each showing its component's states side by side. (FR-009, AC-009)
-- [ ] T5.2 — Add the Tokens section rendering every token group from `tokens.ts` with its value and usage note. (FR-009, FR-001)
-- [ ] T5.3 — Mirror the page in Arabic and confirm direction-implying icons flip while clocks, charts and numerals do not. (NFR-006, NFR-005)
-- [ ] T5.4 — Add every new string to `en`, `ar` and `fr` catalogues. (FR-011, NFR-001)
+- [x] T5.1 — Restructure `/design-system` into Tokens, Forms, Navigation and overlays, Data display, Feedback and States sections, each showing its component's states side by side. (FR-009, AC-009)
+- [x] T5.2 — Add the Tokens section rendering every token group from `tokens.ts` with its value and usage note. (FR-009, FR-001)
+- [x] T5.3 — Mirror the page in Arabic and confirm direction-implying icons flip while clocks, charts and numerals do not. (NFR-006, NFR-005)
+- [x] T5.4 — Add every new string to `en`, `ar` and `fr` catalogues. (FR-011, NFR-001)
 
 ## P6 — Verification
 
