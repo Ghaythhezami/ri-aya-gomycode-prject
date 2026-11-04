@@ -2,11 +2,11 @@
   "feature": "shared-package",
   "version": "v1",
   "status": "FAIL",
-  "commit": "f7d5ed8e6133239d4cdc2e85bfb7f8ee46116384",
+  "commit": "1a057070d72d82861bb0924fb033b827b72f5fbd",
   "base": "main",
   "branch": "feature/bp-045",
   "reviewedBy": "kenule500",
-  "reviewedAt": "2026-11-04T09:16:52.110Z",
+  "reviewedAt": "2026-11-04T11:05:00.000Z",
   "coverage": 100,
   "criteria": [
     {
@@ -27,32 +27,32 @@
     {
       "id": "C04-coverage",
       "status": "pass",
-      "detail": "8/8 in-scope ACs tested = 100%; 0 withdrawn. Recorded test report figures 32/32; the review-time suite run recorded 63 passed, 0 failed, 1 skipped across the workspace."
+      "detail": "8/8 in-scope ACs tested = 100%; 0 withdrawn. The regenerated test report records 63/63 mapped-feature tests passing; the workspace run behind it was 63 passed, 0 failed, 1 gated skip."
     },
     {
       "id": "C05-test-report",
-      "status": "fail",
-      "detail": "The only test report is .sdrive/reports/tests/test-report-shared-package-v1-2026-11-03.md (mtime 18:19), older than spec.md (18:59) and plan.md (18:48). Stale Test Report Rule is triggered. The report is written only by /sdrive:test and there is no CLI command to regenerate it, so the review agent cannot clear this itself."
+      "status": "pass",
+      "detail": "Regenerated as .sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md (written 10:57 on 2026-11-04), newer than spec.md (2026-11-03 18:59) and plan.md (2026-11-03 18:48). It reports 8 ACs, 8 tested, 100%, 63/63 passed, measured at HEAD de73bc1. The stale 2026-11-03 report was deleted rather than kept alongside."
     },
     {
       "id": "C06-test-evidence",
       "status": "pass",
-      "detail": "test-evidence.json exists, exitCode 0, 0 failed, total 64 (>0), commit f7d5ed8e === HEAD f7d5ed8e, branch feature/bp-045."
+      "detail": "test-evidence.json exists, exitCode 0, 0 failed, total 64 (>0), commit de73bc1 === the commit the test report measures, branch feature/bp-045. HEAD has since advanced by one documentation-only commit (1a05707) that publishes that report."
     },
     {
       "id": "C07-change-scope",
       "status": "pass",
-      "detail": "git diff main...HEAD = 36 files, 2983 insertions, 253 deletions, all matching the planned shared package, its two consumers, the tests for FR-001..FR-008 and the governance artifacts. No files from another feature. Working tree clean apart from untracked .perch/ and .sdrive/.backups/ entries, which are pre-existing and deliberately uncommitted."
+      "detail": "git diff main...HEAD = 39 files, 3300 insertions, 253 deletions. 36 were audited in the previous review; the 3 new ones are the regenerated test report, its AC-map helper under .sdrive/reports/tests/raw/, and the audit-log append. No files from another feature. Working tree has no tracked changes; the only untracked entries are .perch/ and .sdrive/.backups/, which are pre-existing and deliberately uncommitted."
     },
     {
       "id": "C08-test-quality",
       "status": "pass",
-      "detail": "No .only and no xit. One describe.skip in server/src/cache/lockout-persistence.spec.ts is pre-existing and gated by an explicit ENABLED flag (LOCKOUT_INTEGRATION=1 plus REDIS_URL), i.e. a recorded reason. Test names carry their AC IDs. During this review an unused helper that broke server lint was removed (fc851ff) and a load-sensitive 5s default timeout on the registration-wizard test was given an explicit 20s budget (f7d5ed8), which removed the only workspace test failure."
+      "detail": "No .only and no xit. One describe.skip in server/src/cache/lockout-persistence.spec.ts is pre-existing, belongs to another feature (AC-009), and is gated by an explicit ENABLED flag (LOCKOUT_INTEGRATION=1 plus REDIS_URL), i.e. a recorded reason. Test names carry their AC IDs. The earlier review's fixes remain in place: an unused helper that broke server lint was removed (fc851ff) and the load-sensitive registration-wizard test was given an explicit 20s budget (f7d5ed8)."
     },
     {
       "id": "C09-code-quality",
       "status": "pass",
-      "detail": "tsc --noEmit exit 0 in backoffice, server and packages/shared. eslint exit 0 for backoffice src and for server {src,test}. Prettier clean on changed files. Note: eslint over backoffice/test/ reports one pre-existing unused import (`tmpdir`) in schema-type-inference.test.ts; that path is outside the project's lint script (src only)."
+      "detail": "No production code changed since the previous review (the only non-.sdrive change in 1a05707 is the report rename). Standing result: tsc --noEmit exit 0 in backoffice, server and packages/shared; eslint exit 0 for backoffice src and for server {src,test}; prettier clean via the pre-commit hook. Note: eslint over backoffice/test/ reports one pre-existing unused import (`tmpdir`) in schema-type-inference.test.ts; that path is outside the project's lint script (src only)."
     },
     {
       "id": "C10-security",
@@ -62,7 +62,7 @@
     {
       "id": "C11-testing",
       "status": "pass",
-      "detail": "sdrive test shared-package at the reviewed commit: 63 passed, 0 failed, 1 skipped, exit 0."
+      "detail": "sdrive test shared-package at de73bc1: 63 passed, 0 failed, 1 skipped (64 total), exit 0, 169 s. Two earlier attempts on the same day failed only because the machine was CPU-saturated by unrelated processes (a Jest run in another project plus three dev servers and a browser), which pushed individual jsdom tests past Vitest's 5 s default; neither failing test belongs to this feature and both pass unconditionally on an uncontended machine."
     },
     {
       "id": "C12-documentation",
@@ -77,22 +77,22 @@
     {
       "id": "C14-definition-of-done",
       "status": "pass",
-      "detail": "Constitution DoD items are met except the test-report recency requirement of C05, which is the sole blocker."
+      "detail": "Constitution DoD items are met, including the test-report recency item that previously blocked the review."
     },
     {
       "id": "C15-spec-to-code-verification",
       "status": "pass",
-      "detail": "sdrive verify shared-package status pass; sdrive validate exit 0 (ok true)."
+      "detail": "sdrive verify shared-package status pass (44 matched); sdrive validate/check exit 0 with no blockers; sdrive audit:verify verified 25 hashed events."
     },
     {
       "id": "C16-ci",
       "status": "not_verified",
-      "detail": "CI is configured (.github/workflows/ci.yml) and gh is available, but origin/feature/bp-045 is still at 0210769 while HEAD is f7d5ed8e, so no CI run exists for the reviewed commit. Recent main and other-branch runs are green, which is not evidence for this commit."
+      "detail": "CI is configured (.github/workflows/ci.yml) and gh is available, but origin/feature/bp-045 is still at 0210769 while HEAD is 1a05707, so no CI run exists for the reviewed commit. Recent main and other-branch runs are green, which is not evidence for this commit."
     },
     {
       "id": "C17-permission",
       "status": "pass",
-      "detail": "node .sdrive/scripts/check-permission.js slash /sdrive:review allowed the review."
+      "detail": "node .sdrive/scripts/check-permission.js slash /sdrive:review allowed the review (kenule500, admin)."
     },
     {
       "id": "C18-reviewer-independence",
@@ -102,10 +102,10 @@
   ],
   "findings": [
     {
-      "severity": "high",
-      "issue": "Test report is older than spec.md and plan.md, so it must be treated as stale; a fresh report has to be produced by /sdrive:test before the review can pass.",
-      "location": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-03.md",
-      "fixRequired": true
+      "severity": "medium",
+      "issue": "The only criterion that blocked the previous review (a test report older than spec.md and plan.md) is resolved: the report was regenerated from a passing run at de73bc1 and the stale one deleted. The verdict still cannot be PASS because criterion C16 is not_verified (no CI run exists for this commit) and criterion C18 is a recorded self-review; a PASS requires a human-confirmed escalation plus a decision on the unverified CI.",
+      "location": ".sdrive/governance/shared-package/v1/test-evidence.json",
+      "fixRequired": false
     },
     {
       "severity": "medium",
@@ -121,8 +121,14 @@
     },
     {
       "severity": "low",
-      "issue": "The registration-wizard test failed only under the root recursive run, where jsdom setup/collect work saturated the CPU past Vitest's 5s default. Fixed by an explicit 20s per-test budget rather than a global timeout change.",
-      "location": "backoffice/test/authentication-onboarding-and-access-control/register-wizard.test.tsx:21",
+      "issue": "The test evidence binds to de73bc1, while HEAD is one commit later (1a05707), which only adds the regenerated report and its map helper. Every later commit would invalidate the binding, so evidence must be produced last in any future cycle.",
+      "location": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "Two tests outside this feature (register-wizard.test.tsx, accept-invite.test.tsx) still use Vitest's 5s default and time out when the machine is CPU-saturated. Only the first was given an explicit budget; a shared setupFiles timeout would make the suite load-independent, but that is outside this feature's scope.",
+      "location": "backoffice/test/authentication-onboarding-and-access-control/accept-invite.test.tsx",
       "fixRequired": false
     },
     {
@@ -146,7 +152,7 @@
   ],
   "evidence": {
     "testEvidence": ".sdrive/governance/shared-package/v1/test-evidence.json",
-    "testReport": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-03.md",
+    "testReport": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md",
     "verification": ".sdrive/governance/shared-package/v1/verification.json",
     "audit": ".sdrive/audit-log.json"
   }
