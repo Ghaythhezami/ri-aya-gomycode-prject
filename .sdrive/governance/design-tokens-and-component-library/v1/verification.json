@@ -1,0 +1,327 @@
+{
+  "feature": "design-tokens-and-component-library",
+  "status": "fail",
+  "checkedAt": "2026-11-04T11:11:25.138Z",
+  "summary": {
+    "matched": 3,
+    "missing": 44,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "dependency",
+        "name": "lucide-react",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "tailwindcss",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "Node.js built-ins (node:fs, node:path, Intl)",
+        "action": "no_change",
+        "depType": "external",
+        "resolution": null,
+        "note": "external dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [
+      {
+        "type": "component",
+        "name": "tokens",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "check-token-parity",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "check-token-literals",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "check-locale-parity",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Button",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Input",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Badge",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Modal",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Table",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "SampleCharts",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Textarea",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "SearchableSelect",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "DatePicker",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "TimePicker",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Tabs",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Dropdown",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Tooltip",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Popover",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "KpiCard",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Toast",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "ConfirmDialog",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "Skeleton",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "EmptyState",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "ErrorState",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "DesignSystemPage",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "RegisterPage",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "StaffDirectoryPage",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "WorkspaceSwitcher",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "component",
+        "name": "i18n-catalogues",
+        "action": "modify",
+        "resolution": null
+      },
+      {
+        "type": "entity",
+        "name": "DesignTokens",
+        "action": "create",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "color",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "radius",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "space",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "elevation",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "DesignTokens",
+        "name": "font",
+        "fieldType": "Record<string, string>",
+        "action": "add",
+        "resolution": null
+      },
+      {
+        "type": "entity",
+        "name": "LocaleCatalogue",
+        "action": "update",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "LocaleCatalogue",
+        "name": "ds.*",
+        "fieldType": "string",
+        "action": "add",
+        "resolution": null
+      },
+      {
+        "type": "field",
+        "entity": "LocaleCatalogue",
+        "name": "existing 135 keys",
+        "fieldType": "string",
+        "action": "no_change",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "react",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "react-router-dom",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "recharts",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "i18next",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "react-i18next",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "storybook",
+        "action": "remove",
+        "depType": "library",
+        "resolution": null
+      }
+    ],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}
