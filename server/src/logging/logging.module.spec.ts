@@ -47,6 +47,15 @@ const FLUSH_TIMEOUT_MS = 10_000;
 const FLUSH_INTERVAL_MS = 50;
 
 /**
+ * The `beforeAll` below boots the whole AppModule and then waits for the transport, which
+ * measures around 50s on its own and longer while the rest of the suite competes for the
+ * machine. The 30s project default is therefore below the cost of a healthy start: the hook
+ * times out and every test in the file fails together under load. Raised here, and only here,
+ * so a genuine hang still fails quickly instead of waiting out a project-wide limit.
+ */
+jest.setTimeout(120_000);
+
+/**
  * Resolves once `read` reports new content, or rejects on timeout.
  *
  * Used instead of a bare `setTimeout` so a slow Windows filesystem cannot turn

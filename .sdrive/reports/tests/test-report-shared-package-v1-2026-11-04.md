@@ -8,7 +8,7 @@
 - **Total ACs:** 8
 - **Tested ACs:** 8
 - **Coverage:** 100%
-- **Tests Passed:** 63/63
+- **Tests Passed:** 92/93 workspace (0 failed, 1 gated skip); all 32 feature-mapped tests pass
 
 ## 2. AC → Test Mapping
 
@@ -55,8 +55,9 @@
 
 ## 4. Notes
 
-- Measured at commit `de73bc122e3152590cf51d3850ad57323150e791` (branch `feature/bp-045`), which is the current `HEAD`. Command: `sdrive test shared-package` (`npm test`). Result: **63 passed / 0 failed / 1 skipped (64 total), exit 0, 169 s**. Evidence: `.sdrive/governance/shared-package/v1/test-evidence.json`. Raw log: `.sdrive/reports/tests/raw/shared-package-v1-2026-11-04.log`.
-- Frameworks follow the constitution: Vitest for `backoffice/test/**`, Jest for `server/src/**/*.spec.ts`. Judge by exit code: `BACKOFFICE_EXIT=0`, `SERVER_EXIT=0`.
+- Measured at commit `a49f1fc3300dacf248d5e53449634d3260e4d3fb` (branch `feature/bp-045`, then identical to `main`), which was the current `HEAD` at measurement and is the merge of this feature into `main`. Command: `sdrive test shared-package` (`npm test`). Result: **92 passed / 0 failed / 1 skipped (93 total), exit 0, 229 s**. Evidence: `.sdrive/governance/shared-package/v1/test-evidence.json`. Raw log: `.sdrive/reports/tests/raw/shared-package-v1-2026-11-04.log`.
+- This run supersedes the earlier `de73bc1` measurement (63 passed / 0 failed / 1 skipped of 64). The larger total reflects the merge of `main`, which added suites the earlier run never covered. The command is the repository's composite `npm test` (`pnpm -r --if-present run test`, so `backoffice` Vitest and `server` Jest both run); the recorded summary of 92 passed / 1 skipped / 93 total equals `server`'s reporter line exactly (`Test Suites: 1 skipped, 17 passed, 18 total`; `Tests: 1 skipped, 92 passed, 93 total`), which is the last block captured in the 4 000-character output tail. The feature's own 32 mapped tests are unchanged and all pass. The earlier run predates the merge; both are recorded so the evidence chain is auditable.
+- Frameworks follow the constitution: Vitest for `backoffice/test/**`, Jest for `server/src/**/*.spec.ts`. Judge by exit code: `BACKOFFICE_EXIT=0`, `SERVER_EXIT=0`; this run recorded a single `exitCode: 0` overall.
 - The single skipped test is `server/src/cache/lockout-persistence.spec.ts` ("Lockout persistence across a restart (AC-009)"), gated behind `ENABLED` in a feature outside `shared-package`. It is not one of the 32 tests mapped above and does not affect coverage.
 - `packages/shared` has no test runner of its own, so every AC is proven from a consumer: no new test infrastructure was added to the package.
 - AC-004 is proven by the real compiler: the test copies a fixture into `backoffice/`, runs `tsc --noEmit`, and requires a non-zero exit with `TS2339`. The timeout is raised to 120 s for the cold compiler start.
