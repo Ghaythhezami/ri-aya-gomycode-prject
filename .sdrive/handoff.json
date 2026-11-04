@@ -1,23 +1,38 @@
 {
   "feature": "design-tokens-and-component-library",
   "version": "v1",
-  "recordedAt": "2026-11-04T12:10:07.447Z",
+  "recordedAt": "2026-11-04T13:53:00.256Z",
   "by": null,
   "steps": [
     {
+      "command": "/sdrive:test design-tokens-and-component-library",
+      "kind": "slash",
+      "why": "high severity, round 1 of 3: No test exists for any of the 11 acceptance criteria; coverage is 0%, and test-evidence.json and the test report are missing."
+    },
+    {
       "command": "/sdrive:apply design-tokens-and-component-library",
       "kind": "slash",
-      "why": "Round-1 review F-004 asked for this remediation run."
+      "why": "high severity, round 1 of 3: sdrive verify returns fail with 44 unmatched plan artefacts, and traceability.json statuses still read not_started."
+    },
+    {
+      "command": "/sdrive:performance design-tokens-and-component-library",
+      "kind": "slash",
+      "why": "low severity, round 1 of 3: NFR-004, NFR-005, NFR-006 and NFR-009 verified by code inspection only, with no browser measurement."
+    },
+    {
+      "command": "sdrive test design-tokens-and-component-library",
+      "kind": "cli",
+      "why": "A fix moves HEAD, so the test record must be re-stamped before review can read it."
     },
     {
       "command": "sdrive approve design-tokens-and-component-library implementation",
       "kind": "human",
-      "why": "Two fix commits landed after the earlier implementation approval (AC-006 and F-004), so the gate is satisfied but unsigned for the current HEAD."
+      "why": "New fix tasks leave the implementation sign-off unsatisfied until it is given again."
     },
     {
       "command": "/sdrive:review design-tokens-and-component-library",
       "kind": "slash",
-      "why": "Round 2 review can now clear the round-1 FAIL: AC-006 is fixed and verify reports 36 matched, 0 missing, 11 withdrawn."
+      "why": "Review re-audits the new commit and clears the verdict."
     }
   ]
 }
