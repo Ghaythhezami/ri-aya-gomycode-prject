@@ -2,11 +2,11 @@
   "feature": "shared-package",
   "version": "v1",
   "status": "PASS",
-  "commit": "a49f1fc3300dacf248d5e53449634d3260e4d3fb",
+  "commit": "565160296f287dbe0d6c3ae30ee76b33a71feded",
   "base": "main",
   "branch": "feature/bp-045",
   "reviewedBy": "kenule500",
-  "reviewedAt": "2026-11-04T13:10:00.000Z",
+  "reviewedAt": "2026-11-04T13:36:12.000Z",
   "coverage": 100,
   "criteria": [
     {
@@ -22,72 +22,72 @@
     {
       "id": "C03-traceability",
       "status": "pass",
-      "detail": "traceability.json has 13 rows, all status complete; every AC-001..AC-008 has at least one linked task and test ID, and every linked TEST-### ID was found in the codebase."
+      "detail": "traceability.json has 13 rows, all status complete. Every AC-001..AC-008 has at least one linked task and test ID, and all 32 linked TEST-### IDs were found in the feature's test files."
     },
     {
       "id": "C04-coverage",
       "status": "pass",
-      "detail": "8/8 in-scope ACs tested = 100%; 0 withdrawn. The 32 feature-mapped tests (AC-001..AC-008) all pass, and the composite `npm test` run at `a49f1fc` recorded 92 passed, 0 failed, 1 gated skip (93 total), exit 0."
+      "detail": "8/8 in-scope ACs tested = 100%; 0 withdrawn. The 32 feature-mapped tests (AC-001..AC-008) all pass inside a governed run of 92 passed, 0 failed, 1 gated skip (93 total), exit 0."
     },
     {
       "id": "C05-test-report",
       "status": "pass",
-      "detail": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md records 8 ACs, 8 tested, 100%, with all 32 mapped tests passing, and its measurement section was updated to the re-run at `a49f1fc` (92 passed / 0 failed / 1 skipped of 93, 229 s), now the current HEAD and the merge of this feature. Both measurements are recorded so the chain stays auditable. The report is newer than spec.md and plan.md. The stale 2026-11-03 report was deleted rather than kept alongside."
+      "detail": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md records 8 ACs, 8 tested, 100%, with all 32 mapped tests passing. It is newer than spec.md and plan.md, and its Notes now record the 5651602 measurement alongside the earlier a49f1fc one. The report's citation of the raw log was corrected: that file holds the earlier 63-test run, not the 92-test run."
     },
     {
       "id": "C06-test-evidence",
       "status": "pass",
-      "detail": "test-evidence.json exists, exitCode 0, 0 failed, total 93 (>0), commit `a49f1fc3300dacf248d5e53449634d3260e4d3fb` === current HEAD === the commit the test report measures === the commit CI run 41822289408 exercised, branch feature/bp-045 (then identical to main). This re-run supersedes the earlier `de73bc1` binding, which predated the merge of main."
+      "detail": "test-evidence.json exists, exitCode 0, summary.failed 0, total 93 (>0), commit 565160296f287dbe0d6c3ae30ee76b33a71feded === HEAD, branch feature/bp-045, 178 s, outputHash sha256:9b31d0c7dc586821ad19a12f1ca98cf700fd8c01274a8b1fb4a4c494e67618a6."
     },
     {
       "id": "C07-change-scope",
       "status": "pass",
-      "detail": "git diff main...HEAD = 39 files, 3300 insertions, 253 deletions. 36 were audited in the previous review; the 3 new ones are the regenerated test report, its AC-map helper under .sdrive/reports/tests/raw/, and the audit-log append. No files from another feature. Working tree has no tracked changes; the only untracked entries are .perch/ and .sdrive/.backups/, which are pre-existing and deliberately uncommitted."
+      "detail": "The feature's change set is 40 files / 3334 insertions / 275 deletions against the pre-merge main (c2d43e8); 39 were audited in the previous review. The 40th is server/src/logging/logging.module.spec.ts, a test-only timeout fix outside this feature's plan, recorded as a low finding. No files from another in-flight feature. Working tree: the only tracked modification is .sdrive/audit-log.json, the audit append written by the evidence run; it and the review artifacts are deliberately left uncommitted because the review gate requires review.json.commit and test-evidence.commit to equal HEAD."
     },
     {
       "id": "C08-test-quality",
       "status": "pass",
-      "detail": "No .only and no xit. One describe.skip in server/src/cache/lockout-persistence.spec.ts is pre-existing, belongs to another feature (AC-009), and is gated by an explicit ENABLED flag (LOCKOUT_INTEGRATION=1 plus REDIS_URL), i.e. a recorded reason. Test names carry their AC IDs. The earlier review's fixes remain in place: an unused helper that broke server lint was removed (fc851ff) and the load-sensitive registration-wizard test was given an explicit 20s budget (f7d5ed8)."
+      "detail": "No .only and no xit in the feature's test files. One describe.skip in server/src/cache/lockout-persistence.spec.ts is pre-existing, belongs to another feature (AC-009), and is gated by an explicit ENABLED flag. Test names carry their TEST/AC identifiers; assertions are behavioural, not existence checks."
     },
     {
       "id": "C09-code-quality",
       "status": "pass",
-      "detail": "No production code changed since the previous review (the only non-.sdrive change in 1a05707 is the report rename). Standing result: tsc --noEmit exit 0 in backoffice, server and packages/shared; eslint exit 0 for backoffice src and for server {src,test}; prettier clean via the pre-commit hook. Note: eslint over backoffice/test/ reports one pre-existing unused import (`tmpdir`) in schema-type-inference.test.ts; that path is outside the project's lint script (src only)."
+      "detail": "Run at 5651602: `pnpm --filter server lint` (eslint src,test, --max-warnings=0) exit 0 and `pnpm --filter server typecheck` (tsc --noEmit) exit 0. The 5651602 delta is a nine-line test-file constant plus comment; no production code changed. Pre-existing notes remain: one unused `tmpdir` import in backoffice/test (outside the lint script's src scope), and a dead server test:e2e script."
     },
     {
       "id": "C10-security",
       "status": "pass",
-      "detail": "No gitleaks or trufflehog is available, so the fallback pattern scan of the diff was used and found no hardcoded credentials; NFR-004 is satisfied (the package reads no environment variable). No new third-party dependency was added to production code: server/package.json and pnpm-workspace.yaml only gain the workspace link to @riaya/shared."
+      "detail": "Diff scan for secret patterns found nothing; no credential files were opened. No new production dependency: server/package.json and pnpm-workspace.yaml only gain the workspace link to @riaya/shared. The package is schemas and types only, so the CON-51x baseline does not apply (recorded per control under security.baseline) and NFR-004 is satisfied. CI's gitleaks step also passed on this commit."
     },
     {
       "id": "C11-testing",
       "status": "pass",
-      "detail": "sdrive test shared-package at de73bc1: 63 passed, 0 failed, 1 skipped (64 total), exit 0, 169 s. Two earlier attempts on the same day failed only because the machine was CPU-saturated by unrelated processes (a Jest run in another project plus three dev servers and a browser), which pushed individual jsdom tests past Vitest's 5 s default; neither failing test belongs to this feature and both pass unconditionally on an uncontended machine."
+      "detail": "Governed `sdrive test shared-package` at 5651602: 92 passed, 0 failed, 1 skipped (93 total), exit 0, 178 s. The skipped test is the pre-existing gated lockout-persistence case outside this feature."
     },
     {
       "id": "C12-documentation",
       "status": "pass",
-      "detail": "The specification, plan, tasks and traceability artifacts are updated and internally consistent; the package exposes a documented single entry point. No user-facing README/CHANGELOG change was planned for this internal package."
+      "detail": "spec.md, plan.md, tasks.md and traceability are consistent; the package exposes a documented single entry point. No user-facing README/CHANGELOG change was planned for this internal package."
     },
     {
       "id": "C13-nfr-evidence",
       "status": "pass",
-      "detail": "NFR-001..NFR-005 are structural (no standalone runtime, no dependency growth, no import escaping packages/shared/src, no environment reads, single TypeScript major) and are each bound to an AC with complete test evidence. No performance, accessibility or SEO NFR exists in this feature, so no /sdrive:performance report or not_verified mark is required."
+      "detail": "NFR-001..NFR-005 are structural (no standalone runtime, no dependency growth, no import escaping packages/shared/src, no environment reads, single TypeScript major) and each is bound to an AC with complete test evidence. No performance, accessibility or SEO NFR exists, so performance is recorded not_applicable with a reason."
     },
     {
       "id": "C14-definition-of-done",
       "status": "pass",
-      "detail": "Constitution DoD items are met, including the test-report recency item that previously blocked the review."
+      "detail": "Constitution DoD items are met, including the test-report recency requirement and CON-410 (the composite pnpm test passes at 5651602)."
     },
     {
       "id": "C15-spec-to-code-verification",
       "status": "pass",
-      "detail": "sdrive verify shared-package status pass (44 matched); sdrive validate/check exit 0 with no blockers; sdrive audit:verify verified 25 hashed events."
+      "detail": "`sdrive verify shared-package` status pass (44 matched, 0 missing); `sdrive validate` and `sdrive check` exit 0 with no blockers; `sdrive audit:verify` verified 50 hashed events with no break in the chain."
     },
     {
       "id": "C16-ci",
       "status": "pass",
-      "detail": "RESOLVED 2026-11-04 by a real green run: CI run 41822289408 (workflow `CI`, event `push`, conclusion `success`, 1 m 27 s) on `a49f1fc3300dacf248d5e53449634d3260e4d3fb`, the merge commit for this feature and the current `main`. URL: https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41822289408. All 12 steps passed: `pnpm install --frozen-lockfile`, `prisma generate`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm build`, production dependency audit and the gitleaks secret scan (`Secret scan: success`). This is evidence for the reviewed code, not for an unrelated branch: the run's head is the merge of this feature, and the branch was fast-forwarded to exactly that commit before the test re-run. History of the blocker, kept for the record: no run could be produced from the feature branch because the reviewing account holds admin:false/maintain:false on a repository owned by a different account, the Actions policy endpoint returned 403, and `ci.yml` defines no `workflow_dispatch`; the `push` trigger on `main` was the supported path and worked on the first attempt, which also disproves any workflow defect."
+      "detail": "Green CI on HEAD: run 41838734608 (workflow CI, event pull_request, PR #8, conclusion success, 1 m 34 s) on 565160296f287dbe0d6c3ae30ee76b33a71feded — https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41838734608. The merge of PR #8 is also green on main: run 41839224010 on 53a4a154. This closes the gap that existed when the review was re-run, where the only green runs were 41822562982 (9c95312) and 41822289408 (a49f1fc)."
     },
     {
       "id": "C17-permission",
@@ -97,59 +97,122 @@
     {
       "id": "C18-reviewer-independence",
       "status": "warn",
-      "detail": "OWNER ACCEPTED, 2026-11-04. reviewedBy (kenule500, from git config) equals the feature assignee, so this remains a self-review and independence was never granted — the status stays warn on purpose rather than being rewritten to pass. The repository owner (Ghaythhezami) was asked the explicit yes/no question and answered: accept the self-review of shared-package v1 by kenule500 as sufficient, and record that acceptance. That is resolution (b) from this criterion's own escalation, the same route taken for api-skeleton-and-ci. Recorded, not waived by the reviewer. In future cycles an independent reviewer remains preferable for anything touching schema, security or migrations."
+      "detail": "OWNER ACCEPTED, 2026-11-04, unchanged. reviewedBy (kenule500, from git config) equals the feature assignee, so this remains a self-review and independence was never granted — the status stays warn on purpose rather than being rewritten to pass. The repository owner (Ghaythhezami) was asked the explicit yes/no question and accepted the self-review of shared-package v1 by kenule500, the same route taken for api-skeleton-and-ci. The acceptance was given for v1 and this re-review covers the same version; an independent reviewer remains preferable for anything touching schema, security or migrations."
     }
   ],
   "findings": [
     {
       "severity": "info",
-      "issue": "CLEARED 2026-11-04. Both original blockers are resolved: CI run 41822289408 is green on a49f1fc (C16 pass), the test evidence and report were regenerated at the same commit (C05/C06 pass), and the one criterion that no command could settle — the self-review (C18) — was put to the repository owner as an explicit yes/no and accepted. Nothing in this review now rests on an unresolved or unverified item.",
-      "location": ".sdrive/governance/shared-package/v1/test-evidence.json",
-      "fixRequired": false
-    },
-    {
-      "severity": "medium",
-      "issue": "RESOLVED 2026-11-04. CI run 41822289408 (push, success, 1m27s) on a49f1fc, the merge commit for this feature: install, prisma generate, lint, typecheck, test, build, dependency audit and the gitleaks secret scan all passed. The earlier absence of runs was an account-permission limit on the feature branch, not a workflow defect; the push trigger on main worked on the first attempt.",
-      "location": "origin/feature/bp-045",
-      "fixRequired": false
-    },
-    {
-      "severity": "medium",
-      "issue": "ACCEPTED & DISCLOSED, 2026-11-04. The reviewer is the feature assignee (kenule500), so this was a self-review and independence could not be granted by any command. The repository owner (Ghaythhezami) explicitly accepted the self-review after being asked the yes/no question directly, following the api-skeleton-and-ci precedent where the acceptance was recorded in the review.md header. No code or evidence defect remains; the disclosure is kept so the record shows why the verdict does not rest on an independent party.",
-      "location": ".sdrive/workflow-state.json",
+      "issue": "CLEARED 2026-11-04. The CI gap is closed for the reviewed commit: run 41838734608 succeeded on 5651602 (PR #8) and run 41839224010 succeeded on the merge commit 53a4a154. Evidence, review commit and a green CI run now name the same tree.",
+      "location": "https://github.com/Ghaythhezami/ri-aya-gomycode-prject/actions/runs/41838734608",
       "fixRequired": false
     },
     {
       "severity": "low",
-      "issue": "RESOLVED 2026-11-04. The evidence and report were regenerated at a49f1fc after the merge of main, so evidence commit, report measurement, HEAD and the CI run head are now the same commit. Kept for the record: an earlier binding to de73bc1 had gone stale, which is why evidence must be produced last in any future cycle.",
+      "issue": "server/src/logging/logging.module.spec.ts is not part of this feature's plan. The change is test-only: it raises that file's Jest timeout to 120s because its beforeAll boots the whole AppModule and waits for the pino transport (~50s alone, more under load), so the 30s project default killed the hook. Accepted as a load accommodation, not production behaviour; no application code changed.",
+      "location": "server/src/logging/logging.module.spec.ts",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "The red run that motivated the fix (12:38Z evidence) failed 23 tests across FOUR suites and missed the global coverage thresholds (statements 78.41%, lines 77.39%) as a consequence of those suites not running. The commit message and the in-file comment attribute the failure to the logging suite alone, which the evidence does not support. The subsequent green run shows the cause was machine load rather than one suite, but the record understates it.",
+      "location": ".sdrive/governance/shared-package/v1/test-evidence.json",
+      "fixRequired": false
+    },
+    {
+      "severity": "low",
+      "issue": "The test report cited .sdrive/reports/tests/raw/shared-package-v1-2026-11-04.log as the raw log for the 92-test measurement, but that file contains the earlier 63-test run. Corrected in the report during this review; the governed evidence JSON is the authoritative record for the later runs.",
       "location": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md",
       "fixRequired": false
     },
     {
       "severity": "low",
-      "issue": "Two tests outside this feature (register-wizard.test.tsx, accept-invite.test.tsx) still use Vitest's 5s default and time out when the machine is CPU-saturated. Only the first was given an explicit budget; a shared setupFiles timeout would make the suite load-independent, but that is outside this feature's scope.",
+      "issue": "Two backoffice tests outside this feature (register-wizard.test.tsx, accept-invite.test.tsx) still use Vitest's 5s default and can time out when the machine is CPU-saturated. Only the first has an explicit budget. Pre-existing and out of this feature's scope, but it is the same class of load sensitivity that produced the red runs.",
       "location": "backoffice/test/authentication-onboarding-and-access-control/accept-invite.test.tsx",
       "fixRequired": false
     },
     {
       "severity": "low",
-      "issue": "eslint over backoffice/test/ reports a pre-existing unused `tmpdir` import; the project's lint script only covers src, so this is not part of any configured check.",
+      "issue": "eslint over backoffice/test/ reports a pre-existing unused `tmpdir` import; the project's lint script only covers src, so it is not part of any configured check.",
       "location": "backoffice/test/shared-package/schema-type-inference.test.ts:3",
       "fixRequired": false
     },
     {
       "severity": "low",
-      "issue": "server/package.json keeps a dead test:e2e script pointing at a non-existent ./test/jest-e2e.json.",
+      "issue": "server/package.json keeps a dead test:e2e script pointing at a non-existent ./test/jest-e2e.json (CON-409 known defect).",
       "location": "server/package.json",
       "fixRequired": false
     },
     {
       "severity": "info",
-      "issue": "The local fallback scan (no gitleaks/trufflehog binary installed) is now superseded for CI purposes: the same workflow runs gitleaks, and it passed on a49f1fc (step `Secret scan: success`). The local pattern scan of the diff found no credentials either.",
-      "location": "n/a",
+      "issue": "Self-review disclosed and owner-accepted (C18). Kept in the record so the verdict does not rest on an independent party.",
+      "location": ".sdrive/workflow-state.json",
       "fixRequired": false
     }
   ],
+  "security": {
+    "status": "pass",
+    "reason": "No secrets in the diff; no new production dependency (only the @riaya/shared workspace link). The package is schemas and types only and touches no authentication, user input or HTTP surface, so the CON-51x baseline controls are not applicable rather than unverified. CI's gitleaks secret scan passed on this commit.",
+    "secrets": "clean",
+    "dependencies": "clean",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "not_applicable",
+        "detail": "The package authenticates nothing and issues no tokens."
+      },
+      {
+        "id": "CON-512",
+        "status": "not_applicable",
+        "detail": "No routes, guards or role checks exist in packages/shared."
+      },
+      {
+        "id": "CON-513",
+        "status": "not_applicable",
+        "detail": "No HTTP server is created by the package."
+      },
+      {
+        "id": "CON-514",
+        "status": "not_applicable",
+        "detail": "No request pipeline to throttle."
+      },
+      {
+        "id": "CON-515",
+        "status": "not_applicable",
+        "detail": "The package defines schemas consumed by existing DTOs; it adds no request boundary of its own."
+      },
+      {
+        "id": "CON-516",
+        "status": "not_applicable",
+        "detail": "No data access, no ORM, no SQL."
+      },
+      {
+        "id": "CON-517",
+        "status": "not_applicable",
+        "detail": "No rendering surface; no React or HTML output."
+      },
+      {
+        "id": "CON-518",
+        "status": "not_applicable",
+        "detail": "No cookies, sessions or state-changing routes."
+      },
+      {
+        "id": "CON-519",
+        "status": "not_applicable",
+        "detail": "The package reads no environment variable (NFR-004), verified by AC-005's boundary test."
+      },
+      {
+        "id": "CON-520",
+        "status": "not_applicable",
+        "detail": "No transport or header configuration."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_applicable",
+    "reason": "The specification declares no performance, accessibility or SEO NFR. NFR-001..NFR-005 are structural constraints and are each bound to a tested AC, so there is no target to measure.",
+    "seo": "not_applicable"
+  },
   "evidence": {
     "testEvidence": ".sdrive/governance/shared-package/v1/test-evidence.json",
     "testReport": ".sdrive/reports/tests/test-report-shared-package-v1-2026-11-04.md",
