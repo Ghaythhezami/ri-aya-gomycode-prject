@@ -3,9 +3,9 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { CAPABILITY_ROLES } from '@riaya/shared';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
-import { UserRole } from './user-role.enum';
 
 @ApiTags('users')
 @ApiBearerAuth()
@@ -15,7 +15,7 @@ export class UsersController {
   constructor(private readonly users: UsersService) {}
 
   @Post()
-  @Roles(UserRole.SUPER_ADMIN, UserRole.CLINIC_ADMIN)
+  @Roles(...CAPABILITY_ROLES.manageStaff)
   create(@Body() dto: CreateUserDto) {
     return this.users.createStaffUser(dto).then((user) => ({
       id: user.id,

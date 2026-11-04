@@ -1,18 +1,32 @@
-import type { UserRole } from '../lib/types';
+import { CAPABILITY_ROLES, type Capability, type UserRole } from '@riaya/shared';
 
-export const NAV_ROLES: Record<string, UserRole[]> = {
-  overview: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-  appointments: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-  calendar: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-  patients: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-  staff: ['SUPER_ADMIN', 'CLINIC_ADMIN'],
-  waiting: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-  analytics: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR'],
-  notifications: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
-  settings: ['SUPER_ADMIN', 'CLINIC_ADMIN'],
-  designSystem: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'],
+/**
+ * Navigation key to capability. The capabilities and their roles live in
+ * `@riaya/shared`, so this file only maps the shell's menu keys onto them.
+ */
+const NAV_CAPABILITIES: Record<string, Capability> = {
+  overview: 'viewOverview',
+  appointments: 'viewAppointments',
+  calendar: 'viewCalendar',
+  patients: 'viewPatients',
+  staff: 'manageStaff',
+  waiting: 'viewWaitingList',
+  analytics: 'viewAnalytics',
+  notifications: 'viewNotifications',
+  settings: 'manageSettings',
+  designSystem: 'viewDesignSystem',
 };
 
+/** Derived role lists, for callers that still need the plain arrays. */
+export const NAV_ROLES: Record<string, UserRole[]> = Object.fromEntries(
+  Object.entries(NAV_CAPABILITIES).map(([key, capability]) => [
+    key,
+    [...CAPABILITY_ROLES[capability]],
+  ]),
+);
+
+/** Deny when the role or the navigation key is unknown (fail closed). */
 export function canSee(role: UserRole, key: string) {
-  return NAV_ROLES[key]?.includes(role) ?? false;
+  const capability = NAV_CAPABILITIES[key];
+  return capability ? CAPABILITY_ROLES[capability].includes(role) : false;
 }

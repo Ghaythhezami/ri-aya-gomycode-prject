@@ -6,7 +6,6 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { RoleRoute } from './auth/RoleRoute';
 import { AppShell } from './layouts/AppShell';
 import { WorkspaceProvider } from './auth/WorkspaceContext';
-import { NAV_ROLES } from './auth/roles';
 import { LoginPage } from './pages/LoginPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
@@ -51,7 +50,7 @@ export default function App() {
               <Route
                 path="/staff"
                 element={
-                  <RoleRoute roles={NAV_ROLES.staff}>
+                  <RoleRoute capability="manageStaff">
                     <StaffDirectoryPage />
                   </RoleRoute>
                 }
@@ -60,7 +59,7 @@ export default function App() {
               <Route
                 path="/analytics"
                 element={
-                  <RoleRoute roles={NAV_ROLES.analytics}>
+                  <RoleRoute capability="viewAnalytics">
                     <PlaceholderPage titleKey="nav.analytics" />
                   </RoleRoute>
                 }
@@ -72,7 +71,7 @@ export default function App() {
               <Route
                 path="/settings"
                 element={
-                  <RoleRoute roles={NAV_ROLES.settings}>
+                  <RoleRoute capability="manageSettings">
                     <PlaceholderPage titleKey="nav.settings" />
                   </RoleRoute>
                 }

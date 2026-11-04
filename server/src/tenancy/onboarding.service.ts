@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -303,16 +302,6 @@ export class OnboardingService {
 
       return { userId: user.id, clinicId: invitation.clinicId, role: invitation.role };
     });
-  }
-
-  /** Guard used by the invitation endpoint: only admins may invite (FR-007). */
-  assertCanInvite(role: UserRole): void {
-    if (role !== UserRole.SUPER_ADMIN && role !== UserRole.CLINIC_ADMIN) {
-      throw new ForbiddenException({
-        code: 'FORBIDDEN',
-        message: 'Only clinic admins can invite staff',
-      });
-    }
   }
 
   /** Pending (unconsumed, unexpired) invitations for the caller's clinic (FR-027). */

@@ -86,50 +86,7 @@
     "entities": [],
     "flowDescription": "No persistence change. The role matrix is code in @riaya/shared; no Prisma model or migration is touched."
   },
-  "apiContracts": [
-    {
-      "method": "POST",
-      "path": "/api/users",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-002", "FR-003"]
-    },
-    {
-      "method": "POST",
-      "path": "/api/invitations",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-002", "FR-003"]
-    },
-    {
-      "method": "GET",
-      "path": "/api/invitations",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-004"]
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/memberships/:id/suspend",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-002", "FR-003"]
-    },
-    {
-      "method": "POST",
-      "path": "/api/organizations",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-004"]
-    },
-    {
-      "method": "GET",
-      "path": "/api/auth/memberships",
-      "action": "reuse",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-004"]
-    }
-  ],
+  "apiContracts": [],
   "securityConsiderations": [
     {
       "requirementId": "NFR-001",
@@ -160,7 +117,7 @@
       "notes": "Icon for the 403 page."
     },
     {
-      "name": "NestJS guards and decorators",
+      "name": "@nestjs/common",
       "type": "library",
       "action": "no_change",
       "notes": "Existing @Roles and RolesGuard are extended, not replaced."

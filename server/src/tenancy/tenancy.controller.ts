@@ -1,17 +1,10 @@
-import {
-  Body,
-  Controller,
-  ForbiddenException,
-  Get,
-  Inject,
-  Param,
-  Patch,
-  Post,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { TenantContext } from './tenant-context';
 import { OnboardingService } from './onboarding.service';
@@ -65,12 +58,12 @@ export class TenancyController {
 
   @Post('invitations')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.inviteStaff)
   @Throttle({ default: { limit: throttleLimit(20), ttl: 60_000 } })
   @ApiOperation({ summary: 'Invite a person to the active clinic with a role' })
   async invite(@CurrentUser() user: UserRecord, @Body() dto: InviteDto) {
     const scope = this.tenant.get();
-    this.onboarding.assertCanInvite(scope.role);
 
     const result = await this.onboarding.invite({
       email: dto.email,
@@ -107,16 +100,11 @@ export class TenancyController {
 
   @Patch('memberships/:id/suspend')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.suspendMembership)
   @ApiOperation({ summary: 'Suspend a membership, revoking that clinic access immediately' })
   async suspend(@Param('id') id: string) {
     const scope = this.tenant.get();
-    if (scope.role !== UserRole.SUPER_ADMIN && scope.role !== UserRole.CLINIC_ADMIN) {
-      throw new ForbiddenException({
-        code: 'FORBIDDEN',
-        message: 'Only clinic admins can suspend memberships',
-      });
-    }
     // The id comes from the path, so it is attacker-controlled: it MUST be
     // resolved inside the caller's own organization. A super admin is
     // organization-wide, every other role may only act within their clinic.

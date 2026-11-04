@@ -13,7 +13,7 @@
           "description": "Add packages/shared/src/permissions.ts with the four roles, the capability list, CAPABILITY_ROLES and can(role, capability); export it from the package index.",
           "linkedRequirements": ["FR-001", "FR-007", "NFR-005"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-004", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T1.2",
@@ -21,7 +21,7 @@
           "description": "Update @Roles() and RolesGuard to accept the shared role-name list and deny when the role is missing, unknown, or not listed.",
           "linkedRequirements": ["FR-002", "FR-003", "FR-007", "NFR-001"],
           "linkedAcceptanceCriteria": ["AC-002", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T1.3",
@@ -29,7 +29,7 @@
           "description": "Apply the matrix to UsersController (staff creation) and TenancyController (invite, suspend), delete assertCanInvite and the hand-written suspend role branch, and record the endpoint classification in the plan.",
           "linkedRequirements": ["FR-002", "FR-003", "FR-004", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-003"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T1.4",
@@ -37,7 +37,7 @@
           "description": "Check every endpoint listed in plan §1.4 is classified and guarded; a role-gated endpoint without @Roles fails review.",
           "linkedRequirements": ["FR-004", "NFR-001"],
           "linkedAcceptanceCriteria": ["AC-003"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -52,7 +52,7 @@
           "description": "Derive NAV_ROLES and canSee in backoffice/src/auth/roles.ts from the shared capabilities, removing the hand-maintained arrays.",
           "linkedRequirements": ["FR-005", "NFR-005"],
           "linkedAcceptanceCriteria": ["AC-004", "AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T2.2",
@@ -60,7 +60,7 @@
           "description": "Change RoleRoute to take a capability, update App.tsx route guards, and keep unauthenticated handling in ProtectedRoute.",
           "linkedRequirements": ["FR-005", "FR-006"],
           "linkedAcceptanceCriteria": ["AC-005", "AC-006"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -75,7 +75,7 @@
           "description": "Add ForbiddenPage.tsx inside the shell with a localized explanation and a back link; render it from RoleRoute instead of redirecting.",
           "linkedRequirements": ["FR-006"],
           "linkedAcceptanceCriteria": ["AC-005", "AC-007"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.2",
@@ -83,7 +83,7 @@
           "description": "Add the forbidden strings to en, ar and fr, and verify RTL/logical utilities on the page.",
           "linkedRequirements": ["NFR-006"],
           "linkedAcceptanceCriteria": ["AC-007"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T3.3",
@@ -91,7 +91,7 @@
           "description": "Confirm a workspace-switch role change leaves the guards and navigation on the new role after reload, with no stale capability.",
           "linkedRequirements": ["FR-008"],
           "linkedAcceptanceCriteria": ["AC-008"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -106,7 +106,7 @@
           "description": "Run server and backoffice lint and typecheck, build @riaya/shared, sdrive verify and validate-governance.js; all must pass. Do not run the test suite.",
           "linkedRequirements": ["NFR-002"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-004"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.2",
@@ -114,7 +114,7 @@
           "description": "Grep the server and backoffice for surviving role comparisons and duplicate role maps, and confirm no dependency or lockfile change; record the result.",
           "linkedRequirements": ["NFR-002", "NFR-005", "FR-002"],
           "linkedAcceptanceCriteria": ["AC-001", "AC-004"],
-          "completed": false
+          "completed": true
         }
       ]
     }

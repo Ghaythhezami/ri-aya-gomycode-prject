@@ -1,0 +1,133 @@
+{
+  "feature": "role-based-access-control-and-clinic-scoping",
+  "status": "pass",
+  "checkedAt": "2026-11-04T15:45:14.824Z",
+  "summary": {
+    "matched": 16,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "permissions",
+        "action": "create",
+        "resolution": null,
+        "file": "packages/shared/src/permissions.ts"
+      },
+      {
+        "type": "component",
+        "name": "RolesGuard",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/common/guards/roles.guard.ts"
+      },
+      {
+        "type": "component",
+        "name": "Roles",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/common/decorators/roles.decorator.ts"
+      },
+      {
+        "type": "component",
+        "name": "UsersController",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/users/users.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "TenancyController",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "OnboardingService",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "roles",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/auth/roles.ts"
+      },
+      {
+        "type": "component",
+        "name": "RoleRoute",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/auth/RoleRoute.tsx"
+      },
+      {
+        "type": "component",
+        "name": "App",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/App.tsx"
+      },
+      {
+        "type": "component",
+        "name": "ForbiddenPage",
+        "action": "create",
+        "resolution": null,
+        "file": "backoffice/src/pages/ForbiddenPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "Button",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/common/Button.tsx"
+      },
+      {
+        "type": "component",
+        "name": "tokens",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/design-system/tokens.ts"
+      },
+      {
+        "type": "dependency",
+        "name": "@riaya/shared",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      },
+      {
+        "type": "dependency",
+        "name": "react-router-dom",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "lucide-react",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/common",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}
