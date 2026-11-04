@@ -202,7 +202,7 @@
           "description": "Add backoffice/src/common/Tooltip.tsx shown on hover and focus, linked to its trigger through aria-describedby.",
           "linkedRequirements": ["FR-004", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.2",
@@ -210,7 +210,7 @@
           "description": "Add backoffice/src/common/Popover.tsx repositioning itself into the viewport when it would overflow an edge.",
           "linkedRequirements": ["FR-004"],
           "linkedAcceptanceCriteria": ["AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.3",
@@ -218,7 +218,7 @@
           "description": "Add backoffice/src/common/KpiCard.tsx rendering a label, a value and an optional delta that collapses cleanly when absent.",
           "linkedRequirements": ["FR-007"],
           "linkedAcceptanceCriteria": ["AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.4",
@@ -226,7 +226,7 @@
           "description": "Add backoffice/src/common/Toast.tsx with success, error and info tones, dismissal, and a single aria-live region that announces each toast.",
           "linkedRequirements": ["FR-006", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.5",
@@ -234,7 +234,7 @@
           "description": "Add backoffice/src/common/ConfirmDialog.tsx built on the modified Modal, intended as the confirmation surface before a destructive action, restoring focus to the opener on cancel.",
           "linkedRequirements": ["FR-005"],
           "linkedAcceptanceCriteria": ["AC-006"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.6",
@@ -242,7 +242,7 @@
           "description": "Add backoffice/src/common/Skeleton.tsx as a loading placeholder that does not animate when reduced motion is requested.",
           "linkedRequirements": ["FR-004", "NFR-004"],
           "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.7",
@@ -250,7 +250,7 @@
           "description": "Add the shared pair in backoffice/src/common: EmptyState for a list or table with no rows, ErrorState for a failed fetch with a retry slot.",
           "linkedRequirements": ["FR-004"],
           "linkedAcceptanceCriteria": ["AC-009"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T4.8",
@@ -258,7 +258,7 @@
           "description": "Add accessible sortable columns with aria-sort and a card-list collapse at the mobile breakpoint instead of horizontal scrolling, rendering EmptyState when there are no rows.",
           "linkedRequirements": ["FR-008"],
           "linkedAcceptanceCriteria": ["AC-010"],
-          "completed": false
+          "completed": true
         }
       ]
     },

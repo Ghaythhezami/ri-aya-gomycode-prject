@@ -50,14 +50,14 @@ Production code only. Test authoring and execution belong to `/sdrive:test`.
 
 ## P4 — New primitives: feedback and display
 
-- [ ] T4.1 — `Tooltip` shown on hover and focus, linked by `aria-describedby`. (FR-004, NFR-004)
-- [ ] T4.2 — `Popover` repositioning into the viewport at any edge. (FR-004, EC-009)
-- [ ] T4.3 — `KpiCard` with label, value and an optional delta that collapses cleanly when absent. (FR-007, EC-012)
-- [ ] T4.4 — `Toast` provider and hook supporting success, error and info tones, dismissible, announced through `aria-live`. (FR-006, NFR-004)
-- [ ] T4.5 — `ConfirmDialog` built on the modified `Modal` with focus restore on cancel. (FR-005, EC-008)
-- [ ] T4.6 — `Skeleton` respecting reduced-motion preferences. (FR-004, NFR-004)
-- [ ] T4.7 — `EmptyState` and `ErrorState` as a shared pair. (FR-004)
-- [ ] T4.8 — Extend `Table` into a `DataTable` with accessible sortable columns and a card-list collapse at the mobile breakpoint. (FR-008, AC-010)
+- [x] T4.1 — `Tooltip` shown on hover and focus, linked by `aria-describedby`. (FR-004, NFR-004)
+- [x] T4.2 — `Popover` repositioning into the viewport at any edge. (FR-004, EC-009)
+- [x] T4.3 — `KpiCard` with label, value and an optional delta that collapses cleanly when absent. (FR-007, EC-012)
+- [x] T4.4 — `Toast` provider and hook supporting success, error and info tones, dismissible, announced through `aria-live`. (FR-006, NFR-004)
+- [x] T4.5 — `ConfirmDialog` built on the modified `Modal` with focus restore on cancel. (FR-005, EC-008)
+- [x] T4.6 — `Skeleton` respecting reduced-motion preferences. (FR-004, NFR-004)
+- [x] T4.7 — `EmptyState` and `ErrorState` as a shared pair. (FR-004)
+- [x] T4.8 — Extend `Table` into a `DataTable` with accessible sortable columns and a card-list collapse at the mobile breakpoint. (FR-008, AC-010)
 
 ## P5 — Documentation
 
