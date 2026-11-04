@@ -1,0 +1,412 @@
+{
+  "feature": "realtime-service",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Workspace and package skeleton",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Register the realtime package in the workspace",
+          "description": "Add realtime to the packages list in pnpm-workspace.yaml, keeping packages/* and every existing entry untouched.",
+          "linkedRequirements": ["FR-001"],
+          "completed": false
+        },
+        {
+          "id": "T1.2",
+          "title": "Create the realtime package manifest",
+          "description": "Create realtime/package.json with start, start:dev, start:prod, build, lint (--max-warnings=0), typecheck and test scripts mirroring server, and declare the dependencies at the pinned ranges from plan.json.",
+          "linkedRequirements": ["FR-001", "NFR-007"],
+          "completed": false
+        },
+        {
+          "id": "T1.3",
+          "title": "Create the strict TypeScript configuration",
+          "description": "Create realtime/tsconfig.json and tsconfig.build.json with strict, noUnusedLocals, noUnusedParameters and the same module settings server uses.",
+          "linkedRequirements": ["FR-001", "NFR-005"],
+          "completed": false
+        },
+        {
+          "id": "T1.4",
+          "title": "Create nest-cli and ESLint configuration",
+          "description": "Create realtime/nest-cli.json and the flat realtime/eslint.config.mjs matching server's rules, so lint fails on a warning rather than reporting it.",
+          "linkedRequirements": ["FR-001", "NFR-005"],
+          "completed": false
+        },
+        {
+          "id": "T1.5",
+          "title": "Create the colocated Jest configuration",
+          "description": "Create realtime/jest.config.cjs with rootDir src and testRegex .*\\.spec\\.ts$, matching CON-403's colocated shape.",
+          "linkedRequirements": ["FR-001"],
+          "completed": false
+        },
+        {
+          "id": "T1.6",
+          "title": "Document the realtime environment variables",
+          "description": "Create realtime/.env.example documenting REALTIME_PORT, JWT_ACCESS_SECRET, REDIS_URL, MONGO_URI, REALTIME_CORS_ORIGINS, LOG_LEVEL and NODE_ENV, with no value that works as a production default.",
+          "linkedRequirements": ["NFR-008", "NFR-017"],
+          "completed": false
+        },
+        {
+          "id": "T1.7",
+          "title": "Create the multi-stage Dockerfile",
+          "description": "Create realtime/Dockerfile as a multi-stage pnpm workspace build that produces a runnable image without the dev dependencies.",
+          "linkedRequirements": ["NFR-007"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Application shell, configuration and health",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Create the service bootstrap",
+          "description": "Create realtime/src/main.ts with the Express adapter, helmet(), the pino logger, enableShutdownHooks(), and a listener on REALTIME_PORT (default 4001) with no global path prefix, so /health/live is reachable as written.",
+          "linkedRequirements": ["FR-002", "NFR-012", "NFR-018"],
+          "linkedAcceptanceCriteria": ["AC-015"],
+          "completed": false
+        },
+        {
+          "id": "T2.2",
+          "title": "Create the typed configuration module",
+          "description": "Create realtime/src/config/ reading and validating every environment variable at boot, failing with the variable's name when a required one is missing, and never logging a value.",
+          "linkedRequirements": ["NFR-008", "NFR-017"],
+          "completed": false
+        },
+        {
+          "id": "T2.3",
+          "title": "Create the structured logging module",
+          "description": "Create realtime/src/logging/ with the same pino record shape, level resolution and redact list as server, copied rather than imported because CON-106 forbids the cross-app import, extended with token, accessToken and clinicId.",
+          "linkedRequirements": ["NFR-006", "NFR-017"],
+          "linkedAcceptanceCriteria": ["AC-012"],
+          "completed": false
+        },
+        {
+          "id": "T2.4",
+          "title": "Wire the application module graph",
+          "description": "Create realtime/src/app.module.ts importing config, logging, mongo, redis, auth, gateway, relay and health in an order where the logger exists before any module that logs during construction.",
+          "linkedRequirements": ["FR-001"],
+          "completed": false
+        },
+        {
+          "id": "T2.5",
+          "title": "Create the liveness and readiness probes",
+          "description": "Create realtime/src/health/ with GET /health/live returning 200 without consulting a dependency, and GET /health/ready reporting Redis and Mongo separately: 200 degraded when only Redis is down, 503 when Mongo is down.",
+          "linkedRequirements": ["FR-011", "FR-007"],
+          "linkedAcceptanceCriteria": ["AC-015", "AC-016", "AC-009"],
+          "completed": false
+        },
+        {
+          "id": "T2.6",
+          "title": "Handle shutdown cleanly",
+          "description": "On SIGTERM, stop accepting connections, close the Socket.IO server, quit the three Redis clients and exit inside the shutdown timeout.",
+          "linkedRequirements": ["NFR-007"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Authentication and tenancy binding",
+      "dependencies": ["P2"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Extract the token from the handshake",
+          "description": "Read the access token from the Socket.IO handshake auth payload, falling back to an Authorization: Bearer header, treating both as untrusted input with a bounded length and no object coercion.",
+          "linkedRequirements": ["FR-003", "NFR-010"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": false
+        },
+        {
+          "id": "T3.2",
+          "title": "Verify the access token and refuse generically",
+          "description": "Verify the token with JWT_ACCESS_SECRET using the same library family server signs with, enforce exp, and refuse with one generic UNAUTHORIZED reason for every failure mode before any room join.",
+          "linkedRequirements": ["FR-003", "NFR-001", "NFR-010"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-002"],
+          "completed": false
+        },
+        {
+          "id": "T3.3",
+          "title": "Validate the token claims strictly",
+          "description": "Validate the verified claims with a strict zod schema requiring sub, clinic_id and role, rejecting unknown or absent keys, and refuse the connection when they are missing.",
+          "linkedRequirements": ["NFR-014", "NFR-010"],
+          "linkedAcceptanceCriteria": ["AC-003"],
+          "completed": false
+        },
+        {
+          "id": "T3.4",
+          "title": "Bind the connection to its scope and rooms",
+          "description": "On acceptance, write { userId, clinicId, role, exp } to socket.data and join user:<userId> and clinic:<clinicId> server-side with no client involvement.",
+          "linkedRequirements": ["FR-004", "NFR-011"],
+          "linkedAcceptanceCriteria": ["AC-003", "AC-006"],
+          "completed": false
+        },
+        {
+          "id": "T3.5",
+          "title": "Constrain the room:join handler",
+          "description": "Register a room:join handler that accepts only rooms derived from socket.data, refuses every other room without adding membership, and treats an own-room re-join as a no-op.",
+          "linkedRequirements": ["FR-005", "NFR-011"],
+          "linkedAcceptanceCriteria": ["AC-004", "AC-005", "AC-008"],
+          "completed": false
+        },
+        {
+          "id": "T3.6",
+          "title": "Disconnect the socket at token expiry",
+          "description": "Arm a clamped timer at the token's exp that disconnects the socket at expiry, and clear it on disconnect. The clamp matters because setTimeout above 2^31-1 ms fires immediately.",
+          "linkedRequirements": ["FR-003", "NFR-010"],
+          "linkedAcceptanceCriteria": ["AC-007"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Redis adapter and event relay",
+      "dependencies": ["P2", "P3", "P5"],
+      "tasks": [
+        {
+          "id": "T4.1",
+          "title": "Create the three Redis clients",
+          "description": "Create the client factory: a normal pub client, a duplicated sub client in subscriber mode for the adapter, and a separate events subscriber, all lazyConnect with a capped retry strategy and no command error on reconnect.",
+          "linkedRequirements": ["FR-006", "FR-007"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T4.2",
+          "title": "Wire the Socket.IO Redis adapter",
+          "description": "Attach @socket.io/redis-adapter with the pub/sub pair so a publish from any instance reaches clients connected to every instance.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": false
+        },
+        {
+          "id": "T4.3",
+          "title": "Start and degrade correctly without Redis",
+          "description": "Start and accept connections while Redis is unreachable, expose the adapter/Redis state to the readiness probe, and resume relaying when the adapter reconnects without restarting the process.",
+          "linkedRequirements": ["FR-007", "FR-011"],
+          "linkedAcceptanceCriteria": ["AC-009", "AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T4.4",
+          "title": "Subscribe to and relay riaya:events",
+          "description": "Create realtime/src/relay/event-relay.service.ts subscribing to riaya:events: parse, validate against the shared schema, then emit the unchanged envelope under its own event name to clinic:<clinicId>.",
+          "linkedRequirements": ["FR-008", "FR-009", "NFR-016"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": false
+        },
+        {
+          "id": "T4.5",
+          "title": "Drop and log invalid events",
+          "description": "On a parse or validation failure, drop the event and log a warning naming the channel and the failing field path, without throwing out of the handler so the process keeps running.",
+          "linkedRequirements": ["FR-009", "NFR-014"],
+          "linkedAcceptanceCriteria": ["AC-012"],
+          "completed": false
+        },
+        {
+          "id": "T4.6",
+          "title": "Drop events for clinics with no listeners",
+          "description": "When a valid event names a clinic with no connected sockets, checked cluster-wide with fetchSockets() rather than against locally-known rooms, drop it and log at debug.",
+          "linkedRequirements": ["FR-008"],
+          "linkedAcceptanceCriteria": ["AC-013"],
+          "completed": false
+        },
+        {
+          "id": "T4.7",
+          "title": "Bound the frame size",
+          "description": "Set maxHttpBufferSize to 16 KB so an oversized frame is rejected by the transport without closing the connection.",
+          "linkedRequirements": ["NFR-014"],
+          "linkedAcceptanceCriteria": ["AC-012"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Shared event contract",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T5.1",
+          "title": "Declare the realtime event schema",
+          "description": "Create packages/shared/src/schemas/realtime.ts with the RealtimeEvent envelope (event, contractVersion literal 1, clinicId, occurredAt, payload) and strict payload schemas for appointment.created, appointment.cancelled, appointment.rescheduled and queue.updated, following the zod skill's no-side-effects and z.infer rules.",
+          "linkedRequirements": ["FR-010", "NFR-014"],
+          "linkedAcceptanceCriteria": ["AC-014"],
+          "completed": false
+        },
+        {
+          "id": "T5.2",
+          "title": "Export the contract from the shared entry point",
+          "description": "Re-export the module from packages/shared/src/index.ts so consumers import from @riaya/shared and never from a deep path.",
+          "linkedRequirements": ["FR-010", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-014"],
+          "completed": false
+        },
+        {
+          "id": "T5.3",
+          "title": "Keep the relay on the shared contract",
+          "description": "Import the schema in the relay from @riaya/shared only, and confirm no event shape is re-declared under realtime/src.",
+          "linkedRequirements": ["FR-010", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-014"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "MongoDB connection",
+      "dependencies": ["P2"],
+      "tasks": [
+        {
+          "id": "T6.1",
+          "title": "Connect to MongoDB without modelling anything",
+          "description": "Create realtime/src/database/mongo.module.ts with MongooseModule.forRootAsync reading MONGO_URI, serverSelectionTimeoutMS around 2 s, and no forFeature, @Schema or model anywhere in the package.",
+          "linkedRequirements": ["FR-012", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-016"],
+          "completed": false
+        },
+        {
+          "id": "T6.2",
+          "title": "Report Mongo state without blocking boot",
+          "description": "Connect asynchronously so an unreachable Mongo does not block bootstrap, and report connection readyState in the readiness probe while socket connections keep working.",
+          "linkedRequirements": ["FR-011", "FR-012"],
+          "linkedAcceptanceCriteria": ["AC-016"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P7",
+      "name": "Security hardening",
+      "dependencies": ["P3", "P4"],
+      "tasks": [
+        {
+          "id": "T7.1",
+          "title": "Apply Helmet with HSTS",
+          "description": "Apply Helmet to the HTTP surface with HSTS enabled outside local development.",
+          "linkedRequirements": ["NFR-012", "NFR-018"],
+          "linkedAcceptanceCriteria": ["AC-015"],
+          "completed": false
+        },
+        {
+          "id": "T7.2",
+          "title": "Throttle connection attempts per IP",
+          "description": "Throttle connection attempts per IP through the Socket.IO allowRequest hook using a fixed-window Redis counter with a process-local fallback, refusing over-limit attempts and never throwing out of the hook.",
+          "linkedRequirements": ["NFR-013"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": false
+        },
+        {
+          "id": "T7.3",
+          "title": "Configure the CORS allow-list",
+          "description": "Configure the Socket.IO CORS allow-list from REALTIME_CORS_ORIGINS with no wildcard and no cookie credentials, since authentication is a bearer token in the handshake.",
+          "linkedRequirements": ["FR-002", "NFR-011"],
+          "completed": false
+        },
+        {
+          "id": "T7.4",
+          "title": "Confirm no collection and no raw Mongo access",
+          "description": "Confirm no collection is declared, no Mongoose model is registered and no raw Mongo command is issued; the only Mongo interaction in the package is the connection itself.",
+          "linkedRequirements": ["NFR-015", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-016"],
+          "completed": false
+        },
+        {
+          "id": "T7.5",
+          "title": "Redact credentials from the log",
+          "description": "Extend the redact list with the handshake token, the access token and the clinic claim, and confirm a rejected handshake logs the reason without the credential.",
+          "linkedRequirements": ["NFR-017", "NFR-006"],
+          "linkedAcceptanceCriteria": ["AC-002"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P8",
+      "name": "Local environment and packaging",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T8.1",
+          "title": "Add the realtime service to compose",
+          "description": "Add a realtime service to docker-compose.yml that depends on the existing redis and mongo health checks and passes the variables from realtime/.env.example.",
+          "linkedRequirements": ["NFR-007"],
+          "completed": false
+        },
+        {
+          "id": "T8.2",
+          "title": "Add a dev:realtime root script",
+          "description": "Add a dev:realtime script to the root package.json without changing the existing dev script, so pnpm dev still works on a machine without Redis and Mongo.",
+          "linkedRequirements": ["NFR-007"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P9",
+      "name": "Verification",
+      "dependencies": ["P1", "P2", "P3", "P4", "P5", "P6", "P7", "P8"],
+      "tasks": [
+        {
+          "id": "T9.1",
+          "title": "Run the package linter",
+          "description": "Run pnpm --filter realtime lint and resolve every finding without disabling a rule.",
+          "linkedRequirements": ["NFR-005"],
+          "completed": false
+        },
+        {
+          "id": "T9.2",
+          "title": "Run the package typecheck",
+          "description": "Run pnpm --filter realtime typecheck and resolve every error under strict mode.",
+          "linkedRequirements": ["NFR-005"],
+          "completed": false
+        },
+        {
+          "id": "T9.3",
+          "title": "Run the formatter check and governance validator",
+          "description": "Run pnpm format:check and node .sdrive/scripts/validate-governance.js; both must pass.",
+          "linkedRequirements": ["NFR-005", "FR-001"],
+          "completed": false
+        },
+        {
+          "id": "T9.4",
+          "title": "Run the spec-to-code verification",
+          "description": "Run pnpm sdrive verify realtime-service and account for every reported gap.",
+          "linkedRequirements": ["FR-001"],
+          "completed": false
+        },
+        {
+          "id": "T9.5",
+          "title": "Manually confirm cross-instance delivery",
+          "description": "With two instances started against the compose Redis, confirm a single publish to one clinic room reaches a client on each instance once.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": false
+        },
+        {
+          "id": "T9.6",
+          "title": "Manually confirm the Redis-degraded path",
+          "description": "With Redis stopped, confirm the service starts, /health/live returns 200 and /health/ready reports degraded naming Redis; then start Redis and confirm relay resumes without a restart.",
+          "linkedRequirements": ["FR-007"],
+          "linkedAcceptanceCriteria": ["AC-009", "AC-010"],
+          "completed": false
+        },
+        {
+          "id": "T9.7",
+          "title": "Manually confirm the Mongo-down path",
+          "description": "With Mongo stopped, confirm /health/ready returns 503 naming Mongo while socket connections still work.",
+          "linkedRequirements": ["FR-011", "FR-012"],
+          "linkedAcceptanceCriteria": ["AC-016"],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,485 @@
+{
+  "feature": "realtime-service",
+  "version": 1,
+  "architecture": {
+    "approach": "A fourth pnpm workspace package, realtime/, is a headless NestJS service that owns authenticated, tenant-scoped fan-out delivery and nothing else. One Express process on REALTIME_PORT (default 4001) hosts both the Socket.IO server on /socket.io and the two health probes. Three responsibilities stay separable: admission (the handshake verifies the access token server already issues, derives userId/clinicId/role from its claims, joins user:<id> and clinic:<id> server-side, and refuses any room the claims do not name), transport (Socket.IO with the Redis adapter over three ioredis connections - a normal pub client, a duplicated sub client in subscriber mode for the adapter, and a separate events subscriber for riaya:events, because a connection in subscriber mode cannot issue normal commands), and relay (one Redis subscription, one Zod validation against packages/shared, one emit of the unchanged envelope under its own event name into clinic:<clinicId>). No persistence, no replay, no deduplication, no presence: delivery is at-most-once and consumers refetch after reconnect. There is no collection in MongoDB; the Mongoose connection exists only to prove reachability and to report readiness. Nothing in realtime/src imports from server/src (CON-106); the pino configuration, the health controller and the ioredis reconnect pattern are copied from server as prior art, not imported. Health is deliberately asymmetric and matches the acceptance criteria: Redis down returns 200 degraded because sockets still work and the adapter self-heals, while Mongo down returns 503 naming Mongo because an unreachable database is a configuration error a deploy should see. Every Nest package is pinned to its 11.x line - @nestjs/websockets and @nestjs/mongoose at 12.x would resolve a second @nestjs/common and break dependency injection at runtime.",
+    "components": [
+      {
+        "name": "workspace-manifest",
+        "action": "modify",
+        "description": "pnpm-workspace.yaml - add realtime to packages, leaving packages/* and every existing entry untouched."
+      },
+      {
+        "name": "realtime-package",
+        "action": "create",
+        "description": "realtime/package.json - scripts mirroring server (nest build, eslint --max-warnings=0, tsc --noEmit, jest --runInBand) so pnpm -r in CI needs no new workflow."
+      },
+      {
+        "name": "realtime-tsconfig",
+        "action": "create",
+        "description": "realtime/tsconfig.json and tsconfig.build.json - strict, noUnusedLocals, noUnusedParameters, same module settings as server."
+      },
+      {
+        "name": "realtime-nest-cli-and-eslint",
+        "action": "create",
+        "description": "realtime/nest-cli.json and the flat realtime/eslint.config.mjs - lint fails on a warning rather than reporting it (CON-205)."
+      },
+      {
+        "name": "realtime-jest-config",
+        "action": "create",
+        "description": "realtime/jest.config.cjs - rootDir src, testRegex .*\\.spec\\.ts$, matching CON-403's colocated shape."
+      },
+      {
+        "name": "realtime-bootstrap",
+        "action": "create",
+        "description": "realtime/src/main.ts - Express adapter, helmet(), pino logger, enableShutdownHooks, REALTIME_PORT default 4001, no global path prefix so /health/live is reachable as written."
+      },
+      {
+        "name": "realtime-config",
+        "action": "create",
+        "description": "realtime/src/config/ - reads and validates every environment variable at boot, fails naming the missing variable, never logs a value."
+      },
+      {
+        "name": "realtime-logging",
+        "action": "create",
+        "description": "realtime/src/logging/ - same pino record shape, level resolution and redact list as server, copied because a cross-app import would violate CON-106, extended with token, accessToken and clinicId."
+      },
+      {
+        "name": "realtime-app-module",
+        "action": "create",
+        "description": "realtime/src/app.module.ts - module graph ordered so the logger exists before any module that logs during construction."
+      },
+      {
+        "name": "socket-auth",
+        "action": "create",
+        "description": "realtime/src/auth/ - token extraction from handshake auth.token then Authorization: Bearer, verification against JWT_ACCESS_SECRET with exp enforced, strict claim validation, and one generic refusal reason for every failure."
+      },
+      {
+        "name": "socket-gateway",
+        "action": "create",
+        "description": "realtime/src/realtime/realtime.gateway.ts - writes { userId, clinicId, role, exp } to socket.data, joins the two rooms, registers the constrained room:join handler, and arms a clamped expiry timer that disconnects at exp."
+      },
+      {
+        "name": "connect-throttle",
+        "action": "create",
+        "description": "realtime/src/realtime/connect-throttle.ts - per-IP fixed-window counter in the allowRequest hook with a process-local fallback; refuses over-limit attempts and never throws out of the hook."
+      },
+      {
+        "name": "redis-clients-and-adapter",
+        "action": "create",
+        "description": "realtime/src/redis/ - three lazyConnect ioredis clients (pub, sub, events subscriber) with a capped retry strategy, plus the @socket.io/redis-adapter wiring and the reconnect state the readiness probe reads."
+      },
+      {
+        "name": "event-relay",
+        "action": "create",
+        "description": "realtime/src/relay/event-relay.service.ts - subscribes riaya:events, parses, validates against the shared schema, checks the room cluster-wide with fetchSockets(), and emits the unchanged envelope under its own event name; every failure path logs and drops without throwing."
+      },
+      {
+        "name": "health-controller",
+        "action": "create",
+        "description": "realtime/src/health/ - GET /health/live always 200; GET /health/ready reports Redis and Mongo separately, 200 degraded when only Redis is down and 503 when Mongo is down."
+      },
+      {
+        "name": "mongo-connection",
+        "action": "create",
+        "description": "realtime/src/database/mongo.module.ts - MongooseModule.forRootAsync on MONGO_URI with serverSelectionTimeoutMS around 2s, no forFeature, no @Schema, no model anywhere in the package."
+      },
+      {
+        "name": "event-contract",
+        "action": "create",
+        "description": "packages/shared/src/schemas/realtime.ts - RealtimeEvent envelope (event, contractVersion literal 1, clinicId, occurredAt, payload) plus strict payload schemas for appointment.created, appointment.cancelled, appointment.rescheduled and queue.updated, following the zod skill."
+      },
+      {
+        "name": "shared-index",
+        "action": "modify",
+        "description": "packages/shared/src/index.ts - one re-export line so consumers import the contract from @riaya/shared and never from a deep path."
+      },
+      {
+        "name": "realtime-env-example",
+        "action": "create",
+        "description": "realtime/.env.example - REALTIME_PORT, JWT_ACCESS_SECRET, REDIS_URL, MONGO_URI, REALTIME_CORS_ORIGINS, LOG_LEVEL, NODE_ENV, with no value that works as a production default."
+      },
+      {
+        "name": "realtime-dockerfile",
+        "action": "create",
+        "description": "realtime/Dockerfile - multi-stage pnpm workspace build producing a runnable image without dev dependencies."
+      },
+      {
+        "name": "compose-service",
+        "action": "modify",
+        "description": "docker-compose.yml - add a realtime service depending on the existing redis and mongo health checks; the two dependency services themselves are unchanged."
+      },
+      {
+        "name": "root-scripts",
+        "action": "modify",
+        "description": "package.json - add dev:realtime only; the existing dev script is left alone so pnpm dev still works without Redis and Mongo running."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "FR-009",
+      "FR-010",
+      "FR-011",
+      "FR-012",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004",
+      "NFR-005",
+      "NFR-006",
+      "NFR-007",
+      "NFR-008",
+      "NFR-010",
+      "NFR-011",
+      "NFR-012",
+      "NFR-013",
+      "NFR-014",
+      "NFR-015",
+      "NFR-016",
+      "NFR-017",
+      "NFR-018"
+    ]
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "RealtimeEvent",
+        "action": "create",
+        "fields": [
+          {
+            "name": "event",
+            "type": "'appointment.created' | 'appointment.cancelled' | 'appointment.rescheduled' | 'queue.updated'",
+            "action": "add"
+          },
+          {
+            "name": "contractVersion",
+            "type": "1",
+            "action": "add"
+          },
+          {
+            "name": "clinicId",
+            "type": "string",
+            "action": "add"
+          },
+          {
+            "name": "occurredAt",
+            "type": "string (ISO 8601)",
+            "action": "add"
+          },
+          {
+            "name": "payload",
+            "type": "event-specific strict object",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "MongoConnection",
+        "action": "no_change",
+        "fields": [
+          {
+            "name": "readyState",
+            "type": "number",
+            "action": "no_change"
+          }
+        ]
+      }
+    ],
+    "flowDescription": "Nothing is persisted. A producer publishes one message to riaya:events; the relay validates it against the shared Zod schema and emits it unchanged under its own event name to clinic:<clinicId>; every socket already joined to that room receives it once. No step in this feature reads or writes a database, and no collection is declared in MongoDB."
+  },
+  "apiContracts": [
+    {
+      "method": "GET",
+      "path": "/health/live",
+      "action": "create",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-011", "NFR-012", "NFR-018"]
+    },
+    {
+      "method": "GET",
+      "path": "/health/ready",
+      "action": "create",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-011", "FR-007"]
+    }
+  ],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-010",
+      "description": "The handshake verifies the access token with JWT_ACCESS_SECRET and the same claim semantics server uses, enforces exp, and refuses any refresh token; no second authentication scheme is implemented."
+    },
+    {
+      "requirementId": "NFR-011",
+      "description": "Room membership follows the role and clinic on the token. A room:join handler accepts only rooms derived from socket.data and refuses every other name without adding membership, so a client cannot widen its own scope."
+    },
+    {
+      "requirementId": "NFR-012",
+      "description": "Helmet is applied to the HTTP surface that hosts the health probes and the Socket.IO endpoint."
+    },
+    {
+      "requirementId": "NFR-013",
+      "description": "Connection attempts are throttled per IP in the allowRequest hook with a fixed-window Redis counter and a process-local fallback, so a token-guessing loop cannot open connections without limit."
+    },
+    {
+      "requirementId": "NFR-014",
+      "description": "Handshake auth and every relayed domain event are validated against an explicit Zod schema with unknown fields rejected; claim keys are validated too rather than trusted as strings."
+    },
+    {
+      "requirementId": "NFR-015",
+      "description": "No raw Mongo access: no model, no collection, no db.command and no db.collection call. The only Mongo interaction is the connection object itself."
+    },
+    {
+      "requirementId": "NFR-016",
+      "description": "Relayed payloads are transported as data only. No HTML is constructed server-side and no payload is interpolated into a template or markup."
+    },
+    {
+      "requirementId": "NFR-017",
+      "description": "Secrets are read from the environment only, never committed and never logged; the pino redact list is extended with the handshake token, the access token and the clinic claim."
+    },
+    {
+      "requirementId": "NFR-018",
+      "description": "Helmet's HSTS is enabled outside local development, matching the constitution's HTTPS requirement for the deployed surface."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-002",
+      "strategy": "The relay performs no I/O beyond one Redis message and one cluster-wide room check, and transforms no payload, so p95 publish-to-delivery stays under 500 ms at 200 connections by construction. The two costs to measure first if the budget is ever missed are the fetchSockets() room check and the JSON round-trip."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "socket.io",
+      "type": "library",
+      "action": "add",
+      "notes": "^4.8.4. skill: socket.io"
+    },
+    {
+      "name": "@nestjs/websockets",
+      "type": "library",
+      "action": "add",
+      "notes": "^11.2.8. Peers @nestjs/core ^11; 12.x requires Nest 12 and would break DI."
+    },
+    {
+      "name": "@nestjs/platform-socket.io",
+      "type": "library",
+      "action": "add",
+      "notes": "^11.2.8. Peers @nestjs/websockets ^11."
+    },
+    {
+      "name": "@nestjs/platform-express",
+      "type": "library",
+      "action": "add",
+      "notes": "Hosts the health routes on the same HTTP server Socket.IO attaches to."
+    },
+    {
+      "name": "@socket.io/redis-adapter",
+      "type": "library",
+      "action": "add",
+      "notes": "^8.3.0. Peers socket.io-adapter ^2.5.4, which comes in transitively."
+    },
+    {
+      "name": "ioredis",
+      "type": "library",
+      "action": "add",
+      "notes": "^5.8.1, the same range server already uses. Do not take 6.x: adapter 8 is written against the 5.x API."
+    },
+    {
+      "name": "@nestjs/mongoose",
+      "type": "library",
+      "action": "add",
+      "notes": "^11.0.4. skill: mongoose"
+    },
+    {
+      "name": "mongoose",
+      "type": "library",
+      "action": "add",
+      "notes": "^8.24.8. The peer range also allows 9, but 8 is chosen deliberately because the project has no Mongo code to fall back on."
+    },
+    {
+      "name": "@nestjs/config",
+      "type": "library",
+      "action": "add",
+      "notes": "Same as server."
+    },
+    {
+      "name": "@nestjs/jwt",
+      "type": "library",
+      "action": "add",
+      "notes": "Verifies the existing access token with the same library server signs it with."
+    },
+    {
+      "name": "helmet",
+      "type": "library",
+      "action": "add",
+      "notes": "CON-513 and CON-520; same range as server."
+    },
+    {
+      "name": "nestjs-pino",
+      "type": "library",
+      "action": "add",
+      "notes": "Same pipeline as server so one log consumer serves both processes."
+    },
+    {
+      "name": "pino-http",
+      "type": "library",
+      "action": "add",
+      "notes": "Request records for the health routes."
+    },
+    {
+      "name": "@riaya/shared",
+      "type": "internal",
+      "action": "add",
+      "notes": "workspace:*. The only source of the event contract; no event shape may be re-declared in realtime/src."
+    },
+    {
+      "name": "zod",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already pinned workspace-wide at ^4.6.7 via pnpm-workspace.yaml overrides."
+    },
+    {
+      "name": "socket.io-client",
+      "type": "library",
+      "action": "add",
+      "notes": "Dev-only. Used by the colocated specs and never imported by production code."
+    },
+    {
+      "name": "jest",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server; the runner config lives in realtime/jest.config.cjs."
+    },
+    {
+      "name": "ts-jest",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "@types/jest",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "@nestjs/cli",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server; provides nest build and nest start."
+    },
+    {
+      "name": "@nestjs/testing",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "typescript",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "eslint",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server; package lint runs with --max-warnings=0."
+    },
+    {
+      "name": "typescript-eslint",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "@eslint/js",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "globals",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "eslint-config-prettier",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "@types/node",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server."
+    },
+    {
+      "name": "reflect-metadata",
+      "type": "library",
+      "action": "add",
+      "notes": "Nest DI runtime requirement."
+    },
+    {
+      "name": "rxjs",
+      "type": "library",
+      "action": "add",
+      "notes": "Nest runtime requirement."
+    },
+    {
+      "name": "dotenv",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server; local development only."
+    },
+    {
+      "name": "pino-pretty",
+      "type": "library",
+      "action": "add",
+      "notes": "Same range as server; human-readable local output only."
+    }
+  ],
+  "risks": [
+    {
+      "description": "RISK-001: CON-101 pins the workspace to exactly web, server and backoffice, while this feature adds a fourth package.",
+      "mitigation": "Recorded as a spec assumption and approved at Gate 1. The owner either amends CON-101 or accepts a recorded exception; that edit is not part of this feature's code change."
+    },
+    {
+      "description": "RISK-002: The four contract events have no producers until APP-1 and QUE-1 exist, so the shapes can drift unnoticed.",
+      "mitigation": "The contract is declared once in packages/shared and producers are required to import it; AC-014 asserts that shared import from the producer side."
+    },
+    {
+      "description": "RISK-003: No verified socket.io or mongoose skill exists in .sdrive/skills.",
+      "mitigation": "Both skills were written in this run and marked verified: false with the official documentation named as the authority. A behaviour question is answered from the vendor docs, not from those files."
+    },
+    {
+      "description": "RISK-004: Sharing JWT_ACCESS_SECRET widens the blast radius of a key leak to the whole platform.",
+      "mitigation": "The secret is environment-only, never logged, and the redact list is extended with the token and clinic claim."
+    },
+    {
+      "description": "RISK-005: At-most-once delivery loses every event published during a Redis outage.",
+      "mitigation": "Documented as EC-003; consumers refetch state after reconnect rather than expecting replay."
+    },
+    {
+      "description": "RISK-006: The socket does not re-verify the user's membership, because realtime has no Postgres client and must not import server (CON-106), so a revoked membership keeps an open socket until the token expires.",
+      "mitigation": "Bounded by the 15-minute access token and the expiry disconnect in AC-007. Closing it properly needs a revocation feed, which this version does not include."
+    },
+    {
+      "description": "RISK-007: The cluster-wide fetchSockets() room check costs one adapter round-trip per relayed event.",
+      "mitigation": "Measured against NFR-002's 500 ms p95 at 200 connections. If it bites, the fix is to sample the drop log rather than skip the check, so cross-instance delivery stays correct."
+    },
+    {
+      "description": "RISK-008: A second Nest major (@nestjs/* 12.x) resolved into the tree resolves a second @nestjs/common and breaks dependency injection at runtime.",
+      "mitigation": "Every Nest package is pinned to its 11.x line in dependencies and named in the plan's version table."
+    }
+  ]
+}

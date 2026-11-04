@@ -1,0 +1,419 @@
+{
+  "feature": "realtime-service",
+  "title": "Realtime service",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The platform has no push channel. Every screen that needs one - the live queue, the schedule board, staff chat and the notification centre - either does not exist yet or would have to poll the REST API. docker-compose.yml already provisions redis and mongo, but nothing in the repo connects to Mongo, no service consumes Redis pub/sub, and there is no socket.io or mongoose dependency anywhere. There is also no agreed event contract, so when APP-1 and QUE-1 start emitting domain events nothing defines their shape or who may receive them.",
+    "proposedSolution": "Add a fourth application, realtime/, as a NestJS service that owns one job in this version: authenticated, tenant-scoped fan-out delivery. It validates the existing access token during the Socket.IO handshake, binds each connection to a user and their active clinic, joins per-user and per-clinic rooms, and uses the Redis adapter so any instance can reach any client. It subscribes to the Redis channel riaya:events, validates each payload against a Zod schema published from packages/shared, and forwards it to the clinic room named in the event. It connects to MongoDB to prove the connection but declares no collections until chat and notifications exist.",
+    "targetAudience": "The backend and frontend engineers who will build RT-2 (staff chat), RT-3 (notification centre), QUE-2 (queue display) and the schedule board on top of this transport. Indirect users are clinic staff who expect a live queue that updates without a refresh.",
+    "assumptions": [
+      "realtime/ becomes a fourth pnpm workspace package. CON-101 says the workspace has exactly web, server and backoffice; overview.md says to plan realtime-service as new work. The conflict is recorded as RISK-001 and needs an owner decision at Gate 1, not a silent edit.",
+      "The access token is the JWT already issued by server; this service validates it with the same secret from the environment (JWT_ACCESS_SECRET). There is no JWKS endpoint and none is added.",
+      "The token carries the user id, the active clinic id and the role. Exact claim names are read from server's auth code during planning; this spec names the values, not the claim keys.",
+      "Delivery is at-most-once. Without persistence there is no replay, so a client that is disconnected misses events published while it was away. This is acceptable for v1 because consumers can re-fetch state after reconnect.",
+      "Sockets authenticate with the access token only. There is no refresh-token exchange on the socket, so a client must reconnect with a fresh token when the old one expires.",
+      "MongoDB is reachable in local development via the existing compose file; nothing is stored in it in this version."
+    ],
+    "outOfScope": [
+      "Staff chat, typing indicators, read receipts and message history (RT-2).",
+      "The notification centre and delivery logs (RT-3).",
+      "Any message or notification persistence, and therefore any MongoDB collection.",
+      "Appointment and queue producers: APP-1 and QUE-1 emit these events; this feature only defines and consumes the contract.",
+      "Front-end socket clients, reconnection UX and the screens that consume the events.",
+      "Presence, who-is-online indicators and admin socket inspection.",
+      "Metrics, tracing and OpenTelemetry.",
+      "Kubernetes manifests, autoscaling policy and multi-region Redis."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Only authenticated clients connect",
+      "role": "platform engineer",
+      "want": "every socket connection to prove who it is before it receives anything",
+      "benefit": "an anonymous client cannot listen to clinic traffic",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given a connection attempt with no token, when the handshake is processed, then the connection is rejected with a connect_error and no room membership is created."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given a token with a bad signature or an expiry in the past, when the client connects, then the handshake is rejected, and the client receives the same generic refusal reason regardless of which check failed."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given a valid access token for user U in clinic C with role R, when the client connects, then the connection is bound to U, C and R, and the socket is joined to user:<U> and clinic:<C> with no client-side join call."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given a socket bound to clinic C, when the client asks to join clinic:<other>, then the request is refused, no membership is added, and the socket never receives an event from <other>."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "A connection only carries its own clinic's traffic",
+      "role": "receptionist",
+      "want": "realtime updates from my clinic only",
+      "benefit": "I never see another clinic's patients or queue",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given two clients bound to different clinics, when an event is published to clinic:<C>, then the client bound to C receives it and the other client receives nothing."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given a client that drops and reconnects with a valid token, when it reconnects, then it is rejoined to its user and clinic rooms without a client-side join call."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given a connected socket whose token expires while connected, when that expiry moment is reached, then the server disconnects that socket and the client must present a fresh token to reconnect."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Delivery survives more than one instance",
+      "role": "operator",
+      "want": "two instances of the service to behave as one",
+      "benefit": "scaling out does not silently split users into two worlds",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given two service instances sharing one Redis, when a client is connected to each instance and both are in clinic:<C>, then a single publish to that room delivers the event to each client once."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given Redis is unreachable when the service starts, when it boots, then it starts and accepts connections, /health/live returns 200, and /health/ready reports degraded naming Redis."
+        },
+        {
+          "id": "AC-010",
+          "text": "Given Redis becomes reachable after startup, when the adapter reconnects, then events published to riaya:events are relayed again without restarting the process."
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Domain events reach the right clinic room",
+      "role": "engineer building appointments or the queue",
+      "want": "publish one event and have every clinic screen see it",
+      "benefit": "I do not write fan-out code per screen",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-011",
+          "text": "Given a valid appointment.created event published on riaya:events with clinic C, when the service receives it, then it is forwarded to clinic:<C> with the event name preserved and its payload unchanged."
+        },
+        {
+          "id": "AC-012",
+          "text": "Given a payload that fails schema validation, when it is received, then it is not forwarded, a warning is logged naming the channel and the failing field, and the process keeps running."
+        },
+        {
+          "id": "AC-013",
+          "text": "Given a valid event naming a clinic with no connected sockets, when it is received, then it is dropped without error and the drop is logged."
+        },
+        {
+          "id": "AC-014",
+          "text": "Given the four contract events, when the shared Zod schemas are inspected in packages/shared, then each event declares its required fields and a contract version, and both the service and the producer-side test import that same schema."
+        }
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "An operator can tell whether the service is healthy",
+      "role": "operator",
+      "want": "liveness and readiness to be separate and to name the failing dependency",
+      "benefit": "a Mongo outage does not make me restart a working socket server",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-015",
+          "text": "Given the service is running, when GET /health/live is called, then it returns 200."
+        },
+        {
+          "id": "AC-016",
+          "text": "Given MongoDB is unreachable, when GET /health/ready is called, then it returns 503 naming Mongo as the failed dependency, while socket connections continue to work."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The repository MUST add realtime/ as a fourth pnpm workspace package containing a NestJS application with strict TypeScript, its own ESLint configuration and dev/build/test scripts mirroring server.",
+      "linkedAcceptanceCriteria": ["AC-015"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The service MUST run a Socket.IO server on its own port (REALTIME_PORT, default 4001) with the Socket.IO path /socket.io.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "FR-003",
+      "text": "The handshake MUST require a valid access token supplied in the Socket.IO auth payload or an Authorization bearer header, and MUST reject the connection before any room join when it is missing, malformed, expired or signed with the wrong key.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-002"]
+    },
+    {
+      "id": "FR-004",
+      "text": "On a successful handshake the connection MUST be bound to the user id, active clinic id and role carried by the token, and the socket MUST be joined to user:<userId> and clinic:<clinicId>.",
+      "linkedAcceptanceCriteria": ["AC-003", "AC-006"]
+    },
+    {
+      "id": "FR-005",
+      "text": "The service MUST refuse any attempt to join a room for a clinic other than the one bound to the connection, and MUST NOT expose a room whose name a client can forge into another tenant.",
+      "linkedAcceptanceCriteria": ["AC-004", "AC-005"]
+    },
+    {
+      "id": "FR-006",
+      "text": "The Socket.IO server MUST use the Redis adapter so that a publish from any instance reaches clients connected to every instance.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "FR-007",
+      "text": "When Redis is unreachable at startup the service MUST still start and serve connections on that instance, and MUST report degraded from the readiness probe until the adapter reconnects.",
+      "linkedAcceptanceCriteria": ["AC-009", "AC-010"]
+    },
+    {
+      "id": "FR-008",
+      "text": "The service MUST subscribe to the Redis pub/sub channel riaya:events and forward each received event, unchanged, to clinic:<clinicId> using the event name it carries.",
+      "linkedAcceptanceCriteria": ["AC-011", "AC-013"]
+    },
+    {
+      "id": "FR-009",
+      "text": "Every relayed event MUST be validated against its Zod schema before forwarding; a payload that fails MUST be dropped, logged with the channel and the failing field, and MUST NOT crash the process.",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "FR-010",
+      "text": "The service MUST define the wire contract for appointment.created, appointment.cancelled, appointment.rescheduled and queue.updated, including a contract version field, in packages/shared.",
+      "linkedAcceptanceCriteria": ["AC-014"]
+    },
+    {
+      "id": "FR-011",
+      "text": "The service MUST expose GET /health/live and GET /health/ready, reporting Redis and Mongo connectivity separately in the readiness response.",
+      "linkedAcceptanceCriteria": ["AC-015", "AC-016"]
+    },
+    {
+      "id": "FR-012",
+      "text": "The service MUST connect to MongoDB with Mongoose at startup and MUST declare no collection in this version.",
+      "linkedAcceptanceCriteria": ["AC-016"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "Access tokens MUST be validated with the same secret and claim semantics as server; the service MUST NOT implement a second authentication scheme.",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-003"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Publish-to-delivery latency MUST be at or below 500 ms at p95 with 200 concurrent connections on a single instance.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "The service MUST NOT persist message content: no chat, notification or delivery-log collection may exist in v1, so no patient data is stored by this service.",
+      "linkedAcceptanceCriteria": ["AC-016"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "The service MUST NOT import from server, web or backoffice source (CON-106); every shared contract lives in packages/shared.",
+      "linkedAcceptanceCriteria": ["AC-014"]
+    },
+    {
+      "id": "NFR-005",
+      "text": "The package MUST pass tsc --noEmit under strict mode and ESLint with zero warnings (CON-203, CON-205, CON-206).",
+      "linkedAcceptanceCriteria": ["AC-015"]
+    },
+    {
+      "id": "NFR-006",
+      "text": "Logging MUST be structured and follow the conventions server already uses, so one log pipeline serves both processes.",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "NFR-007",
+      "text": "The service MUST be startable both with pnpm --filter realtime dev and from the existing compose file, and its Dockerfile MUST build in CI.",
+      "linkedAcceptanceCriteria": ["AC-015"]
+    },
+    {
+      "id": "NFR-008",
+      "text": "Every new environment variable MUST be documented in .env.example and MUST have no committed default that works in production (CON-504, CON-519).",
+      "linkedAcceptanceCriteria": ["AC-009"]
+    },
+    {
+      "id": "NFR-010",
+      "text": "Authentication (CON-511): the handshake MUST reject any connection without a valid access token, and MUST NOT accept a refresh token in its place.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-003"]
+    },
+    {
+      "id": "NFR-011",
+      "text": "Authorization (CON-512): room membership MUST follow the role and clinic on the token; a connection MUST NOT widen its own scope through any client-emitted message.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "NFR-012",
+      "text": "Security headers (CON-513): the HTTP surface MUST apply Helmet.",
+      "linkedAcceptanceCriteria": ["AC-015"]
+    },
+    {
+      "id": "NFR-013",
+      "text": "Rate limiting (CON-514): connection attempts per IP MUST be throttled, so a token-guessing loop cannot open connections without limit.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "NFR-014",
+      "text": "Input validation (CON-515): every inbound payload, including handshake auth and every received domain event, MUST be validated against an explicit schema with unknown fields rejected.",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "NFR-015",
+      "text": "Injection protection (CON-516): the service MUST issue no raw query; MongoDB access, when a collection exists in a later version, MUST go through Mongoose models.",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "NFR-016",
+      "text": "XSS protection (CON-517): relayed payloads MUST be transported as data only, with no server-side HTML construction.",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "NFR-017",
+      "text": "Environment security (CON-519): secrets MUST be read from the environment only, never committed and never logged.",
+      "linkedAcceptanceCriteria": ["AC-009"]
+    },
+    {
+      "id": "NFR-018",
+      "text": "HTTPS and HSTS (CON-520): Helmet's HSTS MUST be enabled and COOKIE_SECURE MUST be true outside local development.",
+      "linkedAcceptanceCriteria": ["AC-015"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "A client disconnects and reconnects.",
+      "expectedBehavior": "It is rejoined to its rooms automatically; events published while it was gone are not replayed (at-most-once)."
+    },
+    {
+      "id": "EC-002",
+      "description": "A token expires mid-connection.",
+      "expectedBehavior": "The socket is disconnected at the expiry moment rather than at the next message, so a stale credential never keeps listening."
+    },
+    {
+      "id": "EC-003",
+      "description": "Redis restarts.",
+      "expectedBehavior": "The adapter reconnects and relay resumes; events published during the outage are lost and this is documented rather than retried."
+    },
+    {
+      "id": "EC-004",
+      "description": "MongoDB is unreachable.",
+      "expectedBehavior": "Readiness reports 503 naming Mongo, liveness stays 200, and sockets keep working because nothing in v1 reads Mongo."
+    },
+    {
+      "id": "EC-005",
+      "description": "The same event is published twice.",
+      "expectedBehavior": "Both are delivered. There is no deduplication in v1 because there is no persistence to deduplicate against."
+    },
+    {
+      "id": "EC-006",
+      "description": "An event names a clinic with no connected sockets.",
+      "expectedBehavior": "It is dropped and logged at debug level."
+    },
+    {
+      "id": "EC-007",
+      "description": "A payload exceeds 16 KB.",
+      "expectedBehavior": "Socket.IO rejects it at the configured buffer limit and the connection is not closed."
+    },
+    {
+      "id": "EC-008",
+      "description": "A client joins a room it already belongs to.",
+      "expectedBehavior": "The join is idempotent and emits no error."
+    },
+    {
+      "id": "EC-009",
+      "description": "The process receives SIGTERM.",
+      "expectedBehavior": "It stops accepting connections, closes the Redis adapter and exits within the shutdown timeout."
+    },
+    {
+      "id": "EC-010",
+      "description": "Two instances start before Redis is up.",
+      "expectedBehavior": "Both start degraded, and both recover when the adapter reconnects."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "BP-001 monorepo and local environment",
+      "type": "internal",
+      "notes": "Archived; supplies the pnpm workspace, lint, typecheck and CI this package joins."
+    },
+    {
+      "name": "BP-003 API skeleton and CI",
+      "type": "internal",
+      "notes": "Archived; the NestJS, logging and CI patterns this service mirrors."
+    },
+    {
+      "name": "BP-004 authentication",
+      "type": "internal",
+      "notes": "Archived; issues the access token this service validates. Token claim names are read from server/src/auth during planning."
+    },
+    {
+      "name": "BP-045 shared package",
+      "type": "internal",
+      "notes": "Archived; the published package where the event contract Zod schemas and types live."
+    },
+    {
+      "name": "socket.io and @nestjs/platform-socket.io",
+      "type": "library",
+      "notes": "Transport. No socket.io skill is installed yet (RISK-003)."
+    },
+    {
+      "name": "@socket.io/redis-adapter and ioredis",
+      "type": "library",
+      "notes": "Cross-instance fan-out. ioredis is already used by server; the adapter is new."
+    },
+    {
+      "name": "@nestjs/mongoose and mongoose",
+      "type": "library",
+      "notes": "Connection only in v1, no models. No mongoose skill is installed yet (RISK-003)."
+    },
+    {
+      "name": "helmet",
+      "type": "library",
+      "notes": "CON-513 on the health HTTP surface."
+    },
+    {
+      "name": "zod",
+      "type": "library",
+      "notes": "Event and handshake validation. A zod skill is installed; the workspace pins zod 4.6.7 via pnpm overrides."
+    },
+    {
+      "name": "docker-compose redis and mongo",
+      "type": "service",
+      "notes": "Both services already exist in docker-compose.yml; no infrastructure change is needed."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "CON-101 pins the workspace to exactly web, server and backoffice, while overview.md plans realtime-service as new work.",
+      "mitigation": "Recorded here and in the spec's assumptions; the owner amends CON-101 or chooses another location at Gate 1. The constitution is not edited by this feature."
+    },
+    {
+      "id": "RISK-002",
+      "description": "The four events have no producers until APP-1 and QUE-1 exist, so the contract can drift unnoticed.",
+      "mitigation": "The schema lives in packages/shared and a producer-side contract test imports it (AC-014)."
+    },
+    {
+      "id": "RISK-003",
+      "description": "No socket.io or mongoose skill is installed, so implementation patterns would be invented.",
+      "mitigation": "Install approved skills before /sdrive:apply, or record no external research available in the plan."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Sharing JWT_ACCESS_SECRET widens the blast radius of a key leak to the whole platform.",
+      "mitigation": "The secret stays environment-only (NFR-017) and is never logged."
+    },
+    {
+      "id": "RISK-005",
+      "description": "At-most-once delivery loses events during a Redis outage.",
+      "mitigation": "Documented in EC-003 and covered by consumer-side refetch after reconnect."
+    }
+  ]
+}

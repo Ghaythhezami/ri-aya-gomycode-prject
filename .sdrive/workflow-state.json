@@ -476,7 +476,7 @@
     },
     {
       "name": "realtime-service",
-      "branch": "feature/BP-031",
+      "branch": "feature/realtime-service",
       "base": "main",
       "productItems": ["BP-031"],
       "currentVersion": "v1",
@@ -486,8 +486,8 @@
           "phase": "backlog",
           "currentStep": "specification",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
+            "specification": "approved",
+            "planning": "approved",
             "implementation": "pending",
             "review": "pending"
           },
@@ -497,6 +497,44 @@
               "by": "specification-agent",
               "base": "main",
               "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "branch-recreated",
+              "by": "specification-agent",
+              "previousBranch": "feature/BP-031",
+              "branch": "feature/realtime-service",
+              "base": "main",
+              "reason": "feature/BP-031 was already merged into main and carried no realtime work; CON-607 requires feature/<feature-folder-name>.",
+              "timestamp": "2026-11-04T14:40:00.000Z"
+            },
+            {
+              "event": "specification_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T14:55:37.297Z"
+            },
+            {
+              "event": "plan-and-tasks-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/realtime-service/v1/plan.md",
+                ".sdrive/specs/backlog/realtime-service/v1/tasks.md",
+                ".sdrive/governance/realtime-service/v1/plan.json",
+                ".sdrive/governance/realtime-service/v1/tasks.json",
+                ".sdrive/governance/realtime-service/v1/traceability.json",
+                ".sdrive/skills/socket.io/SKILL.md",
+                ".sdrive/skills/mongoose/SKILL.md"
+              ],
+              "summary": "Nine phases, 45 production tasks, no test tasks. Plan pins every Nest package to its 11.x line, uses three ioredis connections (adapter pub, adapter sub, riaya:events subscriber), and records the CON-101 deviation, the missing membership re-verification and the two unverified skills as risks. Awaiting the planning gate; nothing is committed until it is approved.",
+              "timestamp": "2026-11-04T15:12:32.693Z"
+            },
+            {
+              "event": "planning_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T15:20:42.252Z"
             }
           ]
         }
