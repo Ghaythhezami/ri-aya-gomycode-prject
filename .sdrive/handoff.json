@@ -1,21 +1,16 @@
 {
-  "feature": "shared-package",
+  "feature": "design-tokens-and-component-library",
   "version": "v1",
-  "recordedAt": "2026-11-04T13:37:58.080Z",
+  "recordedAt": "2026-11-04T14:29:18.247Z",
   "by": null,
   "steps": [
     {
-      "command": "sdrive verify shared-package",
+      "command": "sdrive test design-tokens-and-component-library",
       "kind": "cli",
-      "why": "Verify compares plan.json to the code before any gate reads it."
+      "why": "Review needs passing test evidence; run the tests first."
     },
     {
-      "command": "sdrive test shared-package",
-      "kind": "cli",
-      "why": "The implementation gate needs a recorded passing run."
-    },
-    {
-      "command": "sdrive approve shared-package implementation",
+      "command": "sdrive approve design-tokens-and-component-library review",
       "kind": "human",
       "why": "Approving is a sign-off, so it stays with you."
     }

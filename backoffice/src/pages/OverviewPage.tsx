@@ -22,7 +22,7 @@ export function OverviewPage() {
       </h1>
       <p className="mt-2 text-muted">{t('shell.subtitle')}</p>
       {firstRun && (
-        <div className="mt-6 rounded-[16px] border border-border bg-white p-6 shadow-(--shadow-card)">
+        <div className="mt-6 rounded-lg border border-border bg-surface p-6 shadow-(--shadow-card)">
           <h2 className="text-lg font-semibold">{t('firstRun.title')}</h2>
           <p className="mt-1 text-sm text-muted">{t('firstRun.body')}</p>
           <ul className="mt-4 space-y-2 text-sm">
@@ -36,7 +36,7 @@ export function OverviewPage() {
           </ul>
           <button
             type="button"
-            className="mt-4 text-sm font-medium text-primary underline"
+            className="mt-4 inline-flex min-h-10 items-center text-sm font-medium text-primary underline"
             onClick={() => {
               clearFirstRun();
               setFirstRun(false);

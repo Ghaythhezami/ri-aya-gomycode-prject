@@ -12,7 +12,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="flex rounded-full border border-border bg-white p-1"
+      className="flex rounded-full border border-border bg-surface p-1"
       role="group"
       aria-label={t('shell.language')}
     >

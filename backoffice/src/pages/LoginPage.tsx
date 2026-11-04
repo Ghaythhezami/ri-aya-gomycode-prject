@@ -30,7 +30,7 @@ export function LoginPage() {
 
   return (
     <div className="grid min-h-screen place-items-center bg-bg p-6">
-      <div className="w-full max-w-md rounded-[16px] border border-border bg-white p-8 shadow-(--shadow-card)">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface p-8 shadow-(--shadow-card)">
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img
@@ -47,7 +47,7 @@ export function LoginPage() {
         </div>
         <p className="mb-6 text-sm text-muted">{t('auth.subtitle')}</p>
         {(sessionMessage || serverError) && (
-          <p className="mb-4 rounded-[12px] bg-red-50 px-3 py-2 text-sm text-error" role="alert">
+          <p className="mb-4 rounded-md bg-error/10 px-3 py-2 text-sm text-error" role="alert">
             {serverError ?? t(sessionMessage ?? '')}
           </p>
         )}

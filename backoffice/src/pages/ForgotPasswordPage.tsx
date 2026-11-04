@@ -16,11 +16,11 @@ export function ForgotPasswordPage() {
 
   return (
     <div className="grid min-h-screen place-items-center bg-bg p-6">
-      <div className="w-full max-w-md rounded-[16px] border border-border bg-white p-8">
+      <div className="w-full max-w-md rounded-lg border border-border bg-surface p-8">
         <h1 className="text-xl font-semibold">{t('auth.forgotTitle')}</h1>
         <p className="mt-2 text-sm text-muted">{t('auth.forgotSubtitle')}</p>
         {sent ? (
-          <p className="mt-6 rounded-[12px] bg-accent px-3 py-2 text-sm text-primary" role="status">
+          <p className="mt-6 rounded-md bg-accent px-3 py-2 text-sm text-primary" role="status">
             {t('auth.forgotSent')}
           </p>
         ) : (

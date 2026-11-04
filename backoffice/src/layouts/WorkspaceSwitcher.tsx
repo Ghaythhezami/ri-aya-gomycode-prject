@@ -73,7 +73,7 @@ export function WorkspaceSwitcher() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="listbox"
-        className="flex min-h-10 items-center gap-2 rounded-[12px] border border-border bg-white px-3 text-sm text-text"
+        className="flex min-h-10 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm text-text"
       >
         <span className="font-medium">{active.clinicName}</span>
         <span className="text-xs text-muted">{active.role}</span>
@@ -82,7 +82,7 @@ export function WorkspaceSwitcher() {
       {open && (
         <ul
           role="listbox"
-          className="absolute z-20 mt-1 w-64 rounded-[12px] border border-border bg-white py-1 shadow-lg"
+          className="absolute z-20 mt-1 w-64 rounded-md border border-border bg-surface py-1 shadow-lg"
         >
           {memberships.map((m) => (
             <li key={m.membershipId}>
@@ -104,7 +104,7 @@ export function WorkspaceSwitcher() {
             </li>
           ))}
           <li className="border-t border-border">
-            <a href="/register" className="block px-3 py-2 text-sm text-[#0F766E] hover:bg-bg">
+            <a href="/register" className="block px-3 py-2 text-sm text-primary hover:bg-bg">
               {t('workspace.createOrganization')}
             </a>
           </li>

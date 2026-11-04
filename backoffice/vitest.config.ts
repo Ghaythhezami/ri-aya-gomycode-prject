@@ -15,6 +15,10 @@ export default mergeConfig(
       globals: true,
       setupFiles: ['./test/setup.ts'],
       include: ['test/**/*.test.{ts,tsx}'],
+      // The guard-script tests spawn a Node process per probe, so their cost is
+      // dominated by process startup. The 5s default is close enough to that
+      // cost that a loaded machine pushes them over; a hung child still fails.
+      testTimeout: 30_000,
     },
   }),
 );

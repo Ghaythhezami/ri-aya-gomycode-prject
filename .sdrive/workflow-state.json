@@ -401,6 +401,106 @@
           ]
         }
       ]
+    },
+    {
+      "name": "design-tokens-and-component-library",
+      "branch": "feature/BP-006",
+      "base": "main",
+      "productItems": ["BP-006"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "ongoing",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/design-tokens-and-component-library/v1/spec.md",
+                ".sdrive/governance/design-tokens-and-component-library/v1/spec.json",
+                ".sdrive/governance/design-tokens-and-component-library/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved with the /design-system page as the demonstration surface; existing tokens must be extended, not overridden.",
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "existing-asset-check",
+              "by": "specification-agent",
+              "note": "Found four disagreeing token copies, 34 hex literals in 5 files, 15 arbitrary colour classes; added FR-012 and RISK-005.",
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/design-tokens-and-component-library/v1/plan.md",
+                ".sdrive/specs/backlog/design-tokens-and-component-library/v1/tasks.md",
+                ".sdrive/governance/design-tokens-and-component-library/v1/plan.json",
+                ".sdrive/governance/design-tokens-and-component-library/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved. Existing tokens extended, not overridden; two stale value corrections accepted.",
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T14:27:42.426Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "realtime-service",
+      "branch": "feature/BP-031",
+      "base": "main",
+      "productItems": ["BP-031"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "backlog",
+          "currentStep": "specification",
+          "gates": {
+            "specification": "pending",
+            "planning": "pending",
+            "implementation": "pending",
+            "review": "pending"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T00:00:00.000Z"
+            }
+          ]
+        }
+      ]
     }
   ],
   "onboarding": {

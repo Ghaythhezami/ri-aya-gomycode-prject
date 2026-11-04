@@ -1,0 +1,368 @@
+{
+  "feature": "design-tokens-and-component-library",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Token foundation",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Create the TypeScript token module",
+          "description": "Add backoffice/src/design-system/tokens.ts with colour, radius, space, elevation and font groups as as-const objects whose keys mirror the CSS custom-property names. It mirrors the existing @theme values and must not introduce a value that the stylesheet does not also carry.",
+          "linkedRequirements": ["FR-001", "FR-002"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-002"],
+          "completed": true
+        },
+        {
+          "id": "T1.2",
+          "title": "Extend the existing @theme block with missing tokens",
+          "description": "Add to the existing @theme block in backoffice/src/index.css, without removing, reordering or altering any current declaration: --radius-sm, --radius-full, --shadow-overlay, the spacing scale and the font group. Every token already declared (all colours, --font-sans, --radius-md, --radius-lg, --shadow-card) keeps its current value.",
+          "linkedRequirements": ["FR-002"],
+          "linkedAcceptanceCriteria": ["AC-002", "AC-003"],
+          "completed": true
+        },
+        {
+          "id": "T1.3",
+          "title": "Add the token parity guard script",
+          "description": "Write backoffice/scripts/check-token-parity.mjs comparing tokens.ts against the @theme block in both directions and failing on any mismatched value or token present on only one side.",
+          "linkedRequirements": ["FR-001"],
+          "linkedAcceptanceCriteria": ["AC-002"],
+          "completed": true
+        },
+        {
+          "id": "T1.4",
+          "title": "Add the literal and physical-utility guard script",
+          "description": "Write backoffice/scripts/check-token-literals.mjs failing on any #rrggbb literal or [#...] arbitrary colour class under backoffice/src outside tokens.ts and index.css, and on any physical-direction utility under backoffice/src/common.",
+          "linkedRequirements": ["FR-012", "NFR-005"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-005"],
+          "completed": true
+        },
+        {
+          "id": "T1.5",
+          "title": "Add the locale parity guard script",
+          "description": "Write backoffice/scripts/check-locale-parity.mjs failing when the en, ar and fr key sets differ.",
+          "linkedRequirements": ["NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": true
+        },
+        {
+          "id": "T1.6",
+          "title": "Wire the guard scripts into the build",
+          "description": "Run the three guard scripts from backoffice's build script before tsc so CI fails on a violation, and expose a design-system:check script for local use.",
+          "linkedRequirements": ["FR-001", "FR-012", "NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-011"],
+          "completed": true
+        },
+        {
+          "id": "T1.7",
+          "title": "Correct only the two stale duplicate token values",
+          "description": "Change one line each: --color-error from #c81e1e to #dc2626 and --color-muted from #64707f to #697586, matching the values web, the design-system page and three pages already use. No other existing token value may change.",
+          "linkedRequirements": ["FR-001", "FR-002"],
+          "linkedAcceptanceCriteria": ["AC-002"],
+          "completed": true
+        },
+        {
+          "id": "T1.8",
+          "title": "Prove the parity guard fails then passes",
+          "description": "Run the parity script against the tree before the two corrections to confirm it reports them as mismatches, then run it after to confirm zero mismatches, and diff index.css against main to verify the only removed lines are those two corrections.",
+          "linkedRequirements": ["FR-001"],
+          "linkedAcceptanceCriteria": ["AC-002"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Migrate existing components onto tokens",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Move Button, Input, Badge, Modal and Table onto tokens",
+          "description": "Replace literal radii (rounded-[12px], rounded-[16px]) and literal colours in the five existing primitives with token radii and token utilities, using logical utilities only.",
+          "linkedRequirements": ["FR-003", "NFR-005"],
+          "linkedAcceptanceCriteria": ["AC-004", "AC-005"],
+          "completed": true
+        },
+        {
+          "id": "T2.2",
+          "title": "Make Input accessible and share its field shell",
+          "description": "Add a visible focus ring, aria-invalid and aria-describedby wiring for error and help text, and extract a Field shell that Textarea can reuse.",
+          "linkedRequirements": ["FR-003", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T2.3",
+          "title": "Make Modal a real dialog",
+          "description": "Add a focus trap, aria-modal, Esc to close, background inerting and focus restored to the invoking element, using the overlay elevation token.",
+          "linkedRequirements": ["FR-003", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T2.4",
+          "title": "Make Badge status readable without colour",
+          "description": "Convey each status tone with an icon or text label as well as colour.",
+          "linkedRequirements": ["FR-003", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T2.5",
+          "title": "Read chart series colours from tokens",
+          "description": "Point common/charts/SampleCharts.tsx at token values instead of the hard-coded #0F766E and #E5EAF0.",
+          "linkedRequirements": ["FR-003", "NFR-009"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": true
+        },
+        {
+          "id": "T2.6",
+          "title": "Replace arbitrary colour classes in pages",
+          "description": "Replace the 15 arbitrary-value colour classes in RegisterPage.tsx, StaffDirectoryPage.tsx and WorkspaceSwitcher.tsx with token utilities.",
+          "linkedRequirements": ["FR-012"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T2.7",
+          "title": "Delete the hard-coded tokens array from the design-system page",
+          "description": "Remove the literal tokens array in DesignSystemPage.tsx and read tokens.ts instead, so the page can no longer drift from the stylesheet.",
+          "linkedRequirements": ["FR-009", "FR-012"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T2.8",
+          "title": "Enforce a 40px minimum interactive target",
+          "description": "Apply the spacing token floor so every button, input, select, tab and icon-only control in backoffice/src/common reaches at least 40 by 40 px, including icon-only triggers where the visual glyph is smaller than the target.",
+          "linkedRequirements": ["NFR-002"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "New primitives: forms and navigation",
+      "dependencies": ["P2"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Add Textarea",
+          "description": "Add backoffice/src/common/Textarea.tsx reusing the Field shell and token styling from T2.2.",
+          "linkedRequirements": ["FR-004"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T3.2",
+          "title": "Add SearchableSelect",
+          "description": "Add backoffice/src/common/SearchableSelect.tsx following the combobox pattern with type-ahead, arrow-key navigation and aria-activedescendant.",
+          "linkedRequirements": ["FR-004", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T3.3",
+          "title": "Add DatePicker and TimePicker",
+          "description": "Add both pickers under backoffice/src/common, formatting and parsing display values with Intl and the active locale while the stored value stays locale-independent.",
+          "linkedRequirements": ["FR-004", "FR-010"],
+          "linkedAcceptanceCriteria": ["AC-005", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T3.4",
+          "title": "Add Tabs",
+          "description": "Add backoffice/src/common/Tabs.tsx with roving tabindex and the tablist, tab and tabpanel roles.",
+          "linkedRequirements": ["FR-004", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T3.5",
+          "title": "Add Dropdown",
+          "description": "Add backoffice/src/common/Dropdown.tsx following the menu-button pattern with Esc, arrow keys, focus return and viewport-aware placement.",
+          "linkedRequirements": ["FR-004", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "New primitives: feedback and display",
+      "dependencies": ["P2"],
+      "tasks": [
+        {
+          "id": "T4.1",
+          "title": "Add Tooltip",
+          "description": "Add backoffice/src/common/Tooltip.tsx shown on hover and focus, linked to its trigger through aria-describedby.",
+          "linkedRequirements": ["FR-004", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T4.2",
+          "title": "Add Popover",
+          "description": "Add backoffice/src/common/Popover.tsx repositioning itself into the viewport when it would overflow an edge.",
+          "linkedRequirements": ["FR-004"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T4.3",
+          "title": "Add KpiCard",
+          "description": "Add backoffice/src/common/KpiCard.tsx rendering a label, a value and an optional delta that collapses cleanly when absent.",
+          "linkedRequirements": ["FR-007"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T4.4",
+          "title": "Add the Toast provider and hook",
+          "description": "Add backoffice/src/common/Toast.tsx with success, error and info tones, dismissal, and a single aria-live region that announces each toast.",
+          "linkedRequirements": ["FR-006", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T4.5",
+          "title": "Add ConfirmDialog",
+          "description": "Add backoffice/src/common/ConfirmDialog.tsx built on the modified Modal, intended as the confirmation surface before a destructive action, restoring focus to the opener on cancel.",
+          "linkedRequirements": ["FR-005"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T4.6",
+          "title": "Add Skeleton",
+          "description": "Add backoffice/src/common/Skeleton.tsx as a loading placeholder that does not animate when reduced motion is requested.",
+          "linkedRequirements": ["FR-004", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T4.7",
+          "title": "Add EmptyState and ErrorState",
+          "description": "Add the shared pair in backoffice/src/common: EmptyState for a list or table with no rows, ErrorState for a failed fetch with a retry slot.",
+          "linkedRequirements": ["FR-004"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T4.8",
+          "title": "Extend Table into a DataTable",
+          "description": "Add accessible sortable columns with aria-sort and a card-list collapse at the mobile breakpoint instead of horizontal scrolling, rendering EmptyState when there are no rows.",
+          "linkedRequirements": ["FR-008"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P5",
+      "name": "Documentation",
+      "dependencies": ["P3", "P4"],
+      "tasks": [
+        {
+          "id": "T5.1",
+          "title": "Restructure the design-system page",
+          "description": "Rebuild /design-system into Tokens, Forms, Navigation and overlays, Data display, Feedback and States sections, each demonstrating every component in every state side by side, replacing the current partial listing.",
+          "linkedRequirements": ["FR-009"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T5.2",
+          "title": "Render the token table from the token module",
+          "description": "Add a Tokens section that renders every token group from tokens.ts with its value and usage note, so the table cannot drift from the stylesheet.",
+          "linkedRequirements": ["FR-009", "FR-001"],
+          "linkedAcceptanceCriteria": ["AC-009", "AC-002"],
+          "completed": true
+        },
+        {
+          "id": "T5.3",
+          "title": "Mirror the page in Arabic",
+          "description": "Confirm the whole page mirrors under RTL, that direction-implying icons flip while clocks, charts and numerals do not, and that no physical-direction utility is introduced.",
+          "linkedRequirements": ["NFR-005", "NFR-006"],
+          "linkedAcceptanceCriteria": ["AC-005"],
+          "completed": true
+        },
+        {
+          "id": "T5.4",
+          "title": "Add every new string to all three catalogues",
+          "description": "Add the ds.* keys for every new component string to en.json, ar.json and fr.json in the same change.",
+          "linkedRequirements": ["FR-011", "NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-011"],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P6",
+      "name": "Verification",
+      "dependencies": ["P5"],
+      "tasks": [
+        {
+          "id": "T6.1",
+          "title": "Lint the backoffice package",
+          "description": "Run pnpm --filter backoffice lint and resolve every finding without disabling rules.",
+          "linkedRequirements": ["NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        },
+        {
+          "id": "T6.2",
+          "title": "Typecheck the backoffice package",
+          "description": "Run pnpm --filter backoffice typecheck and resolve every error.",
+          "linkedRequirements": ["FR-001"],
+          "linkedAcceptanceCriteria": ["AC-001"],
+          "completed": true
+        },
+        {
+          "id": "T6.3",
+          "title": "Run the guard scripts and governance validation",
+          "description": "Run the token parity, literal and locale guard scripts and node .sdrive/scripts/validate-governance.js; all must pass.",
+          "linkedRequirements": ["FR-001", "FR-012", "NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-011"],
+          "completed": true
+        },
+        {
+          "id": "T6.4",
+          "title": "Check responsive behaviour manually",
+          "description": "Check /design-system at 375, 768 and 1440 px for horizontal overflow.",
+          "linkedRequirements": ["NFR-007"],
+          "linkedAcceptanceCriteria": ["AC-010"],
+          "completed": true
+        },
+        {
+          "id": "T6.5",
+          "title": "Check Arabic and JavaScript-disabled rendering",
+          "description": "Check the page in Arabic and with JavaScript disabled, confirming static content is present in the markup without client state.",
+          "linkedRequirements": ["NFR-005", "NFR-008"],
+          "linkedAcceptanceCriteria": ["AC-005", "AC-009"],
+          "completed": true
+        },
+        {
+          "id": "T6.6",
+          "title": "Confirm no raw HTML injection",
+          "description": "Confirm no primitive introduced dangerouslySetInnerHTML and that no third-party UI library was added.",
+          "linkedRequirements": ["NFR-009"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": true
+        },
+        {
+          "id": "T6.7",
+          "title": "Verify contrast for every token pair used as text",
+          "description": "Check each foreground/background token pair that renders text against a 4.5:1 ratio, including muted on bg, text on surface and status tones on their tinted backgrounds, and record the results next to the token table.",
+          "linkedRequirements": ["NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-006"],
+          "completed": true
+        }
+      ]
+    }
+  ]
+}
