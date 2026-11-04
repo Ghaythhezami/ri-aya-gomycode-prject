@@ -1,16 +1,16 @@
 {
-  "feature": "design-tokens-and-component-library",
+  "feature": "application-shell",
   "version": "v1",
-  "recordedAt": "2026-11-04T14:29:18.247Z",
+  "recordedAt": "2026-11-04T17:52:48.337Z",
   "by": null,
   "steps": [
     {
-      "command": "sdrive test design-tokens-and-component-library",
+      "command": "sdrive test application-shell",
       "kind": "cli",
       "why": "Review needs passing test evidence; run the tests first."
     },
     {
-      "command": "sdrive approve design-tokens-and-component-library review",
+      "command": "sdrive approve application-shell review",
       "kind": "human",
       "why": "Approving is a sign-off, so it stays with you."
     }
