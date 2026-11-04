@@ -9,7 +9,7 @@
     "build": "nest build",
     "lint": "eslint \"{src,test}/**/*.ts\" --max-warnings=0",
     "typecheck": "tsc --noEmit",
-    "test": "jest --coverage",
+    "test": "jest --coverage --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
     "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
     "prisma:generate": "prisma generate",

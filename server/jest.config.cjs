@@ -27,6 +27,10 @@ module.exports = {
   testEnvironment: 'node',
   setupFiles: ['<rootDir>/test-setup.ts'],
   testTimeout: 30_000,
+  // Hooks boot the real AppModule against a live database, which on a loaded
+  // machine exceeds the 30s test budget; the specs assert on the outcome of the
+  // boot, not on its speed.
+  hookTimeout: 90_000,
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1',
   },
