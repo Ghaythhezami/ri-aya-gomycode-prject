@@ -1,0 +1,275 @@
+{
+  "feature": "localised-data-and-api-messages",
+  "title": "Localised data and API messages",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The backoffice renders in en/ar/fr, but the data and API layers are not localized. The server never reads Accept-Language and returns English messages from HttpExceptionFilter; the client never sends Accept-Language. Date and number formatting is inconsistent: DatePicker/TimePicker use Intl with the active locale while OverviewPage and StaffDirectoryPage call toLocaleDateString() with no locale or clinic timezone. Clinic.timezone exists but the membership view does not expose it, and appointment types, specialties and statuses do not exist yet.",
+    "proposedSolution": "Add one shared locale layer in @riaya/shared: SUPPORTED_LOCALES, negotiateLocale(Accept-Language), an error-code catalogue, and locale/timezone-aware Intl formatters. Make HttpExceptionFilter return a localized message while keeping the stable code, details and requestId; send Accept-Language from the backoffice axios client using the active UI language; expose clinicTimezone in the membership view; and replace ad-hoc formatting calls with the shared helpers. Later features register their own domain labels against the same mechanism.",
+    "targetAudience": "Arabic-, French- and English-speaking staff who see localized errors and correctly zoned dates; other API consumers; engineers adding screens after this feature.",
+    "assumptions": [
+      "Supported locales are exactly en, ar, fr; a missing, malformed or unsupported Accept-Language falls back to en, and regional variants resolve to their base language.",
+      "Error code values stay stable; only message is localized. Clients may map codes themselves, and the backoffice keeps a localized generic fallback for unknown codes.",
+      "Clinic.timezone already exists (UTC default) and is the display authority; stored timestamps remain UTC and are never rewritten by the UI.",
+      "Appointment types, specialties and statuses are not modelled yet; their labels are added by BP-018/BP-019 against this mechanism.",
+      "No new dependency: Intl is built in, i18next is installed, and the shared package holds plain data and pure functions."
+    ],
+    "outOfScope": [
+      "Translating the clinical domain model that does not exist yet (BP-018/BP-019).",
+      "Server-rendered documents or emails; invitation emails already use the user's preferredLocale.",
+      "A profile screen for changing the stored locale (BP-035).",
+      "RTL layout changes beyond the existing direction handling (BP-005/BP-007)."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Errors arrive in my language",
+      "role": "Arabic-speaking receptionist",
+      "want": "API errors in my language",
+      "benefit": "I can act on them without translating English text",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given a request with Accept-Language naming a supported locale (including a regional variant such as ar-EG or fr-CA), when the server returns an error, then message is in that language and code is unchanged and stable."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given a request with no header, a malformed header or an unsupported language, when the server returns an error, then the message falls back to English and code is still the stable code."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given an unknown error code, when the server responds, then it returns the existing message without crashing, and the backoffice falls back to a localized generic message."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given a validation failure, when the server responds, then the summary message is localized and the field-level constraint details are preserved."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "The client speaks the active language",
+      "role": "staff member who switches to Arabic",
+      "want": "every subsequent request to advertise Arabic",
+      "benefit": "errors come back in Arabic without a reload",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given the backoffice, when it issues any API request, then it sends Accept-Language built from the active i18n language."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given the user changes the language in the switcher, when the next request is sent, then it carries the new language without a page reload."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given a localized Arabic error, when it is displayed, then it renders correctly in an RTL document."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Dates and numbers respect locale and clinic timezone",
+      "role": "clinic manager",
+      "want": "dates, times, numbers and currency in my language and my clinic's timezone",
+      "benefit": "values match the clinic's day, not the server's",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given a stored UTC timestamp and the active clinic's timezone, when the UI renders a date or time, then it uses the active locale and that timezone via Intl, and the stored value is not mutated."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given a number, currency amount or date, when it is formatted through the shared helpers, then the output is correct for en, ar and fr."
+        },
+        {
+          "id": "AC-010",
+          "text": "Given the membership list, when it is returned, then each membership exposes its clinic timezone, and the UI uses it for formatting."
+        },
+        {
+          "id": "AC-011",
+          "text": "Given a missing or invalid clinic timezone, when the UI formats a value, then it falls back to UTC and does not throw."
+        },
+        {
+          "id": "AC-012",
+          "text": "Given the backoffice source, when it is reviewed, then no component calls a locale-less toLocaleString/toLocaleDateString/toLocaleTimeString for user-facing values."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The server MUST negotiate Accept-Language over en, ar, fr with base-language resolution and an English fallback.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-002"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The error code MUST remain stable while message is localized from a shared error-code catalogue.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-002", "AC-003"]
+    },
+    {
+      "id": "FR-003",
+      "text": "Validation errors MUST return a localized summary with the field-level constraint details preserved.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "FR-004",
+      "text": "The backoffice MUST send Accept-Language from the active i18n language on every API request, including after a language change.",
+      "linkedAcceptanceCriteria": ["AC-005", "AC-006"]
+    },
+    {
+      "id": "FR-005",
+      "text": "@riaya/shared MUST provide locale- and timezone-aware Intl formatters for date, time, number and currency.",
+      "linkedAcceptanceCriteria": ["AC-008", "AC-009"]
+    },
+    {
+      "id": "FR-006",
+      "text": "The membership view MUST expose the clinic timezone, and the UI MUST format with it.",
+      "linkedAcceptanceCriteria": ["AC-010", "AC-011"]
+    },
+    {
+      "id": "FR-007",
+      "text": "User-facing components MUST NOT format with an implicit locale or timezone; they MUST use the shared helpers.",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "FR-008",
+      "text": "Unknown error codes MUST degrade safely on both the server and the client.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "All three client catalogues and the shared error catalogue MUST stay in parity; a missing key fails the build (existing locale guard).",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-009"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "The feature MUST add no dependency; it uses Intl, the existing i18next and @riaya/shared.",
+      "linkedAcceptanceCriteria": ["AC-009"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "The error response shape { code, message, details, requestId } MUST stay unchanged apart from the localized message.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-003"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "Stored timestamps MUST remain UTC; timezone conversion happens only at display time.",
+      "linkedAcceptanceCriteria": ["AC-008", "AC-011"]
+    },
+    {
+      "id": "NFR-005",
+      "text": "Localized errors MUST NOT leak stack traces, ORM errors or internal identifiers (CON-507); unknown exceptions keep the generic message.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "NFR-006",
+      "text": "Localized content MUST render in the correct text direction under en/ar/fr.",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "Accept-Language is ar-EG,ar;q=0.9,en;q=0.5.",
+      "expectedBehavior": "The server resolves Arabic."
+    },
+    {
+      "id": "EC-002",
+      "description": "Accept-Language names an unsupported language (de).",
+      "expectedBehavior": "The server falls back to English."
+    },
+    {
+      "id": "EC-003",
+      "description": "No Accept-Language header is sent.",
+      "expectedBehavior": "The server falls back to English."
+    },
+    {
+      "id": "EC-004",
+      "description": "The error code is unknown to the catalogue.",
+      "expectedBehavior": "The server returns the existing message and the client shows a localized generic fallback."
+    },
+    {
+      "id": "EC-005",
+      "description": "A validation error names several fields.",
+      "expectedBehavior": "The summary is localized and the field details are preserved."
+    },
+    {
+      "id": "EC-006",
+      "description": "The clinic timezone is missing or invalid.",
+      "expectedBehavior": "Formatting falls back to UTC without throwing."
+    },
+    {
+      "id": "EC-007",
+      "description": "A value crosses a DST boundary.",
+      "expectedBehavior": "Intl resolves it in the clinic zone; the stored UTC value is unchanged."
+    },
+    {
+      "id": "EC-008",
+      "description": "The language is changed mid-session.",
+      "expectedBehavior": "The next request carries the new language."
+    },
+    {
+      "id": "EC-009",
+      "description": "An error message contains user data.",
+      "expectedBehavior": "React escapes it; no raw HTML is rendered."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@riaya/shared",
+      "type": "internal",
+      "notes": "Modify: add SUPPORTED_LOCALES, negotiateLocale, the error catalogue and the Intl formatters."
+    },
+    {
+      "name": "HttpExceptionFilter",
+      "type": "internal",
+      "notes": "Modify: negotiate the locale and look up the localized message."
+    },
+    {
+      "name": "TenancyService.listMemberships",
+      "type": "internal",
+      "notes": "Modify: add clinicTimezone to the membership view."
+    },
+    {
+      "name": "Backoffice lib/api.ts",
+      "type": "internal",
+      "notes": "Modify: send Accept-Language from the active i18n language."
+    },
+    {
+      "name": "Backoffice pages and DatePicker/TimePicker",
+      "type": "internal",
+      "notes": "Modify: use the shared formatters."
+    },
+    {
+      "name": "i18next / react-i18next",
+      "type": "library",
+      "notes": "Already installed; no change."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "The server catalogue and the client catalogues drift.",
+      "mitigation": "Both derive from @riaya/shared, and the locale-parity guard covers the client catalogues."
+    },
+    {
+      "id": "RISK-002",
+      "description": "A localized message hides a code clients rely on.",
+      "mitigation": "code is stable and never localized."
+    },
+    {
+      "id": "RISK-003",
+      "description": "Timezone bugs at DST boundaries.",
+      "mitigation": "Intl with timeZone, UTC storage, and a DST-date test."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Validation details remain English strings from class-validator.",
+      "mitigation": "The summary is localized, details are structured, and constraint keys can be mapped later."
+    }
+  ]
+}

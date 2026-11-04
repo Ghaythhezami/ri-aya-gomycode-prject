@@ -712,8 +712,8 @@
           "phase": "backlog",
           "currentStep": "specification",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
+            "specification": "approved",
+            "planning": "approved",
             "implementation": "pending",
             "review": "pending"
           },
@@ -723,6 +723,39 @@
               "by": "specification-agent",
               "base": "main",
               "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/localised-data-and-api-messages/v1/spec.md",
+                ".sdrive/governance/localised-data-and-api-messages/v1/spec.json",
+                ".sdrive/governance/localised-data-and-api-messages/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:31:48.737Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: shared locale layer, Accept-Language negotiation, clinic-timezone formatting.",
+              "timestamp": "2026-11-04T15:32:34.239Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/localised-data-and-api-messages/v1/plan.md",
+                ".sdrive/specs/backlog/localised-data-and-api-messages/v1/tasks.md",
+                ".sdrive/governance/localised-data-and-api-messages/v1/plan.json",
+                ".sdrive/governance/localised-data-and-api-messages/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:32:34.239Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: shared locale layer, server error localization and clinic-timezone formatting.",
+              "timestamp": "2026-11-04T15:32:55.689Z"
             }
           ]
         }
