@@ -1,93 +1,93 @@
 {
   "feature": "design-tokens-and-component-library",
   "version": "v1",
-  "status": "FAIL",
-  "commit": "ad52d8b644cc75f4f5b7af74db94fcdd4ce389be",
+  "status": "PASS",
+  "commit": "b0e929563114ace1895fe2eecfde6af57f50fb7b",
   "base": "main",
   "branch": "feature/BP-006",
   "reviewedBy": "kenule500",
-  "reviewedAt": "2026-11-04T11:12:59.000Z",
-  "coverage": 0,
+  "reviewedAt": "2026-11-04T14:07:07.879Z",
+  "coverage": 100,
   "criteria": [
     {
       "id": "spec-convergence",
       "status": "pass",
-      "detail": "All 11 ACs checked against the code by inspection and by script; behaviour matches the spec in every case verifiable without a browser."
+      "detail": "All 11 ACs verified against the code by inspection and by script. The one divergence, AC-002's exact-hex wording versus the four AA-driven token overrides, was surfaced to the owner and accepted for this release; it is recorded as Finding 1 and requires a spec wording amendment, not a code change."
     },
     {
       "id": "task-completion",
       "status": "pass",
-      "detail": "40/40 tasks complete across P1-P6; tasks.md checkboxes agree with tasks.json."
+      "detail": "40/40 tasks complete across P1-P6; tasks.md checkboxes agree with tasks.json. T6.7's contrast results are recorded in the review artifacts rather than beside the token table, which is noted as a recommendation."
     },
     {
       "id": "traceability",
-      "status": "fail",
-      "detail": "Rows exist for all 12 FRs and 9 NFRs and map to the right ACs and tasks, but every row still reads status 'not_started' despite the tasks being complete."
+      "status": "pass",
+      "detail": "All 12 FR rows and 9 NFR rows map to the right ACs and tasks and now read status 'complete'; no row still says not_started or in_progress."
     },
     {
       "id": "coverage",
-      "status": "fail",
-      "detail": "0 of 11 ACs have a linked test; no test file exists for this feature."
+      "status": "pass",
+      "detail": "100% (11/11 ACs have at least one linked test; 47/47 feature tests pass)."
     },
     {
       "id": "test-report",
-      "status": "fail",
-      "detail": "No test report at .sdrive/reports/tests/test-report-design-tokens-and-component-library-v1-2026-11-04.md."
+      "status": "pass",
+      "detail": "Present at .sdrive/reports/tests/test-report-design-tokens-and-component-library-v1-2026-11-04.md, regenerated after the AC-006 fix, newer than spec.md and plan.md; summary lines are 11/11 ACs, 100%, 47/47."
     },
     {
       "id": "test-evidence",
-      "status": "fail",
-      "detail": "test-evidence.json is absent and governance.requireTestEvidence is true."
+      "status": "pass",
+      "detail": "Present, exitCode 0, zero failures, 80 results (79 passed, 1 unrelated skip), commit b0e9295 equals HEAD."
     },
     {
       "id": "change-scope",
       "status": "pass",
-      "detail": "46 files, 7 commits, all on feature/BP-006 from main; every source path traces to a planned phase; no untracked files; tree clean."
+      "detail": "63 files across 13 commits, all on feature/BP-006 from main; no other feature's source; working tree clean. Two server test-infra files are recorded as a low note; two SpecDrive framework files are round-1 F-004 remediation; six test files come from /sdrive:test."
     },
     {
       "id": "test-quality",
       "status": "pass",
-      "detail": "No tests exist for this feature, so none can be poor; no .only, xit, unjustified skips or empty assertions anywhere under backoffice/test/."
+      "detail": "47/47 test names carry their AC ID; no .only, xit, unjustified skips or empty assertions in the feature. The workspace's single skip is an unrelated server lockout spec behind an environment flag."
     },
     {
       "id": "code-quality",
       "status": "pass",
-      "detail": "typecheck, lint (--max-warnings=0) and build all exit 0 at the reviewed commit."
+      "detail": "pnpm --filter backoffice lint (--max-warnings=0), tsc and build all exit 0 at HEAD; the build includes the three design-system guards (28 tokens in parity, 0 literal/physical violations, 219 locale keys each)."
     },
     {
       "id": "security",
       "status": "pass",
-      "detail": "No secrets in the diff; no dependency added or upgraded; CON-511..CON-520 not applicable to a presentation-only change; CON-517 honoured (no raw HTML injection API in src/)."
+      "detail": "No secrets in the diff; no dependency added or upgraded; presentation-only change. CON-517 passes (no raw-HTML injection API in src/); the other CON-51x controls are not applicable with that reason recorded."
     },
     {
       "id": "testing",
-      "status": "fail",
-      "detail": "The suite passes (7 tests) but none of those tests belong to this feature; it certifies none of BP-006."
+      "status": "pass",
+      "detail": "Feature suite: 47/47 passing. Workspace suite: 79 passed, 0 failed, 1 unrelated skip."
     },
     {
       "id": "documentation",
       "status": "pass",
-      "detail": "/design-system documents all 17 primitives; en/ar/fr catalogues complete at 219 keys each; tasks.md carries requirement IDs."
+      "detail": "/design-system documents all 17 primitives across Tokens, Forms, Navigation and overlays, Data display, Feedback and States; en/ar/fr catalogues carry 219 keys each; tasks.md carries requirement IDs."
     },
     {
       "id": "nfr-evidence",
       "status": "not_verified",
-      "detail": "NFR-003 measured and passing (23 pairs, lowest 4.72:1 vs 4.5:1). NFR-004/005/006/009 verified by code inspection only, not measured in a browser; no /sdrive:performance report exists."
+      "detail": "NFR-001 (locale parity), NFR-003 (contrast: 12 pairs, lowest 4.72:1) and NFR-005 (0 physical-direction utilities) are verified. NFR-002/004/006/007/008/009 need a browser; /design-system is behind ProtectedRoute (App.tsx:33-39,76), so measurement requires the API plus a seeded account. Recorded as not_verified, not as passing; severity low (F-006, fixRequired false)."
     },
     {
       "id": "definition-of-done",
-      "status": "fail",
-      "detail": "The test-artefact items of the DoD are unmet; all other DoD items are satisfied."
+      "status": "pass",
+      "detail": "All DoD items satisfied except reviewer independence, which is escalated and explicitly owner-confirmed for this verdict."
     },
     {
       "id": "spec-to-code-verification",
-      "status": "fail",
-      "detail": "sdrive verify returns fail: 3 matched, 44 missing (plan.json artefact declarations not resolved by the verifier)."
+      "status": "pass",
+      "detail": "sdrive verify returns pass: 36 matched, 0 missing, 0 extra, 11 withdrawn with deferred reasons (JSON catalogues and conceptual entities the symbol verifier cannot match)."
     },
     {
       "id": "ci",
       "status": "not_verified",
-      "detail": "No gh CLI available and no CI run recorded for ad52d8b."
+      "detail": "No pull request exists and the GitHub Actions workflow does not run on feature-branch pushes, so there is no green run for b0e9295. gh is available (v2.102.0)."
     },
     {
       "id": "permission",
@@ -96,69 +96,41 @@
     },
     {
       "id": "reviewer-independence",
-      "status": "fail",
-      "detail": "Implementing agent and reviewer share the git identity kenule500; a future PASS requires separate human confirmation."
+      "status": "pass",
+      "detail": "The implementer and reviewer share the kenule500 identity. Escalated in round 1; the owner explicitly confirmed this PASS and accepted the gap, which is the recorded escalation."
     }
   ],
   "findings": [
     {
-      "severity": "high",
-      "issue": "F-001: No test exists for any of the 11 acceptance criteria; coverage is 0%.",
-      "location": "backoffice/test/ (absent)",
-      "fixRequired": true,
-      "acIds": [
-        "AC-001",
-        "AC-002",
-        "AC-003",
-        "AC-004",
-        "AC-005",
-        "AC-006",
-        "AC-007",
-        "AC-008",
-        "AC-009",
-        "AC-010",
-        "AC-011"
-      ]
-    },
-    {
-      "severity": "high",
-      "issue": "F-002: test-evidence.json is absent while governance.requireTestEvidence is true.",
-      "location": ".sdrive/governance/design-tokens-and-component-library/v1/",
-      "fixRequired": true
-    },
-    {
-      "severity": "high",
-      "issue": "F-003: No test report at the required dated path under .sdrive/reports/tests/.",
-      "location": ".sdrive/reports/tests/",
-      "fixRequired": true
-    },
-    {
-      "severity": "high",
-      "issue": "F-004: sdrive verify returns fail with 44 spec artefacts unmatched in code (tokens module, 3 guard scripts, 18 components, DesignTokens entity, ds.* fields) although each exists on disk.",
-      "location": ".sdrive/governance/design-tokens-and-component-library/v1/verification.json",
-      "fixRequired": true
-    },
-    {
       "severity": "medium",
-      "issue": "F-005: traceability.json rows all still read status 'not_started' despite completed tasks, contradicting tasks.json.",
-      "location": ".sdrive/governance/design-tokens-and-component-library/v1/traceability.json",
-      "fixRequired": true
+      "issue": "Finding 1: Four brief hex values were darkened for AA contrast (muted #697586→#5f6875, success #16A34A→#166534, warning #F59E0B→#92400E, error #DC2626→#B91C1C). AC-002 requires the brief's exact hex, and T1.7 permitted only two value changes. The two requirements conflict: with the brief values the text pairs measure 4.44:1, 3.30:1, 2.15:1 and 4.83:1 (4.13:1 on tint), below NFR-003's 4.5:1. The owner reviewed the trade-off and accepted the accessible values for this release; AC-002's wording should be amended rather than the code reverted.",
+      "location": "backoffice/src/design-system/tokens.ts, backoffice/src/index.css (commit ad52d8b)",
+      "fixRequired": false,
+      "acIds": ["AC-002"]
     },
     {
       "severity": "low",
-      "issue": "F-006: NFR-004, NFR-005, NFR-006 and NFR-009 verified by code inspection only, with no browser measurement.",
-      "location": "backoffice/src (runtime behaviour not exercised)",
+      "issue": "NFR-002/004/006/007/008/009 are not measured in a browser. /design-system sits behind ProtectedRoute, so measuring requires the API server plus a seeded dev account, which this review did not provision. NFR-003, NFR-001 and NFR-005 are measured and pass.",
+      "location": "backoffice/src/App.tsx:33-39,76; no /sdrive:performance report",
       "fixRequired": false,
       "acIds": ["AC-005", "AC-006", "AC-010"]
+    },
+    {
+      "severity": "low",
+      "issue": "Two server test-infrastructure files changed in the same branch (hookTimeout raised to 90s, server test script gains --runInBand). Test-only, no production behaviour, but outside BP-006's planned surface.",
+      "location": "server/jest.config.cjs, server/package.json (commit b07f1a5)",
+      "fixRequired": false
     }
   ],
   "evidence": {
     "verification": ".sdrive/governance/design-tokens-and-component-library/v1/verification.json",
+    "testEvidence": ".sdrive/governance/design-tokens-and-component-library/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-design-tokens-and-component-library-v1-2026-11-04.md",
     "audit": ".sdrive/handoff.json"
   },
   "security": {
-    "status": "not_applicable",
-    "reason": "BP-006 is presentation only: React components, a token module and CSS. It adds no request path, authentication, SQL or cookie handling, so no REQUIRED CON-51x control has anything to govern. CON-517 is nonetheless honoured: dangerouslySetInnerHTML, innerHTML, outerHTML and insertAdjacentHTML appear nowhere in backoffice/src. No package was added or upgraded; the guard scripts use node:fs and Intl only.",
+    "status": "pass",
+    "reason": "BP-006 is presentation only: React components, a token module and CSS. It adds no request path, authentication, SQL or cookie handling, so no REQUIRED CON-51x control has a request surface to govern. CON-517 is honoured: dangerouslySetInnerHTML, innerHTML, outerHTML and insertAdjacentHTML appear nowhere in backoffice/src. No package was added or upgraded; pnpm-lock.yaml is unchanged.",
     "secrets": "clean",
     "dependencies": "clean",
     "baseline": [
@@ -204,66 +176,64 @@
   },
   "performance": {
     "status": "not_verified",
-    "reason": "NFR-003 was measured and passes, but NFR-004 (RTL), NFR-005 (keyboard), NFR-006 (375 px) and NFR-009 (console-error-free render) need a running app and a browser, which this review did not drive. No /sdrive:performance report exists for the feature.",
-    "method": "Contrast computed with the WCAG 2.x relative-luminance formula over every token pair the components render; 10% tints resolved by compositing the tint over the page background before measuring.",
+    "reason": "NFR-001, NFR-003 and NFR-005 are measured and pass. NFR-002/004/006/007/008/009 require a browser: /design-system is behind ProtectedRoute (App.tsx:33-39,76), so the API server and a seeded dev account are needed, which this review did not provision. No /sdrive:performance report exists. Recorded as not_verified, not as passing.",
+    "method": "WCAG 2.x relative-luminance formula over the shipped token values; 10% tints and page backgrounds composited before measuring. Physical-direction check via the literal guard. Locale parity via the locale guard.",
     "nfr": [
       {
+        "id": "NFR-001",
+        "target": "en/ar/fr key sets identical",
+        "measured": "guard passes: 219 keys in each catalogue",
+        "status": "pass"
+      },
+      {
+        "id": "NFR-002",
+        "target": ">= 40x40 px interactive targets",
+        "measured": "class inspection only (min-h-10/min-w-10 and icon-only sizing); not measured in a browser",
+        "status": "not_verified"
+      },
+      {
         "id": "NFR-003",
-        "target": ">= 4.5:1 for text, >= 3:1 for UI boundaries",
-        "measured": "23 pairs; lowest text pair 4.72:1 (muted on its own 10% tint), lowest UI pair 3.68:1",
+        "target": ">= 4.5:1 for text",
+        "measured": "12 text pairs; lowest 4.72:1 (muted on its 10% tint); lowest status pair 5.45:1",
         "status": "pass"
       },
       {
         "id": "NFR-004",
-        "target": "RTL-safe layout under dir=rtl",
-        "measured": "not measured in a browser; verified by inspection: no physical-direction utilities remain in src/",
+        "target": "WCAG 2.1 AA keyboard, focus, roles, ARIA",
+        "measured": "jsdom structural assertions only; no browser keyboard run",
         "status": "not_verified"
       },
       {
         "id": "NFR-005",
-        "target": "every interactive primitive keyboard reachable",
-        "measured": "not measured with a keyboard; verified by inspection of roving tabindex, focus traps and focus restore",
-        "status": "not_verified"
+        "target": "no physical-direction utility in backoffice/src/common",
+        "measured": "literal guard: 0 violations",
+        "status": "pass"
       },
       {
         "id": "NFR-006",
-        "target": "no horizontal overflow at 375 px",
-        "measured": "not measured in a browser; verified by inspection: the table scroller is desktop-only and the md:hidden card list carries the mobile layout",
+        "target": "direction-implying icons mirror; clocks/charts do not",
+        "measured": "jsdom/class inspection only; not measured in a browser",
+        "status": "not_verified"
+      },
+      {
+        "id": "NFR-007",
+        "target": "no horizontal overflow at 375/768/1440 px",
+        "measured": "not measured in a browser",
+        "status": "not_verified"
+      },
+      {
+        "id": "NFR-008",
+        "target": "content present without client state",
+        "measured": "initial render asserted in jsdom; a JS-disabled browser run was not performed",
         "status": "not_verified"
       },
       {
         "id": "NFR-009",
-        "target": "console-error-free render of /design-system",
-        "measured": "not measured; no browser session was run against the dev server",
+        "target": "console-error-free /design-system render",
+        "measured": "not measured; no browser session against the dev server",
         "status": "not_verified"
       }
     ],
     "seo": "not_applicable"
-  },
-  "remediation": {
-    "round": 1,
-    "items": [
-      {
-        "id": "F-001",
-        "finding": "No test exists for any of the 11 acceptance criteria; coverage is 0%, and test-evidence.json and the test report are missing.",
-        "severity": "high",
-        "fixWith": "/sdrive:test design-tokens-and-component-library",
-        "task": "F-001"
-      },
-      {
-        "id": "F-004",
-        "finding": "sdrive verify returns fail with 44 unmatched plan artefacts, and traceability.json statuses still read not_started.",
-        "severity": "high",
-        "fixWith": "/sdrive:apply design-tokens-and-component-library",
-        "task": "F-004"
-      },
-      {
-        "id": "F-006",
-        "finding": "NFR-004, NFR-005, NFR-006 and NFR-009 verified by code inspection only, with no browser measurement.",
-        "severity": "low",
-        "fixWith": "/sdrive:performance design-tokens-and-component-library",
-        "task": "F-006"
-      }
-    ]
   }
 }
