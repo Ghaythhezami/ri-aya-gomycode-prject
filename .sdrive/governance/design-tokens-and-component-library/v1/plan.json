@@ -1,0 +1,125 @@
+{
+  "feature": "design-tokens-and-component-library",
+  "version": 1,
+  "architecture": {
+    "approach": "CONSTRAINT (owner instruction, Gate 2): the existing token definitions are not overridden or replaced. The @theme block in backoffice/src/index.css and the values it already declares are preserved as they are; tokens are only added where a group or step is missing. The two stale values (--color-error #c81e1e, --color-muted #64707f) are the single exception: they are corrected to the values the majority of copies already use, and both corrections are called out here so they are not mistaken for a rewrite. Design tokens already exist in four disagreeing copies, so this feature collapses them rather than introducing a parallel system. backoffice/src/design-system/tokens.ts becomes the single importable source of truth for TypeScript consumers and the existing @theme block in backoffice/src/index.css becomes its CSS projection for Tailwind 4 utilities. The two files cannot import each other, so a dependency-free Node parity script fails the build whenever they diverge, backed by a literal-lint script that fails on any new hex literal or arbitrary-value colour class under backoffice/src and a locale-parity script for en/ar/fr. Two stale values are corrected to the values the majority of copies already use: --color-error #c81e1e to #dc2626 and --color-muted #64707f to #697586. Existing primitives are modified onto tokens, the seventeen missing primitives are created in backoffice/src/common, and the /design-system page is rebuilt to demonstrate every component and state. web is not touched (CON-303) and its divergent token block is recorded as a follow-up.",
+    "components": [
+      { "name": "tokens", "action": "create", "description": "backoffice/src/design-system/tokens.ts - as-const token object (colour, radius, space, elevation, font) whose keys mirror the CSS custom-property names; the single source of truth." },
+      { "name": "check-token-parity", "action": "create", "description": "backoffice/scripts/check-token-parity.mjs - fails when tokens.ts and the @theme block disagree in either direction." },
+      { "name": "check-token-literals", "action": "create", "description": "backoffice/scripts/check-token-literals.mjs - fails on any hex literal, arbitrary-value colour class or physical-direction utility under backoffice/src outside the token module and index.css." },
+      { "name": "check-locale-parity", "action": "create", "description": "backoffice/scripts/check-locale-parity.mjs - fails when the en, ar and fr key sets differ." },
+      { "name": "Button", "action": "modify", "description": "backoffice/src/common/Button.tsx - literal radii replaced with token radii, token colours, visible focus ring, logical utilities only." },
+      { "name": "Input", "action": "modify", "description": "backoffice/src/common/Input.tsx - token colours, aria-invalid and aria-describedby wiring for error and help text, extracted Field shell shared with Textarea." },
+      { "name": "Badge", "action": "modify", "description": "backoffice/src/common/Badge.tsx - token colours and a status conveyed by icon or text as well as colour." },
+      { "name": "Modal", "action": "modify", "description": "backoffice/src/common/Modal.tsx - focus trap, aria-modal, Esc to close, background inerting, focus restored to the invoking element, overlay elevation token." },
+      { "name": "Table", "action": "modify", "description": "backoffice/src/common/Table.tsx - token radii and borders; extended into a DataTable with accessible sortable columns and a card-list collapse at the mobile breakpoint." },
+      { "name": "SampleCharts", "action": "modify", "description": "backoffice/src/common/charts/SampleCharts.tsx - hard-coded #0F766E and #E5EAF0 series colours replaced by token references." },
+      { "name": "Textarea", "action": "create", "description": "backoffice/src/common/Textarea.tsx - shares the Field shell and token styling with Input." },
+      { "name": "SearchableSelect", "action": "create", "description": "backoffice/src/common/SearchableSelect.tsx - combobox pattern with type-ahead and keyboard selection." },
+      { "name": "DatePicker", "action": "create", "description": "backoffice/src/common/DatePicker.tsx - Intl-based display, locale-independent stored value." },
+      { "name": "TimePicker", "action": "create", "description": "backoffice/src/common/TimePicker.tsx - Intl-based display, locale-independent stored value." },
+      { "name": "Tabs", "action": "create", "description": "backoffice/src/common/Tabs.tsx - roving tabindex with tablist, tab and tabpanel roles." },
+      { "name": "Dropdown", "action": "create", "description": "backoffice/src/common/Dropdown.tsx - menu-button pattern with Esc, arrow keys and focus return." },
+      { "name": "Tooltip", "action": "create", "description": "backoffice/src/common/Tooltip.tsx - shown on hover and focus, linked via aria-describedby." },
+      { "name": "Popover", "action": "create", "description": "backoffice/src/common/Popover.tsx - repositions into the viewport at any edge." },
+      { "name": "KpiCard", "action": "create", "description": "backoffice/src/common/KpiCard.tsx - label, value and optional delta that collapses cleanly when absent." },
+      { "name": "Toast", "action": "create", "description": "backoffice/src/common/Toast.tsx - provider and hook, success/error/info tones, dismissible, announced via aria-live." },
+      { "name": "ConfirmDialog", "action": "create", "description": "backoffice/src/common/ConfirmDialog.tsx - built on the modified Modal, used before destructive actions, focus restored on cancel." },
+      { "name": "Skeleton", "action": "create", "description": "backoffice/src/common/Skeleton.tsx - loading placeholder respecting reduced-motion." },
+      { "name": "EmptyState", "action": "create", "description": "backoffice/src/common/EmptyState.tsx - shared empty result surface for lists and tables." },
+      { "name": "ErrorState", "action": "create", "description": "backoffice/src/common/ErrorState.tsx - shared fetch-failure surface with a retry slot." },
+      { "name": "DesignSystemPage", "action": "modify", "description": "backoffice/src/pages/DesignSystemPage.tsx - hard-coded tokens array deleted in favour of tokens.ts; page restructured into Tokens, Forms, Navigation and overlays, Data display, Feedback and States sections demonstrating every component and state." },
+      { "name": "RegisterPage", "action": "modify", "description": "backoffice/src/pages/RegisterPage.tsx - eleven arbitrary-value colour classes replaced with token utilities." },
+      { "name": "StaffDirectoryPage", "action": "modify", "description": "backoffice/src/pages/StaffDirectoryPage.tsx - arbitrary-value colour classes replaced with token utilities." },
+      { "name": "WorkspaceSwitcher", "action": "modify", "description": "backoffice/src/layouts/WorkspaceSwitcher.tsx - hard-coded #0F766E replaced with a token utility." },
+      { "name": "i18n-catalogues", "action": "modify", "description": "backoffice/src/i18n/en.json, ar.json, fr.json - ds.* keys for every new component string, added to all three together." }
+    ],
+    "referencedRequirementIds": [
+      "FR-001", "FR-002", "FR-003", "FR-004", "FR-005", "FR-006",
+      "FR-007", "FR-008", "FR-009", "FR-010", "FR-011", "FR-012",
+      "NFR-001", "NFR-004", "NFR-005", "NFR-006", "NFR-007", "NFR-009"
+    ]
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "DesignTokens",
+        "action": "create",
+        "fields": [
+          { "name": "color", "type": "Record<string, string>", "action": "add" },
+          { "name": "radius", "type": "Record<string, string>", "action": "add" },
+          { "name": "space", "type": "Record<string, string>", "action": "add" },
+          { "name": "elevation", "type": "Record<string, string>", "action": "add" },
+          { "name": "font", "type": "Record<string, string>", "action": "add" }
+        ]
+      },
+      {
+        "name": "LocaleCatalogue",
+        "action": "update",
+        "fields": [
+          { "name": "ds.*", "type": "string", "action": "add" },
+          { "name": "existing 135 keys", "type": "string", "action": "no_change" }
+        ]
+      }
+    ],
+    "flowDescription": "Nothing is persisted and no server or API is involved. tokens.ts is a static as-const object imported at build time by components and read at run time by the parity script through a dynamic import. index.css is a static stylesheet whose @theme block Tailwind compiles into utilities. The design-system page reads tokens.ts to render the token table and renders each component in each state from static example props. The only mutable state in the whole feature is client-side component state: the Toast queue and the open/closed flag of Dropdown, Popover, Tooltip and ConfirmDialog."
+  },
+  "apiContracts": [],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-009",
+      "description": "No third-party UI library is added (CON-308), so the feature introduces no new supply-chain surface; icons stay lucide-react and charts stay recharts. CON-511 through CON-520 are recorded NOT APPLICABLE in spec.md because this feature exposes no API endpoint, parses no input on a server and adds no authentication surface."
+    },
+    {
+      "requirementId": "NFR-004",
+      "description": "CON-517 (XSS) is honoured positively: no new primitive uses dangerouslySetInnerHTML, and Toast, Tooltip and Badge render text children only, never raw HTML. Accessible roles, focus management and non-colour status indication are the CON-517-adjacent controls this feature does implement."
+    },
+    {
+      "requirementId": "NFR-001",
+      "description": "The locale-parity guard fails the build when a translation key exists in one catalogue only, which prevents a partially localised surface from shipping and keeps CON-304 enforceable in CI."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-009",
+      "strategy": "Seventeen new components all mount on the /design-system route; each is a plain function component with no third-party UI dependency, so the route's bundle grows without adding a library. DatePicker and TimePicker use the platform Intl API rather than shipping a locale data package, which is why FR-010 specifies Intl."
+    },
+    {
+      "requirementId": "NFR-001",
+      "strategy": "The three guard scripts use only node:fs and node:path, add no install step and read a handful of files, so their CI cost is negligible. Tokens are resolved at build time by Tailwind and at module load by tokens.ts, so consuming a token costs no runtime lookup."
+    },
+    {
+      "requirementId": "NFR-008",
+      "strategy": "The Toast provider uses a single aria-live region rather than one per toast, avoiding repeated announcements and repeated DOM subtrees; static content stays in server-rendered markup with no client state."
+    }
+  ],
+  "risks": [
+    {
+      "description": "RISK-001: UI-1 names Storybook, but the demonstration surface chosen here is the /design-system page.",
+      "mitigation": "Gate 1 was approved by the owner with this surface confirmed. If Storybook is later required, CON-308 is amended first, only P5 changes, and this spec takes a v2."
+    },
+    {
+      "description": "RISK-003 / R-P2: a parity script that has never failed is not evidence that it works.",
+      "mitigation": "The script is written in P1 and run against the tree before the two stale values are corrected, so it must fail on them first and only then pass."
+    },
+    {
+      "description": "R-P3: 17 new components across P3 and P4 is a large diff that could be reviewed as an undifferentiated block.",
+      "mitigation": "P3 and P4 are independently reviewable, and each component lands with its /design-system section in the same phase instead of deferring all documentation to P5."
+    },
+    {
+      "description": "RISK-005 / R-P4: web/src/app/globals.css is a hand-copied @theme block that has already drifted and is being edited in a separate thread on feature/gate-binding.",
+      "mitigation": "The feature confines itself to backoffice (CON-303), the parity script reads only backoffice, and the divergence is recorded as a follow-up for whichever feature owns web."
+    }
+  ],
+  "dependencies": [
+    { "name": "react", "type": "library", "action": "no_change", "notes": "19.1.0 already installed; hooks only, no new API." },
+    { "name": "react-router-dom", "type": "library", "action": "no_change", "notes": "The /design-system route already exists in App.tsx." },
+    { "name": "lucide-react", "type": "library", "action": "no_change", "notes": "The only icon source (CON-307); no new icon package." },
+    { "name": "recharts", "type": "library", "action": "no_change", "notes": "Series colours move to token values; no wrapper package." },
+    { "name": "tailwindcss", "type": "library", "action": "no_change", "notes": "Already installed via @tailwindcss/vite; @theme is the CSS projection of the tokens." },
+    { "name": "i18next", "type": "library", "action": "no_change", "notes": "Catalogues extended in place." },
+    { "name": "react-i18next", "type": "library", "action": "no_change", "notes": "Catalogues extended in place." },
+    { "name": "Node.js built-ins (node:fs, node:path, Intl)", "type": "external", "action": "no_change", "notes": "The three guard scripts use only built-ins; no package is added." },
+    { "name": "storybook", "type": "library", "action": "remove", "notes": "Deliberately NOT added: CON-308 requires explicit approval and CON-302 names /design-system as the demonstration surface. Recorded so /sdrive:apply does not provision it; resolution is that this dependency is withdrawn from the feature, not removed from the project (it is not installed)." }
+  ]
+}

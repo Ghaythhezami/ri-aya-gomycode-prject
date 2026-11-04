@@ -1,0 +1,374 @@
+{
+  "feature": "design-tokens-and-component-library",
+  "title": "Design tokens and component library",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The backoffice has a /design-system page and five ad-hoc primitives in backoffice/src/common, but the brief's token table is not a single source of truth: colours are duplicated across .sdrive/product/design-system.md, a hard-coded tokens array in DesignSystemPage.tsx and the @theme block in index.css, and those copies already disagree (#DC2626 vs #C81E1E). Radii are literal class strings, no spacing or elevation scale exists, and about half of the brief's component inventory is missing (searchable select, date/time pickers, tabs, dropdown, tooltip, popover, KPI card, toast, confirm dialog, skeleton, empty state, error state).",
+    "proposedSolution": "Make backoffice/src/index.css @theme the single token source and expose the same values as a typed TypeScript token module. Migrate the physical-direction utilities in the existing primitives to logical ones. Build the missing primitives in backoffice/src/common with the required states. Document every component and state on the existing /design-system page instead of adding Storybook. Add build-failing checks for token parity and for en/ar/fr locale key parity.",
+    "targetAudience": "Backoffice engineers and every later feature that builds screens from primitives (BP-007 application shell onwards), with clinic staff as the end users who need a consistent, RTL-correct, accessible interface.",
+    "assumptions": [
+      "Storybook is development-only or not shipped: .sdrive/product/design-system.md section 9 lists it as open, CON-308 requires explicit approval for a documentation library, and CON-302 already names the /design-system page as the demonstration surface. This spec demonstrates every state on /design-system and records Storybook as out of scope; the owner must overturn this at Gate 1 if Storybook is actually required.",
+      "#DC2626 is the correct error colour per the brief, so --color-error: #C81E1E in index.css is the stale copy and is corrected.",
+      "The accessibility target is WCAG 2.1 AA as stated by the brief and design-system.md section 6, not the [to be confirmed] value in CON-309; amending CON-309 is the owner's action, not this feature's.",
+      "Spacing and elevation scales are proposed here from values already used in the codebase because the brief leaves them [to be confirmed].",
+      "The marketing site web is out of scope because CON-303 forbids sharing backoffice primitives."
+    ],
+    "outOfScope": [
+      "Storybook or any other component-documentation tool (needs CON-308 approval).",
+      "The application shell, sidebar, top bar and navigation (BP-007).",
+      "Any clinical screen, table, form or flow that consumes these primitives.",
+      "Chart wrappers beyond registering design tokens for recharts series colours.",
+      "The marketing site web and its component sources (CON-303).",
+      "Dark theme, per-clinic theming, brand overrides and colour-scheme switching."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "One source of truth for design tokens",
+      "role": "backoffice engineer",
+      "want": "every colour, radius, spacing and elevation value to come from one declared token set",
+      "benefit": "a design change is one edit instead of a hunt through components",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given the backoffice source tree, when I search for a hex colour literal (#rrggbb) under backoffice/src outside index.css and the token module, then no literal remains in a component or page file."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given the token contract, when I read the index.css @theme block and the typed token module, then both expose the same colour, radius, spacing, elevation and font-family values, and the brief's eleven colour values are present with the brief's exact hex."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given the backoffice dev server, when I load /design-system, then the token section is rendered from the token module rather than a hard-coded array, and each swatch shows its token name and resolved hex."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "RTL-safe and accessible primitives",
+      "role": "Arabic-speaking receptionist",
+      "want": "every primitive to mirror correctly and to be operable by keyboard",
+      "benefit": "I can use the product in my own language and without a mouse",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-004",
+          "text": "Given a component file under backoffice/src/common, when I inspect its class names, then no physical-direction utility (ml-*, mr-*, pl-*, pr-*, left-*, right-*, text-left, text-right, rounded-l*, rounded-r*, border-l*, border-r*) is used."
+        },
+        {
+          "id": "AC-005",
+          "text": "Given the backoffice with dir=rtl on the html element, when I load /design-system, then every showcased component renders mirrored with no overflowing or clipped content and no horizontal scrollbar."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given a keyboard only, when I tab through /design-system, then every interactive primitive is reachable in DOM order, shows a visible focus indicator, and can be activated with Enter or Space."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given the Badge primitive, when I render any tone, then the status is conveyed by a text label in addition to colour, so no state is colour-only."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "The complete component inventory exists and is documented",
+      "role": "backoffice engineer",
+      "want": "the brief's full component set to exist with documented states",
+      "benefit": "I build screens from primitives instead of reinventing them",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given backoffice/src/common, when I list the primitives, then the inventory contains Button, Input/Textarea, SearchableSelect, DatePicker, TimePicker, Tabs, Dropdown, Tooltip, Popover, DataTable, KpiCard, Badge, Toast, ConfirmDialog, Skeleton, EmptyState and ErrorState."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given /design-system, when I load the page, then each inventory component has its own section demonstrating default, hover, focus and disabled states, and the input-like components additionally demonstrate an error state."
+        },
+        {
+          "id": "AC-010",
+          "text": "Given /design-system at a 375 px viewport, when I load the page, then no component overflows horizontally and the DataTable collapses to a card list."
+        },
+        {
+          "id": "AC-011",
+          "text": "Given /design-system in each of en, ar and fr, when I change the language, then every label on the page is translated and no key is missing in any locale."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The system MUST define the design tokens (colour, font family, radius, spacing, elevation) in exactly one declared source of truth, consumed by both CSS and TypeScript.",
+      "linkedAcceptanceCriteria": [
+        "AC-001",
+        "AC-002",
+        "AC-003"
+      ]
+    },
+    {
+      "id": "FR-002",
+      "text": "The token set MUST include the brief's eleven colour values verbatim, the Inter and Noto Sans Arabic font families, a radius scale covering 10-16 px, a spacing scale and an elevation scale.",
+      "linkedAcceptanceCriteria": [
+        "AC-002"
+      ]
+    },
+    {
+      "id": "FR-003",
+      "text": "The existing Button, Input/Field, Badge, Modal and Table primitives MUST be refactored to consume the tokens instead of literal values.",
+      "linkedAcceptanceCriteria": [
+        "AC-001",
+        "AC-003"
+      ]
+    },
+    {
+      "id": "FR-004",
+      "text": "The system MUST add these primitives that do not currently exist: SearchableSelect, DatePicker, TimePicker, Tabs, Dropdown, Tooltip, Popover, KpiCard, Toast, ConfirmDialog, Skeleton, EmptyState, ErrorState, and a Textarea variant of the input.",
+      "linkedAcceptanceCriteria": [
+        "AC-008",
+        "AC-009"
+      ]
+    },
+    {
+      "id": "FR-005",
+      "text": "ConfirmDialog MUST be usable, and MUST be used, as the confirmation surface before a destructive action.",
+      "linkedAcceptanceCriteria": [
+        "AC-009"
+      ]
+    },
+    {
+      "id": "FR-006",
+      "text": "The Toast primitive MUST support success, error and information tones, MUST be dismissible, and MUST announce itself to assistive technology.",
+      "linkedAcceptanceCriteria": [
+        "AC-006",
+        "AC-009"
+      ]
+    },
+    {
+      "id": "FR-007",
+      "text": "KpiCard MUST render a label, a value and an optional delta against a comparison period.",
+      "linkedAcceptanceCriteria": [
+        "AC-009"
+      ]
+    },
+    {
+      "id": "FR-008",
+      "text": "DataTable MUST support accessible column sorting and MUST collapse to a card list at the mobile breakpoint rather than scrolling horizontally.",
+      "linkedAcceptanceCriteria": [
+        "AC-010"
+      ]
+    },
+    {
+      "id": "FR-009",
+      "text": "The /design-system page MUST demonstrate every component in the inventory with its required states, replacing the current partial listing.",
+      "linkedAcceptanceCriteria": [
+        "AC-009",
+        "AC-011"
+      ]
+    },
+    {
+      "id": "FR-010",
+      "text": "The date and time pickers MUST format and parse with Intl and respect the active locale, while stored values remain locale-independent.",
+      "linkedAcceptanceCriteria": [
+        "AC-005"
+      ]
+    },
+    {
+      "id": "FR-011",
+      "text": "All new user-facing strings MUST be added to all three locale catalogues.",
+      "linkedAcceptanceCriteria": [
+        "AC-011"
+      ]
+    },
+    {
+      "id": "FR-012",
+      "text": "The 34 hex literals in the five backoffice files that bypass the token block (RegisterPage.tsx, StaffDirectoryPage.tsx, DesignSystemPage.tsx, WorkspaceSwitcher.tsx, common/charts/SampleCharts.tsx) MUST be replaced by token-derived utilities or token references; no flat colour literal may remain in backoffice/src outside the token module and index.css.",
+      "linkedAcceptanceCriteria": [
+        "AC-001",
+        "AC-009"
+      ]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "The build MUST fail when a translation key exists in one of the en/ar/fr catalogues and not in the others (CON-304).",
+      "linkedAcceptanceCriteria": [
+        "AC-011"
+      ]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Interactive targets MUST be at least 40 by 40 px.",
+      "linkedAcceptanceCriteria": [
+        "AC-006"
+      ]
+    },
+    {
+      "id": "NFR-003",
+      "text": "Text MUST meet a contrast ratio of at least 4.5:1 against its background, and every token pair used for text MUST be verified.",
+      "linkedAcceptanceCriteria": [
+        "AC-002"
+      ]
+    },
+    {
+      "id": "NFR-004",
+      "text": "Components MUST satisfy WCAG 2.1 AA: keyboard operable, visible focus, correct roles and ARIA attributes, and status never conveyed by colour alone.",
+      "linkedAcceptanceCriteria": [
+        "AC-006",
+        "AC-007"
+      ]
+    },
+    {
+      "id": "NFR-005",
+      "text": "Layout MUST be direction-aware: no physical-direction utility in backoffice/src/common (CON-305).",
+      "linkedAcceptanceCriteria": [
+        "AC-004",
+        "AC-005"
+      ]
+    },
+    {
+      "id": "NFR-006",
+      "text": "Direction-implying icons such as chevrons and arrows MUST mirror under RTL, while clocks, charts and numerals MUST NOT mirror.",
+      "linkedAcceptanceCriteria": [
+        "AC-005"
+      ]
+    },
+    {
+      "id": "NFR-007",
+      "text": "The /design-system route MUST render without horizontal overflow at 375, 768 and 1440 px.",
+      "linkedAcceptanceCriteria": [
+        "AC-010"
+      ]
+    },
+    {
+      "id": "NFR-008",
+      "text": "Headings, labels, values and table rows MUST be present in the markup without client state, so static content does not depend on JavaScript-driven interactivity.",
+      "linkedAcceptanceCriteria": [
+        "AC-009"
+      ]
+    },
+    {
+      "id": "NFR-009",
+      "text": "Adding a component MUST add no third-party UI library (CON-308); icons stay lucide-react and charts stay recharts.",
+      "linkedAcceptanceCriteria": [
+        "AC-008"
+      ]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "A design token is renamed.",
+      "expectedBehavior": "The TypeScript token module and the @theme block are updated together; the token-parity check fails the build if they drift."
+    },
+    {
+      "id": "EC-002",
+      "description": "A translation key is added to en only.",
+      "expectedBehavior": "The locale-parity check fails the build, naming the missing key and locale."
+    },
+    {
+      "id": "EC-003",
+      "description": "SearchableSelect has more options than fit the viewport.",
+      "expectedBehavior": "The list scrolls inside a bounded popover, is filtered by typing, and is navigable with Arrow keys and Enter."
+    },
+    {
+      "id": "EC-004",
+      "description": "SearchableSelect matches nothing.",
+      "expectedBehavior": "It shows a localised no-results row rather than an empty popover."
+    },
+    {
+      "id": "EC-005",
+      "description": "A DatePicker receives an invalid or unparseable date.",
+      "expectedBehavior": "It renders the input in its error state with a localised message and never throws."
+    },
+    {
+      "id": "EC-006",
+      "description": "A DatePicker or TimePicker is used under Arabic.",
+      "expectedBehavior": "The displayed format follows the locale while the emitted value stays in a fixed, locale-independent form."
+    },
+    {
+      "id": "EC-007",
+      "description": "Toast renders with several messages at once.",
+      "expectedBehavior": "Messages stack in a bounded region, do not overlap interactive content, and each can be dismissed."
+    },
+    {
+      "id": "EC-008",
+      "description": "ConfirmDialog is dismissed with Escape or a backdrop click.",
+      "expectedBehavior": "It closes without invoking the destructive action, and focus returns to the element that opened it."
+    },
+    {
+      "id": "EC-009",
+      "description": "Popover or Tooltip would overflow the viewport edge.",
+      "expectedBehavior": "It repositions to stay in view."
+    },
+    {
+      "id": "EC-010",
+      "description": "DataTable receives zero rows.",
+      "expectedBehavior": "It renders EmptyState instead of a headerless table."
+    },
+    {
+      "id": "EC-011",
+      "description": "DataTable is rendered without a caption or equivalent accessible name.",
+      "expectedBehavior": "It still exposes a name to assistive technology."
+    },
+    {
+      "id": "EC-012",
+      "description": "A KpiCard has no delta.",
+      "expectedBehavior": "It renders without the delta area and with no stray separator."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "BP-001 monorepo and local environment",
+      "type": "internal",
+      "notes": "Archived; supplies the pnpm workspace and the backoffice package this feature extends."
+    },
+    {
+      "name": "BP-003 API skeleton and CI",
+      "type": "internal",
+      "notes": "Archived; supplies lint, typecheck and the CI pipeline, which this feature must keep green."
+    },
+    {
+      "name": "lucide-react",
+      "type": "library",
+      "notes": "Already installed in backoffice (CON-307); no third-party UI library is added (CON-308)."
+    },
+    {
+      "name": "recharts",
+      "type": "library",
+      "notes": "Already installed in backoffice (CON-307); only series colours are tokenised, no wrapper is added."
+    },
+    {
+      "name": "Tailwind CSS 4 @theme",
+      "type": "library",
+      "notes": "Already installed via @tailwindcss/vite; becomes the CSS half of the token contract."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "UI-1 names Storybook, but this spec demonstrates states on the /design-system page instead.",
+      "mitigation": "The owner confirms or overturns this at Gate 1; if Storybook is required, CON-308 is amended first and this spec takes a v2."
+    },
+    {
+      "id": "RISK-002",
+      "description": "CON-309 leaves the accessibility target [to be confirmed] while the brief states WCAG 2.1 AA.",
+      "mitigation": "This spec follows the brief, claims no level above AA, and leaves the CON-309 amendment to the owner."
+    },
+    {
+      "id": "RISK-003",
+      "description": "Token duplication has already caused drift: #DC2626 in the brief and page versus #C81E1E in index.css.",
+      "mitigation": "AC-001 and AC-002 plus a token-parity check that fails the build when the two declarations diverge."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Building fourteen missing primitives invites scope creep into the screens that consume them.",
+      "mitigation": "Out of Scope names screens and the shell explicitly; /sdrive:review checks that no clinical screen was added."
+    },
+    {
+      "id": "RISK-005",
+      "description": "web/src/app/globals.css and backoffice/src/index.css are hand-copied @theme blocks that have already drifted (--color-muted #64707f vs #697586, --color-error #C81E1E vs #DC2626); web tokens are being changed in a separate thread on feature/gate-binding.",
+      "mitigation": "This feature confines itself to backoffice (CON-303), never merges the two blocks, and records the divergence as a follow-up for whichever feature owns web."
+    }
+  ]
+}
