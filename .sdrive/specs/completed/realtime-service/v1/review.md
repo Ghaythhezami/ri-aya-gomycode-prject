@@ -2,7 +2,7 @@
 status: PASS
 feature: realtime-service
 version: v1
-commit: 9d2d225950675adb39983b60ef0f78c984ec3286
+commit: e5967d7c57dd57a327f5cc733b3e61d65acbd833
 branch: feature/realtime-service
 base: main
 reviewedBy: kenule500
@@ -19,7 +19,7 @@ evidence: .sdrive/governance/realtime-service/v1/test-evidence.json
 - **Date:** 2026-11-04
 - **Reviewer:** kenule500 (independent: no — self-review, see §3)
 - **Version:** v1
-- **Commit:** 9d2d225950675adb39983b60ef0f78c984ec3286
+- **Commit:** e5967d7c57dd57a327f5cc733b3e61d65acbd833
 - **Branch / base:** feature/realtime-service / main
 
 ## 2. Evidence
@@ -29,6 +29,7 @@ evidence: .sdrive/governance/realtime-service/v1/test-evidence.json
 - Verification: `.sdrive/governance/realtime-service/v1/verification.json` — `warn`, 0 missing, 1 withdrawn, 28 extra
 - Audit chain: `sdrive audit:verify` — 68 hashed events verified
 - CI: not verified — no workflow run exists for this branch
+- Re-bound: the verdict was recorded at `9d2d225` and re-bound to this merge commit after `main` was merged in. `git diff 9d2d225 e5967d7c57dd57a327f5cc733b3e61d65acbd833 -- . ':!.sdrive'` is empty, so the reviewed code is unchanged; only `.sdrive` bookkeeping differs.
 
 ## 3. Criteria Check
 

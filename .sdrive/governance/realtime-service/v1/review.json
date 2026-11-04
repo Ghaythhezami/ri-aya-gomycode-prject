@@ -2,11 +2,11 @@
   "feature": "realtime-service",
   "version": "v1",
   "status": "PASS",
-  "commit": "9d2d225950675adb39983b60ef0f78c984ec3286",
+  "commit": "e5967d7c57dd57a327f5cc733b3e61d65acbd833",
   "base": "main",
   "branch": "feature/realtime-service",
   "reviewedBy": "kenule500",
-  "reviewedAt": "2026-11-04T16:55:00.000Z",
+  "reviewedAt": "2026-11-04T17:10:38.000Z",
   "coverage": 100,
   "criteria": [
     {
@@ -27,7 +27,7 @@
     {
       "id": "Coverage",
       "status": "pass",
-      "detail": "100% - 16 of 16 acceptance criteria carry a test ID backed by the recorded evidence, 46 of 46 tests pass. No criterion is withdrawn."
+      "detail": "100% - 16 of 16 acceptance criteria carry a test ID backed by the recorded evidence, 46 of 46 tests pass. The verdict was re-bound from 9d2d225 to e5967d7c after merging main; no source file differs between the two commits."
     },
     {
       "id": "Test Report",
@@ -37,7 +37,7 @@
     {
       "id": "Test Evidence",
       "status": "pass",
-      "detail": "test-evidence.json records exitCode 0, summary.failed 0, summary.total 46, commit 9d2d225 which equals HEAD, and 16 AC IDs plus 16 TEST IDs captured from a --verbose run."
+      "detail": "test-evidence.json records exitCode 0, 46 passed, 0 failed, commit e5967d7c which equals HEAD, with 16 AC IDs and 16 TEST IDs captured."
     },
     {
       "id": "Change Scope",
