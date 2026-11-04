@@ -1,33 +1,23 @@
 {
   "feature": "design-tokens-and-component-library",
   "version": "v1",
-  "recordedAt": "2026-11-04T11:44:43.114Z",
+  "recordedAt": "2026-11-04T12:10:07.447Z",
   "by": null,
   "steps": [
     {
       "command": "/sdrive:apply design-tokens-and-component-library",
       "kind": "slash",
-      "why": "The test run is red on a production defect: AC-006 fails because DesignSystemPage.tsx:265 nests a <Button> inside <Dropdown>, which already renders its own <button>. AC-005 and AC-010 also need a browser-measured overflow check that jsdom cannot give."
-    },
-    {
-      "command": "sdrive verify design-tokens-and-component-library",
-      "kind": "cli",
-      "why": "verify still exits 7 with 44 unmatched plan artefacts (path-shape mismatch between plan.json and the real tree). Unchanged by the test work, but review will read it as a FAIL."
-    },
-    {
-      "command": "sdrive test design-tokens-and-component-library",
-      "kind": "cli",
-      "why": "A fix moves HEAD, so the test record must be re-stamped before review can read it."
+      "why": "Round-1 review F-004 asked for this remediation run."
     },
     {
       "command": "sdrive approve design-tokens-and-component-library implementation",
       "kind": "human",
-      "why": "New fix tasks leave the implementation sign-off unsatisfied until it is given again."
+      "why": "Two fix commits landed after the earlier implementation approval (AC-006 and F-004), so the gate is satisfied but unsigned for the current HEAD."
     },
     {
       "command": "/sdrive:review design-tokens-and-component-library",
       "kind": "slash",
-      "why": "Round 2 review cannot clear the round 1 verdict until the defect and the verify mismatch are resolved."
+      "why": "Round 2 review can now clear the round-1 FAIL: AC-006 is fixed and verify reports 36 matched, 0 missing, 11 withdrawn."
     }
   ]
 }
