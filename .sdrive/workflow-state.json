@@ -590,8 +590,8 @@
           "phase": "backlog",
           "currentStep": "specification",
           "gates": {
-            "specification": "pending",
-            "planning": "pending",
+            "specification": "approved",
+            "planning": "approved",
             "implementation": "pending",
             "review": "pending"
           },
@@ -601,6 +601,39 @@
               "by": "specification-agent",
               "base": "main",
               "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/strict-tenant-isolation/v1/spec.md",
+                ".sdrive/governance/strict-tenant-isolation/v1/spec.json",
+                ".sdrive/governance/strict-tenant-isolation/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:21:50.758Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: scope hardened onto one helper, audit scoped, and the refresh-token scope defect (D5) included.",
+              "timestamp": "2026-11-04T15:24:23.553Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/strict-tenant-isolation/v1/plan.md",
+                ".sdrive/specs/backlog/strict-tenant-isolation/v1/tasks.md",
+                ".sdrive/governance/strict-tenant-isolation/v1/plan.json",
+                ".sdrive/governance/strict-tenant-isolation/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:24:23.553Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: helper refactor, scoped audit, and the refresh-token clinic scope migration.",
+              "timestamp": "2026-11-04T15:24:46.427Z"
             }
           ]
         }

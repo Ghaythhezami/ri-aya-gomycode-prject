@@ -1,0 +1,168 @@
+{
+  "feature": "strict-tenant-isolation",
+  "version": 1,
+  "architecture": {
+    "approach": "Keep the existing JwtStrategy/TenantContext scope resolution and make it reusable and complete: add scoped-filter helpers to TenancyService, refactor the hand-written invitation and membership filters onto them, scope audit writes and reads from TenantContext, and fix the refresh-token scope defect by adding a nullable clinicId that carries the selected workspace across rotation. No dependency and no permission-matrix work (BP-011) are added.",
+    "components": [
+      {
+        "name": "TenancyService",
+        "action": "modify",
+        "description": "Adds clinicFilter(), organizationFilter() and assertClinicInScope(), and refactors the existing tenant predicates onto them."
+      },
+      {
+        "name": "OnboardingService",
+        "action": "modify",
+        "description": "Uses the shared helper for the pending-invitation list instead of a hand-written clinic filter."
+      },
+      {
+        "name": "AuditService",
+        "action": "modify",
+        "description": "Defaults organizationId/clinicId from TenantContext on write and tenant-scopes listForEntity."
+      },
+      {
+        "name": "auth.service",
+        "action": "modify",
+        "description": "Persists the active clinic when issuing and switching refresh tokens, and keeps that scope on refresh; fixes the D5 fallback."
+      },
+      {
+        "name": "InviteDto",
+        "action": "modify",
+        "description": "Documents clinicId as a selector that is re-verified inside the caller's organization."
+      },
+      {
+        "name": "SwitchWorkspaceDto",
+        "action": "modify",
+        "description": "Documents clinicId as a selector that is re-verified against the caller's memberships."
+      },
+      {
+        "name": "TenantContext",
+        "action": "reuse",
+        "description": "Existing per-request scope frame; unchanged."
+      },
+      {
+        "name": "JwtStrategy",
+        "action": "reuse",
+        "description": "Existing scope resolution and active-membership check; unchanged."
+      },
+      {
+        "name": "ValidationPipe",
+        "action": "reuse",
+        "description": "Existing whitelist and forbidNonWhitelisted rejection path; unchanged."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "FR-009",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004",
+      "NFR-005",
+      "NFR-006"
+    ]
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "RefreshToken",
+        "action": "update",
+        "fields": [
+          {
+            "name": "clinicId",
+            "type": "String?",
+            "nullable": true,
+            "action": "add"
+          }
+        ]
+      }
+    ],
+    "flowDescription": "Login issues a refresh token carrying the active scope's clinicId; a workspace switch re-issues it with the selected clinic; refresh resolves that membership, rejects an inactive one, and rotates with the same clinic. Legacy rows with clinicId null fall back to the default scope once, then carry the scope."
+  },
+  "apiContracts": [
+    {
+      "method": "POST",
+      "path": "/api/auth/switch-workspace",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-006", "FR-009"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/invitations",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-002", "FR-004"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/invitations",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-003"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/memberships/:id/suspend",
+      "action": "reuse",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-004"]
+    }
+  ],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-001",
+      "description": "Tenant scope is resolved only from the verified token and the active membership; no request body, query or header value can widen it. Navigation hiding is not a security boundary."
+    },
+    {
+      "requirementId": "NFR-002",
+      "description": "The global ValidationPipe rejects undeclared body fields, and the two selector DTOs re-verify their clinicId against the caller's memberships."
+    },
+    {
+      "requirementId": "NFR-003",
+      "description": "All access goes through Prisma's parameterised client; no raw SQL is introduced."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Prisma client",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Parameterised queries only; one additive migration adds refresh_tokens.clinic_id."
+    },
+    {
+      "name": "NestJS JwtStrategy, guards and ValidationPipe",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Scope resolution and validation already exist; this feature reuses them."
+    }
+  ],
+  "risks": [
+    {
+      "description": "A future service could bypass the helper and hand-write a weaker filter.",
+      "mitigation": "Documented rule, refactor of every current filter, and cross-tenant tests enumerating clinic-scoped endpoints."
+    },
+    {
+      "description": "Patient isolation cannot be tested until BP-015 exists.",
+      "mitigation": "The helper and rule ship here; BP-015 must add the patient-resource test."
+    },
+    {
+      "description": "Returning 403 for a foreign id discloses existence.",
+      "mitigation": "404 is required and tested."
+    },
+    {
+      "description": "Organization-wide roles must not be narrowed by accident.",
+      "mitigation": "The helper takes the verified scope including the organization-wide case."
+    },
+    {
+      "description": "Legacy refresh tokens predate the clinicId column.",
+      "mitigation": "Nullable column and a one-rotation default fallback before the scope is carried."
+    }
+  ]
+}

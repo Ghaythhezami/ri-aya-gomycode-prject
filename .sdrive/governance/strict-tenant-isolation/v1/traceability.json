@@ -1,0 +1,126 @@
+{
+  "feature": "strict-tenant-isolation",
+  "version": 1,
+  "rows": [
+    {
+      "requirementId": "FR-001",
+      "acceptanceCriteriaIds": ["AC-001", "AC-006"],
+      "planSection": "plan.md §1, §3 P1",
+      "taskIds": ["T1.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-002",
+      "acceptanceCriteriaIds": ["AC-002"],
+      "planSection": "plan.md §1, §3 P2",
+      "taskIds": ["T2.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-003",
+      "acceptanceCriteriaIds": ["AC-003"],
+      "planSection": "plan.md §1, §3 P1",
+      "taskIds": ["T1.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-004",
+      "acceptanceCriteriaIds": ["AC-004"],
+      "planSection": "plan.md §1, §3 P2",
+      "taskIds": ["T2.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-005",
+      "acceptanceCriteriaIds": ["AC-005"],
+      "planSection": "plan.md §1, §3 P1",
+      "taskIds": ["T1.1", "T1.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-006",
+      "acceptanceCriteriaIds": ["AC-007", "AC-009"],
+      "planSection": "plan.md §1, §3 P3",
+      "taskIds": ["T3.1", "T3.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-007",
+      "acceptanceCriteriaIds": ["AC-008"],
+      "planSection": "plan.md §1, §3 P1",
+      "taskIds": ["T1.3"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-008",
+      "acceptanceCriteriaIds": ["AC-005"],
+      "planSection": "plan.md §1, §3 P1",
+      "taskIds": ["T1.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-009",
+      "acceptanceCriteriaIds": ["AC-009"],
+      "planSection": "plan.md §1, §3 P3",
+      "taskIds": ["T3.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-001",
+      "acceptanceCriteriaIds": ["AC-001", "AC-002"],
+      "planSection": "plan.md §1, §3 P1, P2",
+      "taskIds": ["T1.1", "T2.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-002",
+      "acceptanceCriteriaIds": ["AC-002"],
+      "planSection": "plan.md §1, §3 P2",
+      "taskIds": ["T2.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-003",
+      "acceptanceCriteriaIds": ["AC-003", "AC-008"],
+      "planSection": "plan.md §1, §3 P1, P4",
+      "taskIds": ["T1.2", "T1.3", "T4.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-004",
+      "acceptanceCriteriaIds": ["AC-005"],
+      "planSection": "plan.md §1, §3 P4",
+      "taskIds": ["T4.1", "T4.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-005",
+      "acceptanceCriteriaIds": ["AC-003", "AC-004"],
+      "planSection": "plan.md §1, §3 P2, P4",
+      "taskIds": ["T2.2", "T4.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-006",
+      "acceptanceCriteriaIds": ["AC-002", "AC-003", "AC-004", "AC-008"],
+      "planSection": "plan.md §1.4; tests authored by /sdrive:test",
+      "taskIds": [],
+      "testIds": [],
+      "status": "not_started"
+    }
+  ]
+}

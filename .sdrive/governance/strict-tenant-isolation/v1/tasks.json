@@ -1,0 +1,106 @@
+{
+  "feature": "strict-tenant-isolation",
+  "version": 1,
+  "phases": [
+    {
+      "phaseId": "P1",
+      "name": "Scoped-query helper",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T1.1",
+          "title": "Add the scoped-filter helpers",
+          "description": "Add clinicFilter(), organizationFilter() and assertClinicInScope() to TenancyService, built from TenantContext and documented as the required filter for every clinic-scoped query.",
+          "linkedRequirements": ["FR-001", "FR-005", "FR-008", "NFR-001"],
+          "linkedAcceptanceCriteria": ["AC-001", "AC-005"],
+          "completed": false
+        },
+        {
+          "id": "T1.2",
+          "title": "Refactor existing tenant filters onto the helper",
+          "description": "Refactor OnboardingService.listPendingInvitations and TenancyService.findMembershipInTenant onto the helper and remove the hand-written organization/clinic filters.",
+          "linkedRequirements": ["FR-003", "FR-005", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-003", "AC-005"],
+          "completed": false
+        },
+        {
+          "id": "T1.3",
+          "title": "Scope the audit write and read paths",
+          "description": "Default organizationId/clinicId from TenantContext on audit writes (explicit values still work for non-HTTP callers) and tenant-scope listForEntity.",
+          "linkedRequirements": ["FR-007", "NFR-003"],
+          "linkedAcceptanceCriteria": ["AC-008"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P2",
+      "name": "Forged identifiers and cross-tenant responses",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T2.1",
+          "title": "Document the selector and rejection paths",
+          "description": "Verify the global ValidationPipe uses whitelist and forbidNonWhitelisted, and add Swagger descriptions stating that InviteDto.clinicId and SwitchWorkspaceDto.clinicId are selectors re-verified against the caller's memberships.",
+          "linkedRequirements": ["FR-002", "NFR-002"],
+          "linkedAcceptanceCriteria": ["AC-002"],
+          "completed": false
+        },
+        {
+          "id": "T2.2",
+          "title": "Keep cross-tenant mutations at 404",
+          "description": "Route findMembershipInTenant through the helper and confirm an invitation target outside the caller's organization is treated as not found.",
+          "linkedRequirements": ["FR-004", "NFR-005"],
+          "linkedAcceptanceCriteria": ["AC-004"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P3",
+      "name": "Workspace switch and refresh scope",
+      "dependencies": ["P1"],
+      "tasks": [
+        {
+          "id": "T3.1",
+          "title": "Verify the workspace switch re-verifies membership",
+          "description": "Confirm switchWorkspace re-verifies the membership for the selected clinic and refuses a foreign clinic, and refactor any hand-built tenant filter onto the helper.",
+          "linkedRequirements": ["FR-006"],
+          "linkedAcceptanceCriteria": ["AC-007"],
+          "completed": false
+        },
+        {
+          "id": "T3.2",
+          "title": "Carry the clinic scope across refresh",
+          "description": "Add a nullable clinicId to RefreshToken with one additive Prisma migration; persist the active clinic on login and switch, re-verify it on refresh and re-issue the same scope, reject an inactive membership, and keep the one-rotation default for legacy rows.",
+          "linkedRequirements": ["FR-006", "FR-009"],
+          "linkedAcceptanceCriteria": ["AC-009"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P4",
+      "name": "Verification",
+      "dependencies": ["P2", "P3"],
+      "tasks": [
+        {
+          "id": "T4.1",
+          "title": "Run lint, typecheck, Prisma generate and governance checks",
+          "description": "Run pnpm --filter server lint, tsc --noEmit, prisma generate, sdrive verify strict-tenant-isolation and validate-governance.js; all must pass. Do not run the test suite.",
+          "linkedRequirements": ["NFR-004", "NFR-005"],
+          "linkedAcceptanceCriteria": ["AC-003", "AC-004"],
+          "completed": false
+        },
+        {
+          "id": "T4.2",
+          "title": "Confirm no raw SQL and no new dependency",
+          "description": "Grep the server source for $queryRaw/$executeRaw and confirm no dependency or lockfile change; record the result.",
+          "linkedRequirements": ["NFR-003", "NFR-004"],
+          "linkedAcceptanceCriteria": ["AC-003"],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}
