@@ -18,7 +18,9 @@ describe('Registration wizard (AC-002)', () => {
     sessionStorage.clear();
   });
 
-  it('preserves the entered values when the user steps back', () => {
+  // jsdom render work is I/O bound and takes well under a second alone, but the
+  // root `pnpm -r test` run saturates the CPU and pushed this past the 5s default.
+  it('preserves the entered values when the user steps back', { timeout: 20_000 }, () => {
     render(
       <MemoryRouter>
         <RegisterPage />
