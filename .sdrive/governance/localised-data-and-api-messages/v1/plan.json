@@ -1,0 +1,130 @@
+{
+  "feature": "localised-data-and-api-messages",
+  "version": 1,
+  "architecture": {
+    "approach": "Add one shared locale layer in @riaya/shared (supported locales, Accept-Language negotiation, an error-code catalogue and Intl formatters). The server filter negotiates the request language and localizes the message while keeping the stable code; the backoffice sends Accept-Language from i18n.language and formats dates, numbers and currency with the active locale and the clinic timezone exposed by the membership view. No dependency and no schema change.",
+    "components": [
+      {
+        "name": "i18n",
+        "action": "create",
+        "description": "Shared module with SUPPORTED_LOCALES, negotiateLocale(header) and ERROR_MESSAGES for en/ar/fr."
+      },
+      {
+        "name": "format",
+        "action": "create",
+        "description": "Shared Intl formatters for date, time, number and currency with locale and clinic timezone, falling back to UTC."
+      },
+      {
+        "name": "HttpExceptionFilter",
+        "action": "modify",
+        "description": "Negotiates Accept-Language and returns the localized message for the stable code, preserving details and requestId."
+      },
+      {
+        "name": "TenancyService",
+        "action": "modify",
+        "description": "Adds clinicTimezone to the membership view."
+      },
+      {
+        "name": "api",
+        "action": "modify",
+        "description": "Sends Accept-Language from i18n.language and falls back to a localized generic message."
+      },
+      {
+        "name": "OverviewPage",
+        "action": "modify",
+        "description": "Uses the shared date formatter with the clinic timezone."
+      },
+      {
+        "name": "StaffDirectoryPage",
+        "action": "modify",
+        "description": "Uses the shared date formatter with the clinic timezone."
+      },
+      {
+        "name": "DatePicker",
+        "action": "modify",
+        "description": "Replaces its local Intl helpers with the shared formatters."
+      },
+      {
+        "name": "WorkspaceSwitcher",
+        "action": "modify",
+        "description": "Membership type gains clinicTimezone."
+      },
+      {
+        "name": "tokens",
+        "action": "reuse",
+        "description": "No visual change."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-001",
+      "FR-002",
+      "FR-003",
+      "FR-004",
+      "FR-005",
+      "FR-006",
+      "FR-007",
+      "FR-008",
+      "NFR-001",
+      "NFR-002",
+      "NFR-003",
+      "NFR-004",
+      "NFR-005",
+      "NFR-006"
+    ]
+  },
+  "dataModel": {
+    "entities": [],
+    "flowDescription": "No persistence change. Clinic.timezone already exists; the memberships response gains clinicTimezone. Stored timestamps stay UTC and are converted only at display time."
+  },
+  "apiContracts": [],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-005",
+      "description": "Localized error messages must not leak stack traces, ORM errors or internal identifiers (CON-507); an unknown exception keeps the generic message, and the response shape is unchanged."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "@riaya/shared",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "Already consumed by both apps; the locale and format modules are added inside it."
+    },
+    {
+      "name": "i18next",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already installed; the active language is read at request time."
+    },
+    {
+      "name": "react-i18next",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already installed; supplies the active language to the client."
+    },
+    {
+      "name": "Intl",
+      "type": "external",
+      "action": "no_change",
+      "notes": "Built into the runtime; no package."
+    }
+  ],
+  "risks": [
+    {
+      "description": "The server catalogue and the client catalogues drift.",
+      "mitigation": "Both derive from @riaya/shared, and the locale-parity guard covers the client catalogues."
+    },
+    {
+      "description": "A localized message hides a code clients rely on.",
+      "mitigation": "code is stable and never localized."
+    },
+    {
+      "description": "Timezone bugs at DST boundaries.",
+      "mitigation": "Intl with timeZone, UTC storage, and a DST-date test."
+    },
+    {
+      "description": "Validation details remain English strings from class-validator.",
+      "mitigation": "The summary is localized, details are structured, and constraint keys can be mapped later."
+    }
+  ]
+}

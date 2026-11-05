@@ -1,0 +1,120 @@
+{
+  "feature": "strict-tenant-isolation",
+  "status": "pass",
+  "checkedAt": "2026-11-04T15:41:46.013Z",
+  "summary": {
+    "matched": 14,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "TenancyService",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "OnboardingService",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "AuditService",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/audit/audit.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "auth.service",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/auth/auth.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "InviteDto",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/invitation.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "SwitchWorkspaceDto",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/auth/dto/switch-workspace.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "TenantContext",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/src/tenancy/tenant-context.ts"
+      },
+      {
+        "type": "component",
+        "name": "JwtStrategy",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/src/auth/jwt.strategy.ts"
+      },
+      {
+        "type": "entity",
+        "name": "RefreshToken",
+        "action": "update",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "RefreshToken",
+        "name": "clinicId",
+        "fieldType": "String?",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "dependency",
+        "name": "@prisma/client",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/common",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@nestjs/passport",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "class-validator",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}

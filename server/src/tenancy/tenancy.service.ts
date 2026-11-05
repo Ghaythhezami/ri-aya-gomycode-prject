@@ -1,15 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { UserRole } from '../users/user-role.enum';
-import type { TenantScope } from './tenant-context';
+import { TenantContext, clinicWhere, organizationWhere, type TenantScope } from './tenant-context';
 
-/** The caller's verified scope, plus the membership they target. */
+/** The membership a caller targets, plus whether their role is organization-wide. */
 export interface SuspendMembershipRequest {
   membershipId: string;
-  /** Organization from the caller's token scope; never from the request. */
-  organizationId: string;
-  /** Clinic from the caller's token scope, or null for an organization-wide role. */
-  clinicId: string | null;
+  /** True for SUPER_ADMIN: the target may live in any clinic of the organization. */
+  organizationWide: boolean;
 }
 
 export interface MembershipView {
@@ -18,6 +16,8 @@ export interface MembershipView {
   organizationName: string;
   clinicId: string;
   clinicName: string;
+  /** IANA zone the UI formats this clinic's timestamps in (BP-013). */
+  clinicTimezone: string;
   role: UserRole;
 }
 
@@ -27,7 +27,20 @@ export interface MembershipView {
  */
 @Injectable()
 export class TenancyService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tenant: TenantContext,
+  ) {}
+
+  /** The clinic-scoped filter for a query in the current request. */
+  clinicFilter(): { organizationId: string; clinicId: string } {
+    return clinicWhere(this.tenant.get());
+  }
+
+  /** The organization-wide filter for a SUPER_ADMIN action. */
+  organizationFilter(): { organizationId: string } {
+    return organizationWhere(this.tenant.get());
+  }
 
   /** Active memberships for a user, used by the workspace switcher (FR-032). */
   async listMemberships(userId: string): Promise<MembershipView[]> {
@@ -43,6 +56,7 @@ export class TenancyService {
       organizationName: row.organization.name,
       clinicId: row.clinicId,
       clinicName: row.clinic.name,
+      clinicTimezone: row.clinic.timezone,
       role: row.role as UserRole,
     }));
   }
@@ -133,12 +147,10 @@ export class TenancyService {
   private async findMembershipInTenant(
     request: SuspendMembershipRequest,
   ): Promise<{ id: string; role: string; organizationId: string } | null> {
+    const filter = request.organizationWide ? this.organizationFilter() : this.clinicFilter();
+
     return this.prisma.userMembership.findFirst({
-      where: {
-        id: request.membershipId,
-        organizationId: request.organizationId,
-        ...(request.clinicId ? { clinicId: request.clinicId } : {}),
-      },
+      where: { id: request.membershipId, ...filter },
       select: { id: true, role: true, organizationId: true },
     });
   }

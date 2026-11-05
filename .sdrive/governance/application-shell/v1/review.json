@@ -1,0 +1,232 @@
+{
+  "feature": "application-shell",
+  "version": "v1",
+  "status": "PASS",
+  "commit": "acd119f0ddf7a1c823f8e281ca60135a895a305e",
+  "base": "main",
+  "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-04T23:03:38.782Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "spec-convergence",
+      "status": "pass",
+      "detail": "All 12 ACs verified against the implementation and its tests: collapse persistence, active route, drawer, role filtering, breadcrumbs, active clinic, disabled future affordances, search placeholder, keyboard access, RTL classes, target sizes and locale parity."
+    },
+    {
+      "id": "task-completion",
+      "status": "pass",
+      "detail": "15/15 tasks complete (P1 5, P2 3, P3 2, P4 5); tasks.md and tasks.json agree."
+    },
+    {
+      "id": "traceability",
+      "status": "pass",
+      "detail": "17/17 FR/NFR rows complete, each with at least one test ID (TEST-061 to TEST-072)."
+    },
+    {
+      "id": "coverage",
+      "status": "pass",
+      "detail": "100% (12/12 ACs; 15/15 feature tests)."
+    },
+    {
+      "id": "test-report",
+      "status": "pass",
+      "detail": "Present at .sdrive/reports/tests/test-report-application-shell-v1-2026-11-04.md, added after the spec and plan; summary 12/12 ACs, 100%, 15/15."
+    },
+    {
+      "id": "test-evidence",
+      "status": "pass",
+      "detail": "Present, exitCode 0, zero failures, 116 results (115 passed, 1 unrelated skip), commit a2710b1 equals HEAD."
+    },
+    {
+      "id": "change-scope",
+      "status": "pass",
+      "detail": "The shared branch carries the four owner-approved group features (CON-611); the application-shell paths trace to its plan, with no unplanned shell file and a clean tree."
+    },
+    {
+      "id": "test-quality",
+      "status": "pass",
+      "detail": "All 15 tests name their AC ID; no .only, xit, skips or empty assertions in the shell suite."
+    },
+    {
+      "id": "code-quality",
+      "status": "pass",
+      "detail": "Backoffice lint (--max-warnings=0), typecheck and build pass at HEAD; the build includes the three design-system guards."
+    },
+    {
+      "id": "security",
+      "status": "pass",
+      "detail": "No secrets in the diff; no dependency added or upgraded; presentation-only. CON-517 passes (React escaping, no raw HTML); the rest of the CON-51x baseline is not applicable."
+    },
+    {
+      "id": "testing",
+      "status": "pass",
+      "detail": "Shell suite 15/15; full workspace 115 passed, 0 failed, 1 unrelated environmental skip."
+    },
+    {
+      "id": "documentation",
+      "status": "pass",
+      "detail": "Every new shell string exists in en, ar and fr (230 keys each); the design-system page is unchanged by this feature."
+    },
+    {
+      "id": "nfr-evidence",
+      "status": "not_verified",
+      "detail": "NFR-001 (locale parity), NFR-004 (no physical-direction utilities), NFR-005 (no UI library) and NFR-007 (server authorization remains authoritative) are verified. NFR-002/003/006 are structural in jsdom; browser measurement is deferred to /sdrive:performance. Non-blocking (low)."
+    },
+    {
+      "id": "definition-of-done",
+      "status": "pass",
+      "detail": "All DoD items satisfied except reviewer independence, which is escalated and owner-confirmed."
+    },
+    {
+      "id": "spec-to-code-verification",
+      "status": "pass",
+      "detail": "sdrive verify returns pass: 19 matched, 0 missing."
+    },
+    {
+      "id": "ci",
+      "status": "not_verified",
+      "detail": "No pull request exists for the shared branch and the workflow does not run on feature-branch pushes, so there is no CI run for a2710b1."
+    },
+    {
+      "id": "permission",
+      "status": "pass",
+      "detail": "check-permission.js slash /sdrive:review allowed kenule500 (admin)."
+    },
+    {
+      "id": "reviewer-independence",
+      "status": "pass",
+      "detail": "The implementer and reviewer share kenule500. Escalated and explicitly confirmed by the owner, who accepted the independence gap for this verdict."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "low",
+      "issue": "NFR-002 (40 px targets), NFR-003 (WCAG rendering) and NFR-006 (no overflow at 375-1440 px) are proven structurally in jsdom, not measured in a browser.",
+      "location": "backoffice/test/application-shell/",
+      "fixRequired": false,
+      "acIds": ["AC-009", "AC-010", "AC-011"]
+    },
+    {
+      "severity": "low",
+      "issue": "CI is not verified: the shared branch has no pull request and the workflow does not run on feature-branch pushes.",
+      "location": "GitHub Actions",
+      "fixRequired": false
+    }
+  ],
+  "evidence": {
+    "verification": ".sdrive/governance/application-shell/v1/verification.json",
+    "testEvidence": ".sdrive/governance/application-shell/v1/test-evidence.json",
+    "testReport": ".sdrive/reports/tests/test-report-application-shell-v1-2026-11-04.md",
+    "audit": ".sdrive/handoff.json"
+  },
+  "security": {
+    "status": "pass",
+    "reason": "BP-007 is presentation only: React components, context and CSS. It adds no request path, authentication, SQL or cookie handling, so the CON-51x controls have no surface here. CON-517 is honoured: no raw-HTML injection API appears in backoffice/src. No package was added or upgraded.",
+    "secrets": "clean",
+    "dependencies": "clean",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "not_applicable",
+        "detail": "No authentication surface changed."
+      },
+      {
+        "id": "CON-512",
+        "status": "not_applicable",
+        "detail": "Navigation hiding mirrors the existing guards; no new authorization surface."
+      },
+      {
+        "id": "CON-513",
+        "status": "not_applicable",
+        "detail": "No server headers; backoffice is a static SPA."
+      },
+      {
+        "id": "CON-514",
+        "status": "not_applicable",
+        "detail": "No server routes added."
+      },
+      {
+        "id": "CON-515",
+        "status": "not_applicable",
+        "detail": "No DTOs or server-side validation added."
+      },
+      {
+        "id": "CON-516",
+        "status": "not_applicable",
+        "detail": "No data access added."
+      },
+      {
+        "id": "CON-517",
+        "status": "pass",
+        "detail": "React automatic escaping; no raw-HTML injection API in backoffice/src."
+      },
+      {
+        "id": "CON-518",
+        "status": "not_applicable",
+        "detail": "No cookies, CORS or state-changing routes touched."
+      },
+      {
+        "id": "CON-519",
+        "status": "not_applicable",
+        "detail": "No .env file read or modified."
+      },
+      {
+        "id": "CON-520",
+        "status": "not_applicable",
+        "detail": "No transport configuration changed."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_verified",
+    "reason": "NFR-001, NFR-004, NFR-005 and NFR-007 are verified. NFR-002, NFR-003 and NFR-006 need a browser; the shell tests assert classes, roles, aria-current and logical utilities only. No /sdrive:performance report exists for this feature.",
+    "method": "Structural assertions in jsdom plus the design-system guards; no browser session was run.",
+    "nfr": [
+      {
+        "id": "NFR-001",
+        "target": "en/ar/fr key parity",
+        "measured": "guard passes: 230 keys in each catalogue; the shell strings are asserted in all three",
+        "status": "pass"
+      },
+      {
+        "id": "NFR-002",
+        "target": ">= 40x40 px interactive targets",
+        "measured": "class inspection (size-10/size-11/min-h-10); not measured in a browser",
+        "status": "not_verified"
+      },
+      {
+        "id": "NFR-003",
+        "target": "WCAG 2.1 AA keyboard, focus, roles",
+        "measured": "jsdom tab order, Enter/Escape and menu roles; visible focus ring not rendered",
+        "status": "not_verified"
+      },
+      {
+        "id": "NFR-004",
+        "target": "no physical-direction utility; RTL mirroring",
+        "measured": "guard and rendered-class scan: 0 violations; sidebar anchors with start-0",
+        "status": "pass"
+      },
+      {
+        "id": "NFR-005",
+        "target": "no third-party UI library",
+        "measured": "no dependency added; icons stay lucide-react",
+        "status": "pass"
+      },
+      {
+        "id": "NFR-006",
+        "target": "no horizontal overflow at 375/768/1024/1440 px",
+        "measured": "not measured in a browser",
+        "status": "not_verified"
+      },
+      {
+        "id": "NFR-007",
+        "target": "navigation hiding is not the authorization boundary",
+        "measured": "server guards remain authoritative; capability guards mirror the matrix (BP-011)",
+        "status": "pass"
+      }
+    ],
+    "seo": "not_applicable"
+  }
+}

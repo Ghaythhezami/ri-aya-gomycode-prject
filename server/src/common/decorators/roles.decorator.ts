@@ -1,5 +1,9 @@
 import { SetMetadata } from '@nestjs/common';
-import { UserRole } from '../../users/user-role.enum';
 
 export const ROLES_KEY = 'roles';
-export const Roles = (...roles: UserRole[]) => SetMetadata(ROLES_KEY, roles);
+
+/**
+ * Allowed role names. Strings rather than the Prisma enum so the values can come
+ * from the shared capability matrix (@riaya/shared), which both apps consume.
+ */
+export const Roles = (...roles: string[]) => SetMetadata(ROLES_KEY, roles);

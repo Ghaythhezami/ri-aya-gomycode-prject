@@ -165,6 +165,9 @@ model RefreshToken {
   id        String    @id @default(uuid())
   userId    String
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  // The workspace the token was issued for (BP-010). Nullable for legacy rows;
+  // a null row falls back to the default scope once, then carries the scope.
+  clinicId  String?
   familyId  String
   tokenHash String    @unique
   expiresAt DateTime

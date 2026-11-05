@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { formatDate, negotiateLocale } from '@riaya/shared';
+import { useWorkspace } from '../auth/WorkspaceContext';
 import { api } from '../lib/api';
 import { Button } from '../common/Button';
 import { Field, Input } from '../common/Input';
@@ -19,7 +21,8 @@ interface PendingInvitation {
  * invite a new person. Suspension lives on the membership endpoint (FR-018).
  */
 export function StaffDirectoryPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const { active } = useWorkspace();
   const [invitations, setInvitations] = useState<PendingInvitation[]>([]);
   const [loading, setLoading] = useState(true);
   const [email, setEmail] = useState('');
@@ -132,7 +135,11 @@ export function StaffDirectoryPage() {
                   <td className="px-4 py-2 text-text">{inv.email}</td>
                   <td className="px-4 py-2 text-muted">{t(`roles.${inv.role}`)}</td>
                   <td className="px-4 py-2 text-muted">
-                    {new Date(inv.expiresAt).toLocaleDateString()}
+                    {formatDate(
+                      new Date(inv.expiresAt),
+                      negotiateLocale(i18n.resolvedLanguage),
+                      active?.clinicTimezone,
+                    )}
                   </td>
                 </tr>
               ))}

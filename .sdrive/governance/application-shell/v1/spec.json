@@ -1,0 +1,290 @@
+{
+  "feature": "application-shell",
+  "title": "Application shell",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The backoffice shell already renders a responsive sidebar, a mobile drawer, role-filtered navigation, the workspace and language switchers and a user menu. It is still incomplete: there are no breadcrumbs, no collapsed sidebar mode, a hard-coded 'Central Clinic' footer, a search box with no state, no notification or chat entry points, and the role matrix that filters navigation is not tied to the route guards, so navigation and access can drift apart.",
+    "proposedSolution": "Finish the shell around the existing structure: a persisted collapsed/expanded desktop sidebar, breadcrumbs derived from a route-to-label map, the active clinic and organization read from the session, disabled 'coming soon' notification and chat affordances, an explicit non-functional search placeholder, and one role matrix feeding both navigation and route guards. Reuse the BP-006 tokens and primitives and add no dependency.",
+    "targetAudience": "Every backoffice staff role (SUPER_ADMIN, CLINIC_ADMIN, DOCTOR, RECEPTIONIST) and every later feature that renders inside the shell, since the frame defines their navigation, accessibility and RTL behaviour.",
+    "assumptions": [
+      "BP-032 (chat) and BP-033 (notifications) are not implemented; their shell entry points ship disabled with the existing shell.comingSoon string.",
+      "Patient and appointment search belong to BP-015/BP-023, so the top-bar search stays a non-functional placeholder here.",
+      "The active membership is available from the existing GET /api/auth/memberships endpoint, and BP-009 workspace switching is already implemented.",
+      "BP-006 tokens and primitives are the styling and interaction source; this feature adds no new primitive unless a shell-specific one is unavoidable.",
+      "Accessibility target is WCAG 2.1 AA as stated by the brief; no level above AA is claimed while CON-309 remains to be confirmed."
+    ],
+    "outOfScope": [
+      "Chat and notification behaviour (BP-032, BP-033); only disabled shell affordances ship here.",
+      "Functional global search (BP-015, BP-023).",
+      "Settings, analytics and any clinical screen.",
+      "Authentication, registration, invitations and workspace switching themselves, already delivered by the completed auth/tenancy feature.",
+      "Dark theme, per-clinic branding and a second shell for web (CON-303)."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Navigate the shell",
+      "role": "clinic staff member",
+      "want": "to reach every screen from a stable, collapsible sidebar that remembers my layout",
+      "benefit": "I can work on small screens and keep my preferred layout between sessions",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given a desktop viewport (>= 1024 px), when the user activates the sidebar toggle, then the sidebar switches between expanded (icon and label) and collapsed (icon only), the toggle exposes its state programmatically and has an accessible name, and the choice is restored after a reload from localStorage."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given the active route, when the shell renders, then the matching navigation item carries aria-current=\"page\" and a visible active treatment that is not conveyed by colour alone."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given a viewport under 1024 px, when the menu button is activated, then a drawer opens, closes on Escape, on a backdrop click and on navigation, traps focus while open, and returns focus to the menu button when closed."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given any authenticated role, when the shell renders, then it displays only the navigation items that role may reach, and every displayed route is also guarded by the same role source, so no displayed link leads to a 403 or a dead page."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Know where I am and which clinic I am in",
+      "role": "staff member working across several clinics",
+      "want": "breadcrumbs and an explicit active clinic",
+      "benefit": "I always know my location in the product and the organisation I am acting for",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given any route inside the shell, when it renders, then breadcrumbs show Overview plus the section, and the detail segment when the route has one; all segments are translated, and the final segment carries aria-current=\"page\" and is not a link."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given an authenticated session with memberships, when the shell renders, then the sidebar footer shows the active clinic and organization from the session, never a hard-coded name, and the values change after a workspace switch."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Stable placeholders for future affordances",
+      "role": "staff member",
+      "want": "future entry points to be visible and honest about their state",
+      "benefit": "I do not mistake a placeholder for a broken feature",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-007",
+          "text": "Given BP-032 and BP-033 are not implemented, when the shell renders, then the notification bell and chat entry points are visible but disabled, each has an accessible name and a localized coming-soon explanation, and activating them performs no navigation."
+        },
+        {
+          "id": "AC-008",
+          "text": "Given the global search input, when the shell renders, then it is present but non-functional, announces the localized coming-soon hint, and issues no network request."
+        }
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Use the shell in my language and with a keyboard",
+      "role": "Arabic-speaking receptionist who may use a keyboard only",
+      "want": "the shell to mirror correctly and to be operable without a mouse",
+      "benefit": "the frame never blocks my work",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-009",
+          "text": "Given a keyboard-only user, when they tab from the top of the page, then the skip link is the first focusable element, every shell control is reachable in DOM order with a visible focus ring, and the user menu opens with Enter or Space and closes with Escape, returning focus to its trigger."
+        },
+        {
+          "id": "AC-010",
+          "text": "Given dir=\"rtl\" on the document, when the shell renders, then the sidebar is on the right, breadcrumbs and header content mirror, and no physical-direction utility is introduced."
+        },
+        {
+          "id": "AC-011",
+          "text": "Given a 375, 768, 1024 or 1440 px viewport, when the shell renders, then there is no horizontal overflow and every interactive shell target is at least 40 by 40 px."
+        },
+        {
+          "id": "AC-012",
+          "text": "Given en, ar and fr, when the shell renders, then every new shell string exists in all three catalogues and the locale-parity guard passes."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "The shell MUST provide a desktop sidebar with expanded and collapsed modes, and MUST persist the chosen mode in localStorage with an accessible toggle.",
+      "linkedAcceptanceCriteria": ["AC-001"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The shell MUST keep the mobile drawer below 1024 px, with Escape, backdrop and navigation close paths, a focus trap and focus restoration.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "FR-003",
+      "text": "The shell MUST indicate the active route visually and with aria-current=\"page\".",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "FR-004",
+      "text": "Navigation MUST be filtered by a single role matrix that also guards the routes, so a visible item is always reachable by that role.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "FR-005",
+      "text": "The shell MUST render breadcrumbs from a route-to-label map, localized, with the final segment marked aria-current=\"page\" and not linked.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "FR-006",
+      "text": "The shell MUST display the active clinic and organization from the session, and MUST update them after a workspace switch.",
+      "linkedAcceptanceCriteria": ["AC-006"]
+    },
+    {
+      "id": "FR-007",
+      "text": "The notification bell and chat entry points MUST be present, disabled, and explained with the localized coming-soon message until BP-032/BP-033 implement them.",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    },
+    {
+      "id": "FR-008",
+      "text": "The global search input MUST be present as a disabled placeholder that issues no request and explains its state.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "FR-009",
+      "text": "The shell MUST provide a skip link, a keyboard-operable user menu and a minimum 40 by 40 px interactive target.",
+      "linkedAcceptanceCriteria": ["AC-009", "AC-011"]
+    },
+    {
+      "id": "FR-010",
+      "text": "Every shell string MUST exist in en, ar and fr, and the shell MUST use logical direction utilities only.",
+      "linkedAcceptanceCriteria": ["AC-010", "AC-012"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "The build MUST fail when a shell translation key exists in one catalogue and not the others (CON-304, existing locale guard).",
+      "linkedAcceptanceCriteria": ["AC-012"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Every interactive shell target MUST be at least 40 by 40 px.",
+      "linkedAcceptanceCriteria": ["AC-011"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "The shell MUST meet WCAG 2.1 AA for keyboard access, visible focus, correct roles and ARIA, and MUST NOT convey the active state by colour alone.",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-009"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "The shell MUST be direction-aware: no physical-direction utility in the layouts, and the drawer, sidebar and breadcrumbs mirror under RTL.",
+      "linkedAcceptanceCriteria": ["AC-010"]
+    },
+    {
+      "id": "NFR-005",
+      "text": "The shell MUST add no third-party UI library; icons stay lucide-react (CON-307, CON-308).",
+      "linkedAcceptanceCriteria": ["AC-007"]
+    },
+    {
+      "id": "NFR-006",
+      "text": "The shell MUST render without horizontal overflow at 375, 768, 1024 and 1440 px.",
+      "linkedAcceptanceCriteria": ["AC-011"]
+    },
+    {
+      "id": "NFR-007",
+      "text": "Hiding navigation MUST NOT be treated as the authorization boundary; server-side role enforcement remains authoritative and the route guards mirror it.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "A user has no memberships.",
+      "expectedBehavior": "The workspace switcher hides and the footer shows a neutral label instead of an empty or literal clinic name."
+    },
+    {
+      "id": "EC-002",
+      "description": "A clinic or organization name is very long.",
+      "expectedBehavior": "It truncates with an accessible full name and does not push the top bar into overflow."
+    },
+    {
+      "id": "EC-003",
+      "description": "The current route is unknown to the breadcrumb map.",
+      "expectedBehavior": "The breadcrumb map falls back to Overview and the router keeps its existing wildcard redirect."
+    },
+    {
+      "id": "EC-004",
+      "description": "localStorage is unavailable (private mode or storage disabled).",
+      "expectedBehavior": "The sidebar defaults to expanded and the shell logs no error."
+    },
+    {
+      "id": "EC-005",
+      "description": "The user switches workspace and their role changes.",
+      "expectedBehavior": "Navigation reflects the new role after the switch, with no stale items."
+    },
+    {
+      "id": "EC-006",
+      "description": "The collapsed sidebar is used by keyboard.",
+      "expectedBehavior": "Each icon still exposes its navigation label to assistive technology."
+    },
+    {
+      "id": "EC-007",
+      "description": "RTL is combined with a collapsed sidebar.",
+      "expectedBehavior": "The rail anchors to the right and tooltips remain inside the viewport."
+    },
+    {
+      "id": "EC-008",
+      "description": "The route changes while the mobile drawer is open.",
+      "expectedBehavior": "The drawer closes and focus moves to the destination content."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "react-router-dom",
+      "type": "library",
+      "notes": "Already installed; routes and guards exist. No change."
+    },
+    {
+      "name": "lucide-react",
+      "type": "library",
+      "notes": "Already installed; icons for the collapsed rail, bell and chat affordances. No change."
+    },
+    {
+      "name": "i18next / react-i18next",
+      "type": "library",
+      "notes": "Already installed; shell strings and breadcrumb labels. No change."
+    },
+    {
+      "name": "BP-006 design tokens and primitives",
+      "type": "internal",
+      "notes": "Reuse; tokens, Button, Modal, Dropdown and Tooltip supply the styling and interaction."
+    },
+    {
+      "name": "GET /api/auth/memberships",
+      "type": "internal",
+      "notes": "No change; supplies the active clinic and organization."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "The disabled bell and chat entries can look broken.",
+      "mitigation": "A localized coming-soon hint, an accessible explanation and no navigation on activation."
+    },
+    {
+      "id": "RISK-002",
+      "description": "NAV_ROLES and RoleRoute can drift, showing a link a role cannot open.",
+      "mitigation": "One role source feeds both, and a test asserts every navigation entry is reachable by the roles that see it."
+    },
+    {
+      "id": "RISK-003",
+      "description": "The active clinic can be duplicated between the switcher and the shell footer.",
+      "mitigation": "Lift the active membership into one shared source rather than two local copies."
+    },
+    {
+      "id": "RISK-004",
+      "description": "The collapsed rail can shift layout or overflow under RTL.",
+      "mitigation": "Logical utilities, a fixed rail width and the 375-1440 px overflow check."
+    }
+  ]
+}

@@ -1,7 +1,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -10,6 +9,7 @@ import * as argon2 from 'argon2';
 import { PrismaService } from '../database/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { UserRole } from '../users/user-role.enum';
+import { clinicWhere, organizationWhere, type TenantScope } from './tenant-context';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
@@ -191,12 +191,12 @@ export class OnboardingService {
   async invite(params: {
     email: string;
     clinicId: string;
-    organizationId: string;
+    scope: TenantScope;
     role: UserRole;
     invitedById: string;
   }) {
     const clinic = await this.prisma.clinic.findFirst({
-      where: { id: params.clinicId, organizationId: params.organizationId },
+      where: { id: params.clinicId, ...organizationWhere(params.scope) },
     });
     if (!clinic) {
       throw new NotFoundException({ code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' });
@@ -304,20 +304,10 @@ export class OnboardingService {
     });
   }
 
-  /** Guard used by the invitation endpoint: only admins may invite (FR-007). */
-  assertCanInvite(role: UserRole): void {
-    if (role !== UserRole.SUPER_ADMIN && role !== UserRole.CLINIC_ADMIN) {
-      throw new ForbiddenException({
-        code: 'FORBIDDEN',
-        message: 'Only clinic admins can invite staff',
-      });
-    }
-  }
-
-  /** Pending (unconsumed, unexpired) invitations for a clinic (FR-027). */
-  async listPendingInvitations(clinicId: string) {
+  /** Pending (unconsumed, unexpired) invitations for the caller's clinic (FR-027). */
+  async listPendingInvitations(scope: TenantScope) {
     return this.prisma.invitation.findMany({
-      where: { clinicId, consumedAt: null, expiresAt: { gt: new Date() } },
+      where: { ...clinicWhere(scope), consumedAt: null, expiresAt: { gt: new Date() } },
       select: { id: true, email: true, role: true, expiresAt: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     });

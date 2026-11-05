@@ -1,0 +1,155 @@
+{
+  "feature": "application-shell",
+  "status": "pass",
+  "checkedAt": "2026-11-04T15:38:07.235Z",
+  "summary": {
+    "matched": 19,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "AppShell",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/layouts/AppShell.tsx"
+      },
+      {
+        "type": "component",
+        "name": "Breadcrumbs",
+        "action": "create",
+        "resolution": null,
+        "file": "backoffice/src/layouts/Breadcrumbs.tsx"
+      },
+      {
+        "type": "component",
+        "name": "WorkspaceProvider",
+        "action": "create",
+        "resolution": null,
+        "file": "backoffice/src/auth/WorkspaceContext.tsx"
+      },
+      {
+        "type": "component",
+        "name": "WorkspaceSwitcher",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/layouts/WorkspaceSwitcher.tsx"
+      },
+      {
+        "type": "component",
+        "name": "sidebar-preference",
+        "action": "create",
+        "resolution": null,
+        "file": "backoffice/src/layouts/sidebar-preference.ts"
+      },
+      {
+        "type": "component",
+        "name": "roles",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/auth/roles.ts"
+      },
+      {
+        "type": "component",
+        "name": "App",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/App.tsx"
+      },
+      {
+        "type": "component",
+        "name": "Button",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/common/Button.tsx"
+      },
+      {
+        "type": "component",
+        "name": "Dropdown",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/common/Dropdown.tsx"
+      },
+      {
+        "type": "component",
+        "name": "Tooltip",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/common/Tooltip.tsx"
+      },
+      {
+        "type": "component",
+        "name": "LanguageSwitcher",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/layouts/LanguageSwitcher.tsx"
+      },
+      {
+        "type": "component",
+        "name": "tokens",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/design-system/tokens.ts"
+      },
+      {
+        "type": "dependency",
+        "name": "react-router-dom",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "lucide-react",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "i18next",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "react-i18next",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "tailwindcss",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "BP-006 design tokens and primitives",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      },
+      {
+        "type": "dependency",
+        "name": "GET /api/auth/memberships",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}

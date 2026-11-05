@@ -94,7 +94,7 @@ export class AuthService {
     // Issue a token scoped to the user's active membership (FR-003).
     const scope = await this.tenancy.resolveDefaultScope(user.id);
     const accessToken = this.signAccess(user, scope);
-    await this.issueRefreshCookie(user, res, meta, randomUUID());
+    await this.issueRefreshCookie(user, res, meta, randomUUID(), scope?.clinicId ?? null);
     return {
       accessToken,
       user: this.publicUser(user, scope?.role ?? null),
@@ -140,22 +140,29 @@ export class AuthService {
       throw new UnauthorizedException({ code: 'UNAUTHENTICATED', message: 'Session expired' });
     }
 
+    // Keep the workspace the token was issued for (D5). A legacy token with no
+    // stored clinic falls back to the default once, then carries the scope on
+    // rotation. An inactive membership fails instead of silently switching.
+    const scope = existing.clinicId
+      ? await this.tenancy.resolveScope(user.id, existing.clinicId)
+      : await this.tenancy.resolveDefaultScope(user.id);
+
+    if (!scope) {
+      this.clearRefreshCookie(res);
+      throw new UnauthorizedException({
+        code: 'NO_ACTIVE_MEMBERSHIP',
+        message: 'You no longer have access to this clinic',
+      });
+    }
+
     // Rotate: revoke the presented token in both stores before issuing the next
     // one in the same family (FR-010, FR-015).
-    // Known defect (debug report D5, fix blocked): the new token is issued with
-    // no clinic scope, so a refresh after a workspace switch falls back to the
-    // default clinic. Fixing it needs a `clinicId` column on refresh_tokens
-    // plus `prisma generate` and a migration.
     await this.revokeToken(existing.tokenHash, existing.expiresAt);
-    await this.issueRefreshCookie(user, res, meta, existing.familyId);
-
-    // Report the active membership role rather than the deprecated identity
-    // column, so a refreshed session never reports `role: null` (D13).
-    const scope = await this.tenancy.resolveDefaultScope(user.id);
+    await this.issueRefreshCookie(user, res, meta, existing.familyId, scope.clinicId);
 
     return {
-      accessToken: this.signAccess(user),
-      user: this.publicUser(user, scope?.role ?? null),
+      accessToken: this.signAccess(user, scope),
+      user: this.publicUser(user, scope.role),
     };
   }
 
@@ -292,12 +299,14 @@ export class AuthService {
     res: Response,
     meta: { userAgent?: string; ip?: string },
     familyId: string,
+    clinicId: string | null,
   ) {
     const raw = randomBytes(48).toString('hex');
     const days = Number(this.config.get('REFRESH_TOKEN_EXPIRES_DAYS') ?? 7);
     await this.prisma.refreshToken.create({
       data: {
         userId: user.id,
+        clinicId,
         familyId,
         tokenHash: this.hashToken(raw),
         expiresAt: new Date(Date.now() + days * 24 * 60 * 60 * 1000),
@@ -349,7 +358,7 @@ export class AuthService {
 
     const accessToken = this.signAccess(user, scope);
     // Rotate the refresh token so the new scope is not tied to the old one.
-    await this.issueRefreshCookie(user, res, meta, randomUUID());
+    await this.issueRefreshCookie(user, res, meta, randomUUID(), scope.clinicId);
     return { accessToken, scope };
   }
 

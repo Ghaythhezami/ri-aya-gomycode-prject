@@ -1,0 +1,269 @@
+{
+  "feature": "strict-tenant-isolation",
+  "title": "Strict tenant isolation",
+  "version": 1,
+  "overview": {
+    "problemStatement": "The auth/tenancy feature already resolves a tenant scope from the verified JWT and re-checks the active membership, and the invitation and suspension paths re-verify attacker-controlled ids inside the caller's tenant. Isolation is still applied by hand: each service writes its own organizationId/clinicId filter, there is no shared helper for future clinic-scoped resources, the audit service accepts tenant ids from its callers and its read path is not scoped, and no test proves that forged tenant ids in a body, query string or header cannot widen scope. Refresh tokens also carry no clinic scope, so a refresh after a workspace switch silently falls back to the default clinic. No Patient model exists yet, so the backlog's patient-data test has no resource to run against today.",
+    "proposedSolution": "Make tenant scoping a single reusable mechanism: one scoped-query helper in TenancyService built from the verified TenantContext, refactor the existing scoped services onto it, harden the audit write and read paths to use the verified scope, and prove with tests that caller-supplied organizationId/clinicId values in body, query and headers are rejected or ignored and that cross-tenant targets stay invisible. It also persists the active clinic on the refresh token, so a refresh keeps the selected workspace instead of silently changing scope. Patient resources adopt the same helper when BP-015 adds them; no patient model is created here.",
+    "targetAudience": "Clinic staff who rely on data not leaking between organizations, and server engineers and reviewers who must keep every future clinic-scoped resource isolated by construction rather than by memory.",
+    "assumptions": [
+      "Tenant scope is resolved only from the verified access token; the global ValidationPipe with whitelist and forbidNonWhitelisted already rejects unknown body fields.",
+      "InviteDto.clinicId and SwitchWorkspaceDto.clinicId legitimately name a target clinic and are re-verified against the caller's memberships, so they are selectors, not scope claims.",
+      "No Patient model exists in prisma/schema.prisma; BP-015 introduces it and must adopt this helper, so the patient-specific test is exercised on today's clinic-scoped resources and extended in BP-015.",
+      "SUPER_ADMIN is organization-wide by design: it may reach every clinic inside its own organization, never another organization.",
+      "Server authorization controls remain authoritative; backoffice navigation hiding is not a security boundary.",
+      "One additive Prisma migration adds a nullable clinicId to refresh_tokens so a refreshed session keeps its workspace; legacy tokens without a stored clinic keep the default behaviour for one rotation and then carry the scope (CON-109)."
+    ],
+    "outOfScope": [
+      "The Patient model, patient endpoints and the patient-specific isolation test (BP-015).",
+      "The permission matrix and front-end route/menu guards (BP-011).",
+      "Changes to authentication, token issuance, refresh rotation or lockout.",
+      "PostgreSQL row-level security; the application-level scope is the chosen mechanism."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "My clinic's data is unreachable from another clinic",
+      "role": "clinic administrator",
+      "want": "every clinic-scoped read and mutation limited to my verified organization and clinic",
+      "benefit": "another tenant can never see or change my data",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-001",
+          "text": "Given an authenticated request with a valid access token, when the request is processed, then the tenant scope is the caller's active membership for the token's clinic and the role is that membership's role, never the deprecated user.role."
+        },
+        {
+          "id": "AC-002",
+          "text": "Given a request that carries organizationId or clinicId in the body, query string or a header on an endpoint that does not declare it, when validation runs, then the request is rejected with 400 or the identifier is ignored, and the resolved scope is unchanged."
+        },
+        {
+          "id": "AC-003",
+          "text": "Given a clinic-scoped list or read, when it returns data, then every row belongs to the caller's verified organization and clinic, and no row from another tenant appears."
+        },
+        {
+          "id": "AC-004",
+          "text": "Given a scoped mutation whose target id belongs to another organization, when it runs, then it is reported as not found (404, never 403) and nothing is changed."
+        },
+        {
+          "id": "AC-009",
+          "text": "Given a workspace switch, when the session is refreshed, then the issued tokens keep the selected clinic instead of falling back to the default clinic; if the stored clinic's membership is no longer active, the refresh fails rather than silently changing scope."
+        }
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "The mechanism is reusable, not re-implemented",
+      "role": "server engineer",
+      "want": "one scoped-query helper",
+      "benefit": "a future clinic-scoped resource inherits isolation instead of re-implementing a filter someone can forget",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-005",
+          "text": "Given a service querying a clinic-scoped model, when it builds its filter, then it uses the shared scoped-query helper from TenancyService, and no hand-written organizationId/clinicId filter remains in the reviewed clinic-scoped services."
+        },
+        {
+          "id": "AC-006",
+          "text": "Given a token whose clinic_id names a clinic where the caller's membership is absent or suspended, when the request is authenticated, then it fails before any handler runs and no tenant scope is set."
+        },
+        {
+          "id": "AC-007",
+          "text": "Given a workspace switch to a clinic the caller does not belong to, when it is requested, then the switch is refused and the existing token and scope are unchanged."
+        }
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "The audit trail is tenant-scoped",
+      "role": "security reviewer",
+      "want": "audit attribution and reads to come from the verified scope",
+      "benefit": "a forged payload cannot attribute an action to another tenant and one tenant cannot read another's trail",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-008",
+          "text": "Given an audit entry written during a scoped request, then its organizationId and clinicId come from the verified tenant scope, and an audit read returns only entries inside the caller's tenant."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-001",
+      "text": "Tenant scope MUST be derived only from the verified access token, with the active membership re-checked on every request.",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-006"]
+    },
+    {
+      "id": "FR-002",
+      "text": "The system MUST reject or ignore caller-supplied organizationId/clinicId values on endpoints that do not declare them, in body, query and headers alike.",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "FR-003",
+      "text": "Every clinic-scoped read MUST filter by the verified organization and clinic.",
+      "linkedAcceptanceCriteria": ["AC-003"]
+    },
+    {
+      "id": "FR-004",
+      "text": "Every scoped mutation MUST resolve its target inside the caller's tenant and MUST answer cross-tenant targets with 404, not 403.",
+      "linkedAcceptanceCriteria": ["AC-004"]
+    },
+    {
+      "id": "FR-005",
+      "text": "A single scoped-query helper MUST be the way services build clinic-scoped filters.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "FR-006",
+      "text": "Workspace switching MUST re-verify the membership for the selected clinic and MUST refuse a foreign clinic, and the issued refresh token MUST carry the selected clinic so a refresh keeps it.",
+      "linkedAcceptanceCriteria": ["AC-007", "AC-009"]
+    },
+    {
+      "id": "FR-007",
+      "text": "Audit writes MUST take organization and clinic from the verified scope, and audit reads MUST be limited to that scope.",
+      "linkedAcceptanceCriteria": ["AC-008"]
+    },
+    {
+      "id": "FR-008",
+      "text": "A future clinic-scoped resource MUST be able to adopt the helper and inherit the isolation tests; the Patient model in BP-015 is the first intended consumer.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "FR-009",
+      "text": "The refresh-token record MUST persist the active clinic, and a refresh MUST re-verify that membership and re-issue the same scope, never a different clinic.",
+      "linkedAcceptanceCriteria": ["AC-009"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-001",
+      "text": "Authorization MUST NOT accept a tenant identifier from the request for scope resolution (CON-512).",
+      "linkedAcceptanceCriteria": ["AC-001", "AC-002"]
+    },
+    {
+      "id": "NFR-002",
+      "text": "Input validation MUST reject undeclared tenant fields rather than silently accepting them (CON-515).",
+      "linkedAcceptanceCriteria": ["AC-002"]
+    },
+    {
+      "id": "NFR-003",
+      "text": "All data access MUST go through Prisma's parameterised client; raw SQL is forbidden (CON-516).",
+      "linkedAcceptanceCriteria": ["AC-003", "AC-008"]
+    },
+    {
+      "id": "NFR-004",
+      "text": "The feature MUST add no dependency; its only schema change is one additive migration adding a nullable clinicId to refresh_tokens.",
+      "linkedAcceptanceCriteria": ["AC-005"]
+    },
+    {
+      "id": "NFR-005",
+      "text": "Legitimate requests MUST keep their current status codes and responses; this is a hardening pass, not a behavioural redesign.",
+      "linkedAcceptanceCriteria": ["AC-003", "AC-004"]
+    },
+    {
+      "id": "NFR-006",
+      "text": "Cross-tenant tests MUST cover every clinic-scoped endpoint that exists at implementation time, not a sample.",
+      "linkedAcceptanceCriteria": ["AC-002", "AC-003", "AC-004", "AC-008"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-001",
+      "description": "A token lacks org_id/clinic_id.",
+      "expectedBehavior": "The default active membership is used; if none exists, authentication fails with NO_ACTIVE_MEMBERSHIP."
+    },
+    {
+      "id": "EC-002",
+      "description": "A membership is suspended between token issuance and use.",
+      "expectedBehavior": "The request fails before the handler; the token cannot be used for its original clinic."
+    },
+    {
+      "id": "EC-003",
+      "description": "SUPER_ADMIN acts organization-wide.",
+      "expectedBehavior": "It may reach every clinic in its own organization, never a clinic in another organization."
+    },
+    {
+      "id": "EC-004",
+      "description": "An invitation names a clinic outside the caller's organization.",
+      "expectedBehavior": "The target is treated as not found and no invitation is created."
+    },
+    {
+      "id": "EC-005",
+      "description": "A path id belongs to another organization.",
+      "expectedBehavior": "404 is returned, with no disclosure that the row exists."
+    },
+    {
+      "id": "EC-006",
+      "description": "clinic_id is supplied as a query parameter or header.",
+      "expectedBehavior": "It is ignored; the token scope wins."
+    },
+    {
+      "id": "EC-007",
+      "description": "A user holds memberships in two organizations.",
+      "expectedBehavior": "Only the active token scope applies."
+    },
+    {
+      "id": "EC-008",
+      "description": "A workspace switch targets a foreign clinic.",
+      "expectedBehavior": "The switch is refused and the current token remains valid."
+    },
+    {
+      "id": "EC-009",
+      "description": "An audit read targets an entity outside the caller's tenant.",
+      "expectedBehavior": "It returns no rows."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "NestJS JwtStrategy, JwtAuthGuard, RolesGuard",
+      "type": "library",
+      "notes": "Already installed; scope resolution happens in JwtStrategy. No change."
+    },
+    {
+      "name": "TenantContext and TenancyService",
+      "type": "internal",
+      "notes": "Modify: add the shared scoped-query helper and refactor existing filters onto it."
+    },
+    {
+      "name": "AuditService",
+      "type": "internal",
+      "notes": "Modify: write scope from TenantContext and tenant-scope the read path."
+    },
+    {
+      "name": "RefreshToken model and one Prisma migration",
+      "type": "internal",
+      "notes": "Modify: add a nullable clinicId and carry the active scope across rotation."
+    },
+    {
+      "name": "Prisma client",
+      "type": "library",
+      "notes": "No change; parameterised queries only."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "A future service could bypass the helper and hand-write a weaker filter.",
+      "mitigation": "The rule is documented, the reviewed services are refactored onto the helper, and cross-tenant tests enumerate clinic-scoped endpoints."
+    },
+    {
+      "id": "RISK-002",
+      "description": "Patient isolation cannot be tested until BP-015 exists.",
+      "mitigation": "The helper and the rule ship here; BP-015 must add the patient-resource test, recorded as a dependency."
+    },
+    {
+      "id": "RISK-003",
+      "description": "Returning 403 for a foreign id discloses existence.",
+      "mitigation": "404 is required and tested (AC-004, EC-005)."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Organization-wide roles must not be narrowed by accident.",
+      "mitigation": "The helper takes the verified scope including the organization-wide case, and tests cover both."
+    },
+    {
+      "id": "RISK-005",
+      "description": "Legacy refresh tokens predate the clinicId column and would rotate once without a stored scope.",
+      "mitigation": "The column is nullable, a token without a stored clinic keeps the current default behaviour for that one rotation, and the next token carries the scope."
+    }
+  ]
+}

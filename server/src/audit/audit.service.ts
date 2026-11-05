@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { TenantContext, clinicWhere } from '../tenancy/tenant-context';
 
 export interface AuditEntry {
   actorUserId?: string | null;
@@ -25,7 +26,27 @@ type TxClient = Parameters<Parameters<PrismaService['$transaction']>[0]>[0];
  */
 @Injectable()
 export class AuditService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tenant: TenantContext,
+  ) {}
+
+  /**
+   * Attribution comes from the verified scope unless the caller supplies it.
+   *
+   * An HTTP caller never needs to pass tenant ids, and a non-HTTP caller (seed,
+   * unit test) has no scope, so its explicit values still win.
+   */
+  private attribution(entry: AuditEntry): {
+    organizationId: string | null;
+    clinicId: string | null;
+  } {
+    const scope = this.tenant.peek();
+    return {
+      organizationId: entry.organizationId ?? scope?.organizationId ?? null,
+      clinicId: entry.clinicId ?? scope?.clinicId ?? null,
+    };
+  }
 
   /** Write one entry using an existing transaction client. */
   async record(tx: TxClient, entry: AuditEntry): Promise<void> {
@@ -37,8 +58,7 @@ export class AuditService {
         entityId: entry.entityId,
         before: (entry.before ?? null) as never,
         after: (entry.after ?? null) as never,
-        organizationId: entry.organizationId ?? null,
-        clinicId: entry.clinicId ?? null,
+        ...this.attribution(entry),
       },
     });
   }
@@ -53,16 +73,21 @@ export class AuditService {
         entityId: entry.entityId,
         before: (entry.before ?? null) as never,
         after: (entry.after ?? null) as never,
-        organizationId: entry.organizationId ?? null,
-        clinicId: entry.clinicId ?? null,
+        ...this.attribution(entry),
       },
     });
   }
 
-  /** Read the trail for one entity, newest first. */
+  /**
+   * Read the trail for one entity, newest first, limited to the caller's
+   * organization. A caller with no request scope (seed, unit test) is not
+   * narrowed, because it has no tenant to narrow to.
+   */
   async listForEntity(entity: string, entityId: string, limit = 50) {
+    const scope = this.tenant.peek();
+
     return this.prisma.auditLog.findMany({
-      where: { entity, entityId },
+      where: { entity, entityId, ...(scope ? clinicWhere(scope) : {}) },
       orderBy: { createdAt: 'desc' },
       take: limit,
     });

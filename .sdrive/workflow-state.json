@@ -583,6 +583,378 @@
           ]
         }
       ]
+    },
+    {
+      "name": "application-shell",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-007"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "completed",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/application-shell/v1/spec.md",
+                ".sdrive/governance/application-shell/v1/spec.json",
+                ".sdrive/governance/application-shell/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: scope reuses the existing shell and adds only the documented gaps.",
+              "timestamp": "2026-11-04T15:18:57.795Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/application-shell/v1/plan.md",
+                ".sdrive/specs/backlog/application-shell/v1/tasks.md",
+                ".sdrive/governance/application-shell/v1/plan.json",
+                ".sdrive/governance/application-shell/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:18:57.795Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: 4 phases, 15 production tasks, no new dependency.",
+              "timestamp": "2026-11-04T15:19:29.729Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:37:00.346Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:37:00.346Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T17:38:24.353Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T23:11:38.515Z"
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "",
+              "timestamp": "2026-11-04T23:13:01.087Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "strict-tenant-isolation",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-010"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "completed",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/strict-tenant-isolation/v1/spec.md",
+                ".sdrive/governance/strict-tenant-isolation/v1/spec.json",
+                ".sdrive/governance/strict-tenant-isolation/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:21:50.758Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: scope hardened onto one helper, audit scoped, and the refresh-token scope defect (D5) included.",
+              "timestamp": "2026-11-04T15:24:23.553Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/strict-tenant-isolation/v1/plan.md",
+                ".sdrive/specs/backlog/strict-tenant-isolation/v1/tasks.md",
+                ".sdrive/governance/strict-tenant-isolation/v1/plan.json",
+                ".sdrive/governance/strict-tenant-isolation/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:24:23.553Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: helper refactor, scoped audit, and the refresh-token clinic scope migration.",
+              "timestamp": "2026-11-04T15:24:46.427Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:41:56.409Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:41:56.409Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T17:38:53.911Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T23:11:44.377Z"
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "",
+              "timestamp": "2026-11-04T23:13:03.727Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "role-based-access-control-and-clinic-scoping",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-011"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "completed",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/role-based-access-control-and-clinic-scoping/v1/spec.md",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/spec.json",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:28:38.773Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: shared matrix, @Roles everywhere, derived NAV_ROLES, localized 403 page.",
+              "timestamp": "2026-11-04T15:29:35.531Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/role-based-access-control-and-clinic-scoping/v1/plan.md",
+                ".sdrive/specs/backlog/role-based-access-control-and-clinic-scoping/v1/tasks.md",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/plan.json",
+                ".sdrive/governance/role-based-access-control-and-clinic-scoping/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:29:35.531Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: shared matrix, consistent server enforcement, capability guards and the 403 page.",
+              "timestamp": "2026-11-04T15:29:57.830Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:45:27.820Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:45:27.820Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T17:39:16.803Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T23:11:45.022Z"
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "",
+              "timestamp": "2026-11-04T23:13:05.825Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "localised-data-and-api-messages",
+      "branch": "feature/bp-007-bp-010-bp-011-bp-013",
+      "base": "main",
+      "productItems": ["BP-013"],
+      "currentVersion": "v1",
+      "versions": [
+        {
+          "id": "v1",
+          "phase": "completed",
+          "currentStep": "implementation",
+          "gates": {
+            "specification": "approved",
+            "planning": "approved",
+            "implementation": "approved",
+            "review": "approved"
+          },
+          "history": [
+            {
+              "event": "branch-created",
+              "by": "specification-agent",
+              "base": "main",
+              "timestamp": "2026-11-04T15:17:12.801Z"
+            },
+            {
+              "event": "specification-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/localised-data-and-api-messages/v1/spec.md",
+                ".sdrive/governance/localised-data-and-api-messages/v1/spec.json",
+                ".sdrive/governance/localised-data-and-api-messages/v1/traceability.json"
+              ],
+              "timestamp": "2026-11-04T15:31:48.737Z"
+            },
+            {
+              "event": "gate-1-approved",
+              "by": "project-owner",
+              "note": "Approved: shared locale layer, Accept-Language negotiation, clinic-timezone formatting.",
+              "timestamp": "2026-11-04T15:32:34.239Z"
+            },
+            {
+              "event": "planning-drafted",
+              "by": "specification-agent",
+              "artifacts": [
+                ".sdrive/specs/backlog/localised-data-and-api-messages/v1/plan.md",
+                ".sdrive/specs/backlog/localised-data-and-api-messages/v1/tasks.md",
+                ".sdrive/governance/localised-data-and-api-messages/v1/plan.json",
+                ".sdrive/governance/localised-data-and-api-messages/v1/tasks.json"
+              ],
+              "timestamp": "2026-11-04T15:32:34.239Z"
+            },
+            {
+              "event": "gate-2-approved",
+              "by": "project-owner",
+              "note": "Approved: shared locale layer, server error localization and clinic-timezone formatting.",
+              "timestamp": "2026-11-04T15:32:55.689Z"
+            },
+            {
+              "event": "moved-backlog-to-ongoing",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:49:00.154Z"
+            },
+            {
+              "event": "implementation-started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-04T15:49:00.154Z"
+            },
+            {
+              "event": "implementation_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T17:39:32.829Z"
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-04T23:11:45.647Z"
+            },
+            {
+              "event": "feature_archived",
+              "by": "kenule500",
+              "from": "ongoing",
+              "version": "v1",
+              "mergeCommit": "",
+              "timestamp": "2026-11-04T23:13:07.473Z"
+            }
+          ]
+        }
+      ]
     }
   ],
   "onboarding": {
