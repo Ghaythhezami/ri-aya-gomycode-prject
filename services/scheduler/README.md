@@ -7,6 +7,11 @@ Server-to-server only (no CORS): the NestJS API calls it with a short-lived serv
   `server/src/scheduling/optimizer.ts` (same constants, tie-breaking and rounding). Pure, no database.
 - `POST /v1/insights` aggregates a clinic's appointments (up to 730 days) with numpy from PostgreSQL,
   read-only, through a server-side cursor in chunks of 10 000 rows.
+- `POST /v1/reports/analytics` renders the analytics PDF (`application/pdf`) from aggregates the API
+  sends (`locale`, `clinic`, `range`, `scope`, `generatedAt`, `analytics`, optional `insights`).
+  reportlab with bundled Noto fonts (OFL, `app/fonts/`); Arabic is shaped with arabic-reshaper and
+  python-bidi and the layout is mirrored. No database, no patient data. Samples:
+  `python scripts/render_report_samples.py <out-dir>`.
 - `GET /health` is open: `{status: "ok"|"degraded", store: "up"|"down"|"none"}`.
 
 ## Run

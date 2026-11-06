@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import logging
+import os
 import re
 import time
 import uuid
@@ -13,13 +14,15 @@ from typing import Annotated, Any
 
 import psycopg
 from fastapi import Depends, FastAPI, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 
 from . import insights_repo
 from .auth import Principal, require_principal
 from .config import load_settings
 from .errors import ApiError, install_error_handlers
 from .optimizer import optimize
+from .report import render_analytics_report
+from .report_schemas import ReportRequest
 from .schemas import InsightsRequest, OptimizerInput
 
 log = logging.getLogger("riaya.scheduler")
@@ -43,13 +46,16 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
+_DOCS = os.environ.get("DOCS_ENABLED", "").lower() == "true"
+
 app = FastAPI(
     title="riaya-scheduler",
     version="0.1.0",
     lifespan=lifespan,
-    docs_url=None,
+    # Swagger UI / OpenAPI only when DOCS_ENABLED=true (off in production by default).
+    docs_url="/docs" if _DOCS else None,
     redoc_url=None,
-    openapi_url=None,
+    openapi_url="/openapi.json" if _DOCS else None,
 )
 install_error_handlers(app)
 
@@ -127,3 +133,25 @@ def insights_route(
         ms=result["meta"]["durationMs"],
     )
     return JSONResponse(result)
+
+
+@app.post("/v1/reports/analytics")
+def analytics_report_route(
+    body: ReportRequest, principal: PrincipalDep, request: Request
+) -> Response:
+    started = time.perf_counter()
+    pdf = render_analytics_report(body)
+    _log(
+        event="analytics_report",
+        requestId=request.state.request_id,
+        clinicId=principal.clinic_id,
+        locale=body.locale,
+        withInsights=body.insights is not None,
+        bytes=len(pdf),
+        ms=int((time.perf_counter() - started) * 1000),
+    )
+    return Response(
+        pdf,
+        media_type="application/pdf",
+        headers={"Cache-Control": "no-store", "Content-Length": str(len(pdf))},
+    )
