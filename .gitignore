@@ -58,3 +58,10 @@ T3-PROBE.tmp
 web/public/app/
 # Vercel CLI link state
 .vercel
+
+# Python microservices
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/

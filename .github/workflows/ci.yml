@@ -52,3 +52,27 @@ jobs:
         uses: gitleaks/gitleaks-action@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ADR 0003: the Python microservices. Tests run against real PostgreSQL and MongoDB
+  # services; suites that need a store skip cleanly when it is unreachable.
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [scheduler, comms]
+    services:
+      mongo:
+        image: mongo:7
+        ports: ['27017:27017']
+    defaults:
+      run:
+        working-directory: services/${{ matrix.service }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - run: uv sync --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest -q

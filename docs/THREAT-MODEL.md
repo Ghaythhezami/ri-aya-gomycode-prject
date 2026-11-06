@@ -19,6 +19,7 @@ One page, API-focused. Scope: `server/` (NestJS 11, Prisma 6, PostgreSQL) as dep
 3. Tenant to tenant (organization and clinic). Enforced in the service layer, not by the database (no row-level security).
 4. Staff roles inside a clinic: `@Roles(CAPABILITY_ROLES.*)`; unknown means deny.
 5. Vercel Cron to `/api/notifications/reminders/process` and `/api/demo/reset` (shared bearer secret, constant-time compare).
+6. API to the Python microservices `riaya-scheduler` and `riaya-comms` (ADR 0003): a 60-second HS256 token per call signed with `SERVICE_JWT_SECRET` (iss, aud per service, exp). The services take the tenant only from the token's `clinic_id`, reject unknown body keys, answer 404 to non-members, and never receive the user's own JWT. A rejected service token surfaces as 503 to the caller (operator problem), not 401. Admin import/reset needs `scope=admin`, which the API only signs from the cron-protected demo reset and the `sync-comms` script.
 
 ## Entry points
 

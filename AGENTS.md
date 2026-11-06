@@ -13,14 +13,16 @@ brief, Ri-aya feature document, Figma screenshots).
 
 ## Repository map
 
-| Path               | What                                                                          | Run                                                               |
-| ------------------ | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- |
-| `server/`          | NestJS 11 API, Prisma 6, PostgreSQL, Redis (optional)                         | `pnpm --filter server start:dev` (port 4000, Swagger `/api/docs`) |
-| `backoffice/`      | React 19 + Vite staff workspace, RTK Query, i18next                           | `pnpm --filter backoffice dev` (port 5174, proxies `/api`)        |
-| `web/`             | Next.js 15 marketing site; serves the backoffice at `/app` in production      | `pnpm --filter web dev` (port 3000)                               |
-| `realtime/`        | NestJS Socket.IO relay (MongoDB, Redis adapter)                               | `pnpm dev:realtime` (port 4001)                                   |
-| `packages/shared/` | Contracts (`schemas/clinic.ts`), capability matrix, localised errors          | `pnpm --filter @riaya/shared build`                               |
-| `docs/`            | API contract, ADRs, threat model, scheduling metrics, technical documentation | –                                                                 |
+| Path                  | What                                                                                  | Run                                                               |
+| --------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `server/`             | NestJS 11 API, Prisma 6, PostgreSQL, Redis (optional)                                 | `pnpm --filter server start:dev` (port 4000, Swagger `/api/docs`) |
+| `backoffice/`         | React 19 + Vite staff workspace, RTK Query, i18next                                   | `pnpm --filter backoffice dev` (port 5174, proxies `/api`)        |
+| `web/`                | Next.js 15 marketing site; serves the backoffice at `/app` in production              | `pnpm --filter web dev` (port 3000)                               |
+| `realtime/`           | NestJS Socket.IO relay (MongoDB, Redis adapter)                                       | `pnpm dev:realtime` (port 4001)                                   |
+| `services/scheduler/` | Python FastAPI: optimiser (parity with the TS one) and numpy insights over PostgreSQL | `pnpm dev:scheduler` (port 4100)                                  |
+| `services/comms/`     | Python FastAPI: notifications and staff chat on MongoDB                               | `pnpm dev:comms` (port 4200)                                      |
+| `packages/shared/`    | Contracts (`schemas/clinic.ts`), capability matrix, localised errors                  | `pnpm --filter @riaya/shared build`                               |
+| `docs/`               | API contract, ADRs, threat model, scheduling metrics, technical documentation         | –                                                                 |
 
 Local services: `docker compose up -d` (PostgreSQL 16, Redis 7, MongoDB 7).
 First run: `pnpm install` → `pnpm run setup` (not `pnpm setup`, which is a pnpm built-in) →
@@ -55,6 +57,11 @@ First run: `pnpm install` → `pnpm run setup` (not `pnpm setup`, which is a pnp
     display and self check-in expose queue numbers and rooms only.
 11. **Secrets.** Never commit `.env` files, connection strings or tokens. Production secrets live in
     Vercel project environment variables.
+12. **Python services (ADR 0003).** The NestJS API stays the only public entry point. Services trust
+    only the signed service token (`clinic_id`, `sub`); never add a clinic id to a service request body.
+    A change to `server/src/scheduling/optimizer.ts` must be mirrored in
+    `services/scheduler/app/optimizer.py` and the parity fixtures regenerated
+    (`server/scripts/export-optimizer-fixtures.ts`). Python checks: `pnpm lint:py`, `pnpm test:py`.
 
 ## Definition of done
 

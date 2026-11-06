@@ -76,6 +76,36 @@ services:
       mongo:
         condition: service_healthy
 
+  # ADR 0003. Python microservices; both optional for the API (SCHEDULER_URL / COMMS_URL).
+  scheduler:
+    build:
+      context: services/scheduler
+    container_name: riaya-scheduler
+    restart: unless-stopped
+    environment:
+      SERVICE_JWT_SECRET: ${SERVICE_JWT_SECRET:-}
+      DATABASE_URL: postgresql://riaya:riaya@postgres:5432/riaya
+    ports:
+      - '4100:4100'
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  comms:
+    build:
+      context: services/comms
+    container_name: riaya-comms
+    restart: unless-stopped
+    environment:
+      SERVICE_JWT_SECRET: ${SERVICE_JWT_SECRET:-}
+      MONGODB_URI: mongodb://mongo:27017
+      MONGODB_DB: riaya_comms
+    ports:
+      - '4200:4200'
+    depends_on:
+      mongo:
+        condition: service_healthy
+
 volumes:
   riaya_pgdata:
   riaya_redisdata:

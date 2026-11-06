@@ -21,13 +21,15 @@ Built on the MediFlow brief and the team's Ri'aya feature document. Every record
 
 ## Apps
 
-| App               | Stack                                             | Port          |
-| ----------------- | ------------------------------------------------- | ------------- |
-| `web`             | Next.js 15, next-intl, Tailwind CSS 4 (marketing) | 3000          |
-| `server`          | NestJS 11, Prisma 6, PostgreSQL 16, Redis 7       | 4000 (`/api`) |
-| `backoffice`      | React 19, Vite 6, RTK Query, i18next, Recharts    | 5174          |
-| `realtime`        | NestJS + Socket.IO, MongoDB 7, Redis adapter      | 4001          |
-| `packages/shared` | Contracts, capability matrix, localised errors    | –             |
+| App                  | Stack                                                                      | Port          |
+| -------------------- | -------------------------------------------------------------------------- | ------------- |
+| `web`                | Next.js 15, next-intl, Tailwind CSS 4 (marketing)                          | 3000          |
+| `server`             | NestJS 11, Prisma 6, PostgreSQL 16, Redis 7                                | 4000 (`/api`) |
+| `backoffice`         | React 19, Vite 6, RTK Query, i18next, Recharts                             | 5174          |
+| `realtime`           | NestJS + Socket.IO, MongoDB 7, Redis adapter                               | 4001          |
+| `services/scheduler` | Python 3.12, FastAPI, numpy, psycopg 3 (optimiser, large-history insights) | 4100          |
+| `services/comms`     | Python 3.12, FastAPI, PyMongo async (notifications, staff chat)            | 4200          |
+| `packages/shared`    | Contracts, capability matrix, localised errors                             | –             |
 
 Architecture and hosting decisions: `docs/adr/`. API contract: `docs/API-CONTRACT.md` and Swagger
 at `/api/docs`.
@@ -66,7 +68,13 @@ paths fail closed while ordinary reads keep serving from PostgreSQL.
 | ---------- | -------------------- | ----- | ----------------- | ---------------------------------------- |
 | PostgreSQL | `postgres:16-alpine` | 5432  | `riaya_pgdata`    | Prisma / all application data            |
 | Redis      | `redis:7-alpine`     | 6379  | `riaya_redisdata` | lockout counters, revoked refresh tokens |
-| MongoDB    | `mongo:7`            | 27017 | `riaya_mongodata` | reserved for the realtime wave (BP-031)  |
+| MongoDB    | `mongo:7`            | 27017 | `riaya_mongodata` | `riaya-comms` (notifications, chat)      |
+
+Python microservices (optional, ADR 0003): `pnpm dev:scheduler` and `pnpm dev:comms` (needs
+[uv](https://docs.astral.sh/uv/)), or `docker compose up -d scheduler comms`. Point the API at them
+with `SCHEDULER_URL`, `COMMS_URL` and a shared `SERVICE_JWT_SECRET`; copy existing notifications and
+chat into MongoDB once with `cd server && npx ts-node --transpile-only scripts/sync-comms.ts`.
+Without the URLs the API keeps its in-process optimiser and PostgreSQL storage.
 
 All three declare healthchecks, so `docker compose ps` shows `healthy` rather than merely
 `running`; they normally reach that state within a minute.
