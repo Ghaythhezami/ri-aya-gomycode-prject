@@ -26,6 +26,24 @@ enum MembershipStatus {
   SUSPENDED
 }
 
+/// Lifecycle of an invitation (FR-042). `EXPIRED` is NOT stored: it is derived at
+/// read time for a PENDING row whose `expiresAt` has passed, so no scheduler is
+/// needed and the persisted status stays a single source of truth.
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+/// Recorded outcome of the invitation email send (FR-041). A failed send leaves
+/// the invitation PENDING with a resend affordance (AC-049, EC-019).
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
   id          String          @id @default(uuid())
   email       String          @unique
@@ -130,12 +148,20 @@ model Invitation {
   tokenHash   String   @unique
   expiresAt   DateTime
   consumedAt  DateTime?
+  /// Persisted lifecycle status (FR-042). `EXPIRED` is derived, never stored.
+  status      InvitationStatus @default(PENDING)
+  /// Recorded outcome of the invitation email send (FR-041, AC-048).
+  deliveryStatus DeliveryStatus @default(PENDING)
+  /// Provider error captured when a send fails, so a resend can be offered (EC-019).
+  deliveryError  String?
   invitedById String?
   invitedBy   User?    @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([email, clinicId])
   @@index([expiresAt])
+  @@index([clinicId, status])
   @@map("invitations")
 }
 

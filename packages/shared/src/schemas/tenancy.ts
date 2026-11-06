@@ -58,3 +58,36 @@ export const createOrganizationSchema = z.object({
 });
 
 export type CreateOrganizationInput = z.infer<typeof createOrganizationSchema>;
+
+/**
+ * `InvitationStatus` — the persisted lifecycle of an invitation (FR-042).
+ * `EXPIRED` is deliberately absent: it is derived at read time for a PENDING row
+ * whose `expiresAt` has passed, so the client must compute it from `status` plus
+ * `expiresAt` rather than expect it as a stored value.
+ */
+export const invitationStatusSchema = z.enum(['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED']);
+
+export type InvitationStatus = z.infer<typeof invitationStatusSchema>;
+
+/** The status a client renders, including the derived `EXPIRED`. */
+export const invitationDisplayStatusSchema = z.enum([
+  'PENDING',
+  'ACCEPTED',
+  'REJECTED',
+  'CANCELLED',
+  'EXPIRED',
+]);
+
+export type InvitationDisplayStatus = z.infer<typeof invitationDisplayStatusSchema>;
+
+/** `DeliveryStatus` — recorded outcome of the invitation email send (FR-041). */
+export const deliveryStatusSchema = z.enum(['PENDING', 'SENT', 'FAILED']);
+
+export type DeliveryStatus = z.infer<typeof deliveryStatusSchema>;
+
+/** `ChangeRoleDto` — the new role for a membership (FR-045). */
+export const changeRoleSchema = z.object({
+  role: userRoleSchema,
+});
+
+export type ChangeRoleInput = z.infer<typeof changeRoleSchema>;
