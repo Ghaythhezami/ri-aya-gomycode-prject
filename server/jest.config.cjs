@@ -32,6 +32,8 @@ module.exports = {
   // boot, not on its speed.
   hookTimeout: 90_000,
   moduleNameMapper: {
+    // Tests read the shared contract from source, never a stale dist/ build.
+    '^@riaya/shared$': '<rootDir>/../../packages/shared/src/index.ts',
     '^@/(.*)$': '<rootDir>/$1',
   },
 };

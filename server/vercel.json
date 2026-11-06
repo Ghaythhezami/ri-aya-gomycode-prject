@@ -1,0 +1,19 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "cd .. && pnpm install --frozen-lockfile --filter server...",
+  "buildCommand": "cd .. && pnpm --filter @riaya/shared build && cd server && pnpm exec prisma generate && pnpm exec nest build",
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "dist/**"
+    }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api/index" }],
+  "crons": [
+    { "path": "/api/notifications/reminders/process", "schedule": "30 6 * * *" },
+    { "path": "/api/demo/reset", "schedule": "0 6 * * *" }
+  ]
+}

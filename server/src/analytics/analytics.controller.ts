@@ -1,0 +1,88 @@
+import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { IsIn, IsOptional, Matches } from 'class-validator';
+import type { Response } from 'express';
+import { CAPABILITY_ROLES, type AnalyticsScope } from '@riaya/shared';
+import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
+import { RolesGuard } from '../common/guards/roles.guard';
+import { Roles } from '../common/decorators/roles.decorator';
+import { TenantContext } from '../tenancy/tenant-context';
+import { AnalyticsService } from './analytics.service';
+import { ExportService } from './export.service';
+
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export class AnalyticsQueryDto {
+  @IsOptional()
+  @Matches(DATE, { message: 'from must be YYYY-MM-DD' })
+  from?: string;
+
+  @IsOptional()
+  @Matches(DATE, { message: 'to must be YYYY-MM-DD' })
+  to?: string;
+
+  @IsOptional()
+  @IsIn(['clinic', 'organization'])
+  scope?: AnalyticsScope;
+}
+
+@ApiTags('analytics')
+@ApiBearerAuth()
+@Controller()
+@UseGuards(JwtAuthGuard, RolesGuard)
+export class AnalyticsController {
+  constructor(
+    private readonly analytics: AnalyticsService,
+    private readonly exports: ExportService,
+    private readonly tenant: TenantContext,
+  ) {}
+
+  @Get('dashboard')
+  @Roles(...CAPABILITY_ROLES.viewOverview)
+  dashboard() {
+    return this.analytics.dashboard(this.tenant.get().clinicId);
+  }
+
+  @Get('analytics')
+  @Roles(...CAPABILITY_ROLES.viewAnalytics)
+  report(@Query() query: AnalyticsQueryDto) {
+    return this.analytics.analytics(this.tenant.get(), query);
+  }
+
+  @Get('analytics/export.csv')
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  async exportCsv(@Query() query: AnalyticsQueryDto, @Res() res: Response) {
+    const { from, to, clinics } = await this.analytics.resolve(this.tenant.get(), query);
+    res.status(200);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="riaya-appointments-${from}-${to}.csv"`,
+    );
+    try {
+      await this.exports.streamCsv(clinics, from, to, (chunk) => {
+        res.write(chunk);
+      });
+    } finally {
+      res.end();
+    }
+  }
+
+  @Get('analytics/export.pdf')
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  async exportPdf(@Query() query: AnalyticsQueryDto, @Res() res: Response) {
+    const scope = this.tenant.get();
+    const report = await this.analytics.analytics(scope, query);
+    const { clinics } = await this.analytics.resolve(scope, query);
+    const name = report.scope === 'organization' ? 'All clinics' : (clinics[0]?.name ?? '');
+    const buffer = this.exports.buildPdf(report, name);
+    res.status(200);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader(
+      'Content-Disposition',
+      `attachment; filename="riaya-analytics-${report.range.from}-${report.range.to}.pdf"`,
+    );
+    res.setHeader('Content-Length', String(buffer.length));
+    res.end(buffer);
+  }
+}

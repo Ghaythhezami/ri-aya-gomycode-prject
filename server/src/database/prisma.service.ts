@@ -115,6 +115,11 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return (this.inner as PrismaClient).$transaction(fn, options);
   }
 
+  /** The underlying client, for jobs that need the full API (demo reset). */
+  get rawClient(): PrismaClient {
+    return this.inner as PrismaClient;
+  }
+
   /** Run several operations in one transaction (used by registration and audit). */
   $transaction<T>(
     fn: (

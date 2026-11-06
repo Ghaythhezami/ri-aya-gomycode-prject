@@ -11,6 +11,8 @@ import { RedisCacheModule } from './cache/redis-cache.module';
 import { TenancyModule } from './tenancy/tenancy.module';
 import { AuditModule } from './audit/audit.module';
 import { EventsModule } from './events/events.module';
+import { CoreModule } from './core/core.module';
+import { DemoModule } from './demo/demo.module';
 import { ClinicalModule } from './clinical.module';
 import { OperationsModule } from './operations.module';
 
@@ -39,8 +41,10 @@ import { OperationsModule } from './operations.module';
     UsersModule,
     HealthModule,
     EventsModule,
+    CoreModule,
     ClinicalModule,
     OperationsModule,
+    DemoModule,
   ],
   providers: [
     {

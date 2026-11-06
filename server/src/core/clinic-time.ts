@@ -81,14 +81,15 @@ export function parseLocalDate(date: string): { year: number; month: number; day
 export function localToUtc(date: string, minuteOfDay: number, timeZone: string): Date {
   const { year, month, day } = parseLocalDate(date);
   const naive = Date.UTC(year, month - 1, day, 0, 0, 0) + minuteOfDay * MINUTE;
-  // Two passes converge for every real-world zone (offset changes at most once a day).
-  let offset = zoneOffsetMinutes(new Date(naive), timeZone);
-  let result = naive - offset * MINUTE;
-  const second = zoneOffsetMinutes(new Date(result), timeZone);
-  if (second !== offset) {
-    offset = second;
-    result = naive - offset * MINUTE;
-  }
+  // Offsets in force a day before and a day after bracket any single transition.
+  const before = zoneOffsetMinutes(new Date(naive - 24 * 60 * MINUTE), timeZone);
+  const after = zoneOffsetMinutes(new Date(naive + 24 * 60 * MINUTE), timeZone);
+  const candidates = [...new Set([before, after])]
+    .map((offset) => ({ offset, instant: naive - offset * MINUTE }))
+    .filter((c) => zoneOffsetMinutes(new Date(c.instant), timeZone) === c.offset)
+    .map((c) => c.instant);
+  // Ambiguous (fall-back): earliest. Non-existent (spring gap): shift forward using the old offset.
+  const result = candidates.length ? Math.min(...candidates) : naive - before * MINUTE;
   return new Date(result);
 }
 

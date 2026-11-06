@@ -27,5 +27,8 @@ module.exports = {
     },
   },
   testEnvironment: 'node',
+  moduleNameMapper: {
+    '^@riaya/shared$': '<rootDir>/../../packages/shared/src/index.ts',
+  },
   testTimeout: 30_000,
 };

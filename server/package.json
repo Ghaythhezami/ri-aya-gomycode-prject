@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start": "pnpm --filter @riaya/shared build && nest start",
+    "start:dev": "pnpm --filter @riaya/shared build && nest start --watch",
     "start:prod": "node dist/main",
-    "build": "nest build",
+    "build": "pnpm --filter @riaya/shared build && nest build",
     "lint": "eslint \"{src,test}/**/*.ts\" --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "jest --coverage --runInBand",
