@@ -9,8 +9,19 @@ import { Roles } from '../common/decorators/roles.decorator';
 import { TenantContext } from '../tenancy/tenant-context';
 import { AnalyticsService } from './analytics.service';
 import { ExportService } from './export.service';
+import { InsightsService } from './insights.service';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export class InsightsQueryDto {
+  @IsOptional()
+  @Matches(DATE, { message: 'from must be YYYY-MM-DD' })
+  from?: string;
+
+  @IsOptional()
+  @Matches(DATE, { message: 'to must be YYYY-MM-DD' })
+  to?: string;
+}
 
 export class AnalyticsQueryDto {
   @IsOptional()
@@ -35,7 +46,15 @@ export class AnalyticsController {
     private readonly analytics: AnalyticsService,
     private readonly exports: ExportService,
     private readonly tenant: TenantContext,
+    private readonly insightsService: InsightsService,
   ) {}
+
+  /** Large-history scheduling insights from the Python scheduler service (ADR 0003). */
+  @Get('analytics/insights')
+  @Roles(...CAPABILITY_ROLES.viewAnalytics)
+  insights(@Query() query: InsightsQueryDto) {
+    return this.insightsService.insights(this.tenant.get(), query);
+  }
 
   @Get('dashboard')
   @Roles(...CAPABILITY_ROLES.viewOverview)

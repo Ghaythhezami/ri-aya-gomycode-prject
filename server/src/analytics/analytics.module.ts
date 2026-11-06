@@ -3,10 +3,11 @@ import { SchedulingModule } from '../scheduling/scheduling.module';
 import { AnalyticsController } from './analytics.controller';
 import { AnalyticsService } from './analytics.service';
 import { ExportService } from './export.service';
+import { InsightsService } from './insights.service';
 
 @Module({
   imports: [SchedulingModule],
   controllers: [AnalyticsController],
-  providers: [AnalyticsService, ExportService],
+  providers: [AnalyticsService, ExportService, InsightsService],
 })
 export class AnalyticsModule {}

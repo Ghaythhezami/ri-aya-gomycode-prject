@@ -5,6 +5,7 @@ import {
   HttpCode,
   Logger,
   NotFoundException,
+  Optional,
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -13,6 +14,7 @@ import { SkipThrottle } from '@nestjs/throttler';
 import { timingSafeEqual } from 'node:crypto';
 import { PrismaService } from '../database/prisma.service';
 import { runSeed } from '../database/seeds/seed';
+import { CommsSyncService } from '../services/comms-sync.service';
 
 /** Constant-time comparison of a presented secret with the configured one. */
 export function secretMatches(presented: string | undefined, expected: string): boolean {
@@ -33,7 +35,10 @@ export function secretMatches(presented: string | undefined, expected: string): 
 export class DemoController {
   private readonly logger = new Logger(DemoController.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() private readonly commsSync?: CommsSyncService,
+  ) {}
 
   @Get('reset')
   resetFromCron(@Headers('authorization') authorization?: string) {
@@ -57,6 +62,8 @@ export class DemoController {
     }
     const started = Date.now();
     await runSeed(this.prisma.rawClient, { demoReset: true, quiet: true });
+    // Notifications and chat live in MongoDB when riaya-comms is configured (ADR 0003).
+    if (this.commsSync?.enabled) await this.commsSync.syncAll({ reset: true });
     this.logger.log(`Demo dataset re-seeded in ${Date.now() - started} ms`);
     return { success: true, durationMs: Date.now() - started };
   }

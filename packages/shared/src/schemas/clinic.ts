@@ -101,6 +101,7 @@ export const CLINIC_ERROR_CODES = [
   'STALE_PROPOSAL',
   'UNDO_EXPIRED',
   'CHECK_IN_NOT_FOUND',
+  'SERVICE_UNAVAILABLE',
 ] as const;
 export type ClinicErrorCode = (typeof CLINIC_ERROR_CODES)[number];
 
@@ -192,12 +193,7 @@ export interface DuplicateCheckResult {
 // ---------------------------------------------------------------- doctors
 
 export type DoctorAvailability =
-  | 'AVAILABLE'
-  | 'IN_CONSULTATION'
-  | 'ON_BREAK'
-  | 'ON_LEAVE'
-  | 'OFF_DUTY'
-  | 'INACTIVE';
+  'AVAILABLE' | 'IN_CONSULTATION' | 'ON_BREAK' | 'ON_LEAVE' | 'OFF_DUTY' | 'INACTIVE';
 
 export interface WorkingInterval {
   weekday: number; // 0 = Sunday
@@ -493,6 +489,8 @@ export interface OptimizationProposal {
   createdAt: string;
   state: 'PROPOSED' | 'APPLIED' | 'UNDONE' | 'REJECTED';
   undoUntil: string | null;
+  /** Which optimiser produced the proposal: the Python service or the in-process fallback. */
+  engine?: 'python' | 'typescript';
 }
 
 export interface MoveValidation {
@@ -501,6 +499,62 @@ export interface MoveValidation {
 }
 
 // ---------------------------------------------------------------- analytics
+
+/** One bucket of a no-show breakdown (rate is Bayesian-smoothed, 0..1). */
+export interface InsightRate {
+  key: string;
+  rate: number;
+  count: number;
+}
+
+export type InsightRecommendation =
+  | {
+      kind: 'HIGH_NO_SHOW_SLOT';
+      params: { weekday: number; hour: number; rate: number; count: number };
+    }
+  | { kind: 'PEAK_HOURS'; params: { cells: { weekday: number; hour: number; count: number }[] } }
+  | {
+      kind: 'UNDERUSED_DOCTOR';
+      params: {
+        doctorId: string;
+        doctorName?: string;
+        bookedMinutes: number;
+        medianMinutes: number;
+      };
+    };
+
+/**
+ * Large-history scheduling insights computed by the Python scheduler service (ADR 0003).
+ * `demand.matrix[weekday][hour]`, weekday 0 = Monday, clinic local time.
+ */
+export interface SchedulingInsights {
+  range: { from: string; to: string; timeZone: string };
+  totals: {
+    appointments: number;
+    completed: number;
+    noShows: number;
+    cancelled: number;
+    noShowRate: number;
+  };
+  demand: { matrix: number[][]; peak: { weekday: number; hour: number; count: number }[] };
+  noShow: {
+    byWeekday: InsightRate[];
+    byHour: InsightRate[];
+    byType: InsightRate[];
+    byLeadTime: InsightRate[];
+  };
+  doctors: {
+    doctorId: string;
+    doctorName?: string;
+    appointments: number;
+    bookedMinutes: number;
+    noShowRate: number;
+    avgDurationMinutes: number;
+  }[];
+  forecast: { date: string; expected: number }[];
+  recommendations: InsightRecommendation[];
+  meta: { rowsScanned: number; chunks: number; durationMs: number; engine: string };
+}
 
 export interface DashboardDto {
   kpis: {
@@ -623,7 +677,9 @@ export interface ClinicSettingsDto {
 
 export type UpdateSettingsInput = Partial<
   Omit<ClinicSettingsDto, 'clinic' | 'updatedAt'> & {
-    clinic: Partial<Pick<ClinicSettingsDto['clinic'], 'name' | 'address' | 'timezone' | 'currency'>>;
+    clinic: Partial<
+      Pick<ClinicSettingsDto['clinic'], 'name' | 'address' | 'timezone' | 'currency'>
+    >;
   }
 >;
 

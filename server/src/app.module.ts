@@ -1,3 +1,4 @@
+import { ServicesModule } from './services/services.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
@@ -35,6 +36,7 @@ import { OperationsModule } from './operations.module';
     }),
     PrismaModule,
     RedisCacheModule,
+    ServicesModule,
     TenancyModule,
     AuditModule,
     AuthModule,

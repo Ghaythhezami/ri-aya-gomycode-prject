@@ -1,5 +1,4 @@
-import { Injectable } from '@nestjs/common';
-import { NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type {
   DeliveryStats,
@@ -8,6 +7,8 @@ import type {
   NotificationPage,
 } from '@riaya/shared';
 import { PrismaService } from '../database/prisma.service';
+import { ServiceClient, type ServicePrincipal } from '../services/service-client';
+import { COMMS_CLIENT } from '../services/service-tokens';
 
 export interface CreateNotificationInput {
   clinicId: string;
@@ -53,10 +54,34 @@ export function decodeCursor(cursor: string): { createdAt: Date; id: string } | 
 
 @Injectable()
 export class NotificationsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() @Inject(COMMS_CLIENT) private readonly comms?: ServiceClient,
+  ) {}
+
+  /**
+   * True when notifications live in MongoDB behind `riaya-comms` (ADR 0003). Reminder
+   * deliveries stay in PostgreSQL either way: they are transactional with appointments.
+   */
+  get usesCommsService(): boolean {
+    return this.comms?.enabled === true;
+  }
+
+  private principal(clinicId: string, userId = 'system'): ServicePrincipal {
+    return { clinicId, userId, role: userId === 'system' ? 'SYSTEM' : 'STAFF' };
+  }
 
   /** Idempotent on `dedupeKey`: a repeated event never creates a second row. */
   async create(input: CreateNotificationInput): Promise<void> {
+    if (this.comms?.enabled) {
+      const { clinicId, ...body } = input;
+      await this.comms.request({
+        path: '/v1/notifications',
+        principal: this.principal(clinicId),
+        body: { ...body, params: body.params ?? {} },
+      });
+      return;
+    }
     try {
       await this.prisma.notification.create({
         data: {
@@ -96,6 +121,13 @@ export class NotificationsService {
   }
 
   async unreadCount(clinicId: string, userId: string): Promise<number> {
+    if (this.comms?.enabled) {
+      const { count } = await this.comms.request<{ count: number }>({
+        path: '/v1/notifications/unread-count',
+        principal: this.principal(clinicId, userId),
+      });
+      return count;
+    }
     return this.prisma.notification.count({
       where: { ...this.visibleTo(clinicId, userId), NOT: { readBy: { has: userId } } },
     });
@@ -106,6 +138,18 @@ export class NotificationsService {
     userId: string,
     query: ListNotificationsQuery,
   ): Promise<NotificationPage> {
+    if (this.comms?.enabled) {
+      return this.comms.request<NotificationPage>({
+        path: '/v1/notifications',
+        principal: this.principal(clinicId, userId),
+        query: {
+          category: query.category,
+          unread: query.unread ? 'true' : undefined,
+          cursor: query.cursor,
+          limit: query.limit,
+        },
+      });
+    }
     const limit = Math.min(Math.max(query.limit ?? 20, 1), 100);
     const and: Prisma.NotificationWhereInput[] = [this.visibleTo(clinicId, userId)];
     if (query.category) and.push({ category: query.category });
@@ -134,6 +178,13 @@ export class NotificationsService {
   }
 
   async markRead(clinicId: string, userId: string, id: string): Promise<{ success: true }> {
+    if (this.comms?.enabled) {
+      return this.comms.request<{ success: true }>({
+        method: 'POST',
+        path: `/v1/notifications/${encodeURIComponent(id)}/read`,
+        principal: this.principal(clinicId, userId),
+      });
+    }
     const found = await this.prisma.notification.findFirst({
       where: { id, ...this.visibleTo(clinicId, userId) },
       select: { id: true },
@@ -148,6 +199,13 @@ export class NotificationsService {
   }
 
   async markAllRead(clinicId: string, userId: string): Promise<{ updated: number }> {
+    if (this.comms?.enabled) {
+      return this.comms.request<{ updated: number }>({
+        method: 'POST',
+        path: '/v1/notifications/read-all',
+        principal: this.principal(clinicId, userId),
+      });
+    }
     const result = await this.prisma.notification.updateMany({
       where: { ...this.visibleTo(clinicId, userId), NOT: { readBy: { has: userId } } },
       data: { readBy: { push: userId } },

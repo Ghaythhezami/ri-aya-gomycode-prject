@@ -1,17 +1,84 @@
 import {
   BadRequestException,
   ForbiddenException,
+  Inject,
   Injectable,
   NotFoundException,
+  Optional,
 } from '@nestjs/common';
 import type { ChatMessageDto, ConversationDto, CursorPage, PersonRef } from '@riaya/shared';
 import { PrismaService } from '../database/prisma.service';
 import { toPersonRef } from '../common/mappers';
 import { decodeCursor, encodeCursor } from '../notifications/notifications.service';
+import { ServiceClient, type ServicePrincipal } from '../services/service-client';
+import { COMMS_CLIENT } from '../services/service-tokens';
 
+/** Conversation as stored by riaya-comms (ids only; names are resolved here). */
+interface CommsConversation {
+  id: string;
+  title: string | null;
+  isGroup: boolean;
+  memberIds: string[];
+  lastMessage: { body: string; createdAt: string; senderId: string } | null;
+  unreadCount: number;
+}
+
+/** Message as stored by riaya-comms. */
+interface CommsMessage {
+  id: string;
+  conversationId: string;
+  senderId: string;
+  body: string;
+  readByOthers: boolean;
+  createdAt: string;
+}
+
+/**
+ * Staff chat. Messages live in PostgreSQL, or in MongoDB behind riaya-comms when `COMMS_URL`
+ * is set (ADR 0003). Either way the API checks membership of the clinic's active staff and
+ * resolves names; the comms service answers 404 to non-members, so a foreign conversation id
+ * reveals nothing.
+ */
 @Injectable()
 export class ChatService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    @Optional() @Inject(COMMS_CLIENT) private readonly comms?: ServiceClient,
+  ) {}
+
+  private get remote(): ServiceClient | null {
+    return this.comms?.enabled ? this.comms : null;
+  }
+
+  private principal(clinicId: string, userId: string): ServicePrincipal {
+    return { clinicId, userId, role: 'STAFF' };
+  }
+
+  private fromComms(
+    c: CommsConversation,
+    userId: string,
+    people: Map<string, PersonRef>,
+  ): ConversationDto {
+    return {
+      id: c.id,
+      title: this.titleOf(c, userId, people),
+      isGroup: c.isGroup,
+      members: c.memberIds.map((m) => people.get(m)).filter((p): p is PersonRef => !!p),
+      lastMessage: c.lastMessage,
+      unread: c.unreadCount,
+    };
+  }
+
+  private messageFromComms(m: CommsMessage, people: Map<string, PersonRef>): ChatMessageDto {
+    return {
+      id: m.id,
+      conversationId: m.conversationId,
+      sender: people.get(m.senderId) ?? { id: m.senderId, name: '', initials: '?' },
+      body: m.body,
+      createdAt: m.createdAt,
+      readByOthers: m.readByOthers,
+    };
+  }
 
   private async people(ids: string[]): Promise<Map<string, PersonRef>> {
     const users = await this.prisma.user.findMany({
@@ -61,6 +128,15 @@ export class ChatService {
   }
 
   async list(clinicId: string, userId: string): Promise<ConversationDto[]> {
+    const remote = this.remote;
+    if (remote) {
+      const rows = await remote.request<CommsConversation[]>({
+        path: '/v1/conversations',
+        principal: this.principal(clinicId, userId),
+      });
+      const people = await this.people(rows.flatMap((c) => c.memberIds));
+      return rows.map((c) => this.fromComms(c, userId, people));
+    }
     const conversations = await this.prisma.chatConversation.findMany({
       where: { clinicId, memberIds: { has: userId } },
       orderBy: { updatedAt: 'desc' },
@@ -119,6 +195,19 @@ export class ChatService {
         message: 'Every member must be active staff of this clinic',
       });
     }
+    const remote = this.remote;
+    if (remote) {
+      const created = await remote.request<CommsConversation>({
+        method: 'POST',
+        path: '/v1/conversations',
+        principal: this.principal(clinicId, userId),
+        body: {
+          memberIds: members.filter((m) => m !== userId),
+          ...(input.title?.trim() ? { title: input.title.trim() } : {}),
+        },
+      });
+      return this.fromComms(created, userId, await this.people(created.memberIds));
+    }
     const isGroup = members.length > 2;
     let id: string | undefined;
     if (!isGroup && !input.title) {
@@ -143,6 +232,19 @@ export class ChatService {
     conversationId: string,
     query: { before?: string; limit?: number },
   ): Promise<CursorPage<ChatMessageDto>> {
+    const remote = this.remote;
+    if (remote) {
+      const page = await remote.request<{ items: CommsMessage[]; nextCursor: string | null }>({
+        path: `/v1/conversations/${conversationId}/messages`,
+        principal: this.principal(clinicId, userId),
+        query: { cursor: query.before, limit: Math.min(Math.max(query.limit ?? 30, 1), 50) },
+      });
+      const people = await this.people(page.items.map((m) => m.senderId));
+      return {
+        items: page.items.map((m) => this.messageFromComms(m, people)),
+        nextCursor: page.nextCursor,
+      };
+    }
     await this.memberConversation(clinicId, userId, conversationId);
     const limit = Math.min(Math.max(query.limit ?? 30, 1), 50);
     const cursor = query.before ? decodeCursor(query.before) : null;
@@ -200,7 +302,6 @@ export class ChatService {
     conversationId: string,
     body: string,
   ): Promise<ChatMessageDto> {
-    await this.memberConversation(clinicId, userId, conversationId);
     const text = body.trim();
     if (text.length < 1 || text.length > 2000) {
       throw new BadRequestException({
@@ -208,6 +309,17 @@ export class ChatService {
         message: 'Message must be 1 to 2000 characters',
       });
     }
+    const remote = this.remote;
+    if (remote) {
+      const message = await remote.request<CommsMessage>({
+        method: 'POST',
+        path: `/v1/conversations/${conversationId}/messages`,
+        principal: this.principal(clinicId, userId),
+        body: { body: text },
+      });
+      return this.messageFromComms(message, await this.people([userId]));
+    }
+    await this.memberConversation(clinicId, userId, conversationId);
     const message = await this.prisma.chatMessage.create({
       data: { conversationId, senderId: userId, body: text, readBy: [userId] },
     });
@@ -223,6 +335,15 @@ export class ChatService {
     userId: string,
     conversationId: string,
   ): Promise<{ success: true }> {
+    const remote = this.remote;
+    if (remote) {
+      await remote.request({
+        method: 'POST',
+        path: `/v1/conversations/${conversationId}/read`,
+        principal: this.principal(clinicId, userId),
+      });
+      return { success: true };
+    }
     await this.memberConversation(clinicId, userId, conversationId);
     await this.prisma.chatMessage.updateMany({
       where: { conversationId, NOT: { readBy: { has: userId } } },

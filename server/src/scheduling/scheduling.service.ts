@@ -1,4 +1,11 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Inject,
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+} from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type {
   ClinicSettingsDto,
@@ -32,9 +39,12 @@ import {
   isMovable,
   optimize,
   type OptAppointment,
+  type OptimizerInput,
   type OptimizerResult,
 } from './optimizer';
 import { scheduleVersion } from './version';
+import { ServiceClient } from '../services/service-client';
+import { SCHEDULER_CLIENT } from '../services/service-tokens';
 
 export const UNDO_WINDOW_MS = 15 * 60_000;
 const INACTIVE = ['CANCELLED', 'NO_SHOW'];
@@ -84,7 +94,10 @@ interface StoredProposal {
   unresolved: OptimizationProposal['unresolved'];
   idleDoctors: OptimizationProposal['idleDoctors'];
   status: OptimizationProposal['status'];
+  engine?: OptimizationProposal['engine'];
 }
+
+export type OptimizerEngine = NonNullable<OptimizationProposal['engine']>;
 
 const iso = (i: Interval) => ({
   startsAt: new Date(i.start).toISOString(),
@@ -93,6 +106,8 @@ const iso = (i: Interval) => ({
 
 @Injectable()
 export class SchedulingService {
+  private readonly logger = new Logger(SchedulingService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly settings: ClinicSettingsReader,
@@ -100,6 +115,7 @@ export class SchedulingService {
     private readonly audit: AuditService,
     private readonly events: DomainEventsService,
     private readonly notifications: NotificationsService,
+    @Optional() @Inject(SCHEDULER_CLIENT) private readonly scheduler?: ServiceClient,
   ) {}
 
   static metricsKey(clinicId: string, date: string): string {
@@ -262,8 +278,12 @@ export class SchedulingService {
     };
   }
 
-  runOptimizer(ctx: DayContext, objective: OptimizationObjective, now: Date): OptimizerResult {
-    return optimize({
+  private optimizerInput(
+    ctx: DayContext,
+    objective: OptimizationObjective,
+    now: Date,
+  ): OptimizerInput {
+    return {
       doctors: ctx.doctors.map((d) => ({
         id: d.id,
         specialty: d.specialty,
@@ -275,7 +295,40 @@ export class SchedulingService {
       slotMinutes: ctx.settings.slotMinutes,
       dayStart: ctx.start.getTime(),
       dayEnd: ctx.end.getTime(),
-    });
+    };
+  }
+
+  runOptimizer(ctx: DayContext, objective: OptimizationObjective, now: Date): OptimizerResult {
+    return optimize(this.optimizerInput(ctx, objective, now));
+  }
+
+  /**
+   * Optimiser behind "Optimize": the Python service when `SCHEDULER_URL` is set (ADR 0003),
+   * the in-process TypeScript optimiser otherwise or when the service fails. Both implement the
+   * same algorithm and are kept identical by the shared parity fixtures.
+   */
+  async runOptimizerPreferred(
+    clinicId: string,
+    ctx: DayContext,
+    objective: OptimizationObjective,
+    now: Date,
+  ): Promise<{ result: OptimizerResult; engine: OptimizerEngine }> {
+    const input = this.optimizerInput(ctx, objective, now);
+    if (this.scheduler?.enabled) {
+      try {
+        const result = await this.scheduler.request<OptimizerResult>({
+          path: '/v1/optimize',
+          principal: { clinicId, userId: 'system', role: 'SYSTEM' },
+          body: input,
+        });
+        return { result, engine: 'python' };
+      } catch (error) {
+        this.logger.warn(
+          `python optimiser unavailable, using the TypeScript fallback: ${(error as Error).message}`,
+        );
+      }
+    }
+    return { result: optimize(input), engine: 'typescript' };
   }
 
   /** Minutes of average wait the MIN_WAIT optimiser would save today (0 when none). */
@@ -313,6 +366,7 @@ export class SchedulingService {
         run.status === 'APPLIED' && run.appliedAt
           ? new Date(run.appliedAt.getTime() + UNDO_WINDOW_MS).toISOString()
           : null,
+      engine: stored.engine ?? 'typescript',
     };
   }
 
@@ -324,7 +378,7 @@ export class SchedulingService {
     now = new Date(),
   ): Promise<OptimizationProposal> {
     const ctx = await this.loadContext(clinicId, date);
-    const result = this.runOptimizer(ctx, objective, now);
+    const { result, engine } = await this.runOptimizerPreferred(clinicId, ctx, objective, now);
     const byId = new Map(ctx.appointments.map((a) => [a.id, a]));
     const doctorNames = new Map(ctx.doctors.map((d) => [d.id, d.name]));
     const moves: ProposalMove[] = result.moves.map((m) => ({
@@ -349,6 +403,7 @@ export class SchedulingService {
         freeMinutes: d.freeMinutes,
       })),
       status: result.status,
+      engine,
     };
     const run = await this.prisma.optimizationRun.create({
       data: {
