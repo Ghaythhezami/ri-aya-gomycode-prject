@@ -55,7 +55,6 @@ CUsersKENULE-NWINEEDocumentsRi-aya/
 T3-PROBE.tmp
 
 # backoffice build copied into the marketing site at deploy time
-web/public/app/
 # Vercel CLI link state
 .vercel
 

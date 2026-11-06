@@ -36,8 +36,10 @@ at `/api/docs`.
 
 ## Hosted demo
 
-- Landing: https://riaya-xi.vercel.app — workspace: https://riaya-xi.vercel.app/app (logins below)
-- API + Swagger: https://riaya-api.vercel.app/api/docs
+- Landing (Next.js, project `riaya`): https://riaya-xi.vercel.app
+- Workspace (Vite SPA, project `riaya-app`, root `backoffice/`): https://riaya-app.vercel.app (logins below)
+- API + Swagger (project `riaya-api`): https://riaya-api.vercel.app/api/docs
+- Python services: see ADR 0003/0004
 - The demo database is re-seeded daily so "today" always has a live schedule (ADR 0001).
 
 ## Quick start

@@ -52,23 +52,36 @@ appointments in list/calendar endpoints (`doctorId` forced to their profile).
 
 ## Appointments (APP-1 … APP-5)
 
-| Method | Path                                                                          | Roles        | Response                                                                                                 |
-| ------ | ----------------------------------------------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------------- |
-| GET    | `/appointments?from&to&doctorId&specialty&status&type&search&page&limit&sort` | all          | `Paginated<AppointmentListItem>` (`status`, `type` accept comma lists)                                   |
-| GET    | `/appointments/calendar?from&to&doctorId`                                     | all          | `AppointmentListItem[]` (max 2000)                                                                       |
-| GET    | `/appointments/:id`                                                           | all          | `AppointmentDetail`                                                                                      |
-| POST   | `/appointments` `CreateAppointmentInput`                                      | SA CA RC     | `AppointmentDetail`; 409 `SLOT_CONFLICT` `{ details: SlotConflictDetails }`; 422 `OUTSIDE_WORKING_HOURS` |
-| PATCH  | `/appointments/:id` `UpdateAppointmentInput`                                  | SA CA RC     | `AppointmentDetail` (reschedule: same conflict rules)                                                    |
-| POST   | `/appointments/:id/status` `{ status, reason? }`                              | all (DR own) | `AppointmentDetail`; 409 `ILLEGAL_TRANSITION`                                                            |
-| POST   | `/appointments/:id/cancel` `{ reason }`                                       | SA CA RC     | `AppointmentDetail`; 400 `CANCEL_REASON_REQUIRED`; 409 `CANCELLATION_POLICY` for a late cancel by RC     |
-| POST   | `/appointments/bulk` `{ ids, action: 'CONFIRM' \| 'CANCEL', reason? }`        | SA CA RC     | `BulkActionResult`                                                                                       |
-| GET    | `/appointments/:id/alternatives`                                              | all          | `AlternativeSlot[]` (≤ 3)                                                                                |
-| POST   | `/appointments/locks` `{ doctorId, startsAt, durationMinutes }`               | SA CA RC     | `SlotLock` (Redis `slot:{doctor}:{start}`, TTL 300 s); 409 `SLOT_LOCKED`                                 |
-| DELETE | `/appointments/locks/:token`                                                  | SA CA RC     | `{ success: true }`                                                                                      |
-| POST   | `/appointments/reminders/:deliveryId/retry`                                   | SA CA RC     | `ReminderDto`                                                                                            |
+| Method | Path                                                                          | Roles        | Response                                                                                                                                                                                                                     |
+| ------ | ----------------------------------------------------------------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/appointments?from&to&doctorId&specialty&status&type&search&page&limit&sort` | all          | `Paginated<AppointmentListItem>` (`status`, `type` accept comma lists)                                                                                                                                                       |
+| GET    | `/appointments/calendar?from&to&doctorId`                                     | all          | `AppointmentListItem[]` (max 2000)                                                                                                                                                                                           |
+| GET    | `/appointments/:id`                                                           | all          | `AppointmentDetail`                                                                                                                                                                                                          |
+| POST   | `/appointments` `CreateAppointmentInput`                                      | SA CA RC     | `AppointmentDetail`; 409 `SLOT_CONFLICT` `{ details: SlotConflictDetails }`; 422 `OUTSIDE_WORKING_HOURS`                                                                                                                     |
+| PATCH  | `/appointments/:id` `UpdateAppointmentInput`                                  | SA CA RC     | `AppointmentDetail` (reschedule: same conflict rules)                                                                                                                                                                        |
+| PATCH  | `/appointments/:id/type` `ChangeAppointmentTypeInput`                         | SA CA RC     | `AppointmentDetail` (SCHEDULED/CONFIRMED future only, else 409 `ILLEGAL_TRANSITION` / 422; end = start + type duration unless `keepDuration`; 409 `SLOT_CONFLICT`, 422 `OUTSIDE_WORKING_HOURS`; emits `appointment.updated`) |
+| POST   | `/appointments/:id/status` `{ status, reason? }`                              | all (DR own) | `AppointmentDetail`; 409 `ILLEGAL_TRANSITION`                                                                                                                                                                                |
+| POST   | `/appointments/:id/cancel` `{ reason }`                                       | SA CA RC     | `AppointmentDetail`; 400 `CANCEL_REASON_REQUIRED`; 409 `CANCELLATION_POLICY` for a late cancel by RC                                                                                                                         |
+| POST   | `/appointments/bulk` `{ ids, action: 'CONFIRM' \| 'CANCEL', reason? }`        | SA CA RC     | `BulkActionResult`                                                                                                                                                                                                           |
+| GET    | `/appointments/:id/alternatives`                                              | all          | `AlternativeSlot[]` (≤ 3)                                                                                                                                                                                                    |
+| POST   | `/appointments/locks` `{ doctorId, startsAt, durationMinutes }`               | SA CA RC     | `SlotLock` (Redis `slot:{doctor}:{start}`, TTL 300 s); 409 `SLOT_LOCKED`                                                                                                                                                     |
+| DELETE | `/appointments/locks/:token`                                                  | SA CA RC     | `{ success: true }`                                                                                                                                                                                                          |
+| POST   | `/appointments/reminders/:deliveryId/retry`                                   | SA CA RC     | `ReminderDto`                                                                                                                                                                                                                |
 
 Booking runs in a SERIALIZABLE transaction; the `appointments_no_overlap` exclusion constraint is
 the last line of defence (a 23P01 error maps to 409 `SLOT_CONFLICT` with alternatives).
+
+## Appointment types
+
+Names are `LocalizedText`; `displayName` follows `Accept-Language`, then the clinic default language.
+Appointment DTOs carry `type` (code) plus `typeName` and `typeColor`.
+
+| Method | Path                                        | Capability       | Response                                                                                                                            |
+| ------ | ------------------------------------------- | ---------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| GET    | `/appointment-types?includeInactive`        | viewAppointments | `AppointmentTypeDto[]` (sortOrder, code; `usageCount`)                                                                              |
+| POST   | `/appointment-types` `AppointmentTypeInput` | manageSettings   | `AppointmentTypeDto`; 409 duplicate code; 422 duration (5-480, step 5), colour, name, more than 50 types                            |
+| PATCH  | `/appointment-types/:id`                    | manageSettings   | `AppointmentTypeDto`; system types keep their code, EMERGENCY keeps `isEmergency`; 422 if no active non-emergency type would remain |
+| DELETE | `/appointment-types/:id`                    | manageSettings   | `{ success: true }`; 409 for system or in-use types (deactivate instead)                                                            |
 
 ## Queue (QUE-1, QUE-2)
 

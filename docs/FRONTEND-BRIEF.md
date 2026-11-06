@@ -81,7 +81,7 @@ forbidden errors`). Shared words live in `clinic.*` (status, type, priority, sav
 npx tsc --noEmit -p tsconfig.app.json
 npx eslint "src/features/<your features>/**/*.{ts,tsx}" --max-warnings=0
 node scripts/check-token-literals.mjs && node scripts/check-locale-parity.mjs && node scripts/check-token-parity.mjs
-npx vitest run src/features/<your features>
+npx jest src/features/<your features>
 ```
 
 Do not start dev servers or browsers (the orchestrator does visual QA afterwards); do not commit;

@@ -25,7 +25,7 @@ above). This file adds how to work efficiently in this repository with Claude Co
 pnpm --filter server exec jest <path>                       # backend unit tests (in-memory Prisma fake for e2e suites)
 pnpm --filter server exec prisma migrate deploy             # apply migrations to DATABASE_URL
 pnpm --filter server seed                                   # idempotent fictional dataset, dates relative to today
-pnpm --filter backoffice exec vitest run src/features/<x>   # frontend tests
+pnpm --filter backoffice exec jest src/features/<x>   # frontend tests
 pnpm --filter backoffice exec tsc --noEmit -p tsconfig.app.json
 node backoffice/scripts/check-locale-parity.mjs              # translation keys en/ar/fr
 npx ts-node --transpile-only server/scripts/concurrency-check.ts   # 50 parallel bookings → 1×201, 49×409 (API running)

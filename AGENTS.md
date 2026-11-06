@@ -17,7 +17,7 @@ brief, Ri-aya feature document, Figma screenshots).
 | --------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `server/`             | NestJS 11 API, Prisma 6, PostgreSQL, Redis (optional)                                 | `pnpm --filter server start:dev` (port 4000, Swagger `/api/docs`) |
 | `backoffice/`         | React 19 + Vite staff workspace, RTK Query, i18next                                   | `pnpm --filter backoffice dev` (port 5174, proxies `/api`)        |
-| `web/`                | Next.js 15 marketing site; serves the backoffice at `/app` in production              | `pnpm --filter web dev` (port 3000)                               |
+| `web/`                | Next.js 15 landing site only (SEO); the workspace deploys separately                  | `pnpm --filter web dev` (port 3000)                               |
 | `realtime/`           | NestJS Socket.IO relay (MongoDB, Redis adapter)                                       | `pnpm dev:realtime` (port 4001)                                   |
 | `services/scheduler/` | Python FastAPI: optimiser (parity with the TS one) and numpy insights over PostgreSQL | `pnpm dev:scheduler` (port 4100)                                  |
 | `services/comms/`     | Python FastAPI: notifications and staff chat on MongoDB                               | `pnpm dev:comms` (port 4200)                                      |

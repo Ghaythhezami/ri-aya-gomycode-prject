@@ -1,0 +1,56 @@
+# Render Blueprint for the two Python microservices (ADR 0003 / 0004).
+# Long-running Docker web services: riaya-comms keeps Socket.IO connections open, which
+# serverless functions cannot. Free instances sleep after ~15 idle minutes and wake on
+# the next request (the API's 3-second timeout then falls back: in-process optimiser,
+# PostgreSQL notifications only while COMMS_URL is unset, polling in the workspace).
+#
+# Secrets are `sync: false`: Render asks for them when the Blueprint is applied and never
+# stores them in this file. Use the same SERVICE_JWT_SECRET as the riaya-api Vercel project.
+services:
+  - type: web
+    name: riaya-scheduler
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: services/scheduler
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: SERVICE_JWT_SECRET
+        sync: false
+      # Neon direct (non-pooled) URL; the service only reads.
+      - key: DATABASE_URL
+        sync: false
+      - key: DOCS_ENABLED
+        value: 'false'
+
+  - type: web
+    name: riaya-comms
+    runtime: docker
+    plan: free
+    region: virginia
+    rootDir: services/comms
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: SERVICE_JWT_SECRET
+        sync: false
+      # MongoDB Atlas connection string (mongodb+srv://…).
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: riaya_comms
+      # Upstash TCP URL (rediss://…): one-time tickets, Socket.IO fan-out, domain-event relay.
+      - key: REDIS_URL
+        sync: false
+      - key: REALTIME_CORS_ORIGINS
+        value: https://riaya-app.vercel.app
+      # Render terminates TLS in front of the container; trust its forwarded client IP.
+      - key: REALTIME_TRUST_PROXY
+        value: 'true'
+      - key: DOCS_ENABLED
+        value: 'false'
