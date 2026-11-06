@@ -1,6 +1,14 @@
-import { Injectable, Logger, OnModuleDestroy, ServiceUnavailableException } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  OnModuleDestroy,
+  Optional,
+  ServiceUnavailableException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import Redis from 'ioredis';
+import { PrismaService } from '../database/prisma.service';
+import { PostgresSecurityStore } from './postgres-security-store';
 
 @Injectable()
 export class RedisCacheService implements OnModuleDestroy {
@@ -9,7 +17,12 @@ export class RedisCacheService implements OnModuleDestroy {
   private readonly memory = new Map<string, { value: string; expiresAt: number }>();
   status: 'up' | 'down' | 'memory' = 'memory';
 
-  constructor(private readonly config: ConfigService) {
+  private pgStore: PostgresSecurityStore | null = null;
+
+  constructor(
+    private readonly config: ConfigService,
+    @Optional() private readonly prisma?: PrismaService,
+  ) {
     const url = this.config.get<string>('REDIS_URL');
     if (!url || process.env.NODE_ENV === 'test') {
       this.status = 'memory';
@@ -74,8 +87,8 @@ export class RedisCacheService implements OnModuleDestroy {
    */
   async getStrict<T>(key: string): Promise<T | null> {
     if (this.useStrictMemory) return this.get<T>(key);
-    const client = this.requireClient();
-    const raw = await client.get(key);
+    const pg = this.postgresStore;
+    const raw = pg ? await pg.get(key) : await (await this.readyClient()).get(key);
     if (!raw) return null;
     try {
       return JSON.parse(raw) as T;
@@ -106,7 +119,12 @@ export class RedisCacheService implements OnModuleDestroy {
       await this.set(key, value, ttlSeconds);
       return;
     }
-    const client = this.requireClient();
+    const pg = this.postgresStore;
+    if (pg) {
+      await pg.set(key, JSON.stringify(value), ttlSeconds);
+      return;
+    }
+    const client = await this.readyClient();
     await client.set(key, JSON.stringify(value), 'EX', Math.max(1, Math.ceil(ttlSeconds)));
   }
 
@@ -128,7 +146,12 @@ export class RedisCacheService implements OnModuleDestroy {
       await this.del(key);
       return;
     }
-    const client = this.requireClient();
+    const pg = this.postgresStore;
+    if (pg) {
+      await pg.del(key);
+      return;
+    }
+    const client = await this.readyClient();
     await client.del(key);
   }
 
@@ -139,7 +162,9 @@ export class RedisCacheService implements OnModuleDestroy {
    */
   async incrementStrict(key: string, ttlSeconds: number): Promise<number> {
     if (this.useStrictMemory) return this.memoryIncrement(key, ttlSeconds);
-    const client = this.requireClient();
+    const pg = this.postgresStore;
+    if (pg) return pg.increment(key, ttlSeconds);
+    const client = await this.readyClient();
     const value = await client.incr(key);
     if (value === 1) {
       await client.expire(key, Math.max(1, Math.ceil(ttlSeconds)));
@@ -150,7 +175,9 @@ export class RedisCacheService implements OnModuleDestroy {
   /** Remaining TTL in seconds. Returns -2 when the key does not exist. */
   async ttlStrict(key: string): Promise<number> {
     if (this.useStrictMemory) return this.memoryTtl(key);
-    const client = this.requireClient();
+    const pg = this.postgresStore;
+    if (pg) return pg.ttl(key);
+    const client = await this.readyClient();
     return client.ttl(key);
   }
 
@@ -226,6 +253,38 @@ export class RedisCacheService implements OnModuleDestroy {
   private get useStrictMemory(): boolean {
     if (this.client !== null) return false;
     return process.env.NODE_ENV === 'test' || process.env.SECURITY_STATE_MEMORY === 'true';
+  }
+
+  /**
+   * Without Redis (and outside tests / the explicit memory opt-in), security
+   * state lives in PostgreSQL (`security_state`), shared by every instance.
+   * With REDIS_URL set, Redis stays the store and this returns null.
+   */
+  private get postgresStore(): PostgresSecurityStore | null {
+    if (this.client !== null || !this.prisma) return null;
+    this.pgStore ??= new PostgresSecurityStore(this.prisma.rawClient);
+    return this.pgStore;
+  }
+
+  /**
+   * The Redis client once it is ready. On a cold serverless start the first
+   * request can arrive while ioredis is still connecting; wait up to 3 s for
+   * `ready` before failing closed, instead of rejecting the first login.
+   */
+  private async readyClient(): Promise<Redis> {
+    const client = this.client;
+    if (client && client.status !== 'ready' && client.status !== 'end') {
+      await new Promise<void>((resolve) => {
+        const timer = setTimeout(done, 3_000);
+        function done() {
+          clearTimeout(timer);
+          client!.off('ready', done);
+          resolve();
+        }
+        client.once('ready', done);
+      });
+    }
+    return this.requireClient();
   }
 
   private requireClient(): Redis {

@@ -560,3 +560,14 @@ model ChatMessage {
   @@index([conversationId, createdAt])
   @@map("chat_messages")
 }
+
+/// Shared security state (lockout counters, revoked refresh tokens) when Redis is
+/// not configured. Same semantics as the Redis keys: JSON value + expiry (ADR 0001).
+model SecurityState {
+  key       String   @id
+  value     String
+  expiresAt DateTime
+
+  @@index([expiresAt])
+  @@map("security_state")
+}
