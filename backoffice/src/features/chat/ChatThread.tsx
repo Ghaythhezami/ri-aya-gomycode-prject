@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ArrowLeft, CheckCheck, Loader2, Send } from 'lucide-react';
+import { ArrowDown, ArrowLeft, CheckCheck, Loader2, Send } from 'lucide-react';
 import type { ChatMessageDto, ConversationDto } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Skeleton } from '../../common/Skeleton';
+import { useAdaptivePolling } from '../../lib/realtime';
 import { asClinicError } from '../../store/clinicApi';
 import { useClinicFormat } from '../shared/format';
 import {
@@ -36,9 +37,10 @@ export function ChatThread({
   const meId = user?.id;
   const id = conversation.id;
 
+  const pollingInterval = useAdaptivePolling(4000, 60_000);
   const first = useChatMessagesQuery(
     { conversationId: id, limit: PAGE_SIZE },
-    { pollingInterval: 4000, skipPollingIfUnfocused: true },
+    { pollingInterval, skipPollingIfUnfocused: true },
   );
   const [loadOlder, olderState] = useLazyChatMessagesQuery();
   const [send, sendState] = useChatSendMessageMutation();
@@ -51,6 +53,7 @@ export function ChatThread({
   const [sent, setSent] = useState<ChatMessageDto[]>([]);
   const [draft, setDraft] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [hasNew, setHasNew] = useState(false);
 
   const nextCursor = older.next === undefined ? (first.data?.nextCursor ?? null) : older.next;
   const messages = useMemo(
@@ -64,6 +67,7 @@ export function ChatThread({
   const scroller = useRef<HTMLDivElement>(null);
   const stick = useRef(true);
   const restore = useRef<{ height: number; top: number } | null>(null);
+  const seenLatest = useRef<string | undefined>(undefined);
 
   // Mark read when opened and whenever a new message from someone else arrives.
   useEffect(() => {
@@ -81,8 +85,19 @@ export function ChatThread({
       restore.current = null;
     } else if (stick.current) {
       el.scrollTop = el.scrollHeight;
+    } else if (latestId !== seenLatest.current && seenLatest.current && latestFromOthers) {
+      // Scrolled up while a live message arrived: keep the position and offer a jump.
+      setHasNew(true);
     }
-  }, [messages]);
+    seenLatest.current = latestId;
+  }, [messages, latestId, latestFromOthers]);
+
+  const jumpToLatest = () => {
+    const el = scroller.current;
+    if (el) el.scrollTop = el.scrollHeight;
+    stick.current = true;
+    setHasNew(false);
+  };
 
   const fetchOlder = useCallback(async () => {
     if (!nextCursor || olderState.isFetching) return;
@@ -112,6 +127,7 @@ export function ChatThread({
     const el = scroller.current;
     if (!el) return;
     stick.current = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    if (stick.current) setHasNew(false);
     if (el.scrollTop < 40 && nextCursor) void fetchOlder();
   };
 
@@ -151,85 +167,97 @@ export function ChatThread({
         <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-text">{title}</h3>
       </div>
 
-      <div
-        ref={scroller}
-        onScroll={onScroll}
-        className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-bg px-3 py-3"
-        role="log"
-        aria-label={title}
-        aria-live="polite"
-        tabIndex={0}
-      >
-        {first.isLoading && (
-          <div className="space-y-2" aria-busy="true">
-            <Skeleton className="h-10 w-2/3" />
-            <Skeleton className="ms-auto h-10 w-1/2" />
-            <Skeleton className="h-10 w-3/4" />
-          </div>
-        )}
-        {first.isError && !first.data && (
-          <p role="alert" className="text-center text-sm text-error">
-            {t('chat.loadError')}{' '}
-            <button
-              type="button"
-              className="font-medium underline"
-              onClick={() => void first.refetch()}
-            >
-              {t('clinic.retry')}
-            </button>
-          </p>
-        )}
-        {nextCursor && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => void fetchOlder()}
-              disabled={olderState.isFetching}
-              className="inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-primary hover:bg-accent"
-            >
-              {olderState.isFetching && (
-                <Loader2
-                  size={14}
-                  aria-hidden="true"
-                  className="animate-spin motion-reduce:animate-none"
-                />
-              )}
-              {t('chat.loadEarlier')}
-            </button>
-          </div>
-        )}
-        {first.data && messages.length === 0 && (
-          <p className="py-8 text-center text-sm text-muted">{t('chat.noMessages')}</p>
-        )}
-        {messages.map((m) => {
-          const mine = m.sender.id === meId;
-          return (
-            <div key={m.id} className={`flex flex-col ${mine ? 'items-end' : 'items-start'}`}>
-              {!mine && conversation.isGroup && (
-                <span className="mb-0.5 px-1 text-xs text-muted">{m.sender.name}</span>
-              )}
-              <div
-                className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                  mine ? 'bg-primary text-white' : 'border border-border bg-surface text-text'
-                }`}
-              >
-                {/* Text only, never HTML; dir="auto" lets Arabic render right-to-left inside the bubble. */}
-                <p dir="auto" className="whitespace-pre-wrap break-words">
-                  {m.body}
-                </p>
-              </div>
-              <span className="mt-0.5 flex items-center gap-1 px-1 text-[11px] text-muted">
-                <span dir="ltr">{fmt.time(m.createdAt)}</span>
-                {mine && m.id === lastOwn && m.readByOthers && (
-                  <span className="inline-flex items-center gap-0.5 text-primary">
-                    <CheckCheck size={12} aria-hidden="true" />
-                    {t('chat.read')}
-                  </span>
-                )}
-              </span>
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <div
+          ref={scroller}
+          onScroll={onScroll}
+          className="min-h-0 flex-1 space-y-2 overflow-y-auto bg-bg px-3 py-3"
+          role="log"
+          aria-label={title}
+          aria-live="polite"
+          tabIndex={0}
+        >
+          {first.isLoading && (
+            <div className="space-y-2" aria-busy="true">
+              <Skeleton className="h-10 w-2/3" />
+              <Skeleton className="ms-auto h-10 w-1/2" />
+              <Skeleton className="h-10 w-3/4" />
             </div>
-          );
-        })}
+          )}
+          {first.isError && !first.data && (
+            <p role="alert" className="text-center text-sm text-error">
+              {t('chat.loadError')}{' '}
+              <button
+                type="button"
+                className="font-medium underline"
+                onClick={() => void first.refetch()}
+              >
+                {t('clinic.retry')}
+              </button>
+            </p>
+          )}
+          {nextCursor && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => void fetchOlder()}
+                disabled={olderState.isFetching}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-md px-3 text-xs font-medium text-primary hover:bg-accent"
+              >
+                {olderState.isFetching && (
+                  <Loader2
+                    size={14}
+                    aria-hidden="true"
+                    className="animate-spin motion-reduce:animate-none"
+                  />
+                )}
+                {t('chat.loadEarlier')}
+              </button>
+            </div>
+          )}
+          {first.data && messages.length === 0 && (
+            <p className="py-8 text-center text-sm text-muted">{t('chat.noMessages')}</p>
+          )}
+          {messages.map((m) => {
+            const mine = m.sender.id === meId;
+            return (
+              <div key={m.id} className={`flex flex-col ${mine ? 'items-end' : 'items-start'}`}>
+                {!mine && conversation.isGroup && (
+                  <span className="mb-0.5 px-1 text-xs text-muted">{m.sender.name}</span>
+                )}
+                <div
+                  className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
+                    mine ? 'bg-primary text-white' : 'border border-border bg-surface text-text'
+                  }`}
+                >
+                  {/* Text only, never HTML; dir="auto" lets Arabic render right-to-left inside the bubble. */}
+                  <p dir="auto" className="whitespace-pre-wrap break-words">
+                    {m.body}
+                  </p>
+                </div>
+                <span className="mt-0.5 flex items-center gap-1 px-1 text-[11px] text-muted">
+                  <span dir="ltr">{fmt.time(m.createdAt)}</span>
+                  {mine && m.id === lastOwn && m.readByOthers && (
+                    <span className="inline-flex items-center gap-0.5 text-primary">
+                      <CheckCheck size={12} aria-hidden="true" />
+                      {t('chat.read')}
+                    </span>
+                  )}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+        {hasNew && (
+          <button
+            type="button"
+            onClick={jumpToLatest}
+            className="absolute inset-x-0 bottom-3 mx-auto inline-flex min-h-10 w-fit items-center gap-1.5 rounded-full bg-primary px-4 text-xs font-medium text-white shadow-(--shadow-overlay) hover:bg-primary-dark"
+          >
+            <ArrowDown size={14} aria-hidden="true" />
+            {t('chat.newMessages')}
+          </button>
+        )}
       </div>
 
       <div className="border-t border-border bg-surface p-3">

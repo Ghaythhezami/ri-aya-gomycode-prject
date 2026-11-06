@@ -59,6 +59,8 @@ export const CLINIC_TAGS = [
   'Settings',
   'Audit',
   'Chat',
+  'Profile',
+  'Onboarding',
 ] as const;
 
 /**

@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import en from '../../i18n/features/notifications/en.json';
 import { entityPath, matchesTab, mergeById, prepareParams, renderNotification } from './templates';
 

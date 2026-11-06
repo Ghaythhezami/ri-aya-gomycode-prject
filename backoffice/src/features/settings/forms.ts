@@ -1,7 +1,5 @@
 import { z } from 'zod';
 import {
-  APPOINTMENT_TYPES,
-  type AppointmentType,
   type ClinicSettingsDto,
   type Department,
   type OpeningDay,
@@ -208,18 +206,8 @@ export function hoursPayload(
 
 // ----------------------------------------------------------------- appointments
 
-const duration = z
-  .number(numberMsg)
-  .int(numberMsg)
-  .min(5, 'settings.errors.min5')
-  .max(240, 'settings.errors.max240');
-
+// Durations per type are managed with the appointment types (appointmentTypes.ts).
 export const appointmentsSchema = z.object({
-  durations: z.object({
-    CONSULTATION: duration,
-    FOLLOW_UP: duration,
-    EMERGENCY: duration,
-  }),
   slotMinutes: z
     .number(numberMsg)
     .refine((v) => (SLOT_OPTIONS as readonly number[]).includes(v), 'settings.errors.slot'),
@@ -239,7 +227,6 @@ export type AppointmentsValues = z.infer<typeof appointmentsSchema>;
 
 export function appointmentsDefaults(s: ClinicSettingsDto): AppointmentsValues {
   return {
-    durations: { ...s.durations },
     slotMinutes: s.slotMinutes,
     cancellationNoticeHours: s.cancellationNoticeHours,
     targetWaitMinutes: s.targetWaitMinutes,
@@ -252,12 +239,6 @@ export function appointmentsPayload(
   saved: AppointmentsValues,
 ): UpdateSettingsInput {
   const out: UpdateSettingsInput = {};
-  const durations: Partial<Record<AppointmentType, number>> = {};
-  for (const type of APPOINTMENT_TYPES) {
-    if (v.durations[type] !== saved.durations[type]) durations[type] = v.durations[type];
-  }
-  if (Object.keys(durations).length > 0)
-    out.durations = durations as ClinicSettingsDto['durations'];
   if (v.slotMinutes !== saved.slotMinutes) out.slotMinutes = v.slotMinutes;
   if (v.cancellationNoticeHours !== saved.cancellationNoticeHours)
     out.cancellationNoticeHours = v.cancellationNoticeHours;

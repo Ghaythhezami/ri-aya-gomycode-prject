@@ -1,6 +1,5 @@
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
 import {
   ERROR_MESSAGES,
   formatDate,

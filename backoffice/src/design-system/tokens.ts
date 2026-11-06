@@ -29,6 +29,7 @@ export const color = {
   accent: '#ddf6f3',
   info: '#1d4ed8',
   alert: '#c2410c',
+  violet: '#6d28d9',
   sidebar: '#0f2236',
 } as const;
 

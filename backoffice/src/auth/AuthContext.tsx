@@ -6,9 +6,12 @@ import {
   clearAuth,
   setCredentials,
   setReady,
+  setUser,
   setSessionMessage as setSessionMessageAction,
 } from '../store/authSlice';
 import { apiSlice, useLoginMutation, useLogoutMutation } from '../store/api';
+import { clinicApi } from '../store/clinicApi';
+import { clearOnboardingSeen } from '../lib/onboardingSeen';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -16,6 +19,8 @@ interface AuthContextValue {
   sessionMessage: string | null;
   setSessionMessage: (value: string | null) => void;
   login: (email: string, password: string) => Promise<void>;
+  /** Re-reads `/auth/me` (role, capabilities, localized names), e.g. after a profile edit. */
+  refreshUser: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -94,12 +99,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // Refine once the token is in the store, so /auth/me is authorized (D13).
         dispatch(setCredentials(await resolveAuthoritativeUser(data)));
       },
+      async refreshUser() {
+        try {
+          const me = await dispatch(
+            apiSlice.endpoints.me.initiate(undefined, { forceRefetch: true }),
+          ).unwrap();
+          if (me) dispatch(setUser(me));
+        } catch {
+          // Keep the user already in memory; a failed refresh is not a sign-out.
+        }
+      },
       async logout() {
         try {
           await logoutMut().unwrap();
         } finally {
           setAccessToken(null);
+          clearOnboardingSeen();
           dispatch(clearAuth());
+          dispatch(clinicApi.util.resetApiState());
         }
       },
     }),

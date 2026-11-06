@@ -1,24 +1,23 @@
 import { render, screen } from '@testing-library/react';
 import type { ReactNode } from 'react';
-import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../src/auth/AuthContext', () => ({
+jest.mock('../../src/auth/AuthContext', () => ({
   AuthProvider: ({ children }: { children: ReactNode }) => children,
   useAuth: () => ({
     user: null,
     ready: true,
     sessionMessage: null,
-    setSessionMessage: vi.fn(),
-    login: vi.fn(),
-    logout: vi.fn(),
+    setSessionMessage: jest.fn(),
+    login: jest.fn(),
+    logout: jest.fn(),
   }),
   getErrorMessage: (_error: unknown, fallback: string) => fallback,
 }));
 
 // The app owns its BrowserRouter, so swap it for a memory router rooted at the
 // legacy path under test.
-vi.mock('react-router-dom', async () => {
-  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+jest.mock('react-router-dom', () => {
+  const actual = jest.requireActual<typeof import('react-router-dom')>('react-router-dom');
 
   return {
     ...actual,

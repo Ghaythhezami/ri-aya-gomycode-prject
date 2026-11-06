@@ -22,5 +22,7 @@
       "title": "Keyboard",
       "body": "Tab moves between controls, Esc closes menus and dialogs, arrow keys move through lists."
     }
-  }
+  },
+  "myProfile": "My profile",
+  "onboarding": "Setup guide"
 }

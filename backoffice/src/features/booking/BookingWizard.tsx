@@ -7,7 +7,6 @@ import { Check, ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type {
   AlternativeSlot,
   AppointmentDetail,
-  AppointmentType,
   CreateAppointmentInput,
   SlotDto,
 } from '@riaya/shared';
@@ -15,6 +14,7 @@ import { Button } from '../../common/Button';
 import { asClinicError } from '../../store/clinicApi';
 import { todayInZone, zonedParts } from '../calendar/dates';
 import { useClinicReferenceQuery } from '../shared/api';
+import { durationForType, useAppointmentTypesQuery } from '../shared/appointmentTypes';
 import { useClinicFormat } from '../shared/format';
 import {
   useBookCreateMutation,
@@ -80,11 +80,11 @@ function BookingDialog({ request }: { request: BookingRequest }) {
   const format = useClinicFormat();
   const reference = useClinicReferenceQuery();
   const today = todayInZone(format.timeZone);
-  const durations = reference.data?.durations;
+  const typesQuery = useAppointmentTypesQuery();
+  const types = typesQuery.data;
   const durationFor = useCallback(
-    (type: AppointmentType) =>
-      durations?.[type] ?? { CONSULTATION: 30, FOLLOW_UP: 15, EMERGENCY: 20 }[type],
-    [durations],
+    (type: string) => durationForType(types, type, reference.data?.durations?.[type] ?? 30),
+    [types, reference.data?.durations],
   );
 
   const draft = useMemo(() => readDraft(), []);
@@ -584,6 +584,10 @@ function BookingDialog({ request }: { request: BookingRequest }) {
                   errors={errors}
                   duration={values.durationMinutes}
                   durationFor={durationFor}
+                  types={types}
+                  typesLoading={typesQuery.isLoading}
+                  typesError={typesQuery.isError}
+                  onRetryTypes={() => void typesQuery.refetch()}
                   onType={(_, duration) => form.setValue('durationMinutes', duration)}
                 />
               ) : null}

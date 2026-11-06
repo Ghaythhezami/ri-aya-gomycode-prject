@@ -1,0 +1,6 @@
+{
+  "languages": { "en": "English", "fr": "Français", "ar": "العربية" },
+  "current": "Shown now",
+  "required": "Enter at least one language",
+  "help": "Fill the languages you need; the others fall back to the one you entered."
+}

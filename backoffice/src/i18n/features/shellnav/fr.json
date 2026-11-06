@@ -22,5 +22,7 @@
       "title": "Clavier",
       "body": "Tab passe d'un contrôle à l'autre, Échap ferme menus et fenêtres, les flèches parcourent les listes."
     }
-  }
+  },
+  "myProfile": "Mon profil",
+  "onboarding": "Guide de démarrage"
 }

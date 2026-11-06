@@ -85,7 +85,7 @@ export function RegisterPage() {
     // AC-001: the creator is signed in, not bounced to a bare sign-in form.
     try {
       await login(form.email, form.password);
-      navigate('/', { replace: true });
+      navigate('/onboarding', { replace: true });
     } catch {
       setSessionMessage('register.createdSignIn');
       navigate('/login', { replace: true });

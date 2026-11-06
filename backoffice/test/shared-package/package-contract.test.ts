@@ -1,6 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
 
 /**
  * AC-001, AC-006 — the package is a real workspace member, every app still

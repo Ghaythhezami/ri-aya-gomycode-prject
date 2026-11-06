@@ -232,7 +232,11 @@
     "missingBody": "Ce lien n a pas de jeton. Demandez à un administrateur de renvoyer l invitation.",
     "expiredTitle": "Invitation expirée",
     "expiredBody": "Cette invitation a expiré ou a déjà été utilisée.",
-    "requestNew": "Demandez une nouvelle invitation"
+    "requestNew": "Demandez une nouvelle invitation",
+    "existingAccountHint": "Vous avez déjà un compte RI’AYA. Saisissez son mot de passe actuel pour rejoindre cette clinique.",
+    "wrongPassword": "Ce mot de passe est incorrect.",
+    "suspended": "Votre accès à cette clinique est suspendu. Demandez à un administrateur de le rétablir.",
+    "currentPassword": "Mot de passe actuel"
   },
   "workspace": {
     "createOrganization": "+ Créer une nouvelle organisation"

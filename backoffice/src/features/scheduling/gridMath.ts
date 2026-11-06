@@ -251,3 +251,41 @@ export function secondsRemaining(until: string | null, now: number): number {
   if (!until) return 0;
   return Math.max(0, Math.ceil((new Date(until).getTime() - now) / 1000));
 }
+
+const HEX_COLOR = /^#[0-9a-f]{3,8}$/i;
+
+const TYPE_TOKEN: Record<GridBlock['type'], string> = {
+  CONSULTATION: 'var(--color-primary)',
+  FOLLOW_UP: 'var(--color-info)',
+  EMERGENCY: 'var(--color-alert)',
+};
+
+/** Optional clinic-defined appointment type fields (added to the DTO by the appointments change). */
+export interface TypeInfo {
+  type: GridBlock['type'];
+  typeName?: string;
+  typeColor?: string | null;
+}
+
+/** Accent colour of a block: the clinic's `typeColor` when valid, else the type token. */
+export function blockAccent(block: TypeInfo): string {
+  const custom = block.typeColor?.trim();
+  return custom && HEX_COLOR.test(custom) ? custom : TYPE_TOKEN[block.type];
+}
+
+/** Date `YYYY-MM-DD` shifted by whole days (calendar arithmetic, no zone). */
+export function shiftDate(date: string, days: number): string {
+  const [y, m, d] = date.split('-').map(Number) as [number, number, number];
+  return new Date(Date.UTC(y, m - 1, d + days)).toISOString().slice(0, 10);
+}
+
+/** Current minute-of-day in the clinic zone, or null when `day.date` is not today. */
+export function nowMinute(
+  day: Pick<SchedulingDay, 'date' | 'timezone'>,
+  now: number,
+): number | null {
+  const iso = new Date(now).toISOString();
+  const parts = zoneParts(now, day.timezone);
+  const today = `${parts.year}-${String(parts.month).padStart(2, '0')}-${String(parts.day).padStart(2, '0')}`;
+  return today === day.date ? localMinutes(iso, day.timezone) : null;
+}

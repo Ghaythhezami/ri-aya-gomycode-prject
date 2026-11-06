@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import {
   appointmentsSchema,
   clinicPayload,
@@ -52,7 +51,6 @@ describe('settings validation', () => {
   });
   it('validates numbers and unique reminders', () => {
     const a = appointmentsSchema.safeParse({
-      durations: { CONSULTATION: 2, FOLLOW_UP: 15, EMERGENCY: 20 },
       slotMinutes: 7,
       cancellationNoticeHours: 99,
       targetWaitMinutes: NaN,
@@ -60,7 +58,6 @@ describe('settings validation', () => {
     });
     expect(Object.keys(msgs(a)).sort()).toEqual([
       'cancellationNoticeHours',
-      'durations.CONSULTATION',
       'slotMinutes',
       'targetWaitMinutes',
     ]);

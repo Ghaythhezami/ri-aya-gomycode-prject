@@ -8,7 +8,7 @@ export interface ChatMessagesArgs {
   limit?: number;
 }
 
-const chatApi = clinicApi.injectEndpoints({
+export const chatApi = clinicApi.injectEndpoints({
   endpoints: (build) => ({
     chatConversations: build.query<ConversationDto[], void>({
       query: () => ({ url: '/api/chat/conversations' }),

@@ -2,7 +2,6 @@ import { execFileSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
 import type { LoginInput, RegisterInput, UserRole } from '@riaya/shared';
 
 /**
@@ -83,7 +82,7 @@ describe('types inferred from the shared schemas', () => {
   });
 
   // TEST-016 → AC-004
-  it('AC-004: a consumer reading a removed field fails to typecheck', { timeout: 120_000 }, () => {
+  it('AC-004: a consumer reading a removed field fails to typecheck', () => {
     const fixtureDir = mkdtempSync(path.join(repoRoot, 'backoffice', 'tsc-ac-004-'));
 
     try {
@@ -142,5 +141,5 @@ describe('types inferred from the shared schemas', () => {
     } finally {
       rmSync(fixtureDir, { recursive: true, force: true });
     }
-  });
+  }, 120_000);
 });

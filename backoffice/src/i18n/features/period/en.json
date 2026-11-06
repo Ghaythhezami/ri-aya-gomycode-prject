@@ -1,0 +1,21 @@
+{
+  "label": "Period",
+  "select": "Period",
+  "previous": "Previous period",
+  "next": "Next period",
+  "from": "From",
+  "to": "To",
+  "presets": {
+    "today": "Today",
+    "thisWeek": "This week",
+    "nextWeek": "Next week",
+    "thisMonth": "This month",
+    "last30": "Last 30 days",
+    "custom": "Custom range"
+  },
+  "errors": {
+    "invalid": "Enter a start and an end date.",
+    "order": "The start date must be before the end date.",
+    "tooLong": "A period can cover at most {{max}} days."
+  }
+}

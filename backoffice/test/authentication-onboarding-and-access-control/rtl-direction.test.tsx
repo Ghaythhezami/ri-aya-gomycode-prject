@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import i18n from '../../src/i18n';
 
 /**

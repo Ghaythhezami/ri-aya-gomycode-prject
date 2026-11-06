@@ -232,7 +232,11 @@
     "missingBody": "This link is missing its token. Ask an admin to resend the invitation.",
     "expiredTitle": "Invitation expired",
     "expiredBody": "This invitation has expired or was already used.",
-    "requestNew": "Ask an admin for a new invitation"
+    "requestNew": "Ask an admin for a new invitation",
+    "existingAccountHint": "You already have a RI’AYA account. Enter its current password to join this clinic.",
+    "wrongPassword": "That password is not correct.",
+    "suspended": "Your access to this clinic is suspended. Ask an administrator to restore it.",
+    "currentPassword": "Current password"
   },
   "workspace": {
     "createOrganization": "+ Create New Organization"

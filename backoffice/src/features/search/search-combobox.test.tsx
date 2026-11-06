@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
 import { SearchCombobox, type SearchComboboxLabels, type SearchOption } from './SearchCombobox';
 
 const labels: SearchComboboxLabels = {
@@ -57,7 +56,7 @@ afterEach(cleanup);
 describe('SearchCombobox keyboard navigation', () => {
   it('moves the active option with the arrow keys and wraps around', async () => {
     const user = userEvent.setup();
-    render(<Harness onSelect={vi.fn()} />);
+    render(<Harness onSelect={jest.fn()} />);
     const input = screen.getByRole('combobox', { name: labels.input });
 
     await user.click(input);
@@ -84,7 +83,7 @@ describe('SearchCombobox keyboard navigation', () => {
 
   it('opens the active option on Enter', async () => {
     const user = userEvent.setup();
-    const onSelect = vi.fn();
+    const onSelect = jest.fn();
     render(<Harness onSelect={onSelect} />);
 
     await user.click(screen.getByRole('combobox'));
@@ -96,7 +95,7 @@ describe('SearchCombobox keyboard navigation', () => {
 
   it('closes on Escape without selecting, then clears on a second Escape', async () => {
     const user = userEvent.setup();
-    const onSelect = vi.fn();
+    const onSelect = jest.fn();
     render(<Harness onSelect={onSelect} />);
     const input = screen.getByRole('combobox');
 
@@ -112,7 +111,7 @@ describe('SearchCombobox keyboard navigation', () => {
 
   it('announces an empty result list', async () => {
     const user = userEvent.setup();
-    render(<Harness onSelect={vi.fn()} items={[]} />);
+    render(<Harness onSelect={jest.fn()} items={[]} />);
     await user.click(screen.getByRole('combobox'));
     expect(screen.getAllByText('Nothing found').length).toBeGreaterThan(0);
   });

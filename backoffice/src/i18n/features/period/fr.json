@@ -1,0 +1,21 @@
+{
+  "label": "Période",
+  "select": "Période",
+  "previous": "Période précédente",
+  "next": "Période suivante",
+  "from": "Du",
+  "to": "Au",
+  "presets": {
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "nextWeek": "Semaine prochaine",
+    "thisMonth": "Ce mois-ci",
+    "last30": "30 derniers jours",
+    "custom": "Période personnalisée"
+  },
+  "errors": {
+    "invalid": "Saisissez une date de début et une date de fin.",
+    "order": "La date de début doit précéder la date de fin.",
+    "tooLong": "Une période ne peut pas dépasser {{max}} jours."
+  }
+}

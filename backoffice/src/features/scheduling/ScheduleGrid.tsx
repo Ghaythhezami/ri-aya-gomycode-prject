@@ -1,4 +1,4 @@
-import { useMemo, type CSSProperties } from 'react';
+import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   DndContext,
@@ -13,10 +13,10 @@ import {
 import { AlertTriangle, ArrowRight, MoreVertical } from 'lucide-react';
 import type { ProposalMove, SchedulingDay } from '@riaya/shared';
 import { Avatar } from '../shared/Avatar';
-import { typeBlockClass } from '../shared/StatusBadge';
 import {
   PX_PER_MINUTE,
   ROW_HEIGHT,
+  blockAccent,
   durationToPercent,
   formatMinute,
   hourTicks,
@@ -24,14 +24,16 @@ import {
   minuteToPercent,
   minutesToDeltaX,
   nonWorkingSegments,
+  nowMinute,
   resolveDrop,
   type RenderBlock,
   type RenderRow,
 } from './gridMath';
 import './scheduling.css';
+import type { FocusTarget } from './focusTarget';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
-const DOCTOR_COLUMN = 192;
+const DOCTOR_COLUMN = 208;
 
 interface DragData {
   rowIndex: number;
@@ -46,17 +48,24 @@ export interface GridMoveRequest {
   startMinute: number;
 }
 
+/** Soft fill of an appointment block in its type colour. */
+function tint(accent: string): string {
+  return `color-mix(in srgb, ${accent} 12%, var(--color-surface))`;
+}
+
 function BlockView({
   block,
   rowIndex,
   day,
   moved,
+  highlighted,
   onOpenMove,
 }: {
   block: RenderBlock;
   rowIndex: number;
   day: SchedulingDay;
   moved: boolean;
+  highlighted: boolean;
   onOpenMove: (block: RenderBlock) => void;
 }) {
   const { t } = useTranslation();
@@ -73,8 +82,13 @@ function BlockView({
   });
   const left = minuteToPercent(block.startMinute, day.dayStartMinute, day.dayEndMinute);
   const width = durationToPercent(block.durationMinutes, day.dayStartMinute, day.dayEndMinute);
-  const range = `${formatMinute(block.startMinute)}–${formatMinute(block.startMinute + block.durationMinutes)}`;
-  const label = `${block.patientName}, ${range}, ${t(`clinic.type.${block.type}`)}`;
+  const start = formatMinute(block.startMinute);
+  const range = `${start}–${formatMinute(block.startMinute + block.durationMinutes)}`;
+  const typeLabel = block.typeName || t(`clinic.type.${block.type}`);
+  const accent = blockAccent(block);
+  const label = `${block.patientName}, ${range}, ${typeLabel}${
+    block.conflict ? `, ${t('scheduling.conflict')}` : ''
+  }`;
 
   return (
     <div
@@ -82,17 +96,20 @@ function BlockView({
       style={{
         insetInlineStart: `${left}%`,
         inlineSize: `${width}%`,
-        top: 6,
-        bottom: 6,
+        top: 8,
+        bottom: 8,
+        borderInlineStartColor: moved ? undefined : accent,
+        backgroundColor: moved ? 'transparent' : tint(accent),
         transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
-        zIndex: isDragging ? 40 : 10,
+        zIndex: isDragging ? 40 : highlighted ? 25 : 10,
       }}
-      className={`sched-block absolute min-w-0 overflow-hidden rounded-md border text-xs ${typeBlockClass(block.type)} ${
-        block.pending ? 'border-2 border-dashed border-primary' : ''
-      } ${block.conflict ? 'ring-2 ring-error' : ''} ${moved ? 'opacity-50' : ''} ${
-        isDragging ? 'sched-block-dragging' : ''
-      }`}
+      className={`sched-block absolute min-w-0 overflow-hidden rounded-md border border-s-[3px] text-xs ${
+        moved ? 'border-dashed border-border-strong' : 'border-border'
+      } ${block.pending ? 'border-2 border-dashed border-primary' : ''} ${
+        block.conflict ? 'ring-2 ring-error' : ''
+      } ${highlighted ? 'ring-2 ring-primary' : ''} ${isDragging ? 'sched-block-dragging' : ''}`}
       data-testid={`block-${block.appointmentId}`}
+      data-appt={block.appointmentId}
     >
       <div
         {...(block.movable ? attributes : {})}
@@ -107,27 +124,31 @@ function BlockView({
           }
           if (block.movable) listeners?.onKeyDown?.(event);
         }}
-        className={`h-full min-w-0 px-2 py-1 pe-7 ${
+        className={`h-full min-w-0 rounded-md px-2 py-1 pe-7 ${
           block.movable ? 'cursor-grab touch-none active:cursor-grabbing' : ''
         }`}
         tabIndex={0}
       >
-        <p className="truncate font-semibold text-text">{block.patientName}</p>
-        <p className="truncate text-[11px] opacity-90">
-          <bdi dir="ltr">{range}</bdi> · {t(`clinic.type.${block.type}`)}
+        <p className={`truncate font-semibold ${moved ? 'text-muted' : 'text-text'}`}>
+          {block.patientName}
         </p>
-        {block.conflict && (
-          <p className="flex items-center gap-1 truncate text-[11px] font-semibold text-error">
-            <AlertTriangle size={11} aria-hidden="true" />
-            {t('scheduling.conflict')}
-          </p>
-        )}
+        <p className="truncate text-[11px] text-muted">
+          <bdi dir="ltr">{start}</bdi> · {t('clinic.minutes', { count: block.durationMinutes })}
+        </p>
+        <p className="truncate text-[11px] text-muted">{typeLabel}</p>
         {block.pending && (
           <p className="truncate text-[11px] font-semibold text-primary">
             {t('scheduling.unsavedBadge')}
           </p>
         )}
       </div>
+      {block.conflict && (
+        <AlertTriangle
+          size={12}
+          aria-hidden="true"
+          className="pointer-events-none absolute end-1.5 bottom-1.5 text-error"
+        />
+      )}
       {block.movable && (
         <button
           type="button"
@@ -146,33 +167,45 @@ function GhostView({
   move,
   day,
   time,
+  source,
 }: {
   move: ProposalMove;
   day: SchedulingDay;
   time: (iso: string) => string;
+  source: RenderBlock | undefined;
 }) {
+  const { t } = useTranslation();
   const start = localMinutes(move.toStartsAt, day.timezone);
   const left = minuteToPercent(start, day.dayStartMinute, day.dayEndMinute);
   const width = durationToPercent(move.durationMinutes, day.dayStartMinute, day.dayEndMinute);
+  const accent = source ? blockAccent(source) : 'var(--color-primary)';
   return (
     <div
       data-testid={`ghost-${move.appointmentId}`}
       style={{
         insetInlineStart: `${left}%`,
         inlineSize: `${width}%`,
-        top: 6,
-        bottom: 6,
+        top: 8,
+        bottom: 8,
         zIndex: 20,
+        borderInlineStartColor: accent,
+        backgroundColor: tint(accent),
       }}
-      className="pointer-events-none absolute min-w-0 overflow-hidden rounded-md border-2 border-dashed border-primary bg-primary/10 px-2 py-1 text-xs text-primary-dark"
+      className="sched-ghost pointer-events-none absolute min-w-0 overflow-hidden rounded-md border border-s-[3px] border-primary px-2 py-1 text-xs shadow-(--shadow-card)"
     >
-      <p className="truncate font-semibold">{move.patientName}</p>
-      <p className="flex items-center gap-1 truncate text-[11px]">
-        <ArrowRight size={11} aria-hidden="true" className="shrink-0 rtl:-scale-x-100" />
+      <p className="truncate pe-6 font-semibold text-text">{move.patientName}</p>
+      <p className="flex items-center gap-1 truncate text-[11px] text-muted">
         <span dir="ltr">{time(move.fromStartsAt)}</span>
         <ArrowRight size={11} aria-hidden="true" className="shrink-0 rtl:-scale-x-100" />
         <span dir="ltr">{time(move.toStartsAt)}</span>
       </p>
+      <span
+        title={t('scheduling.proposed')}
+        className="absolute end-1 top-1 inline-flex size-5 items-center justify-center rounded-full bg-primary text-white"
+      >
+        <ArrowRight size={11} aria-hidden="true" className="rtl:-scale-x-100" />
+        <span className="sr-only">{t('scheduling.proposed')}</span>
+      </span>
     </div>
   );
 }
@@ -184,6 +217,7 @@ export function ScheduleGrid({
   slot,
   ghosts,
   time,
+  highlight,
   onMove,
   onOpenMove,
 }: {
@@ -192,6 +226,7 @@ export function ScheduleGrid({
   slot: number;
   ghosts: ProposalMove[];
   time: (iso: string) => string;
+  highlight: FocusTarget | null;
   onMove: (request: GridMoveRequest) => void;
   onOpenMove: (block: RenderBlock) => void;
 }) {
@@ -202,6 +237,22 @@ export function ScheduleGrid({
   const timelinePx = span * PX_PER_MINUTE;
   const ticks = hourTicks(day.dayStartMinute, day.dayEndMinute);
   const movedIds = useMemo(() => new Set(ghosts.map((g) => g.appointmentId)), [ghosts]);
+  const sources = useMemo(() => {
+    const map = new Map<string, RenderBlock>();
+    rows.forEach((r) => r.blocks.forEach((b) => map.set(b.appointmentId, b)));
+    return map;
+  }, [rows]);
+
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), 60_000);
+    return () => window.clearInterval(id);
+  }, []);
+  const nowMin = nowMinute(day, now);
+  const nowPercent =
+    nowMin !== null && nowMin >= day.dayStartMinute && nowMin <= day.dayEndMinute
+      ? minuteToPercent(nowMin, day.dayStartMinute, day.dayEndMinute)
+      : null;
 
   const coordinateGetter: KeyboardCoordinateGetter = (event, { currentCoordinates }) => {
     const step = minutesToDeltaX(slot, PX_PER_MINUTE, false);
@@ -279,14 +330,14 @@ export function ScheduleGrid({
               style={{ width: DOCTOR_COLUMN }}
               className="sticky start-0 z-30 shrink-0 border-e border-border bg-surface"
             />
-            <div className="relative h-9 shrink-0" style={{ width: timelinePx }}>
+            <div className="sched-header relative h-9 shrink-0" style={{ width: timelinePx }}>
               {ticks.map((tick) => (
                 <span
                   key={tick}
                   style={{
                     insetInlineStart: `${minuteToPercent(tick, day.dayStartMinute, day.dayEndMinute)}%`,
                   }}
-                  className={`absolute top-2 text-xs text-muted ${
+                  className={`absolute top-2 text-xs font-medium text-muted ${
                     tick === day.dayStartMinute ? 'ps-1' : '-translate-x-1/2 rtl:translate-x-1/2'
                   }`}
                 >
@@ -294,6 +345,14 @@ export function ScheduleGrid({
                   <bdi dir="ltr">{formatMinute(tick)}</bdi>
                 </span>
               ))}
+              {nowPercent !== null && (
+                <span
+                  style={{ insetInlineStart: `${nowPercent}%` }}
+                  className="absolute bottom-0 z-20 -translate-x-1/2 rounded-full bg-error px-1.5 py-px text-[10px] font-semibold leading-4 text-white rtl:translate-x-1/2"
+                >
+                  {t('scheduling.grid.now')}
+                </span>
+              )}
             </div>
           </div>
           {rows.map((row, rowIndex) => {
@@ -303,16 +362,22 @@ export function ScheduleGrid({
               day.dayStartMinute,
               day.dayEndMinute,
             );
+            const hasConflict = row.blocks.some((b) => b.conflict);
+            const rowHighlighted = highlight?.kind === 'doctor' && highlight.id === row.doctor.id;
             return (
               <div
                 key={row.doctor.id}
-                className="flex border-b border-border last:border-b-0"
+                className={`flex border-b border-border last:border-b-0 ${
+                  rowHighlighted ? 'bg-accent/40' : ''
+                }`}
                 style={{ height: ROW_HEIGHT }}
                 data-testid={`row-${row.doctor.id}`}
+                data-row={row.doctor.id}
               >
                 <div
                   style={{ width: DOCTOR_COLUMN }}
-                  className="sticky start-0 z-30 flex shrink-0 items-center gap-3 border-e border-border bg-surface px-3"
+                  tabIndex={rowHighlighted ? 0 : undefined}
+                  className="sticky start-0 z-30 flex shrink-0 items-center gap-3 border-e border-border bg-surface px-4"
                 >
                   <Avatar initials={row.doctor.initials} />
                   <div className="min-w-0">
@@ -359,14 +424,36 @@ export function ScheduleGrid({
                       rowIndex={rowIndex}
                       day={day}
                       moved={movedIds.has(block.appointmentId)}
+                      highlighted={
+                        highlight?.kind === 'appointment' && highlight.id === block.appointmentId
+                      }
                       onOpenMove={onOpenMove}
                     />
                   ))}
                   {ghosts
                     .filter((g) => g.toDoctorId === row.doctor.id)
                     .map((g) => (
-                      <GhostView key={g.appointmentId} move={g} day={day} time={time} />
+                      <GhostView
+                        key={g.appointmentId}
+                        move={g}
+                        day={day}
+                        time={time}
+                        source={sources.get(g.appointmentId)}
+                      />
                     ))}
+                  {nowPercent !== null && (
+                    <div
+                      aria-hidden="true"
+                      style={{ insetInlineStart: `${nowPercent}%` }}
+                      className="pointer-events-none absolute inset-y-0 z-20 w-0.5 bg-error"
+                    />
+                  )}
+                  {hasConflict && (
+                    <span className="absolute end-1 top-1 z-30 inline-flex items-center gap-1 rounded-full border border-error bg-surface px-2 py-0.5 text-[11px] font-semibold text-error">
+                      <AlertTriangle size={11} aria-hidden="true" />
+                      {t('scheduling.conflict')}
+                    </span>
+                  )}
                 </div>
               </div>
             );

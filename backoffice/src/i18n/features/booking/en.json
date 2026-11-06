@@ -17,7 +17,11 @@
   "nextMonth": "Next month",
   "pickDate": "Choose a date",
   "periodLabel": "Time of day",
-  "period": { "MORNING": "Morning", "AFTERNOON": "Afternoon", "EVENING": "Evening" },
+  "period": {
+    "MORNING": "Morning",
+    "AFTERNOON": "Afternoon",
+    "EVENING": "Evening"
+  },
   "noSlots": "No times in this part of the day.",
   "slotsLabel": "Available times",
   "slotUnavailable": "unavailable (booked, on break or in the past)",
@@ -29,7 +33,8 @@
     "slot": "Choose an available time.",
     "duration": "Enter a duration between 5 and 240 minutes.",
     "reasonLength": "The reason is too long (500 characters at most).",
-    "notesLength": "The notes are too long (1000 characters at most)."
+    "notesLength": "The notes are too long (1000 characters at most).",
+    "type": "Choose an appointment type."
   },
   "patient": {
     "title": "Select patient",
@@ -55,8 +60,8 @@
     "duplicateBody": "Choose an existing patient, or create a new record anyway.",
     "createAnyway": "Create anyway",
     "errors": {
-      "firstName": "Enter the first name.",
-      "lastName": "Enter the last name.",
+      "firstName": "Enter the first name in at least one language.",
+      "lastName": "Enter the last name in at least one language.",
       "dateOfBirth": "Enter a valid date of birth.",
       "phone": "Enter a phone number.",
       "email": "Enter a valid email address."
@@ -92,7 +97,14 @@
     "reason": "Reason for visit",
     "notes": "Notes",
     "reminders": "Reminders",
-    "channel": { "SMS": "SMS", "EMAIL": "Email" }
+    "channel": {
+      "SMS": "SMS",
+      "EMAIL": "Email"
+    },
+    "emergency": "Emergency",
+    "typesLoading": "Loading appointment types…",
+    "typesEmpty": "No appointment types are available. Ask an administrator to add one in Settings.",
+    "typesError": "Appointment types could not be loaded."
   },
   "review": {
     "title": "Review and confirm",

@@ -1,0 +1,6 @@
+{
+  "languages": { "en": "English", "fr": "Français", "ar": "العربية" },
+  "current": "Affichée",
+  "required": "Renseignez au moins une langue",
+  "help": "Remplissez les langues utiles ; les autres reprennent la valeur saisie."
+}

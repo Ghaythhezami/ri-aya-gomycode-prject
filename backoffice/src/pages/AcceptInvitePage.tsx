@@ -24,18 +24,34 @@ export function AcceptInvitePage() {
   const [error, setError] = useState<string | null>(null);
   const [expired, setExpired] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  /** The email already has an account: it joins with its current password (never reset here). */
+  const [existingAccount, setExistingAccount] = useState(false);
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
     try {
-      await api.post('/api/auth/accept-invite', { token, password, firstName, lastName });
-      navigate('/login', { replace: true });
+      await api.post(
+        '/api/auth/accept-invite',
+        existingAccount
+          ? { token, password, currentPassword: password }
+          : { token, password, firstName, lastName },
+      );
+      // Signed-out users pass through sign-in; the shell then opens onboarding.
+      navigate('/onboarding', { replace: true });
     } catch (err) {
       const code = (err as { response?: { data?: { code?: string } } }).response?.data?.code;
       if (code === 'INVALID_INVITATION') {
         setExpired(true);
+      } else if (code === 'ACCOUNT_EXISTS_LOGIN_REQUIRED') {
+        setExistingAccount(true);
+        setPassword('');
+        setError(t('invite.existingAccountHint'));
+      } else if (code === 'INVALID_CREDENTIALS' || code === 'UNAUTHENTICATED') {
+        setError(t('invite.wrongPassword'));
+      } else if (code === 'MEMBERSHIP_SUSPENDED') {
+        setError(t('invite.suspended'));
       } else if (code === 'WEAK_PASSWORD') {
         setError(t('invite.weakPassword'));
       } else {
@@ -75,15 +91,20 @@ export function AcceptInvitePage() {
   return (
     <AuthLayout title={t('invite.title')} subtitle={t('invite.subtitle')}>
       <form className="space-y-4" onSubmit={submit}>
-        <Field label={t('register.firstName')}>
-          <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
-        </Field>
-        <Field label={t('register.lastName')}>
-          <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
-        </Field>
-        <Field label={t('register.password')}>
+        {existingAccount ? null : (
+          <>
+            <Field label={t('register.firstName')}>
+              <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
+            </Field>
+            <Field label={t('register.lastName')}>
+              <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
+            </Field>
+          </>
+        )}
+        <Field label={existingAccount ? t('invite.currentPassword') : t('register.password')}>
           <Input
             type="password"
+            autoComplete={existingAccount ? 'current-password' : 'new-password'}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required

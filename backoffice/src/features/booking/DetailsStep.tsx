@@ -1,7 +1,10 @@
 import { useTranslation } from 'react-i18next';
 import type { Control, UseFormRegister } from 'react-hook-form';
 import { Controller } from 'react-hook-form';
-import { APPOINTMENT_TYPES, type AppointmentType } from '@riaya/shared';
+import { Siren } from 'lucide-react';
+import type { AppointmentTypeDto } from '@riaya/shared';
+import { Button } from '../../common/Button';
+import { sortTypes, typeToken } from '../shared/appointmentTypes';
 import { Field, Input, Select, Textarea } from '../../common/Input';
 import type { BookingForm } from './schema';
 
@@ -13,6 +16,10 @@ export function DetailsStep({
   errors,
   duration,
   durationFor,
+  types,
+  typesLoading,
+  typesError,
+  onRetryTypes,
   onType,
 }: {
   control: Control<BookingForm>;
@@ -21,8 +28,13 @@ export function DetailsStep({
   /** Current duration, so a non-standard value stays selectable. */
   duration: number;
   /** Reference duration for a type. */
-  durationFor: (type: AppointmentType) => number;
-  onType: (type: AppointmentType, duration: number) => void;
+  durationFor: (type: string) => number;
+  /** Active clinic types, undefined while loading. */
+  types: AppointmentTypeDto[] | undefined;
+  typesLoading: boolean;
+  typesError: boolean;
+  onRetryTypes: () => void;
+  onType: (type: string, duration: number) => void;
 }) {
   const { t } = useTranslation();
 
@@ -38,29 +50,57 @@ export function DetailsStep({
             <legend className="mb-1.5 text-sm font-medium text-text">
               {t('booking.details.type')}
             </legend>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {APPOINTMENT_TYPES.map((type) => (
-                <button
-                  key={type}
-                  type="button"
-                  aria-pressed={field.value === type}
-                  onClick={() => {
-                    field.onChange(type);
-                    onType(type, durationFor(type));
-                  }}
-                  className={`min-h-12 rounded-lg border px-3 text-sm transition ${
-                    field.value === type
-                      ? 'border-primary bg-accent font-semibold text-primary'
-                      : 'border-border bg-surface text-text hover:bg-bg'
-                  }`}
-                >
-                  {t(`clinic.type.${type}`)}
-                  <span className="block text-xs font-normal text-muted">
-                    {t('clinic.minutes', { count: durationFor(type) })}
-                  </span>
-                </button>
-              ))}
-            </div>
+            {typesError ? (
+              <div role="alert" className="text-sm text-error">
+                {t('booking.details.typesError')}{' '}
+                <Button type="button" variant="secondary" size="sm" onClick={onRetryTypes}>
+                  {t('clinic.retry')}
+                </Button>
+              </div>
+            ) : typesLoading ? (
+              <p className="text-sm text-muted" aria-busy="true">
+                {t('booking.details.typesLoading')}
+              </p>
+            ) : !types?.length ? (
+              <p className="text-sm text-muted">{t('booking.details.typesEmpty')}</p>
+            ) : (
+              <div className="grid gap-2 sm:grid-cols-3">
+                {sortTypes(types).map((type) => (
+                  <button
+                    key={type.code}
+                    type="button"
+                    aria-pressed={field.value === type.code}
+                    onClick={() => {
+                      field.onChange(type.code);
+                      onType(type.code, durationFor(type.code));
+                    }}
+                    className={`min-h-12 rounded-lg border px-3 py-1.5 text-start text-sm transition ${
+                      field.value === type.code
+                        ? 'border-primary bg-accent font-semibold text-primary'
+                        : 'border-border bg-surface text-text hover:bg-bg'
+                    }`}
+                  >
+                    <span className="flex items-center gap-2">
+                      <span
+                        aria-hidden="true"
+                        className="size-2.5 shrink-0 rounded-full"
+                        style={{ backgroundColor: typeToken(type.color, type.code) }}
+                      />
+                      <span className="min-w-0 flex-1 truncate">{type.displayName}</span>
+                      {type.isEmergency ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-alert/10 px-1.5 text-xs font-medium text-alert">
+                          <Siren size={12} aria-hidden="true" />
+                          {t('booking.details.emergency')}
+                        </span>
+                      ) : null}
+                    </span>
+                    <span className="block text-xs font-normal text-muted">
+                      {t('clinic.minutes', { count: type.durationMinutes })}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
           </fieldset>
         )}
       />

@@ -11,7 +11,6 @@ import {
   MoreHorizontal,
   Plus,
 } from 'lucide-react';
-import { can } from '@riaya/shared';
 import type { AppointmentListItem } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
@@ -25,7 +24,9 @@ import { todayInZone } from '../calendar/dates';
 import { Avatar } from '../shared/Avatar';
 import { useClinicFormat } from '../shared/format';
 import { PageHeader } from '../shared/PageHeader';
-import { StatusBadge, TypeLabel } from '../shared/StatusBadge';
+import { StatusBadge } from '../shared/StatusBadge';
+import { TypeChip } from '../shared/TypeChip';
+import { useTypeLabel } from '../shared/appointmentTypes';
 import { useClinicReferenceQuery } from '../shared/api';
 import { useApptListQuery } from './api';
 import { allowedActions, canBulkCancel, canBulkConfirm, type RowAction } from './actions';
@@ -46,6 +47,7 @@ import {
 import { RescheduleDialog, type RescheduleTarget } from './RescheduleDialog';
 import { useAppointmentActions } from './useActions';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
+import { canUser } from '../../auth/permissions';
 
 const COLUMNS: { field: SortField; labelKey: string; className?: string }[] = [
   { field: 'code', labelKey: 'appointments.columns.id', className: 'hidden xl:table-cell' },
@@ -98,7 +100,7 @@ export function AppointmentsPage() {
   const toast = useToast();
   const { user } = useAuth();
   const role = user?.role;
-  const manage = can(role, 'manageAppointments');
+  const manage = canUser(user, 'manageAppointments');
   const reference = useClinicReferenceQuery();
   const { setStatus, cancel, bulk, errorText } = useAppointmentActions();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -181,7 +183,7 @@ export function AppointmentsPage() {
         onSelect: () => navigate(`/appointments/${item.id}`),
       },
     ];
-    for (const action of allowedActions(role, item.status)) {
+    for (const action of allowedActions(role, item.status, undefined, manage)) {
       base.push({
         id: `${action.kind}-${'to' in action ? action.to : ''}`,
         label: t(`appointments.actions.${action.labelKey}`),
@@ -402,7 +404,11 @@ export function AppointmentsPage() {
                           </span>
                         </td>
                         <td className="px-3 py-3">
-                          <TypeLabel type={item.type} />
+                          <TypeChip
+                            type={item.type}
+                            typeName={item.typeName}
+                            typeColor={item.typeColor}
+                          />
                         </td>
                         <td className="px-3 py-3">
                           <StatusBadge status={item.status} />
@@ -480,7 +486,11 @@ export function AppointmentsPage() {
                         {t('clinic.minutes', { count: item.durationMinutes })}
                       </span>
                       <span className="flex items-center gap-2">
-                        <TypeLabel type={item.type} />
+                        <TypeChip
+                          type={item.type}
+                          typeName={item.typeName}
+                          typeColor={item.typeColor}
+                        />
                         <StatusBadge status={item.status} />
                       </span>
                     </div>
@@ -585,6 +595,7 @@ function EmptyBlock({
 }) {
   const { t } = useTranslation();
   const specialtyLabel = useSpecialtyLabel();
+  const typeLabel = useTypeLabel();
   if (!filtered) {
     return (
       <EmptyState
@@ -609,7 +620,7 @@ function EmptyBlock({
     doctorName,
     specialtyLabel(filters.specialty),
     ...filters.status.map((status) => t(`clinic.status.${status}`)),
-    ...filters.type.map((type) => t(`clinic.type.${type}`)),
+    ...filters.type.map((type) => typeLabel(type)),
   ].filter(Boolean);
 
   return (

@@ -1,7 +1,8 @@
-import { describe, expect, it } from 'vitest';
 import type { OptimizationProposal, SchedulingDay } from '@riaya/shared';
 import {
   applyPending,
+  blockAccent,
+  shiftDate,
   deltaXToMinutes,
   localMinutes,
   minuteToPercent,
@@ -17,6 +18,7 @@ import {
   insightsReducer,
   waitImprovement,
 } from './insightsState';
+import { largestGap } from './recommendations';
 
 const totals = {
   appointments: 1,
@@ -187,5 +189,43 @@ describe('insights state machine', () => {
       { type: 'pending', count: 1 },
     );
     expect(insightsPhase(s)).toBe('unsaved');
+  });
+});
+
+describe('scheduling design helpers', () => {
+  it('shifts dates across month ends', () => {
+    expect(shiftDate('2026-01-31', 1)).toBe('2026-02-01');
+    expect(shiftDate('2026-03-01', -1)).toBe('2026-02-28');
+  });
+  it('uses a valid clinic type colour and falls back to the token', () => {
+    const custom = `#${'ff8800'}`;
+    expect(blockAccent({ type: 'CONSULTATION', typeColor: custom })).toBe(custom);
+    expect(blockAccent({ type: 'CONSULTATION', typeColor: 'red;x' })).toBe('var(--color-primary)');
+    expect(blockAccent({ type: 'FOLLOW_UP' })).toBe('var(--color-info)');
+  });
+  it('finds the largest free gap inside working hours', () => {
+    const doctor = {
+      id: 'd1',
+      name: 'Dr A',
+      initials: 'A',
+      specialty: 'GP',
+      work: [{ startsAt: '2026-01-05T09:00:00.000Z', endsAt: '2026-01-05T12:00:00.000Z' }],
+      breaks: [],
+      blocks: [
+        {
+          appointmentId: 'a',
+          code: 'A',
+          patientName: 'X',
+          type: 'CONSULTATION' as const,
+          status: 'SCHEDULED' as const,
+          startsAt: '2026-01-05T09:00:00.000Z',
+          endsAt: '2026-01-05T10:00:00.000Z',
+          movable: true,
+          conflict: false,
+        },
+      ],
+    };
+    const gap = largestGap(doctor, 'UTC', 480, 1080, 15);
+    expect(gap).toEqual({ startMinute: 600, minutes: 120 });
   });
 });

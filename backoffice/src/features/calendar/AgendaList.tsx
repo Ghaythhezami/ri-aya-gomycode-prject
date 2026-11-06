@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { formatYmd } from './dates';
 import type { CalBlock } from './model';
 import { Avatar } from '../shared/Avatar';
-import { StatusBadge, TypeLabel } from '../shared/StatusBadge';
+import { StatusBadge } from '../shared/StatusBadge';
+import { TypeChip } from '../shared/TypeChip';
 
 /** Mobile day view: the day's appointments as an agenda list (no time grid at 375 px). */
 export function AgendaList({
@@ -56,7 +57,12 @@ export function AgendaList({
                       {block.item.patient.name}
                     </span>
                     <span className="block truncate text-xs text-muted">
-                      <TypeLabel type={block.item.type} /> · {block.item.doctor.name}
+                      <TypeChip
+                        type={block.item.type}
+                        typeName={block.item.typeName}
+                        typeColor={block.item.typeColor}
+                      />{' '}
+                      · {block.item.doctor.name}
                     </span>
                   </span>
                   <StatusBadge status={block.item.status} />

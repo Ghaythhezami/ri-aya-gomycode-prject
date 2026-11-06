@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatYmd, sameMonth, weekDays } from './dates';
 import type { CalBlock } from './model';
-import { typeBlockClass } from '../shared/StatusBadge';
+import { typeBlockClasses, useTypeLabel } from '../shared/appointmentTypes';
 
 const MAX_ITEMS = 3;
 
@@ -26,6 +26,7 @@ const MonthCell = memo(function MonthCell({
   onDay,
 }: CellProps) {
   const { t } = useTranslation();
+  const typeLabel = useTypeLabel();
   const outside = !sameMonth(ymd, month);
   const extra = blocks.length - MAX_ITEMS;
 
@@ -59,13 +60,14 @@ const MonthCell = memo(function MonthCell({
             <button
               type="button"
               onClick={() => onOpen(block.item.id)}
-              title={`${block.label} ${block.item.patient.name} · ${t(`clinic.type.${block.item.type}`)} · ${t(
+              title={`${block.label} ${block.item.patient.name} · ${typeLabel(block.item.type, block.item.typeName)} · ${t(
                 `clinic.status.${block.item.status}`,
               )}`}
-              aria-label={`${block.label} ${block.item.patient.name}, ${t(`clinic.type.${block.item.type}`)}, ${t(
+              aria-label={`${block.label} ${block.item.patient.name}, ${typeLabel(block.item.type, block.item.typeName)}, ${t(
                 `clinic.status.${block.item.status}`,
               )}`}
-              className={`flex min-h-6 w-full items-center gap-1 truncate rounded-sm border px-1 text-start text-[11px] ${typeBlockClass(
+              className={`flex min-h-6 w-full items-center gap-1 truncate rounded-sm border px-1 text-start text-[11px] ${typeBlockClasses(
+                block.item.typeColor,
                 block.item.type,
               )} ${block.item.status === 'CANCELLED' || block.item.status === 'NO_SHOW' ? 'border-dashed opacity-60' : ''}`}
             >

@@ -1,11 +1,10 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /** Wizard behaviour without the API: RTK Query hooks are replaced by static data. */
 
-const mocks = vi.hoisted(() => {
+const mocks = (() => {
   const patients = [
     {
       id: 'p1',
@@ -35,18 +34,18 @@ const mocks = vi.hoisted(() => {
     },
   ];
   const mutation = () => [
-    vi.fn(() => ({ unwrap: () => Promise.resolve({ lockToken: 't', expiresAt: '' }) })),
+    jest.fn(() => ({ unwrap: () => Promise.resolve({ lockToken: 't', expiresAt: '' }) })),
     { isLoading: false },
   ];
   return { patients, doctors, mutation };
-});
+})();
 
-vi.mock('./api', () => ({
+jest.mock('./api', () => ({
   useBookPatientsQuery: () => ({
     data: { items: mocks.patients },
     isFetching: false,
     isError: false,
-    refetch: vi.fn(),
+    refetch: jest.fn(),
   }),
   useBookPatientQuery: () => ({ data: undefined }),
   useBookCreatePatientMutation: () => mocks.mutation(),
@@ -56,28 +55,38 @@ vi.mock('./api', () => ({
     isLoading: false,
     isFetching: false,
     isError: false,
-    refetch: vi.fn(),
+    refetch: jest.fn(),
   }),
   useBookDoctorQuery: () => ({ data: undefined }),
-  useBookSlotsQuery: () => ({ data: [], isFetching: false, error: undefined, refetch: vi.fn() }),
+  useBookSlotsQuery: () => ({ data: [], isFetching: false, error: undefined, refetch: jest.fn() }),
   useBookLockMutation: () => mocks.mutation(),
   useBookUnlockMutation: () => mocks.mutation(),
   useBookCreateMutation: () => mocks.mutation(),
 }));
 
-vi.mock('../shared/api', () => ({
+jest.mock('../shared/api', () => ({
   useClinicReferenceQuery: () => ({
     data: { durations: { CONSULTATION: 30, FOLLOW_UP: 15, EMERGENCY: 20 }, slotMinutes: 30 },
   }),
 }));
 
-vi.mock('../../auth/WorkspaceContext', () => ({
+jest.mock('../shared/appointmentTypes', () => ({
+  ...jest.requireActual('../shared/appointmentTypes'),
+  useAppointmentTypesQuery: () => ({
+    data: [],
+    isLoading: false,
+    isError: false,
+    refetch: jest.fn(),
+  }),
+}));
+
+jest.mock('../../auth/WorkspaceContext', () => ({
   useWorkspace: () => ({
     memberships: [],
     active: { clinicTimezone: 'UTC' },
     loading: false,
     switching: false,
-    switchTo: vi.fn(),
+    switchTo: jest.fn(),
   }),
 }));
 

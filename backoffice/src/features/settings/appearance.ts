@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { can, type ClinicSettingsDto } from '@riaya/shared';
+import { type ClinicSettingsDto } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { useSettingsQuery } from './api';
 import './appearance.css';
+import { canUser } from '../../auth/permissions';
 
 export type Appearance = ClinicSettingsDto['appearance'];
 
@@ -47,7 +48,7 @@ export function storeAppearance(appearance: Appearance): void {
  */
 export function useAppearanceBootstrap(): void {
   const { user } = useAuth();
-  const admin = can(user?.role, 'manageSettings');
+  const admin = canUser(user, 'manageSettings');
   const { data } = useSettingsQuery(undefined, { skip: !admin });
 
   useEffect(() => {

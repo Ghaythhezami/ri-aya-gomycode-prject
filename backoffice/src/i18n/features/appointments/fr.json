@@ -70,7 +70,8 @@
     "noShow": "Marquer comme absent",
     "reschedule": "Reprogrammer",
     "cancel": "Annuler le rendez-vous",
-    "for": "Actions pour le rendez-vous {{code}}"
+    "for": "Actions pour le rendez-vous {{code}}",
+    "changeType": "Changer le type"
   },
   "bulk": {
     "label": "Actions groupées",
@@ -105,7 +106,8 @@
     "cancelled": "Rendez-vous annulé",
     "bulk": "{{count}} rendez-vous mis à jour",
     "bulkPartial": "{{count}} mis à jour, {{failed}} n'ont pas pu être modifiés",
-    "rescheduled": "Rendez-vous reprogrammé"
+    "rescheduled": "Rendez-vous reprogrammé",
+    "typeChanged": "Type de rendez-vous modifié"
   },
   "detail": {
     "back": "Retour aux rendez-vous",
@@ -137,5 +139,14 @@
       "FAILED": "Échec",
       "CANCELLED": "Annulé"
     }
+  },
+  "inactive": "inactif",
+  "changeType": {
+    "title": "Changer le type de rendez-vous",
+    "confirm": "Changer le type",
+    "keepDuration": "Conserver la durée actuelle",
+    "preview": "Nouvel horaire : {{start}} – {{end}}",
+    "alternatives": "La consultation plus longue ne tient pas dans ce créneau. Ces horaires sont libres :",
+    "rescheduleInstead": "Reporter plutôt"
   }
 }

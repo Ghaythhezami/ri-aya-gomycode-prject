@@ -7,7 +7,7 @@ export interface NotificationListArgs {
   limit?: number;
 }
 
-const notificationsApi = clinicApi.injectEndpoints({
+export const notificationsApi = clinicApi.injectEndpoints({
   endpoints: (build) => ({
     notificationsList: build.query<NotificationPage, NotificationListArgs>({
       query: ({ unread, cursor, limit = 30 }) => ({

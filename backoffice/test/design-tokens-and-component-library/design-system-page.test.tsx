@@ -2,7 +2,6 @@ import { cleanup, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import i18n from '../../src/i18n';
 import { DesignSystemPage } from '../../src/pages/DesignSystemPage';
 import { color, tokens } from '../../src/design-system/tokens';

@@ -1,5 +1,5 @@
 {
-  "eyebrow": "Planification intelligente",
+  "eyebrow": "Planification assistée par IA",
   "title": "Planification intelligente",
   "subtitle": "Réduisez les temps d'attente et optimisez les ressources de la clinique.",
   "run": "Lancer l'optimisation",
@@ -9,7 +9,6 @@
   "selectedDate": "Date sélectionnée",
   "utilisation": "Taux d'occupation actuel",
   "estimatedWait": "Attente estimée",
-  "availability": "Disponibilité",
   "demand": "Demande (rendez-vous)",
   "objective": "Objectif d'optimisation",
   "objectives": {
@@ -34,7 +33,8 @@
   "footerNote": "Les recommandations sont des suggestions. Vérifiez les changements avant de les appliquer.",
   "grid": {
     "title": "Planning du jour",
-    "live": "Disponibilité en direct"
+    "live": "Disponibilité en direct",
+    "now": "Maintenant"
   },
   "dnd": {
     "instructions": "Appuyez sur Entrée ou Espace pour saisir le rendez-vous, utilisez les flèches pour le déplacer d'un créneau ou d'un médecin, puis Entrée ou Espace pour le déposer. Échap pour annuler. Appuyez sur M pour choisir un médecin et une heure dans une liste.",
@@ -96,7 +96,7 @@
     "successBody": "{{count}} rendez-vous déplacé(s).",
     "undo": "Annuler (15 min)",
     "undoExpired": "Le délai d'annulation est écoulé.",
-    "noImprovementTitle": "Aucune amélioration trouvée",
+    "noImprovementTitle": "Votre planning est déjà optimal pour cet objectif",
     "noImprovementBody": "Le planning actuel est déjà bien équilibré pour cet objectif.",
     "noAlternativesTitle": "Aucun créneau alternatif",
     "noAlternativesBody": "Certains rendez-vous n'ont pu être placés sur aucun autre créneau libre. Vérifiez-les manuellement.",
@@ -112,6 +112,21 @@
     "preview": "Aperçu des changements",
     "hidePreview": "Masquer l'aperçu",
     "apply": "Appliquer le planning",
-    "noImprovementUtilisationBody": "Aucun autre médecin de la même spécialité n'est disponible, l'utilisation ne peut donc pas être améliorée. Essayez l'objectif d'attente réduite."
-  }
+    "noImprovementUtilisationBody": "Aucun autre médecin de la même spécialité n'est disponible, l'utilisation ne peut donc pas être améliorée. Essayez l'objectif d'attente réduite.",
+    "invite": "Lancez l'optimisation pour voir combien de temps d'attente vous pouvez économiser.",
+    "engine": "Optimisé par : {{engine}}",
+    "engines": {
+      "python": "Service Python",
+      "typescript": "Moteur intégré"
+    },
+    "gapTitle": "Créneau libre détecté",
+    "gapLine": "{{name}} est disponible {{count}} min à {{time}}",
+    "balanceTitle": "Équilibrer la capacité",
+    "balanceLine": "Transférer {{name}} vers {{doctor}}",
+    "more": "+{{count}} de plus",
+    "showLess": "Voir moins"
+  },
+  "prevDay": "Jour précédent",
+  "nextDay": "Jour suivant",
+  "proposed": "Nouvel horaire proposé"
 }

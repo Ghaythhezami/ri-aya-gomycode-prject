@@ -1,8 +1,17 @@
 import { useState } from 'react';
+import {
+  Bar,
+  CartesianGrid,
+  ComposedChart,
+  Line,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from 'recharts';
 import { CalendarDays, ChevronLeft, Clock, DoorOpen, Pencil, Power } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import { can } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
 import { ConfirmDialog } from '../../common/ConfirmDialog';
@@ -10,7 +19,13 @@ import { Skeleton } from '../../common/Skeleton';
 import { EmptyState, ErrorState } from '../../common/States';
 import { useToast } from '../../common/Toast';
 import { asClinicError } from '../../store/clinicApi';
+import { color } from '../../design-system/tokens';
+import { ChartPanel } from '../analytics/ChartPanel';
+import { SecondaryNames } from '../patients/SecondaryNames';
 import { Avatar } from '../shared/Avatar';
+import { PeriodPicker } from '../shared/PeriodPicker';
+import { weekStartFor } from '../shared/period';
+import { usePeriod } from '../shared/usePeriod';
 import { useClinicFormat } from '../shared/format';
 import { StatusBadge } from '../shared/StatusBadge';
 import { useActivateDoctorMutation, useDeactivateDoctorMutation, useDoctorQuery } from './api';
@@ -21,15 +36,24 @@ import { LeavesPanel } from './LeavesPanel';
 import { ScheduleEditor } from './ScheduleEditor';
 import { WeeklyVisual } from './WeeklyVisual';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
+import { canUser } from '../../auth/permissions';
 
 export function DoctorDetailPage() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const rtl = i18n.dir() === 'rtl';
   const specialtyLabel = useSpecialtyLabel();
   const { id = '' } = useParams();
   const { user } = useAuth();
   const toast = useToast();
   const fmt = useClinicFormat();
-  const { data: doctor, isLoading, isError, error, refetch } = useDoctorQuery({ id });
+  const { period, today, setPeriod } = usePeriod();
+  const {
+    data: doctor,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useDoctorQuery({ id, from: period.from, to: period.to });
   const [deactivate, { isLoading: deactivating }] = useDeactivateDoctorMutation();
   const [activate, { isLoading: activating }] = useActivateDoctorMutation();
   const [editing, setEditing] = useState(false);
@@ -62,7 +86,17 @@ export function DoctorDetailPage() {
     );
   }
 
-  const admin = user ? can(user.role, 'manageDoctors') : false;
+  const axisProps = {
+    tickLine: false,
+    axisLine: false,
+    fontSize: 12,
+    stroke: color.muted,
+  } as const;
+  const daily = (doctor.daily ?? []).map((d) => ({
+    ...d,
+    label: fmt.shortDate(`${d.date}T12:00:00Z`),
+  }));
+  const admin = canUser(user, 'manageDoctors');
   const canEditHours = admin || isOwnProfile(user, doctor);
 
   const toggleActive = async () => {
@@ -91,6 +125,11 @@ export function DoctorDetailPage() {
         <Avatar initials={doctor.initials} size="lg" />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-semibold text-text">{doctor.name}</h1>
+          <SecondaryNames
+            first={doctor.firstNameI18n}
+            last={doctor.lastNameI18n}
+            shown={doctor.name}
+          />
           <p className="mt-1 text-sm text-muted">{specialtyLabel(doctor.specialty)}</p>
           <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
             <AvailabilityChip availability={doctor.availability} />
@@ -135,6 +174,106 @@ export function DoctorDetailPage() {
           </div>
         )}
       </header>
+
+      <section
+        aria-label={t('doctors.period.title')}
+        className="space-y-4 rounded-lg border border-border bg-surface p-5 shadow-(--shadow-card)"
+      >
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <h2 className="text-base font-semibold text-text">{t('doctors.period.title')}</h2>
+          <PeriodPicker
+            value={period}
+            onChange={setPeriod}
+            today={today}
+            weekStart={weekStartFor(fmt.locale)}
+            locale={fmt.locale}
+          />
+        </div>
+        {doctor.period && (
+          <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-5">
+            {(
+              [
+                ['appointmentsCount', fmt.number(doctor.period.appointmentsCount)],
+                ['completed', fmt.number(doctor.period.completedCount)],
+                ['noShows', fmt.number(doctor.period.noShowCount)],
+                ['utilisation', `${fmt.number(Math.round(doctor.period.utilisation))}%`],
+                [
+                  'busiestDay',
+                  doctor.period.busiestDay
+                    ? fmt.shortDate(`${doctor.period.busiestDay}T12:00:00Z`)
+                    : '–',
+                ],
+              ] as const
+            ).map(([key, value]) => (
+              <div key={key} className="rounded-md bg-bg p-3">
+                <dt className="text-xs text-muted">{t(`doctors.columns.${key}`)}</dt>
+                <dd className="mt-1 text-lg font-semibold text-text">{value}</dd>
+              </div>
+            ))}
+          </dl>
+        )}
+        {daily.length > 0 && (
+          <ChartPanel
+            title={t('doctors.period.chart')}
+            summary={t('doctors.period.summary', {
+              count: daily.length,
+              total: doctor.period?.appointmentsCount ?? 0,
+            })}
+            columns={[t('analytics.date'), t('doctors.period.chartColumns')]}
+            rows={daily.map((d): [string, string] => [
+              d.label,
+              `${fmt.number(d.appointments)} · ${fmt.number(Math.round(d.utilisation))}%`,
+            ])}
+          >
+            <ResponsiveContainer width="100%" height={220}>
+              <ComposedChart data={daily}>
+                <CartesianGrid stroke={color.border} vertical={false} />
+                <XAxis dataKey="label" reversed={rtl} minTickGap={16} {...axisProps} />
+                <YAxis
+                  yAxisId="count"
+                  orientation={rtl ? 'right' : 'left'}
+                  allowDecimals={false}
+                  width={32}
+                  {...axisProps}
+                />
+                <YAxis
+                  yAxisId="pct"
+                  orientation={rtl ? 'left' : 'right'}
+                  domain={[0, 100]}
+                  width={36}
+                  {...axisProps}
+                />
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: 12,
+                    border: `1px solid ${color.border}`,
+                    fontSize: 12,
+                  }}
+                  formatter={(v, name) =>
+                    name === 'utilisation'
+                      ? [`${fmt.number(Number(v))}%`, t('doctors.utilisation')]
+                      : [fmt.number(Number(v)), t('doctors.columns.appointments')]
+                  }
+                />
+                <Bar
+                  yAxisId="count"
+                  dataKey="appointments"
+                  fill={color.primary}
+                  radius={[6, 6, 0, 0]}
+                />
+                <Line
+                  yAxisId="pct"
+                  type="monotone"
+                  dataKey="utilisation"
+                  stroke={color.info}
+                  strokeWidth={2}
+                  dot={false}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          </ChartPanel>
+        )}
+      </section>
 
       <ScheduleEditor doctor={doctor} canEdit={canEditHours} />
       <WeeklyVisual intervals={doctor.workingHours} />

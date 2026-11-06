@@ -42,7 +42,11 @@
     "closeAfterOpen": "Closing time must be after opening time.",
     "offsetMin": "A reminder must be at least 15 minutes (0.25 hours) before the appointment.",
     "offsetMax": "A reminder can be at most 7 days (168 hours) before the appointment.",
-    "duplicateOffset": "Each reminder time must be different."
+    "duplicateOffset": "Each reminder time must be different.",
+    "nameRequired": "Enter a name in at least one language.",
+    "max480": "The duration cannot be more than 480 minutes.",
+    "step5": "The duration must be a multiple of 5 minutes.",
+    "color": "Choose one of the colours."
   },
   "clinic": {
     "title": "Clinic information",
@@ -89,7 +93,9 @@
     "targetWait": "Target waiting time (min)",
     "targetWaitHelp": "Patients waiting longer are highlighted.",
     "requireReason": "Require a reason to cancel",
-    "requireReasonHelp": "Staff must enter a reason when they cancel an appointment."
+    "requireReasonHelp": "Staff must enter a reason when they cancel an appointment.",
+    "policyTitle": "Booking rules",
+    "policySubtitle": "Slot size, cancellation policy and waiting target."
   },
   "reminders": {
     "title": "Reminders",
@@ -131,11 +137,171 @@
       "OPERATIONS": "Manage the clinic, staff, settings and schedules.",
       "CLINICAL": "Own patients, schedule and clinical notes.",
       "FRONT_DESK": "Bookings, check-in and the waiting list."
+    },
+    "new": "New role",
+    "edit": "Edit",
+    "reset": "Reset to defaults",
+    "delete": "Delete",
+    "system": "System",
+    "custom": "Custom",
+    "baseRole": "Base role",
+    "baseRoleHelp": "Decides which data the role sees (a doctor-based role sees its own schedule).",
+    "name": "Name",
+    "description": "Description",
+    "template": "Start from a template",
+    "templateHelp": "Copy the permissions of an existing role; you can adjust them in the matrix afterwards.",
+    "templateNone": "No permissions",
+    "templateCopies": "Copies {{count}} permission(s).",
+    "templateDropped": "{{count}} skipped because you do not hold them.",
+    "type": "Type",
+    "actions": "Actions",
+    "noAccess": "You do not have access to roles and permissions.",
+    "viewOnly": "View only: you cannot change roles.",
+    "createTitle": "New role",
+    "editTitle": "Edit role",
+    "created": "Role created",
+    "updated": "Role updated",
+    "deleted": "Role deleted",
+    "resetDone": "Role reset to defaults",
+    "saved": "Permissions of {{name}} saved",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "The role is removed. Roles that still have members or pending invitations cannot be deleted.",
+    "deleteInUse": "This role is still assigned to members or invitations. Reassign them first.",
+    "resetTitle": "Reset {{name}}?",
+    "resetBody": "The role returns to its default name and permissions.",
+    "changed": "changed",
+    "matrix": {
+      "title": "Permissions matrix",
+      "subtitle": "Tick what each role can do. Changes apply after you save.",
+      "capability": "Permission"
+    },
+    "reason": {
+      "readonly": "This role is fixed and cannot be changed.",
+      "locked": "Always granted to the clinic admin so the clinic cannot lock itself out.",
+      "notHeld": "You cannot change a permission you do not hold yourself.",
+      "viewOnly": "View only."
+    },
+    "unsaved": {
+      "title": "{{count}} role(s) with unsaved changes",
+      "changes": "{{added}} added, {{removed}} removed",
+      "discard": "Discard"
+    },
+    "groups": {
+      "workspace": "Workspace",
+      "communication": "Communication",
+      "appointments": "Appointments",
+      "patients": "Patients",
+      "doctors": "Doctors",
+      "scheduling": "Scheduling",
+      "analytics": "Analytics",
+      "administration": "Administration"
+    },
+    "capabilities": {
+      "viewOverview": {
+        "label": "View overview",
+        "help": "See the dashboard and today's key figures."
+      },
+      "viewAppointments": {
+        "label": "View appointments",
+        "help": "Open the appointment list and details."
+      },
+      "viewCalendar": {
+        "label": "View calendar",
+        "help": "Open the shared calendar."
+      },
+      "viewPatients": {
+        "label": "View patients",
+        "help": "Search and open patient records."
+      },
+      "viewWaitingList": {
+        "label": "View waiting list",
+        "help": "See the live waiting room."
+      },
+      "viewNotifications": {
+        "label": "View notifications",
+        "help": "Read the notification centre."
+      },
+      "viewDesignSystem": {
+        "label": "View design system",
+        "help": "Open the design system reference pages."
+      },
+      "viewAnalytics": {
+        "label": "View analytics",
+        "help": "See reports and statistics."
+      },
+      "manageStaff": {
+        "label": "Manage staff",
+        "help": "Change the role and details of team members."
+      },
+      "inviteStaff": {
+        "label": "Invite staff",
+        "help": "Send invitations to new team members."
+      },
+      "suspendMembership": {
+        "label": "Suspend members",
+        "help": "Revoke a member's access to this clinic."
+      },
+      "manageSettings": {
+        "label": "Manage settings",
+        "help": "Change clinic information, hours and appointment types."
+      },
+      "viewDoctors": {
+        "label": "View doctors",
+        "help": "See the doctor list and profiles."
+      },
+      "manageDoctors": {
+        "label": "Manage doctors",
+        "help": "Create and edit doctors and their availability."
+      },
+      "viewScheduling": {
+        "label": "View scheduling",
+        "help": "Open the smart scheduling board."
+      },
+      "applySchedule": {
+        "label": "Apply schedule",
+        "help": "Apply optimised schedule changes."
+      },
+      "manageAppointments": {
+        "label": "Manage appointments",
+        "help": "Book, move, cancel and change appointments."
+      },
+      "manageQueue": {
+        "label": "Manage queue",
+        "help": "Check patients in and call them from the queue."
+      },
+      "readClinicalNotes": {
+        "label": "Read clinical notes",
+        "help": "Read and write clinical notes."
+      },
+      "viewAuditLog": {
+        "label": "View audit log",
+        "help": "Read the history of changes in the clinic."
+      },
+      "viewChat": {
+        "label": "Use chat",
+        "help": "Message colleagues in staff chat."
+      },
+      "manageRoles": {
+        "label": "Manage roles",
+        "help": "Create roles and edit their permissions."
+      }
     }
   },
   "team": {
     "title": "Team & invitations",
-    "subtitle": "Invite colleagues and review pending invitations."
+    "subtitle": "Invite colleagues and review pending invitations.",
+    "members": "Members",
+    "member": "Member",
+    "status": "Status",
+    "active": "Active",
+    "suspended": "Suspended",
+    "you": "you",
+    "roleOf": "Role of {{name}}",
+    "ownRole": "You cannot change your own role.",
+    "roleChanged": "Role of {{name}} updated",
+    "loadError": "Team members could not be loaded",
+    "noMembers": "No team members yet.",
+    "inviteTitle": "Invite a colleague"
   },
   "audit": {
     "title": "Audit log",
@@ -179,5 +345,48 @@
     "contrastHelp": "Stronger borders and darker secondary text.",
     "motion": "Reduce motion",
     "motionHelp": "Turn off animations and transitions."
+  },
+  "types": {
+    "title": "Appointment types",
+    "subtitle": "Types, durations and colours used when booking.",
+    "new": "New type",
+    "createTitle": "New appointment type",
+    "editTitle": "Edit appointment type",
+    "name": "Name",
+    "code": "Code",
+    "duration": "Duration",
+    "usage": "Appointments",
+    "active": "Active",
+    "on": "Active",
+    "off": "Inactive",
+    "colour": "Colour",
+    "emergency": "Emergency",
+    "emergencyHelp": "Emergency types are never moved by the optimiser and skip the cancellation notice.",
+    "emergencyLocked": "This system type is always an emergency type.",
+    "activeHelp": "Inactive types cannot be booked but stay on existing appointments.",
+    "durationHelp": "Between 5 and 480 minutes, in steps of 5.",
+    "lastBookable": "At least one active, non-emergency type must remain.",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "deleteTitle": "Delete {{name}}?",
+    "deleteBody": "The type is removed permanently.",
+    "blockedTitle": "{{name}} is in use",
+    "blockedBody": "Appointments use this type, so it cannot be deleted. Deactivate it instead to stop new bookings.",
+    "deactivate": "Deactivate",
+    "created": "Type created",
+    "updated": "Type updated",
+    "deleted": "Type deleted",
+    "deactivated": "Type deactivated",
+    "reordered": "Order saved",
+    "loadError": "Appointment types could not be loaded",
+    "empty": "No appointment types yet.",
+    "colours": {
+      "primary": "Teal",
+      "info": "Blue",
+      "success": "Green",
+      "warning": "Amber",
+      "alert": "Orange",
+      "violet": "Violet"
+    }
   }
 }

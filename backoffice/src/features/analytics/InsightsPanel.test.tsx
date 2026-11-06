@@ -1,10 +1,9 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { SchedulingInsights } from '@riaya/shared';
 import i18n from '../../i18n';
 import { InsightsPanel } from './InsightsPanel';
 
-vi.mock('../shared/format', () => ({
+jest.mock('../shared/format', () => ({
   useClinicFormat: () => ({
     locale: 'en',
     number: (v: number) => String(v),
@@ -12,8 +11,8 @@ vi.mock('../shared/format', () => ({
   }),
 }));
 
-const useInsightsQuery = vi.fn();
-vi.mock('./api', () => ({ useInsightsQuery: (...args: unknown[]) => useInsightsQuery(...args) }));
+const useInsightsQuery = jest.fn();
+jest.mock('./api', () => ({ useInsightsQuery: (...args: unknown[]) => useInsightsQuery(...args) }));
 
 class RO {
   observe() {}
@@ -47,7 +46,7 @@ const data: SchedulingInsights = {
 };
 
 beforeAll(async () => {
-  vi.stubGlobal('ResizeObserver', RO);
+  (globalThis as { ResizeObserver?: unknown }).ResizeObserver = RO;
   await i18n.changeLanguage('en');
 });
 beforeEach(() => useInsightsQuery.mockReset());
@@ -63,7 +62,7 @@ describe('InsightsPanel', () => {
   });
 
   it('shows the unavailable state with a working retry on 503', () => {
-    const refetch = vi.fn();
+    const refetch = jest.fn();
     useInsightsQuery.mockReturnValue({
       isLoading: false,
       isError: true,

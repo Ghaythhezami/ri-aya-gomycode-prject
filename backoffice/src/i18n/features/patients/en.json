@@ -12,7 +12,7 @@
   },
   "search": {
     "label": "Search patients",
-    "placeholder": "Search by patient name, ID or phone…"
+    "placeholder": "Search by name in any language, ID or phone…"
   },
   "filters": {
     "status": "Filter by status",
@@ -55,7 +55,8 @@
     "required": "This field is required.",
     "dobFuture": "Date of birth cannot be in the future.",
     "phone": "Enter a valid phone number.",
-    "email": "Enter a valid email address."
+    "email": "Enter a valid email address.",
+    "tooLong": "Use at most 120 characters."
   },
   "duplicates": {
     "title": "Possible existing patients: {{count}}",

@@ -4,6 +4,7 @@ import type {
   AppointmentListItem,
   AppointmentStatus,
   BulkActionResult,
+  ChangeAppointmentTypeInput,
   Paginated,
   ReminderDto,
   UpdateAppointmentInput,
@@ -69,6 +70,10 @@ export const appointmentsApi = clinicApi.injectEndpoints({
       query: ({ id, ...body }) => ({ url: `/api/appointments/${id}`, method: 'PATCH', body }),
       invalidatesTags: [...AFFECTED],
     }),
+    apptChangeType: build.mutation<AppointmentDetail, { id: string } & ChangeAppointmentTypeInput>({
+      query: ({ id, ...body }) => ({ url: `/api/appointments/${id}/type`, method: 'PATCH', body }),
+      invalidatesTags: [...AFFECTED],
+    }),
     apptAlternatives: build.query<AlternativeSlot[], string>({
       query: (id) => ({ url: `/api/appointments/${id}/alternatives` }),
       providesTags: ['Appointment'],
@@ -88,5 +93,6 @@ export const {
   useApptCancelMutation,
   useApptBulkMutation,
   useApptUpdateMutation,
+  useApptChangeTypeMutation,
   useApptRetryReminderMutation,
 } = appointmentsApi;

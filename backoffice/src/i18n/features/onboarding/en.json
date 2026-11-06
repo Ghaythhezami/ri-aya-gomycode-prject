@@ -1,0 +1,71 @@
+{
+  "eyebrow": "Getting started",
+  "title": "Set up your workspace",
+  "subtitle": "A few quick steps. You can come back to them any time from the user menu.",
+  "skip": "Skip for now",
+  "loading": "Loading setup steps",
+  "loadError": "The setup steps could not be loaded",
+  "progress": "Setup progress",
+  "progressCount": "{{done}} of {{total}} steps done",
+  "done": "Done",
+  "todo": "Not done yet",
+  "back": "Back",
+  "next": "Next",
+  "finish": "Finish setup",
+  "saveContinue": "Save and continue",
+  "saving": "Saving…",
+  "saved": "Saved",
+  "saveError": "Could not save. Try again.",
+  "completeError": "Setup could not be completed. Try again.",
+  "openHours": "Open working hours",
+  "openTypes": "Open appointment types",
+  "openDoctors": "Open doctors",
+  "clinic": {
+    "nameHelp": "Clinic name: {{name}}.",
+    "openSettings": "Edit the name in Settings",
+    "address": "Address",
+    "timezone": "Time zone"
+  },
+  "team": {
+    "body": "Invite a colleague by email. They choose a password when they accept.",
+    "email": "Email",
+    "role": "Role",
+    "send": "Send invitation",
+    "sent": "Invitation sent to {{email}}",
+    "error": "The invitation could not be sent. Check the address and try again.",
+    "emailInvalid": "Enter a valid email address",
+    "noClinic": "No active clinic was found"
+  },
+  "steps": {
+    "profile": {
+      "title": "Your profile",
+      "lead": "Tell your team who you are.",
+      "body": ""
+    },
+    "clinic": {
+      "title": "Clinic details",
+      "lead": "Where the clinic is and which time zone it works in.",
+      "body": ""
+    },
+    "hours": {
+      "title": "Working hours",
+      "lead": "When the clinic is open.",
+      "body": "Opening hours decide which appointment slots patients and staff can book. Set each weekday in Settings."
+    },
+    "appointmentTypes": {
+      "title": "Appointment types",
+      "lead": "What you offer and how long it takes.",
+      "body": "Review the consultation, follow-up and emergency types, set durations and add your own in Settings."
+    },
+    "doctors": {
+      "title": "Doctors",
+      "lead": "Add the doctors who see patients.",
+      "body": "Add each doctor with a specialty and weekly availability so they can be booked."
+    },
+    "team": {
+      "title": "Team",
+      "lead": "Invite the people you work with.",
+      "body": ""
+    }
+  }
+}

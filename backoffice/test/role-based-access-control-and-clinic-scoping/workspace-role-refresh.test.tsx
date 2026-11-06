@@ -1,16 +1,17 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /** TEST-089 → AC-008 (a workspace switch re-reads the role after reload). */
 
-const api = vi.hoisted(() => ({ get: vi.fn(), post: vi.fn() }));
-const reload = vi.hoisted(() => vi.fn());
+const api = { get: jest.fn(), post: jest.fn() };
+let reload: jest.SpyInstance;
 
-vi.mock('../../src/lib/api', () => ({
-  api,
+jest.mock('../../src/lib/api', () => ({
+  get api() {
+    return api;
+  },
   getAccessToken: () => null,
-  setAccessToken: vi.fn(),
+  setAccessToken: jest.fn(),
 }));
 
 import { WorkspaceProvider, useWorkspace } from '../../src/auth/WorkspaceContext';
@@ -29,7 +30,10 @@ function Probe() {
 }
 
 beforeEach(() => {
-  vi.stubGlobal('location', { ...window.location, reload });
+  // jsdom's window.location is unforgeable, so a reload cannot be replaced by a mock.
+  // jsdom reports the navigation a reload attempts as "not implemented" instead;
+  // that report is how the test observes that the reload happened.
+  reload = jest.spyOn(console, 'error').mockImplementation(() => undefined);
   api.get.mockResolvedValue({
     data: [
       {
@@ -57,8 +61,8 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
-  vi.unstubAllGlobals();
-  vi.clearAllMocks();
+  jest.restoreAllMocks();
+  jest.clearAllMocks();
 });
 
 describe('Workspace role refresh', () => {
@@ -79,6 +83,12 @@ describe('Workspace role refresh', () => {
       expect(api.post).toHaveBeenCalledWith('/api/auth/switch-workspace', { clinicId: 'c2' }),
     );
     // The reload is what makes the guards and navigation read the new role.
-    await waitFor(() => expect(reload).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(reload).toHaveBeenCalledWith(
+        expect.objectContaining({
+          message: expect.stringContaining('Not implemented: navigation'),
+        }),
+      ),
+    );
   });
 });

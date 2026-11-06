@@ -12,6 +12,7 @@ import { duplicateMatches, duplicateQuery } from './duplicates';
 import { DuplicateWarning } from './DuplicateWarning';
 import { PatientFields } from './PatientFields';
 import { useDebounced } from './hooks';
+import { firstFilled, useClinicDefaultLanguage } from './names';
 import {
   EMPTY_PATIENT_FORM,
   patientFormSchema,
@@ -30,6 +31,7 @@ export function AddPatientModal({
 }) {
   const { t } = useTranslation();
   const toast = useToast();
+  const defaultLanguage = useClinicDefaultLanguage();
   const [create, { isLoading }] = useCreatePatientMutation();
   const [serverMatches, setServerMatches] = useState<PatientListItem[]>([]);
   const [formError, setFormError] = useState<string | null>(null);
@@ -56,8 +58,8 @@ export function AddPatientModal({
   const watched = useWatch({ control });
   const debounced = useDebounced(
     JSON.stringify({
-      firstName: watched.firstName,
-      lastName: watched.lastName,
+      firstName: firstFilled(watched.firstNameI18n),
+      lastName: firstFilled(watched.lastNameI18n),
       dateOfBirth: watched.dateOfBirth,
       phone: watched.phone,
     }),
@@ -70,7 +72,7 @@ export function AddPatientModal({
     handleSubmit(async (values) => {
       setFormError(null);
       try {
-        const input = toCreateInput(values);
+        const input = toCreateInput(values, defaultLanguage);
         const created = await create(force ? { ...input, force: true } : input).unwrap();
         toast.success(t('patients.toast.created'));
         onCreated(created.id);
@@ -119,6 +121,7 @@ export function AddPatientModal({
       >
         <PatientFields
           register={register}
+          control={control}
           errors={errors}
           groups={['identity', 'contact', 'preference', 'notes']}
         />

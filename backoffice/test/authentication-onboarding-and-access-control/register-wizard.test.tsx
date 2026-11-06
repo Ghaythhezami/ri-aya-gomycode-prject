@@ -1,11 +1,10 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // The wizard only needs the auth surface for its final submit; the provider would
 // otherwise fire a refresh request on mount.
-vi.mock('../../src/auth/AuthContext', () => ({
-  useAuth: () => ({ user: null, login: vi.fn(), setSessionMessage: vi.fn() }),
+jest.mock('../../src/auth/AuthContext', () => ({
+  useAuth: () => ({ user: null, login: jest.fn(), setSessionMessage: jest.fn() }),
   getErrorMessage: (_error: unknown, fallback: string) => fallback,
 }));
 
@@ -20,7 +19,7 @@ describe('Registration wizard (AC-002)', () => {
 
   // jsdom render work is I/O bound and takes well under a second alone, but the
   // root `pnpm -r test` run saturates the CPU and pushed this past the 5s default.
-  it('preserves the entered values when the user steps back', { timeout: 20_000 }, () => {
+  it('preserves the entered values when the user steps back', () => {
     render(
       <MemoryRouter>
         <RegisterPage />
@@ -45,5 +44,5 @@ describe('Registration wizard (AC-002)', () => {
     // Nothing is submitted and nothing is lost on the way back.
     expect(screen.getByLabelText(/email/i)).toHaveValue('wizard@riaya.local');
     expect(screen.getByLabelText(/password/i)).toHaveValue('WizardPass123!');
-  });
+  }, 20_000);
 });

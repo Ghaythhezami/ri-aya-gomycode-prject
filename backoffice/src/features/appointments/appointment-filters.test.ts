@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import {
   EMPTY_FILTERS,
   effectiveSort,
@@ -107,5 +106,15 @@ describe('allowed row actions', () => {
       a.kind === 'status' ? a.to : a.kind,
     );
     expect(kinds).toEqual(['IN_PROGRESS', 'NO_SHOW']);
+  });
+});
+
+describe('custom appointment type codes', () => {
+  it('keeps well-formed clinic type codes in the URL filter', () => {
+    const filters = parseFilters(
+      new URLSearchParams('type=LAB_REVIEW,x,CONSULTATION'),
+      '2026-01-01',
+    );
+    expect(filters.type).toEqual(['LAB_REVIEW', 'CONSULTATION']);
   });
 });

@@ -17,7 +17,11 @@
   "nextMonth": "Mois suivant",
   "pickDate": "Choisir une date",
   "periodLabel": "Moment de la journée",
-  "period": { "MORNING": "Matin", "AFTERNOON": "Après-midi", "EVENING": "Soir" },
+  "period": {
+    "MORNING": "Matin",
+    "AFTERNOON": "Après-midi",
+    "EVENING": "Soir"
+  },
   "noSlots": "Aucun créneau à ce moment de la journée.",
   "slotsLabel": "Créneaux disponibles",
   "slotUnavailable": "indisponible (réservé, en pause ou passé)",
@@ -29,7 +33,8 @@
     "slot": "Choisissez un créneau disponible.",
     "duration": "Saisissez une durée entre 5 et 240 minutes.",
     "reasonLength": "Le motif est trop long (500 caractères maximum).",
-    "notesLength": "Les notes sont trop longues (1000 caractères maximum)."
+    "notesLength": "Les notes sont trop longues (1000 caractères maximum).",
+    "type": "Choisissez un type de rendez-vous."
   },
   "patient": {
     "title": "Sélectionner le patient",
@@ -55,8 +60,8 @@
     "duplicateBody": "Choisissez un patient existant, ou créez tout de même une nouvelle fiche.",
     "createAnyway": "Créer quand même",
     "errors": {
-      "firstName": "Saisissez le prénom.",
-      "lastName": "Saisissez le nom.",
+      "firstName": "Saisissez le prénom dans au moins une langue.",
+      "lastName": "Saisissez le nom dans au moins une langue.",
       "dateOfBirth": "Saisissez une date de naissance valide.",
       "phone": "Saisissez un numéro de téléphone.",
       "email": "Saisissez une adresse e-mail valide."
@@ -92,7 +97,14 @@
     "reason": "Motif de la visite",
     "notes": "Notes",
     "reminders": "Rappels",
-    "channel": { "SMS": "SMS", "EMAIL": "E-mail" }
+    "channel": {
+      "SMS": "SMS",
+      "EMAIL": "E-mail"
+    },
+    "emergency": "Urgence",
+    "typesLoading": "Chargement des types de rendez-vous…",
+    "typesEmpty": "Aucun type de rendez-vous disponible. Demandez à un administrateur d’en ajouter un dans les paramètres.",
+    "typesError": "Impossible de charger les types de rendez-vous."
   },
   "review": {
     "title": "Vérifier et confirmer",

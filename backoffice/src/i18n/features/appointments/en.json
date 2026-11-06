@@ -70,7 +70,8 @@
     "noShow": "Mark as no-show",
     "reschedule": "Reschedule",
     "cancel": "Cancel appointment",
-    "for": "Actions for appointment {{code}}"
+    "for": "Actions for appointment {{code}}",
+    "changeType": "Change type"
   },
   "bulk": {
     "label": "Bulk actions",
@@ -105,7 +106,8 @@
     "cancelled": "Appointment cancelled",
     "bulk": "{{count}} appointments updated",
     "bulkPartial": "{{count}} updated, {{failed}} could not be changed",
-    "rescheduled": "Appointment rescheduled"
+    "rescheduled": "Appointment rescheduled",
+    "typeChanged": "Appointment type changed"
   },
   "detail": {
     "back": "Back to appointments",
@@ -137,5 +139,14 @@
       "FAILED": "Failed",
       "CANCELLED": "Cancelled"
     }
+  },
+  "inactive": "inactive",
+  "changeType": {
+    "title": "Change appointment type",
+    "confirm": "Change type",
+    "keepDuration": "Keep current duration",
+    "preview": "New time: {{start}} – {{end}}",
+    "alternatives": "The longer visit does not fit this slot. These times are free:",
+    "rescheduleInstead": "Reschedule instead"
   }
 }

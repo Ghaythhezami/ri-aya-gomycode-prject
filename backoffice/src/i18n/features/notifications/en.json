@@ -100,5 +100,33 @@
       "title": "Your schedule changed",
       "body": "{{count}} of your appointments were moved on {{date}}."
     }
+  },
+  "unreadItem": "Unread:",
+  "filterByCategory": "Filter by category",
+  "clearFilter": "Show all categories",
+  "categories": {
+    "all": "All",
+    "REMINDER": "Reminder",
+    "CONFIRMATION": "Confirmation",
+    "CANCELLATION": "Cancellation",
+    "CONFLICT": "Conflict",
+    "DELAY": "Delay",
+    "AVAILABILITY": "Availability",
+    "SYSTEM": "System"
+  },
+  "noResults": {
+    "title": "No notifications in this category",
+    "body": "Try another category or show all notifications."
+  },
+  "groups": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "earlier": "Earlier"
+  },
+  "live": {
+    "on": "Live",
+    "connecting": "Connecting… updating every {{seconds}} s",
+    "offline": "Offline – updating every {{seconds}} s",
+    "polling": "Updating every {{seconds}} s"
   }
 }

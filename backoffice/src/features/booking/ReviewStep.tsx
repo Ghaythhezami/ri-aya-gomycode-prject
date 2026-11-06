@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { AlertTriangle, CalendarClock, ShieldCheck } from 'lucide-react';
 import type { AlternativeSlot } from '@riaya/shared';
 import { Avatar } from '../shared/Avatar';
+import { useTypeLabel } from '../shared/appointmentTypes';
 import { useClinicFormat } from '../shared/format';
 import type { BookingForm } from './schema';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
@@ -21,6 +22,7 @@ export function ReviewStep({
   const { t } = useTranslation();
   const specialtyLabel = useSpecialtyLabel();
   const format = useClinicFormat();
+  const typeLabel = useTypeLabel();
 
   if (!form.patient || !form.doctor || !form.startsAt) return null;
 
@@ -112,8 +114,7 @@ export function ReviewStep({
               </span>
             </dd>
             <dd className="text-xs text-muted">
-              {t(`clinic.type.${form.type}`)} ·{' '}
-              {t('clinic.minutes', { count: form.durationMinutes })}
+              {typeLabel(form.type)} · {t('clinic.minutes', { count: form.durationMinutes })}
             </dd>
           </div>
         </div>

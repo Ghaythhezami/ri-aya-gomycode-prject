@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import type { AppointmentListItem } from '@riaya/shared';
 import { layoutOverlaps } from './layout';
 import { groupByDay, hourRange } from './model';

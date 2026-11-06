@@ -1,40 +1,24 @@
 import { useEffect, useId, useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useTranslation } from 'react-i18next';
-import { z } from 'zod';
-import type { CreateDoctorInput, DoctorDetail } from '@riaya/shared';
+import type { DoctorDetail } from '@riaya/shared';
 import { Button } from '../../common/Button';
 import { Field, Input, Select } from '../../common/Input';
+import { LocalizedInput } from '../../common/LocalizedInput';
 import { Modal } from '../../common/Modal';
 import { useToast } from '../../common/Toast';
 import { asClinicError } from '../../store/clinicApi';
 import { useClinicReferenceQuery } from '../shared/api';
+import { toLocalizedValue, useClinicDefaultLanguage } from '../patients/names';
 import { useCreateDoctorMutation, useUpdateDoctorMutation } from './api';
-
-const schema = z.object({
-  firstName: z.string().trim().min(1, 'doctors.errors.required').max(80),
-  lastName: z.string().trim().min(1, 'doctors.errors.required').max(80),
-  specialty: z.string().trim().min(1, 'doctors.errors.required').max(80),
-  consultationMinutes: z.coerce
-    .number({ message: 'doctors.errors.minutes' })
-    .int('doctors.errors.minutes')
-    .min(5, 'doctors.errors.minutes')
-    .max(240, 'doctors.errors.minutes'),
-  licenseNumber: z.string().max(60),
-  roomId: z.string(),
-});
-type FormInput = z.input<typeof schema>;
-type FormValues = z.output<typeof schema>;
-
-const EMPTY: FormInput = {
-  firstName: '',
-  lastName: '',
-  specialty: '',
-  consultationMinutes: 30,
-  licenseNumber: '',
-  roomId: '',
-};
+import {
+  EMPTY_DOCTOR_FORM,
+  doctorFormSchema,
+  toDoctorInput,
+  type DoctorFormInput,
+  type DoctorFormValues,
+} from './schema';
 
 /** Create (admins) or edit a doctor / staff member. */
 export function DoctorFormModal({
@@ -53,28 +37,30 @@ export function DoctorFormModal({
   const toast = useToast();
   const listId = useId();
   const { data: reference } = useClinicReferenceQuery();
+  const defaultLanguage = useClinicDefaultLanguage();
   const [create, { isLoading: creating }] = useCreateDoctorMutation();
   const [update, { isLoading: updating }] = useUpdateDoctorMutation();
   const [formError, setFormError] = useState<string | null>(null);
 
-  const initial: FormInput = doctor
+  const initial: DoctorFormInput = doctor
     ? {
-        firstName: doctor.firstName,
-        lastName: doctor.lastName,
+        firstNameI18n: toLocalizedValue(doctor.firstNameI18n, doctor.firstName, defaultLanguage),
+        lastNameI18n: toLocalizedValue(doctor.lastNameI18n, doctor.lastName, defaultLanguage),
         specialty: doctor.specialty,
         consultationMinutes: doctor.consultationMinutes,
         licenseNumber: doctor.licenseNumber ?? '',
         roomId: doctor.room?.id ?? '',
       }
-    : EMPTY;
+    : EMPTY_DOCTOR_FORM;
 
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormInput, unknown, FormValues>({
-    resolver: zodResolver(schema),
+  } = useForm<DoctorFormInput, unknown, DoctorFormValues>({
+    resolver: zodResolver(doctorFormSchema),
     defaultValues: initial,
   });
 
@@ -88,14 +74,7 @@ export function DoctorFormModal({
 
   const submit = handleSubmit(async (values) => {
     setFormError(null);
-    const body: CreateDoctorInput = {
-      firstName: values.firstName,
-      lastName: values.lastName,
-      specialty: values.specialty,
-      consultationMinutes: values.consultationMinutes,
-      roomId: values.roomId || null,
-    };
-    if (values.licenseNumber.trim()) body.licenseNumber = values.licenseNumber.trim();
+    const body = toDoctorInput(values, defaultLanguage);
     try {
       const saved = doctor
         ? await update({ id: doctor.id, body }).unwrap()
@@ -109,7 +88,7 @@ export function DoctorFormModal({
     }
   });
 
-  const err = (k: keyof FormInput) => errors[k]?.message as string | undefined;
+  const err = (k: keyof DoctorFormInput) => errors[k]?.message as string | undefined;
   const busy = creating || updating;
 
   return (
@@ -133,12 +112,28 @@ export function DoctorFormModal({
         onSubmit={(e) => void submit(e)}
         className="grid max-h-[65vh] gap-4 overflow-y-auto pe-1 sm:grid-cols-2"
       >
-        <Field label={t('doctors.form.firstName')} error={err('firstName')}>
-          <Input autoComplete="off" {...register('firstName')} />
-        </Field>
-        <Field label={t('doctors.form.lastName')} error={err('lastName')}>
-          <Input autoComplete="off" {...register('lastName')} />
-        </Field>
+        {(['firstNameI18n', 'lastNameI18n'] as const).map((key) => (
+          <div key={key} className="sm:col-span-2">
+            <Controller
+              control={control}
+              name={key}
+              render={({ field }) => (
+                <LocalizedInput
+                  label={t(
+                    key === 'firstNameI18n' ? 'doctors.form.firstName' : 'doctors.form.lastName',
+                  )}
+                  name={key}
+                  required
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  error={err(key)}
+                  autoComplete="off"
+                />
+              )}
+            />
+          </div>
+        ))}
         <Field
           label={t('doctors.form.specialty')}
           error={err('specialty')}

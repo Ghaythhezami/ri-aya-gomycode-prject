@@ -1,4 +1,4 @@
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@riaya/shared';
+import { APPOINTMENT_STATUSES } from '@riaya/shared';
 import type { AppointmentStatus, AppointmentType } from '@riaya/shared';
 import { addDays, isYmd, startOfWeek } from '../calendar/dates';
 
@@ -51,6 +51,16 @@ function pickList<T extends string>(raw: string | null, allowed: readonly T[]): 
   return allowed.filter((value) => wanted.has(value));
 }
 
+/** Shape of an appointment type code (system or clinic-defined); the API validates existence. */
+const TYPE_CODE = /^[A-Z][A-Z0-9_]{1,39}$/;
+
+function pickCodes(raw: string | null): string[] {
+  if (!raw) return [];
+  return [...new Set(raw.split(',').map((value) => value.trim()))].filter((value) =>
+    TYPE_CODE.test(value),
+  );
+}
+
 /** `today`, `week` and ISO dates are accepted for `from`/`to`; anything else is dropped. */
 function resolveDate(raw: string | null, today: string, edge: 'from' | 'to'): string {
   if (!raw) return '';
@@ -77,7 +87,7 @@ export function parseFilters(params: URLSearchParams, today: string): Appointmen
     doctorId: params.get('doctorId') ?? '',
     specialty: params.get('specialty') ?? '',
     status: pickList(params.get('status'), APPOINTMENT_STATUSES),
-    type: pickList(params.get('type'), APPOINTMENT_TYPES),
+    type: pickCodes(params.get('type')),
     page: Number.isFinite(page) && page > 0 ? page : 1,
     sort: (SORT_FIELDS as readonly string[]).includes(sortField) ? sortRaw : '',
   };

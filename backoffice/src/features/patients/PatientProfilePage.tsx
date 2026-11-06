@@ -4,8 +4,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Archive, CalendarPlus, ChevronLeft, Info, Mail, Pencil, Phone } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link, useParams } from 'react-router-dom';
-import type { AppointmentListItem, PatientDetail, UpdatePatientInput } from '@riaya/shared';
-import { can } from '@riaya/shared';
+import type {
+  AppointmentListItem,
+  DataLocale,
+  PatientDetail,
+  UpdatePatientInput,
+} from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
 import { ConfirmDialog } from '../../common/ConfirmDialog';
@@ -25,14 +29,18 @@ import {
   usePatientQuery,
   useUpdatePatientMutation,
 } from './api';
+import { SecondaryNames } from './SecondaryNames';
+import { canonicalFor, toLocalizedValue, useClinicDefaultLanguage } from './names';
+import { normalizeLocalized } from '@riaya/shared';
 import { PatientFields, type PatientFieldGroup } from './PatientFields';
 import { PatientStatusBadge, ageFromDob } from './PatientStatusBadge';
 import { patientFormSchema, type PatientFormValues } from './schema';
+import { canUser } from '../../auth/permissions';
 
-function toFormValues(d: PatientDetail): PatientFormValues {
+function toFormValues(d: PatientDetail, defaultLanguage?: DataLocale): PatientFormValues {
   return {
-    firstName: d.firstName,
-    lastName: d.lastName,
+    firstNameI18n: toLocalizedValue(d.firstNameI18n, d.firstName, defaultLanguage),
+    lastNameI18n: toLocalizedValue(d.lastNameI18n, d.lastName, defaultLanguage),
     dateOfBirth: d.dateOfBirth.slice(0, 10),
     phone: d.phone,
     email: d.email ?? '',
@@ -106,20 +114,28 @@ function useSave(id: string) {
 function EditTab({ detail, groups }: { detail: PatientDetail; groups: PatientFieldGroup[] }) {
   const { t } = useTranslation();
   const { save, isLoading, error } = useSave(detail.id);
+  const defaultLanguage = useClinicDefaultLanguage();
   const {
     register,
+    control,
     handleSubmit,
     reset,
     formState: { errors, isDirty, dirtyFields },
   } = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
-    defaultValues: toFormValues(detail),
+    defaultValues: toFormValues(detail, defaultLanguage),
   });
   useUnsavedWarning(isDirty);
 
   const submit = handleSubmit(async (values) => {
-    const body: Record<string, string> = {};
+    const body: Record<string, unknown> = {};
     for (const key of Object.keys(dirtyFields) as (keyof PatientFormValues)[]) {
+      if (key === 'firstNameI18n' || key === 'lastNameI18n') {
+        body[key] = normalizeLocalized(values[key]);
+        const canonical = canonicalFor(values[key], defaultLanguage);
+        if (canonical) body[key === 'firstNameI18n' ? 'firstName' : 'lastName'] = canonical;
+        continue;
+      }
       if (key === 'gender' && !values.gender) continue;
       body[key] = values[key].trim();
     }
@@ -128,7 +144,7 @@ function EditTab({ detail, groups }: { detail: PatientDetail; groups: PatientFie
 
   return (
     <form onSubmit={(e) => void submit(e)} noValidate aria-label={t('patients.profile.editForm')}>
-      <PatientFields register={register} errors={errors} groups={groups} />
+      <PatientFields register={register} control={control} errors={errors} groups={groups} />
       <SaveBar dirty={isDirty} saving={isLoading} error={error} />
     </form>
   );
@@ -227,7 +243,7 @@ export function PatientProfilePage() {
   const [archive, { isLoading: archiving }] = useArchivePatientMutation();
   const [tab, setTab] = useState('personal');
   const [confirmArchive, setConfirmArchive] = useState(false);
-  const canArchive = user ? can(user.role, 'manageAppointments') : false;
+  const canArchive = canUser(user, 'manageAppointments');
 
   if (isLoading) {
     return (
@@ -299,6 +315,11 @@ export function PatientProfilePage() {
         <Avatar initials={patient.initials} size="lg" />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-semibold text-text">{patient.name}</h1>
+          <SecondaryNames
+            first={patient.firstNameI18n}
+            last={patient.lastNameI18n}
+            shown={patient.name}
+          />
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
             <span dir="ltr">{patient.code}</span>
             <span>{t('patients.profile.age', { count: ageFromDob(patient.dateOfBirth) })}</span>

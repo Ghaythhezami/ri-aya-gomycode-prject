@@ -1,12 +1,11 @@
-import '@testing-library/jest-dom/vitest';
+import '@testing-library/jest-dom';
 import { render, screen } from '@testing-library/react';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { QueueEntryDto } from '@riaya/shared';
 import i18n from '../../i18n';
 import { displayedWait, isOverTarget } from './queueLogic';
 import { QueueRow } from './QueueRow';
 
-vi.mock('../shared/format', () => ({
+jest.mock('../shared/format', () => ({
   useClinicFormat: () => ({ time: () => '09:30' }),
 }));
 

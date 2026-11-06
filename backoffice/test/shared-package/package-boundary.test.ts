@@ -1,6 +1,5 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import path from 'node:path';
-import { describe, expect, it } from 'vitest';
 
 /**
  * AC-005 — the package stays a pure contract: schemas, types and `zod`, with no

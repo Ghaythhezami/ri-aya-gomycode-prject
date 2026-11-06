@@ -100,5 +100,33 @@
       "title": "Votre planning a changé",
       "body": "{{count}} de vos rendez-vous ont été déplacés le {{date}}."
     }
+  },
+  "unreadItem": "Non lue :",
+  "filterByCategory": "Filtrer par catégorie",
+  "clearFilter": "Afficher toutes les catégories",
+  "categories": {
+    "all": "Toutes",
+    "REMINDER": "Rappel",
+    "CONFIRMATION": "Confirmation",
+    "CANCELLATION": "Annulation",
+    "CONFLICT": "Conflit",
+    "DELAY": "Retard",
+    "AVAILABILITY": "Disponibilité",
+    "SYSTEM": "Système"
+  },
+  "noResults": {
+    "title": "Aucune notification dans cette catégorie",
+    "body": "Essayez une autre catégorie ou affichez toutes les notifications."
+  },
+  "groups": {
+    "today": "Aujourd'hui",
+    "yesterday": "Hier",
+    "earlier": "Plus ancien"
+  },
+  "live": {
+    "on": "En direct",
+    "connecting": "Connexion… mise à jour toutes les {{seconds}} s",
+    "offline": "Hors ligne – mise à jour toutes les {{seconds}} s",
+    "polling": "Mise à jour toutes les {{seconds}} s"
   }
 }

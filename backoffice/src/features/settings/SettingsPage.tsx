@@ -1,6 +1,7 @@
 import { NavLink, Navigate, Route, Routes } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight } from 'lucide-react';
+import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
 import { Skeleton } from '../../common/Skeleton';
 import { ErrorState } from '../../common/States';
@@ -14,7 +15,7 @@ import { ClinicSection } from './ClinicSection';
 import { DepartmentsSection } from './DepartmentsSection';
 import { HoursSection } from './HoursSection';
 import { RemindersSection } from './RemindersSection';
-import { RolesSection } from './RolesSection';
+import { RolesSection, canViewRoles } from './RolesSection';
 import { StaffDirectoryPage } from '../../pages/StaffDirectoryPage';
 
 export const SETTINGS_SECTIONS = [
@@ -60,6 +61,8 @@ function NavItem({ to, label, badge }: { to: string; label: string; badge: strin
 /** SET-1: settings hub; every section is a route under /settings/<section>. */
 export function SettingsPage() {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const showRoles = canViewRoles(user);
   const settings = useSettingsQuery();
   const data = settings.data;
 
@@ -76,7 +79,7 @@ export function SettingsPage() {
           className="rounded-lg border border-border bg-surface p-2 shadow-(--shadow-card)"
         >
           <ul className="space-y-1">
-            {SETTINGS_SECTIONS.map((section, index) => (
+            {SETTINGS_SECTIONS.filter((s) => s !== 'roles' || showRoles).map((section, index) => (
               <li key={section}>
                 <NavItem
                   to={`/settings/${section}`}
@@ -95,7 +98,7 @@ export function SettingsPage() {
           <Routes>
             <Route index element={<Navigate to="clinic" replace />} />
             {/* These sections do not need the settings document. */}
-            <Route path="roles" element={<RolesSection />} />
+            {showRoles && <Route path="roles" element={<RolesSection />} />}
             <Route path="audit" element={<AuditSection />} />
             <Route
               path="team"

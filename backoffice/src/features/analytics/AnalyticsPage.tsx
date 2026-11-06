@@ -25,7 +25,7 @@ import {
   Minus,
   XCircle,
 } from 'lucide-react';
-import { can, type AnalyticsDto, type AnalyticsScope } from '@riaya/shared';
+import { type AnalyticsDto, type AnalyticsScope } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
 import { DatePicker } from '../../common/DatePicker';
@@ -51,6 +51,7 @@ import {
   type RangePreset,
 } from './ranges';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
+import { canUser } from '../../auth/permissions';
 
 const PALETTE = [
   color.primary,
@@ -145,7 +146,7 @@ export function AnalyticsPage() {
   const params = { from: range.from, to: range.to, scope: effectiveScope };
   const query = useAnalyticsQuery(params, { skip: !valid, refetchOnMountOrArgChange: true });
   const data: AnalyticsDto | undefined = query.data;
-  const canExport = can(user?.role, 'manageSettings');
+  const canExport = canUser(user, 'manageSettings');
 
   const num = (v: number, max = 1) => fmt.number(v, { maximumFractionDigits: max });
   const pct = (v: number) => `${num(v)}%`;

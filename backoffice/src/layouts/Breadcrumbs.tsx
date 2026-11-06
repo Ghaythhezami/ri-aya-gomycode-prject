@@ -20,6 +20,8 @@ const SECTIONS: Record<string, string> = {
   '/analytics': 'nav.analytics',
   '/notifications': 'nav.notifications',
   '/settings': 'nav.settings',
+  '/profile': 'shellnav.myProfile',
+  '/onboarding': 'shellnav.onboarding',
   '/design-system': 'nav.designSystem',
 };
 

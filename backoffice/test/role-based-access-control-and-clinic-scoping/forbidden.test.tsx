@@ -1,6 +1,5 @@
 import { cleanup, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { CAPABILITY_ROLES, USER_ROLES } from '@riaya/shared';
 
 /**
@@ -11,11 +10,11 @@ import { CAPABILITY_ROLES, USER_ROLES } from '@riaya/shared';
  * the backoffice matrix, the 403 surface and fail-closed behaviour.
  */
 
-const auth = vi.hoisted(() => ({
+const auth = {
   role: 'SUPER_ADMIN',
-}));
+};
 
-vi.mock('../../src/auth/AuthContext', () => ({
+jest.mock('../../src/auth/AuthContext', () => ({
   useAuth: () => ({
     user: {
       id: 'u1',
@@ -29,9 +28,9 @@ vi.mock('../../src/auth/AuthContext', () => ({
     },
     ready: true,
     sessionMessage: null,
-    setSessionMessage: vi.fn(),
-    login: vi.fn(),
-    logout: vi.fn(),
+    setSessionMessage: jest.fn(),
+    login: jest.fn(),
+    logout: jest.fn(),
   }),
 }));
 

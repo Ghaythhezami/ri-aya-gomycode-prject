@@ -100,5 +100,33 @@
       "title": "تغيّر جدولك",
       "body": "تم نقل {{count}} من مواعيدك ليوم {{date}}."
     }
+  },
+  "unreadItem": "غير مقروء:",
+  "filterByCategory": "التصفية حسب الفئة",
+  "clearFilter": "عرض كل الفئات",
+  "categories": {
+    "all": "الكل",
+    "REMINDER": "تذكير",
+    "CONFIRMATION": "تأكيد",
+    "CANCELLATION": "إلغاء",
+    "CONFLICT": "تعارض",
+    "DELAY": "تأخير",
+    "AVAILABILITY": "التوفر",
+    "SYSTEM": "النظام"
+  },
+  "noResults": {
+    "title": "لا توجد إشعارات في هذه الفئة",
+    "body": "جرّب فئة أخرى أو اعرض كل الإشعارات."
+  },
+  "groups": {
+    "today": "اليوم",
+    "yesterday": "أمس",
+    "earlier": "أقدم"
+  },
+  "live": {
+    "on": "مباشر",
+    "connecting": "جارٍ الاتصال… التحديث كل {{seconds}} ثانية",
+    "offline": "غير متصل – التحديث كل {{seconds}} ثانية",
+    "polling": "التحديث كل {{seconds}} ثانية"
   }
 }

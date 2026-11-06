@@ -25,8 +25,10 @@ export function allowedActions(
   role: string | null | undefined,
   status: AppointmentStatus,
   transitions: readonly AppointmentStatus[] = APPOINTMENT_TRANSITIONS[status],
+  /** The caller's effective `manageAppointments` (custom roles); defaults to the role matrix. */
+  canManage?: boolean,
 ): RowAction[] {
-  const manage = can(role, 'manageAppointments');
+  const manage = canManage ?? can(role, 'manageAppointments');
   const doctor = role === 'DOCTOR';
   if (!manage && !doctor) return [];
 
@@ -50,4 +52,14 @@ export function canBulkConfirm(status: AppointmentStatus): boolean {
 
 export function canBulkCancel(status: AppointmentStatus): boolean {
   return APPOINTMENT_TRANSITIONS[status].includes('CANCELLED');
+}
+
+/** "Change type": managers only, SCHEDULED/CONFIRMED and still in the future. */
+export function canChangeAppointmentType(
+  manage: boolean,
+  status: AppointmentStatus,
+  startsAt: string,
+  now: number = Date.now(),
+): boolean {
+  return manage && (status === 'SCHEDULED' || status === 'CONFIRMED') && Date.parse(startsAt) > now;
 }

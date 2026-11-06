@@ -1,7 +1,6 @@
-import '@testing-library/jest-dom/vitest';
-import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeAll, describe, expect, it, vi } from 'vitest';
 import type { PublicDisplay } from '@riaya/shared';
 import i18n from '../../i18n';
 import { DisplayBoard } from './PublicDisplayPage';
@@ -63,7 +62,7 @@ describe('self check-in', () => {
   });
 
   it('shows field errors and blocks submit until valid', async () => {
-    const onSubmit = vi.fn();
+    const onSubmit = jest.fn();
     render(
       <SelfCheckInView
         onSubmit={onSubmit}
@@ -80,7 +79,7 @@ describe('self check-in', () => {
     await userEvent.type(screen.getByLabelText(/Appointment code/), 'ap-1042');
     await userEvent.type(screen.getByLabelText(/Last 4 digits/), '1447');
     await userEvent.click(screen.getByRole('button', { name: 'Check in' }));
-    await vi.waitFor(() => expect(onSubmit).toHaveBeenCalled());
+    await waitFor(() => expect(onSubmit).toHaveBeenCalled());
     expect(onSubmit.mock.calls[0]?.[0]).toEqual({ appointmentCode: 'AP-1042', phoneLast4: '1447' });
   });
 

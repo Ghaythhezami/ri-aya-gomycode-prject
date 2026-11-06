@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronLeft, ChevronRight, List, Plus } from 'lucide-react';
-import { can } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
 import { Select } from '../../common/Input';
@@ -15,6 +14,7 @@ import { useClinicReferenceQuery } from '../shared/api';
 import { useClinicFormat } from '../shared/format';
 import { PageHeader } from '../shared/PageHeader';
 import { AgendaList } from './AgendaList';
+import { TypeLegend } from './TypeLegend';
 import {
   formatYmd,
   formatYmdRange,
@@ -30,6 +30,7 @@ import {
 import { groupByDay, hourRange } from './model';
 import { MonthGrid } from './MonthGrid';
 import { TimeGrid, useSlotHandler } from './TimeGrid';
+import { canUser } from '../../auth/permissions';
 
 const VIEWS: CalendarView[] = ['day', 'week', 'month'];
 
@@ -52,7 +53,7 @@ export function CalendarPage() {
   const navigate = useNavigate();
   const format = useClinicFormat();
   const { user } = useAuth();
-  const manage = can(user?.role, 'manageAppointments');
+  const manage = canUser(user, 'manageAppointments');
   const reference = useClinicReferenceQuery();
   const [params, setParams] = useSearchParams();
   const isMobile = useIsMobile();
@@ -235,6 +236,8 @@ export function CalendarPage() {
           ))}
         </div>
       </div>
+
+      <TypeLegend />
 
       <div aria-busy={isFetching}>
         {isLoading || awaitingDefault ? (

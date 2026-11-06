@@ -1,6 +1,7 @@
-import type { FieldErrors, UseFormRegister } from 'react-hook-form';
+import { Controller, type Control, type FieldErrors, type UseFormRegister } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { Field, Input, Select, Textarea } from '../../common/Input';
+import { LocalizedInput } from '../../common/LocalizedInput';
 import type { PatientFormValues } from './schema';
 
 export type PatientFieldGroup = 'identity' | 'contact' | 'notes' | 'preference';
@@ -8,15 +9,37 @@ export type PatientFieldGroup = 'identity' | 'contact' | 'notes' | 'preference';
 /** Form controls shared by the add modal and the profile edit tabs. */
 export function PatientFields({
   register,
+  control,
   errors,
   groups,
 }: {
   register: UseFormRegister<PatientFormValues>;
+  control: Control<PatientFormValues>;
   errors: FieldErrors<PatientFormValues>;
   groups: PatientFieldGroup[];
 }) {
   const { t } = useTranslation();
   const err = (key: keyof PatientFormValues) => errors[key]?.message as string | undefined;
+  const nameField = (key: 'firstNameI18n' | 'lastNameI18n', label: string) => (
+    <div className="sm:col-span-2">
+      <Controller
+        control={control}
+        name={key}
+        render={({ field }) => (
+          <LocalizedInput
+            label={label}
+            name={key}
+            required
+            value={field.value}
+            onChange={field.onChange}
+            onBlur={field.onBlur}
+            error={err(key)}
+            autoComplete="off"
+          />
+        )}
+      />
+    </div>
+  );
   const preference = (
     <Field label={t('patients.fields.contactPreference')}>
       <Select {...register('contactPreference')}>
@@ -30,12 +53,8 @@ export function PatientFields({
     <div className="grid gap-4 sm:grid-cols-2">
       {groups.includes('identity') && (
         <>
-          <Field label={t('patients.fields.firstName')} error={err('firstName')}>
-            <Input autoComplete="off" {...register('firstName')} />
-          </Field>
-          <Field label={t('patients.fields.lastName')} error={err('lastName')}>
-            <Input autoComplete="off" {...register('lastName')} />
-          </Field>
+          {nameField('firstNameI18n', t('patients.fields.firstName'))}
+          {nameField('lastNameI18n', t('patients.fields.lastName'))}
           <Field label={t('patients.fields.dateOfBirth')} error={err('dateOfBirth')}>
             <Input type="date" dir="ltr" {...register('dateOfBirth')} />
           </Field>

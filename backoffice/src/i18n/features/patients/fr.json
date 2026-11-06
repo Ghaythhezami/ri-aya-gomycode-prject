@@ -12,7 +12,7 @@
   },
   "search": {
     "label": "Rechercher des patients",
-    "placeholder": "Rechercher par nom, identifiant ou téléphone…"
+    "placeholder": "Rechercher par nom (toutes langues), identifiant ou téléphone…"
   },
   "filters": {
     "status": "Filtrer par statut",
@@ -55,7 +55,8 @@
     "required": "Ce champ est obligatoire.",
     "dobFuture": "La date de naissance ne peut pas être dans le futur.",
     "phone": "Saisissez un numéro de téléphone valide.",
-    "email": "Saisissez une adresse e-mail valide."
+    "email": "Saisissez une adresse e-mail valide.",
+    "tooLong": "Utilisez 120 caractères au maximum."
   },
   "duplicates": {
     "title": "Patients existants possibles : {{count}}",

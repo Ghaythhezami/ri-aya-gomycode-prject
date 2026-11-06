@@ -1,6 +1,5 @@
 import { execFileSync } from 'node:child_process';
 import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
 import ar from '../../src/i18n/ar.json';
 import en from '../../src/i18n/en.json';
 import fr from '../../src/i18n/fr.json';

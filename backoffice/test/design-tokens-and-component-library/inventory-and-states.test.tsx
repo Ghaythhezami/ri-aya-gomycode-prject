@@ -2,7 +2,6 @@ import { cleanup, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
-import { afterEach, describe, expect, it } from 'vitest';
 import { Badge } from '../../src/common/Badge';
 import { Button } from '../../src/common/Button';
 import { ConfirmDialog } from '../../src/common/ConfirmDialog';

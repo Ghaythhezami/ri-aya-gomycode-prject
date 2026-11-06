@@ -11,7 +11,6 @@ import {
   MessageSquare,
   RotateCcw,
 } from 'lucide-react';
-import { can } from '@riaya/shared';
 import type { AppointmentDetail, AppointmentStatus, ReminderDto } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
@@ -23,13 +22,16 @@ import { asClinicError } from '../../store/clinicApi';
 import { Avatar } from '../shared/Avatar';
 import { useClinicFormat } from '../shared/format';
 import { PageHeader } from '../shared/PageHeader';
-import { StatusBadge, TypeLabel } from '../shared/StatusBadge';
-import { allowedActions, type RowAction } from './actions';
+import { StatusBadge } from '../shared/StatusBadge';
+import { TypeChip } from '../shared/TypeChip';
+import { allowedActions, canChangeAppointmentType, type RowAction } from './actions';
 import { useApptDetailQuery, useApptRetryReminderMutation, useApptUpdateMutation } from './api';
 import { CancelDialog } from './CancelDialog';
+import { ChangeTypeDialog } from './ChangeTypeDialog';
 import { RescheduleDialog } from './RescheduleDialog';
 import { useAppointmentActions, useErrorText } from './useActions';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
+import { canUser } from '../../auth/permissions';
 
 const FLOW: AppointmentStatus[] = [
   'SCHEDULED',
@@ -248,7 +250,7 @@ export function AppointmentDetailPage() {
   const { id = '' } = useParams();
   const format = useClinicFormat();
   const { user } = useAuth();
-  const manage = can(user?.role, 'manageAppointments');
+  const manage = canUser(user, 'manageAppointments');
   const { setStatus, cancel } = useAppointmentActions();
   const { data, isLoading, isError, error, refetch } = useApptDetailQuery(id, {
     skip: !id,
@@ -257,6 +259,7 @@ export function AppointmentDetailPage() {
   });
   const [cancelOpen, setCancelOpen] = useState(false);
   const [rescheduleOpen, setRescheduleOpen] = useState(false);
+  const [typeOpen, setTypeOpen] = useState(false);
   const [pending, setPending] = useState<AppointmentStatus | null>(null);
 
   if (isLoading) {
@@ -300,12 +303,13 @@ export function AppointmentDetailPage() {
     );
   }
 
-  const actions = allowedActions(user?.role, data.status, data.allowedTransitions);
+  const actions = allowedActions(user?.role, data.status, data.allowedTransitions, manage);
   const statusActions = actions.filter(
     (a): a is Extract<RowAction, { kind: 'status' }> => a.kind === 'status',
   );
   const canReschedule = actions.some((a) => a.kind === 'reschedule');
   const canCancel = actions.some((a) => a.kind === 'cancel');
+  const canChangeType = canChangeAppointmentType(manage, data.status, data.startsAt);
 
   async function changeStatus(status: AppointmentStatus) {
     setPending(status);
@@ -345,6 +349,11 @@ export function AppointmentDetailPage() {
             {canReschedule ? (
               <Button variant="secondary" size="sm" onClick={() => setRescheduleOpen(true)}>
                 {t('appointments.actions.reschedule')}
+              </Button>
+            ) : null}
+            {canChangeType ? (
+              <Button variant="secondary" size="sm" onClick={() => setTypeOpen(true)}>
+                {t('appointments.actions.changeType')}
               </Button>
             ) : null}
             {canCancel ? (
@@ -394,7 +403,7 @@ export function AppointmentDetailPage() {
                 {t('clinic.minutes', { count: data.durationMinutes })}
               </Row>
               <Row label={t('appointments.fields.type')}>
-                <TypeLabel type={data.type} />
+                <TypeChip type={data.type} typeName={data.typeName} typeColor={data.typeColor} />
               </Row>
               <Row label={t('appointments.fields.reason')}>{data.reason || '—'}</Row>
               {data.status === 'CANCELLED' && data.cancelReason ? (
@@ -472,6 +481,24 @@ export function AppointmentDetailPage() {
         confirmLabel={t('appointments.cancel.confirm')}
         onClose={() => setCancelOpen(false)}
         onSubmit={(reason) => cancel(data.id, reason)}
+      />
+      <ChangeTypeDialog
+        target={
+          typeOpen
+            ? {
+                id: data.id,
+                type: data.type,
+                startsAt: data.startsAt,
+                endsAt: data.endsAt,
+                durationMinutes: data.durationMinutes,
+              }
+            : null
+        }
+        onClose={() => setTypeOpen(false)}
+        onReschedule={() => {
+          setTypeOpen(false);
+          setRescheduleOpen(true);
+        }}
       />
       <RescheduleDialog
         target={

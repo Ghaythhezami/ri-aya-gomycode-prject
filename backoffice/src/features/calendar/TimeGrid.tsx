@@ -4,7 +4,7 @@ import { zoneLabel, formatYmd, zonedToInstant } from './dates';
 import { blockGeometry } from './layout';
 import { minutesLabel, type CalBlock } from './model';
 import { STATUS_ICON } from './statusIcon';
-import { typeBlockClass } from '../shared/StatusBadge';
+import { typeBlockClasses, useTypeLabel } from '../shared/appointmentTypes';
 
 /** Pixels per hour. 500 appointments in a week stay cheap because blocks are plain buttons. */
 const HOUR_PX = 64;
@@ -36,6 +36,7 @@ const DayColumn = memo(function DayColumn({
   onSlot,
 }: ColumnProps) {
   const { t } = useTranslation();
+  const typeLabel = useTypeLabel();
   const hours = endHour - startHour;
   const gridStart = startHour * 60;
 
@@ -71,7 +72,7 @@ const DayColumn = memo(function DayColumn({
         // 3+ overlapping columns are too narrow for a name: show time + doctor initials only.
         const compact = block.cols > 2;
         const status = t(`clinic.status.${item.status}`);
-        const type = t(`clinic.type.${item.type}`);
+        const type = typeLabel(item.type, item.typeName);
         return (
           <button
             key={item.id}
@@ -87,7 +88,7 @@ const DayColumn = memo(function DayColumn({
               insetInlineStart: `${(block.col / block.cols) * 100}%`,
               width: `calc(${100 / block.cols}% - 2px)`,
             }}
-            className={`absolute overflow-hidden rounded-md border px-1.5 py-0.5 text-start text-[11px] data-[compact=true]:px-0.5 data-[compact=true]:text-[10px] leading-tight transition hover:z-10 hover:shadow-(--shadow-card) ${typeBlockClass(item.type)} ${
+            className={`absolute overflow-hidden rounded-md border px-1.5 py-0.5 text-start text-[11px] data-[compact=true]:px-0.5 data-[compact=true]:text-[10px] leading-tight transition hover:z-10 hover:shadow-(--shadow-card) ${typeBlockClasses(item.typeColor, item.type)} ${
               FADED.has(item.status) ? 'border-dashed opacity-60' : ''
             }`}
           >

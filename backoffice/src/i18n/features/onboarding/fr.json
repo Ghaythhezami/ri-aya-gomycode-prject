@@ -1,0 +1,71 @@
+{
+  "eyebrow": "Premiers pas",
+  "title": "Configurez votre espace",
+  "subtitle": "Quelques étapes rapides. Vous pouvez y revenir à tout moment depuis le menu utilisateur.",
+  "skip": "Passer pour l'instant",
+  "loading": "Chargement des étapes",
+  "loadError": "Les étapes n'ont pas pu être chargées",
+  "progress": "Progression de la configuration",
+  "progressCount": "{{done}} étapes sur {{total}} terminées",
+  "done": "Terminé",
+  "todo": "Pas encore fait",
+  "back": "Retour",
+  "next": "Suivant",
+  "finish": "Terminer la configuration",
+  "saveContinue": "Enregistrer et continuer",
+  "saving": "Enregistrement…",
+  "saved": "Enregistré",
+  "saveError": "Enregistrement impossible. Réessayez.",
+  "completeError": "La configuration n'a pas pu être terminée. Réessayez.",
+  "openHours": "Ouvrir les horaires",
+  "openTypes": "Ouvrir les types de rendez-vous",
+  "openDoctors": "Ouvrir les médecins",
+  "clinic": {
+    "nameHelp": "Nom de la clinique : {{name}}.",
+    "openSettings": "Modifier le nom dans les paramètres",
+    "address": "Adresse",
+    "timezone": "Fuseau horaire"
+  },
+  "team": {
+    "body": "Invitez un collègue par e-mail. Il choisit son mot de passe en acceptant.",
+    "email": "E-mail",
+    "role": "Rôle",
+    "send": "Envoyer l'invitation",
+    "sent": "Invitation envoyée à {{email}}",
+    "error": "L'invitation n'a pas pu être envoyée. Vérifiez l'adresse et réessayez.",
+    "emailInvalid": "Saisissez une adresse e-mail valide",
+    "noClinic": "Aucune clinique active"
+  },
+  "steps": {
+    "profile": {
+      "title": "Votre profil",
+      "lead": "Dites à votre équipe qui vous êtes.",
+      "body": ""
+    },
+    "clinic": {
+      "title": "Clinique",
+      "lead": "Où se trouve la clinique et son fuseau horaire.",
+      "body": ""
+    },
+    "hours": {
+      "title": "Horaires",
+      "lead": "Quand la clinique est ouverte.",
+      "body": "Les horaires déterminent les créneaux réservables. Réglez chaque jour dans les paramètres."
+    },
+    "appointmentTypes": {
+      "title": "Types de rendez-vous",
+      "lead": "Ce que vous proposez et sa durée.",
+      "body": "Vérifiez les types consultation, suivi et urgence, réglez les durées et ajoutez les vôtres dans les paramètres."
+    },
+    "doctors": {
+      "title": "Médecins",
+      "lead": "Ajoutez les médecins qui reçoivent les patients.",
+      "body": "Ajoutez chaque médecin avec sa spécialité et ses disponibilités pour qu'il soit réservable."
+    },
+    "team": {
+      "title": "Équipe",
+      "lead": "Invitez les personnes avec qui vous travaillez.",
+      "body": ""
+    }
+  }
+}

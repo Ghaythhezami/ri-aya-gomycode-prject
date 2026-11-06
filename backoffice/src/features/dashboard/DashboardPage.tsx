@@ -17,7 +17,6 @@ import {
   Users,
   XCircle,
 } from 'lucide-react';
-import { can } from '@riaya/shared';
 import type { AppointmentListItem, DashboardDto } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
@@ -32,6 +31,7 @@ import { useDashboardQuery } from './api';
 import { DashboardCharts } from './DashboardCharts';
 import { relativeTime, scheduleMarkers, signed } from './logic';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
+import { canUser } from '../../auth/permissions';
 
 type Tone = 'good' | 'bad' | 'neutral';
 
@@ -209,7 +209,7 @@ function ScheduleCard({ items, now }: { items: AppointmentListItem[]; now: numbe
             title={t('dashboard.schedule.emptyTitle')}
             description={t('dashboard.schedule.emptyBody')}
             action={
-              can(user?.role, 'manageAppointments') ? (
+              canUser(user, 'manageAppointments') ? (
                 <Button onClick={() => openBooking()}>
                   <Plus size={16} aria-hidden="true" />
                   {t('shell.newAppointment')}
@@ -334,7 +334,7 @@ function ActivityCard({ data, now }: { data: DashboardDto; now: number }) {
           })}
         </ul>
       )}
-      {data.insight && can(user?.role, 'viewScheduling') ? (
+      {data.insight && canUser(user, 'viewScheduling') ? (
         <div className="m-4 mt-auto flex items-center gap-3 rounded-lg border border-primary/30 bg-accent p-3">
           <span
             aria-hidden="true"
@@ -412,7 +412,7 @@ export function DashboardPage() {
             {t('shell.subtitle')} · {format.longDate(now)}
           </p>
         </div>
-        {can(user?.role, 'manageAppointments') ? (
+        {canUser(user, 'manageAppointments') ? (
           <Button onClick={() => openBooking()}>
             <Plus size={16} aria-hidden="true" />
             {t('shell.newAppointment')}

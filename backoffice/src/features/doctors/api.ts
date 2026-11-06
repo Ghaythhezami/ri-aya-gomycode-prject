@@ -9,6 +9,8 @@ import { clinicApi } from '../../store/clinicApi';
 
 export interface DoctorListParams {
   date?: string;
+  from?: string;
+  to?: string;
   search?: string;
   specialty?: string;
 }
@@ -19,8 +21,11 @@ export const doctorsApi = clinicApi.injectEndpoints({
       query: (params) => ({ url: '/api/doctors', params: { ...params } }),
       providesTags: ['Doctor'],
     }),
-    doctor: build.query<DoctorDetail, { id: string; date?: string }>({
-      query: ({ id, date }) => ({ url: `/api/doctors/${id}`, params: { date } }),
+    doctor: build.query<DoctorDetail, { id: string; date?: string; from?: string; to?: string }>({
+      query: ({ id, date, from, to }) => ({
+        url: `/api/doctors/${id}`,
+        params: { date, from, to },
+      }),
       providesTags: (_r, _e, { id }) => [{ type: 'Doctor', id }],
     }),
     createDoctor: build.mutation<DoctorDetail, CreateDoctorInput>({

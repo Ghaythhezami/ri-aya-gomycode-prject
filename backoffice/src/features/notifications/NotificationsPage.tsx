@@ -1,190 +1,51 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AlertTriangle, Check, CheckCheck, Send } from 'lucide-react';
-import { can, type NotificationDto } from '@riaya/shared';
-import { useAuth } from '../../auth/AuthContext';
+import { CheckCheck } from 'lucide-react';
+import {
+  NOTIFICATION_CATEGORIES,
+  type NotificationCategory,
+  type NotificationDto,
+} from '@riaya/shared';
 import { Button } from '../../common/Button';
 import { Skeleton } from '../../common/Skeleton';
 import { EmptyState, ErrorState } from '../../common/States';
 import { Tabs } from '../../common/Tabs';
 import { useToast } from '../../common/Toast';
+import { useAdaptivePolling } from '../../lib/realtime';
 import { asClinicError } from '../../store/clinicApi';
 import { PageHeader } from '../shared/PageHeader';
-import { useClinicFormat } from '../shared/format';
 import {
   useLazyNotificationsListQuery,
   useMarkAllNotificationsReadMutation,
   useMarkNotificationReadMutation,
-  useNotificationDeliveryStatsQuery,
   useNotificationsListQuery,
 } from './api';
-import { entityPath, matchesTab, mergeById, tileFor, type NotificationTab } from './templates';
-import { useNotificationText } from './useNotificationText';
-import { useUnreadCount } from './useUnreadCount';
+import { DeliveryCard } from './DeliveryCard';
+import { LiveStatus } from './LiveStatus';
+import { countByCategory, groupByDay } from './liveLogic';
+import { NotificationRow } from './NotificationRow';
+import { mergeById, type NotificationTab } from './templates';
+import { UNREAD_POLL_LIVE_MS, UNREAD_POLL_MS, useUnreadCount } from './useUnreadCount';
 
-function Item({
-  n,
-  read,
-  onRead,
-}: {
-  n: NotificationDto;
-  read: boolean;
-  onRead: (id: string) => void;
-}) {
-  const { t } = useTranslation();
-  const text = useNotificationText();
-  const { Icon, className } = tileFor(n);
-  const { title, body } = text.render(n);
-  const path = entityPath(n);
-  return (
-    <li
-      className={`flex flex-wrap items-start gap-x-4 gap-y-1 border-b border-border px-4 py-4 sm:flex-nowrap sm:px-5 last:border-b-0 ${
-        read ? '' : 'bg-accent/30'
-      }`}
-    >
-      <span
-        aria-hidden="true"
-        className={`grid size-10 shrink-0 place-items-center rounded-md ${className}`}
-      >
-        <Icon size={18} />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text">
-          {title}
-          {!read && (
-            <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
-              {t('notifications.new')}
-            </span>
-          )}
-        </p>
-        {body && <p className="mt-0.5 text-sm text-muted">{body}</p>}
-        <p className="mt-1 text-xs text-muted">{text.ago(n.createdAt)}</p>
-      </div>
-      <div className="ms-14 flex shrink-0 items-center gap-1 sm:ms-0">
-        {path && (
-          <Link
-            to={path}
-            onClick={() => !read && onRead(n.id)}
-            className="inline-flex min-h-10 items-center rounded-md px-2 text-sm font-medium text-primary hover:bg-accent"
-          >
-            {t('notifications.view')}
-          </Link>
-        )}
-        {!read && (
-          <button
-            type="button"
-            onClick={() => onRead(n.id)}
-            aria-label={t('notifications.markRead')}
-            title={t('notifications.markRead')}
-            className="grid size-10 place-items-center rounded-md text-muted hover:bg-accent hover:text-primary"
-          >
-            <Check size={16} aria-hidden="true" />
-          </button>
-        )}
-      </div>
-    </li>
-  );
-}
+type PageTab = Extract<NotificationTab, 'all' | 'unread'>;
 
-function DeliveryCard() {
-  const { t } = useTranslation();
-  const fmt = useClinicFormat();
-  const { user } = useAuth();
-  const stats = useNotificationDeliveryStatsQuery(undefined, {
-    pollingInterval: 60_000,
-    skipPollingIfUnfocused: true,
-  });
-  const d = stats.data;
-  const rows: { label: string; value: number; warn?: boolean }[] = d
-    ? [
-        { label: t('notifications.delivery.sms'), value: d.sms },
-        { label: t('notifications.delivery.email'), value: d.email },
-        { label: t('notifications.delivery.pending'), value: d.pending },
-        { label: t('notifications.delivery.failed'), value: d.failed, warn: d.failed > 0 },
-      ]
-    : [];
-  return (
-    <aside
-      aria-label={t('notifications.delivery.title')}
-      className="rounded-lg border border-border bg-surface shadow-(--shadow-card)"
-    >
-      <h2 className="border-b border-border px-5 py-4 text-sm font-semibold text-text">
-        {t('notifications.delivery.title')}
-      </h2>
-      <div className="p-5">
-        {stats.isLoading && <Skeleton className="h-24" />}
-        {stats.isError && !d && (
-          <div className="text-sm text-error" role="alert">
-            {t('notifications.delivery.error')}{' '}
-            <button
-              type="button"
-              className="font-medium underline"
-              onClick={() => void stats.refetch()}
-            >
-              {t('clinic.retry')}
-            </button>
-          </div>
-        )}
-        {d && (
-          <>
-            <div className="rounded-md bg-accent p-4 text-center">
-              <p className="text-3xl font-semibold text-primary">
-                {fmt.number(d.successRate, { maximumFractionDigits: 1 })}%
-              </p>
-              <p className="text-xs text-primary-dark">{t('notifications.delivery.success')}</p>
-            </div>
-            <dl className="mt-3">
-              {rows.map((r) => (
-                <div
-                  key={r.label}
-                  className="flex items-center justify-between border-b border-border py-2.5 text-sm last:border-b-0"
-                >
-                  <dt className="flex items-center gap-1.5 text-muted">
-                    {r.warn && (
-                      <AlertTriangle size={13} aria-hidden="true" className="text-error" />
-                    )}
-                    {r.label}
-                  </dt>
-                  <dd className={`font-semibold ${r.warn ? 'text-error' : 'text-text'}`}>
-                    {fmt.number(r.value)}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </>
-        )}
-        {can(user?.role, 'manageSettings') && (
-          <Link
-            to="/settings/reminders"
-            className="mt-3 flex min-h-11 items-center justify-center rounded-md border border-border text-sm font-medium text-text hover:bg-bg"
-          >
-            {t('notifications.delivery.manage')}
-          </Link>
-        )}
-        <p className="mt-3 flex items-start gap-1.5 text-xs text-muted">
-          <Send size={12} aria-hidden="true" className="mt-0.5 shrink-0" />
-          {t('notifications.delivery.note')}
-        </p>
-      </div>
-    </aside>
-  );
-}
-
-/** RT-3: clinic notifications with tabs, cursor pagination and reminder delivery stats. */
+/** RT-3: clinic notifications with live updates, tabs, category chips, day groups and cursor paging. */
 export function NotificationsPage() {
   const { t } = useTranslation();
   const toast = useToast();
-  const [tab, setTab] = useState<NotificationTab>('all');
+  const [tab, setTab] = useState<PageTab>('all');
+  const [category, setCategory] = useState<NotificationCategory | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const [extra, setExtra] = useState<{ items: NotificationDto[]; next: string | null } | null>(
     null,
   );
   const [readIds, setReadIds] = useState<Set<string>>(() => new Set());
   const unread = useUnreadCount();
+  const pollingInterval = useAdaptivePolling(UNREAD_POLL_MS, UNREAD_POLL_LIVE_MS);
 
   const first = useNotificationsListQuery(
     { unread: tab === 'unread', limit: 30 },
-    { pollingInterval: 20_000, skipPollingIfUnfocused: true },
+    { pollingInterval, skipPollingIfUnfocused: true },
   );
   const [loadMore, loadMoreState] = useLazyNotificationsListQuery();
   const [markRead] = useMarkNotificationReadMutation();
@@ -194,14 +55,33 @@ export function NotificationsPage() {
     setExtra(null);
   }, [tab]);
 
-  const items = useMemo(
-    () =>
-      mergeById(first.data?.items ?? [], extra?.items ?? [])
-        .map((n) => (readIds.has(n.id) ? { ...n, read: true } : n))
-        .filter((n) => matchesTab(n, tab)),
-    [first.data, extra, readIds, tab],
+  const errorText = useCallback(
+    (error: unknown) =>
+      t(`errors.${asClinicError(error)?.code ?? 'INTERNAL_ERROR'}`, {
+        defaultValue: asClinicError(error)?.message ?? '',
+      }),
+    [t],
   );
+
+  const loaded = useMemo(
+    () =>
+      mergeById(first.data?.items ?? [], extra?.items ?? []).map((n) =>
+        readIds.has(n.id) ? { ...n, read: true } : n,
+      ),
+    [first.data, extra, readIds],
+  );
+  const tabItems = useMemo(
+    () => (tab === 'unread' ? loaded.filter((n) => !n.read) : loaded),
+    [loaded, tab],
+  );
+  const counts = useMemo(() => countByCategory(tabItems), [tabItems]);
+  const items = useMemo(
+    () => (category ? tabItems.filter((n) => n.category === category) : tabItems),
+    [tabItems, category],
+  );
+  const groups = useMemo(() => groupByDay(items, Date.now()), [items]);
   const cursor = extra ? extra.next : (first.data?.nextCursor ?? null);
+  const tabbableId = items.some((n) => n.id === activeId) ? activeId : (items[0]?.id ?? null);
 
   const onRead = (id: string) => {
     setReadIds((s) => new Set(s).add(id));
@@ -213,30 +93,22 @@ export function NotificationsPage() {
           next.delete(id);
           return next;
         });
-        toast.error(
-          t(`errors.${asClinicError(error)?.code ?? 'INTERNAL_ERROR'}`, {
-            defaultValue: asClinicError(error)?.message ?? '',
-          }),
-        );
+        toast.error(errorText(error));
       });
   };
 
   const onMarkAll = async () => {
     try {
       await markAll().unwrap();
-      setReadIds(new Set([...(first.data?.items ?? []), ...(extra?.items ?? [])].map((n) => n.id)));
+      setReadIds(new Set(loaded.map((n) => n.id)));
       toast.success(t('notifications.allRead'));
     } catch (error) {
-      toast.error(
-        t(`errors.${asClinicError(error)?.code ?? 'INTERNAL_ERROR'}`, {
-          defaultValue: asClinicError(error)?.message ?? '',
-        }),
-      );
+      toast.error(errorText(error));
     }
   };
 
-  const onLoadMore = async () => {
-    if (!cursor) return;
+  const onLoadMore = useCallback(async () => {
+    if (!cursor || loadMoreState.isFetching) return;
     try {
       const page = await loadMore({ unread: tab === 'unread', cursor, limit: 30 }).unwrap();
       setExtra((current) => ({
@@ -244,16 +116,64 @@ export function NotificationsPage() {
         next: page.nextCursor,
       }));
     } catch (error) {
-      toast.error(
-        t(`errors.${asClinicError(error)?.code ?? 'INTERNAL_ERROR'}`, {
-          defaultValue: asClinicError(error)?.message ?? '',
-        }),
-      );
+      toast.error(errorText(error));
     }
-  };
+  }, [cursor, loadMoreState.isFetching, loadMore, tab, toast, errorText]);
+
+  // Infinite scroll: load the next page when the sentinel nears the viewport.
+  const sentinel = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = sentinel.current;
+    if (!el || !cursor || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) void onLoadMore();
+      },
+      { rootMargin: '200px' },
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [cursor, onLoadMore]);
+
+  const chips: { id: NotificationCategory | null; label: string; count: number }[] = [
+    { id: null, label: t('notifications.categories.all'), count: tabItems.length },
+    ...NOTIFICATION_CATEGORIES.filter((c) => (counts[c] ?? 0) > 0 || c === category).map((c) => ({
+      id: c,
+      label: t(`notifications.categories.${c}`),
+      count: counts[c] ?? 0,
+    })),
+  ];
 
   const list = (
     <div>
+      {first.data && tabItems.length > 0 && (
+        <div
+          role="group"
+          aria-label={t('notifications.filterByCategory')}
+          className="flex flex-wrap gap-2 border-b border-border px-4 py-3"
+        >
+          {chips.map((chip) => {
+            const selected = chip.id === category;
+            return (
+              <button
+                key={chip.id ?? 'all'}
+                type="button"
+                aria-pressed={selected}
+                onClick={() => setCategory(chip.id)}
+                className={`inline-flex min-h-10 items-center gap-1.5 rounded-full border px-3 text-xs font-medium ${
+                  selected
+                    ? 'border-primary bg-accent text-primary'
+                    : 'border-border text-text hover:bg-bg'
+                }`}
+              >
+                {selected && <span aria-hidden="true">✓</span>}
+                {chip.label}
+                <span className="text-muted">{chip.count}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {first.isLoading && (
         <div className="space-y-3 p-5" aria-busy="true">
           {[0, 1, 2, 3].map((i) => (
@@ -274,7 +194,7 @@ export function NotificationsPage() {
           />
         </div>
       )}
-      {first.data && items.length === 0 && (
+      {first.data && tabItems.length === 0 && (
         <div className="p-5">
           <EmptyState
             title={t(`notifications.empty.${tab}.title`)}
@@ -293,15 +213,46 @@ export function NotificationsPage() {
           />
         </div>
       )}
-      {items.length > 0 && (
-        <ul>
-          {items.map((n) => (
-            <Item key={n.id} n={n} read={n.read} onRead={onRead} />
+      {first.data && tabItems.length > 0 && items.length === 0 && (
+        <div className="p-5">
+          <EmptyState
+            title={t('notifications.noResults.title')}
+            description={t('notifications.noResults.body')}
+            action={
+              <Button variant="secondary" onClick={() => setCategory(null)}>
+                {t('notifications.clearFilter')}
+              </Button>
+            }
+          />
+        </div>
+      )}
+      {groups.length > 0 && (
+        <div data-nlist aria-label={t('notifications.title')}>
+          {groups.map(({ group, items: rows }) => (
+            <section key={group} aria-labelledby={`notif-group-${group}`}>
+              <h3
+                id={`notif-group-${group}`}
+                className="border-b border-border bg-bg px-4 py-2 text-xs font-semibold text-muted sm:px-5"
+              >
+                {t(`notifications.groups.${group}`)}
+              </h3>
+              <ul>
+                {rows.map((n) => (
+                  <NotificationRow
+                    key={n.id}
+                    n={n}
+                    tabbable={n.id === tabbableId}
+                    onFocusRow={setActiveId}
+                    onRead={onRead}
+                  />
+                ))}
+              </ul>
+            </section>
           ))}
-        </ul>
+        </div>
       )}
       {cursor && items.length > 0 && (
-        <div className="border-t border-border p-4 text-center">
+        <div ref={sentinel} className="border-t border-border p-4 text-center">
           <Button
             variant="secondary"
             onClick={() => void onLoadMore()}
@@ -321,14 +272,17 @@ export function NotificationsPage() {
         title={t('notifications.title')}
         subtitle={t('notifications.subtitle')}
         actions={
-          <Button
-            variant="secondary"
-            onClick={() => void onMarkAll()}
-            disabled={markAllState.isLoading || unread === 0}
-          >
-            <CheckCheck size={16} aria-hidden="true" />
-            {t('notifications.markAll')}
-          </Button>
+          <div className="flex flex-wrap items-center gap-2">
+            <LiveStatus />
+            <Button
+              variant="secondary"
+              onClick={() => void onMarkAll()}
+              disabled={markAllState.isLoading || unread === 0}
+            >
+              <CheckCheck size={16} aria-hidden="true" />
+              {t('notifications.markAll')}
+            </Button>
+          </div>
         }
       />
       <p className="sr-only" aria-live="polite">
@@ -340,7 +294,10 @@ export function NotificationsPage() {
             <Tabs
               label={t('notifications.title')}
               value={tab}
-              onChange={(id) => setTab(id as NotificationTab)}
+              onChange={(id) => {
+                setTab(id as PageTab);
+                setCategory(null);
+              }}
               tabs={[
                 { id: 'all', label: t('notifications.tabs.all'), content: list },
                 {
@@ -349,8 +306,6 @@ export function NotificationsPage() {
                   count: unread,
                   content: list,
                 },
-                { id: 'appointments', label: t('notifications.tabs.appointments'), content: list },
-                { id: 'system', label: t('notifications.tabs.system'), content: list },
               ]}
             />
           </div>

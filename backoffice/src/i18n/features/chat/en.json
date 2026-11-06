@@ -23,5 +23,6 @@
   "noStaff": "There are no other staff members to chat with yet.",
   "pickStaff": "Choose colleagues",
   "groupTitle": "Group name (optional)",
-  "start": "Start conversation"
+  "start": "Start conversation",
+  "newMessages": "New messages"
 }

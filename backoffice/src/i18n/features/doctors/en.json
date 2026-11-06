@@ -19,7 +19,7 @@
   "appointmentsCount": "Appointments: {{count}}",
   "search": {
     "label": "Search doctors and staff",
-    "placeholder": "Search doctors and staff…"
+    "placeholder": "Search doctors and staff in any language…"
   },
   "filters": {
     "specialty": "Filter by specialty",
@@ -45,7 +45,10 @@
     "availability": "Availability",
     "hours": "Hours",
     "appointments": "Appointments",
-    "utilisation": "Utilisation"
+    "utilisation": "Utilisation",
+    "completed": "Completed",
+    "noShows": "No-shows",
+    "busiestDay": "Busiest day"
   },
   "empty": {
     "title": "No staff members yet",
@@ -62,7 +65,8 @@
   },
   "errors": {
     "required": "This field is required.",
-    "minutes": "Enter a whole number between 5 and 240."
+    "minutes": "Enter a whole number between 5 and 240.",
+    "tooLong": "Use at most 120 characters."
   },
   "form": {
     "addTitle": "Add staff member",
@@ -126,5 +130,13 @@
   "upcoming": {
     "title": "Upcoming appointments",
     "empty": "No upcoming appointments."
+  },
+  "periodStats": "Completed: {{completed}} · No-shows: {{noShows}}",
+  "busiestDayOf": "Busiest day: {{day}}",
+  "period": {
+    "title": "Activity in the selected period",
+    "chart": "Appointments and utilisation per day",
+    "summary": "Daily appointments and utilisation: {{count}} days, {{total}} appointments in total.",
+    "chartColumns": "Appointments · Utilisation"
   }
 }

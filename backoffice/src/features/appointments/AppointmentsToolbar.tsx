@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CalendarDays, ChevronDown, SlidersHorizontal, Search, Stethoscope } from 'lucide-react';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@riaya/shared';
-import type { AppointmentStatus, AppointmentType } from '@riaya/shared';
+import { APPOINTMENT_STATUSES } from '@riaya/shared';
+import type { AppointmentStatus } from '@riaya/shared';
 import { DatePicker } from '../../common/DatePicker';
 import { Field, Input, Select } from '../../common/Input';
 import { Popover } from '../../common/Popover';
 import { addDays, formatYmdRange, startOfWeek } from '../calendar/dates';
 import { useClinicReferenceQuery } from '../shared/api';
+import { typeFilterOptions, useAppointmentTypesQuery } from '../shared/appointmentTypes';
 import { useDebounced } from '../search/useDebounced';
 import { moreFiltersCount, type AppointmentFilters } from './filters';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
@@ -36,6 +37,9 @@ export function AppointmentsToolbar({
   const specialtyLabel = useSpecialtyLabel();
   const navigate = useNavigate();
   const reference = useClinicReferenceQuery();
+  const typeOptions = typeFilterOptions(
+    useAppointmentTypesQuery({ includeInactive: true }).data ?? [],
+  );
   const [text, setText] = useState(filters.search);
   const debounced = useDebounced(text, 300);
 
@@ -207,14 +211,20 @@ export function AppointmentsToolbar({
             <legend className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
               {t('appointments.fields.type')}
             </legend>
-            {APPOINTMENT_TYPES.map((type: AppointmentType) => (
-              <label key={type} className="flex min-h-10 items-center gap-2 text-sm text-text">
+            {typeOptions.map((option) => (
+              <label
+                key={option.code}
+                className="flex min-h-10 items-center gap-2 text-sm text-text"
+              >
                 <input
                   type="checkbox"
-                  checked={filters.type.includes(type)}
-                  onChange={() => onChange({ type: toggle(filters.type, type) })}
+                  checked={filters.type.includes(option.code)}
+                  onChange={() => onChange({ type: toggle(filters.type, option.code) })}
                 />
-                {t(`clinic.type.${type}`)}
+                {option.label}
+                {option.inactive ? (
+                  <span className="text-xs text-muted">({t('appointments.inactive')})</span>
+                ) : null}
               </label>
             ))}
           </fieldset>

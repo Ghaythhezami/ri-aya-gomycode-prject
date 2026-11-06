@@ -1,3 +1,4 @@
+import type { Capability } from '@riaya/shared';
 export type UserRole = 'SUPER_ADMIN' | 'CLINIC_ADMIN' | 'DOCTOR' | 'RECEPTIONIST';
 
 export interface AuthUser {
@@ -9,6 +10,12 @@ export interface AuthUser {
   preferredLocale: 'en' | 'ar' | 'fr';
   isActive: boolean;
   lastLoginAt: string | null;
+  /** Effective capabilities in the active clinic (custom roles included). */
+  capabilities?: Capability[];
+  /** System role name or custom role slug of the membership. */
+  roleKey?: string | null;
+  /** Role name in the request language. */
+  roleName?: string;
 }
 
 export interface AuthResponse {

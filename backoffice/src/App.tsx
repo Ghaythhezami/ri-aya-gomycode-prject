@@ -7,12 +7,16 @@ import { ProtectedRoute } from './auth/ProtectedRoute';
 import { RoleRoute } from './auth/RoleRoute';
 import { AppShell } from './layouts/AppShell';
 import { WorkspaceProvider } from './auth/WorkspaceContext';
+import { RealtimeProvider } from './lib/realtime';
 import { LoginPage } from './pages/LoginPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AcceptInvitePage } from './pages/AcceptInvitePage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { OnboardingGate } from './features/onboarding/OnboardingGate';
+import { OnboardingPage } from './features/onboarding/OnboardingPage';
+import { ProfilePage } from './features/profile/ProfilePage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { AppointmentsPage } from './features/appointments/AppointmentsPage';
 import { AppointmentDetailPage } from './features/appointments/AppointmentDetailPage';
@@ -83,12 +87,18 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <WorkspaceProvider>
-                      <AppShell />
+                      <RealtimeProvider>
+                        <OnboardingGate>
+                          <AppShell />
+                        </OnboardingGate>
+                      </RealtimeProvider>
                     </WorkspaceProvider>
                   </ProtectedRoute>
                 }
               >
                 <Route path="/" element={<DashboardPage />} />
+                <Route path="/onboarding" element={<OnboardingPage />} />
+                <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/appointments" element={<AppointmentsPage />} />
                 <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
@@ -118,7 +128,7 @@ export default function App() {
                 <Route
                   path="/settings/*"
                   element={
-                    <RoleRoute capability="manageSettings">
+                    <RoleRoute capability={['manageSettings', 'manageRoles']}>
                       <SettingsPage />
                     </RoleRoute>
                   }

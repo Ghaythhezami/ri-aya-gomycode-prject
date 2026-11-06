@@ -1,4 +1,3 @@
-import { describe, expect, it } from 'vitest';
 import { duplicateMatches, duplicateQuery } from './duplicates';
 
 describe('duplicateQuery', () => {

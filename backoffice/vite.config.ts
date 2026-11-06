@@ -7,6 +7,27 @@ export default defineConfig({
   // '/app/' when the backoffice is served under the marketing site (Vercel build).
   base: process.env.VITE_BASE ?? '/',
   plugins: [react(), tailwindcss()],
+  build: {
+    rollupOptions: {
+      output: {
+        // Long-lived vendor chunks: an app release no longer invalidates the browser's
+        // cached copy of React, charts, i18n or the socket client.
+        manualChunks(id) {
+          if (!id.includes('node_modules')) return undefined;
+          const p = id.replace(/\\/g, '/');
+          const has = (pkgs: string) => new RegExp(`/(${pkgs})/`).test(p);
+          if (has('recharts|d3-[a-z-]+|victory-vendor|decimal\\.js-light')) return 'vendor-charts';
+          if (has('socket\\.io-client|engine\\.io-client|socket\\.io-parser|engine\\.io-parser'))
+            return 'vendor-realtime';
+          if (has('i18next|react-i18next|i18next-browser-languagedetector')) return 'vendor-i18n';
+          if (has('@reduxjs|redux|react-redux|immer|reselect')) return 'vendor-state';
+          if (has('react|react-dom|react-router|react-router-dom|scheduler')) return 'vendor-react';
+          if (has('zod|react-hook-form|@hookform')) return 'vendor-forms';
+          return 'vendor';
+        },
+      },
+    },
+  },
   resolve: {
     alias: {
       '@': path.resolve(__dirname, 'src'),

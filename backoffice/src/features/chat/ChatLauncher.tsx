@@ -1,17 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MessageCircle, Plus, X } from 'lucide-react';
-import { can } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
 import { Skeleton } from '../../common/Skeleton';
 import { EmptyState, ErrorState } from '../../common/States';
 import { useAppearanceBootstrap } from '../settings/appearance';
+import { useAdaptivePolling } from '../../lib/realtime';
 import { useChatConversationsQuery } from './api';
 import { totalUnread } from './chatMerge';
 import { ChatList } from './ChatList';
 import { ChatThread } from './ChatThread';
 import { NewConversation } from './NewConversation';
+import { useChatRealtimeSync } from './useChatRealtimeSync';
+import { canUser } from '../../auth/permissions';
 
 type View = { name: 'list' } | { name: 'new' } | { name: 'thread'; id: string };
 
@@ -19,7 +21,7 @@ type View = { name: 'list' } | { name: 'new' } | { name: 'thread'; id: string };
 export function ChatLauncher() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const allowed = can(user?.role, 'viewChat');
+  const allowed = canUser(user, 'viewChat');
   // The launcher is mounted on every authenticated screen, so it also applies the saved appearance.
   useAppearanceBootstrap();
   const [open, setOpen] = useState(false);
@@ -27,9 +29,11 @@ export function ChatLauncher() {
   const launcher = useRef<HTMLButtonElement>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
 
+  useChatRealtimeSync();
+  const pollingInterval = useAdaptivePolling(15_000, 60_000);
   const conversations = useChatConversationsQuery(undefined, {
     skip: !allowed,
-    pollingInterval: 15_000,
+    pollingInterval,
     skipPollingIfUnfocused: true,
   });
   const list = conversations.data ?? [];

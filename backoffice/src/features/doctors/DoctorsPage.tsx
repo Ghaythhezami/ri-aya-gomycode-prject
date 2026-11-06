@@ -11,11 +11,9 @@ import {
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import { can } from '@riaya/shared';
 import type { DoctorCard } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { Button } from '../../common/Button';
-import { DatePicker } from '../../common/DatePicker';
 import { DataTable, type Column } from '../../common/Table';
 import { Input, Select } from '../../common/Input';
 import { Skeleton } from '../../common/Skeleton';
@@ -24,11 +22,15 @@ import { useClinicReferenceQuery } from '../shared/api';
 import { Avatar } from '../shared/Avatar';
 import { useClinicFormat } from '../shared/format';
 import { PageHeader } from '../shared/PageHeader';
+import { PeriodPicker } from '../shared/PeriodPicker';
+import { weekStartFor } from '../shared/period';
+import { usePeriod } from '../shared/usePeriod';
 import { useDebounced } from '../patients/hooks';
 import { useDoctorsQuery } from './api';
 import { AvailabilityChip, UtilisationBar } from './AvailabilityChip';
 import { DoctorFormModal } from './DoctorFormModal';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
+import { canUser } from '../../auth/permissions';
 
 const VIEW_KEY = 'riaya.doctors.view';
 type View = 'cards' | 'table';
@@ -46,18 +48,19 @@ export function DoctorsPage() {
   const specialtyLabel = useSpecialtyLabel();
   const fmt = useClinicFormat();
   const { user } = useAuth();
-  const canManage = user ? can(user.role, 'manageDoctors') : false;
+  const canManage = canUser(user, 'manageDoctors');
   const { data: reference } = useClinicReferenceQuery();
 
   const [view, setView] = useState<View>(readView);
   const [search, setSearch] = useState('');
   const [specialty, setSpecialty] = useState('');
-  const [date, setDate] = useState(() => fmt.localDate());
+  const { period, today, setPeriod } = usePeriod();
   const [adding, setAdding] = useState(false);
   const debounced = useDebounced(search, 300);
 
   const { data, isLoading, isError, refetch } = useDoctorsQuery({
-    date,
+    from: period.from,
+    to: period.to,
     search: debounced || undefined,
     specialty: specialty || undefined,
   });
@@ -72,6 +75,16 @@ export function DoctorsPage() {
   };
 
   const doctors = data ?? [];
+  const singleDay = period.from === period.to;
+  const detailSearch = `?from=${period.from}&to=${period.to}`;
+  const day = (d: string | null | undefined) => (d ? fmt.shortDate(`${d}T12:00:00Z`) : '–');
+  const stat = (d: DoctorCard) => ({
+    appointments: d.period?.appointmentsCount ?? d.appointmentsCount,
+    completed: d.period?.completedCount ?? 0,
+    noShows: d.period?.noShowCount ?? 0,
+    utilisation: d.period?.utilisation ?? d.utilisation,
+    busiest: d.period?.busiestDay ?? null,
+  });
   const filtered = Boolean(debounced || specialty);
 
   const columns: Column<DoctorCard>[] = [
@@ -81,7 +94,7 @@ export function DoctorsPage() {
       sortable: true,
       sortValue: (d) => d.name,
       render: (d) => (
-        <Link to={`/doctors/${d.id}`} className="flex items-center gap-3 text-text">
+        <Link to={`/doctors/${d.id}${detailSearch}`} className="flex items-center gap-3 text-text">
           <Avatar initials={d.initials} size="sm" />
           <span className="font-medium">{d.name}</span>
         </Link>
@@ -97,27 +110,50 @@ export function DoctorsPage() {
     {
       key: 'hoursLabel',
       header: t('doctors.columns.hours'),
-      render: (d) => <span dir="ltr">{d.hoursLabel ?? t('doctors.noHours')}</span>,
+      render: (d) => (
+        <span dir="ltr">{singleDay ? (d.hoursLabel ?? t('doctors.noHours')) : '–'}</span>
+      ),
     },
     {
       key: 'appointmentsCount',
       header: t('doctors.columns.appointments'),
       sortable: true,
-      render: (d) => fmt.number(d.appointmentsCount),
+      sortValue: (d) => stat(d).appointments,
+      render: (d) => fmt.number(stat(d).appointments),
+    },
+    {
+      key: 'completed',
+      header: t('doctors.columns.completed'),
+      sortable: true,
+      sortValue: (d) => stat(d).completed,
+      render: (d) => fmt.number(stat(d).completed),
+    },
+    {
+      key: 'noShows',
+      header: t('doctors.columns.noShows'),
+      sortable: true,
+      sortValue: (d) => stat(d).noShows,
+      render: (d) => fmt.number(stat(d).noShows),
     },
     {
       key: 'utilisation',
       header: t('doctors.columns.utilisation'),
       sortable: true,
+      sortValue: (d) => stat(d).utilisation,
       render: (d) => (
         <div className="flex min-w-28 items-center gap-2">
           <UtilisationBar
-            value={d.utilisation}
+            value={stat(d).utilisation}
             label={t('doctors.utilisationOf', { name: d.name })}
           />
-          <span className="text-xs text-muted">{fmt.number(Math.round(d.utilisation))}%</span>
+          <span className="text-xs text-muted">{fmt.number(Math.round(stat(d).utilisation))}%</span>
         </div>
       ),
+    },
+    {
+      key: 'busiestDay',
+      header: t('doctors.columns.busiestDay'),
+      render: (d) => day(stat(d).busiest),
     },
   ];
 
@@ -196,29 +232,38 @@ export function DoctorsPage() {
             <h2 className="mt-3 text-base font-semibold text-text">{d.name}</h2>
             <p className="text-sm text-muted">{specialtyLabel(d.specialty)}</p>
             <ul className="mt-4 space-y-1.5 text-sm text-muted">
-              <li className="flex items-center justify-center gap-2">
-                <Clock size={14} aria-hidden="true" />
-                <span dir="ltr">{d.hoursLabel ?? t('doctors.noHours')}</span>
-              </li>
+              {singleDay && (
+                <li className="flex items-center justify-center gap-2">
+                  <Clock size={14} aria-hidden="true" />
+                  <span dir="ltr">{d.hoursLabel ?? t('doctors.noHours')}</span>
+                </li>
+              )}
               <li className="flex items-center justify-center gap-2">
                 <CalendarDays size={14} aria-hidden="true" />
-                {t('doctors.appointmentsCount', { count: d.appointmentsCount })}
+                {t('doctors.appointmentsCount', { count: stat(d).appointments })}
               </li>
+              <li>
+                {t('doctors.periodStats', {
+                  completed: fmt.number(stat(d).completed),
+                  noShows: fmt.number(stat(d).noShows),
+                })}
+              </li>
+              <li>{t('doctors.busiestDayOf', { day: day(stat(d).busiest) })}</li>
             </ul>
             <div className="mt-4 w-full max-w-56">
               <p className="mb-1 flex items-center justify-between text-xs text-muted">
                 <span>{t('doctors.utilisation')}</span>
                 <span className="font-semibold text-text">
-                  {fmt.number(Math.round(d.utilisation))}%
+                  {fmt.number(Math.round(stat(d).utilisation))}%
                 </span>
               </p>
               <UtilisationBar
-                value={d.utilisation}
+                value={stat(d).utilisation}
                 label={t('doctors.utilisationOf', { name: d.name })}
               />
             </div>
             <Link
-              to={`/doctors/${d.id}`}
+              to={`/doctors/${d.id}${detailSearch}`}
               className="mt-4 inline-flex min-h-10 items-center gap-1 border-t border-border pt-3 text-sm font-medium text-primary"
             >
               {t('doctors.viewSchedule')}
@@ -275,13 +320,13 @@ export function DoctorsPage() {
             ))}
           </Select>
         </div>
-        <div className="w-44">
-          <DatePicker
-            value={date}
-            onChange={(v) => v && setDate(v)}
-            label={t('doctors.filters.date')}
-          />
-        </div>
+        <PeriodPicker
+          value={period}
+          onChange={setPeriod}
+          today={today}
+          weekStart={weekStartFor(fmt.locale)}
+          locale={fmt.locale}
+        />
         <div
           role="group"
           aria-label={t('doctors.view.label')}

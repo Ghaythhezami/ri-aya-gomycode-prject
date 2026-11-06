@@ -1,3 +1,4 @@
+import { canUser } from './permissions';
 import { CAPABILITY_ROLES, type Capability, type UserRole } from '@riaya/shared';
 
 /**
@@ -31,4 +32,19 @@ export const NAV_ROLES: Record<string, UserRole[]> = Object.fromEntries(
 export function canSee(role: UserRole, key: string) {
   const capability = NAV_CAPABILITIES[key];
   return capability ? CAPABILITY_ROLES[capability].includes(role) : false;
+}
+
+/**
+ * Whether the signed-in user sees a navigation item, from the effective capabilities of
+ * the membership (custom roles included). Settings also opens for role managers, whose
+ * only section is Roles.
+ */
+export function canSeeNav(
+  user: { role?: string | null; capabilities?: readonly string[] } | null | undefined,
+  key: string,
+): boolean {
+  const capability = NAV_CAPABILITIES[key];
+  if (!capability) return false;
+  if (canUser(user, capability)) return true;
+  return key === 'settings' && canUser(user, 'manageRoles');
 }

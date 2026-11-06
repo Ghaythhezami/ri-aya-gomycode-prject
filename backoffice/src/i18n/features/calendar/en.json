@@ -7,11 +7,16 @@
   "doctor": "Filter by doctor",
   "list": "List view",
   "viewLabel": "Calendar view",
-  "views": { "day": "Day", "week": "Week", "month": "Month" },
+  "views": {
+    "day": "Day",
+    "week": "Week",
+    "month": "Month"
+  },
   "errorTitle": "The calendar could not be loaded",
   "gridHint": "Select an empty time to book an appointment, or select an appointment to open it.",
   "appointmentsCount": "{{count}} appointments",
   "more": "+{{count}} more",
   "emptyDay": "No appointments on this day.",
-  "emptyRange": "No appointments in this period. Select a time in the grid to book one."
+  "emptyRange": "No appointments in this period. Select a time in the grid to book one.",
+  "legend": "Appointment types"
 }

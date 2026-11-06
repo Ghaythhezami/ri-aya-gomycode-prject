@@ -1,5 +1,5 @@
 {
-  "eyebrow": "Smart planning",
+  "eyebrow": "AI-assisted planning",
   "title": "Smart Scheduling",
   "subtitle": "Reduce waiting times and make better use of clinic resources.",
   "run": "Run optimization",
@@ -9,7 +9,6 @@
   "selectedDate": "Selected date",
   "utilisation": "Current utilization",
   "estimatedWait": "Estimated wait",
-  "availability": "Availability",
   "demand": "Demand (appointments)",
   "objective": "Optimization objective",
   "objectives": {
@@ -34,7 +33,8 @@
   "footerNote": "Recommendations are suggestions. Review changes before applying.",
   "grid": {
     "title": "Daily schedule",
-    "live": "Live availability"
+    "live": "Live availability",
+    "now": "Now"
   },
   "dnd": {
     "instructions": "Press Enter or Space to pick up the appointment, use the arrow keys to move it by one slot or one doctor, then press Enter or Space to drop it. Press Escape to cancel. Press M to choose a doctor and time from a list.",
@@ -96,7 +96,7 @@
     "successBody": "{{count}} appointment(s) were moved.",
     "undo": "Undo (15 min)",
     "undoExpired": "The undo window has closed.",
-    "noImprovementTitle": "No improvement found",
+    "noImprovementTitle": "Your schedule is already optimal for this objective",
     "noImprovementBody": "The current schedule is already well balanced for this objective.",
     "noAlternativesTitle": "No alternative slots",
     "noAlternativesBody": "Some appointments could not be placed in another free slot. Review them manually.",
@@ -112,6 +112,21 @@
     "preview": "Preview changes",
     "hidePreview": "Hide preview",
     "apply": "Apply schedule",
-    "noImprovementUtilisationBody": "No other doctor with the same specialty is free at the moment, so utilisation cannot be improved. Try the shorter-wait objective."
-  }
+    "noImprovementUtilisationBody": "No other doctor with the same specialty is free at the moment, so utilisation cannot be improved. Try the shorter-wait objective.",
+    "invite": "Run optimization to see how much waiting time you can save.",
+    "engine": "Optimized by: {{engine}}",
+    "engines": {
+      "python": "Python service",
+      "typescript": "Built-in engine"
+    },
+    "gapTitle": "Schedule gap detected",
+    "gapLine": "{{name}} has {{count}} min available at {{time}}",
+    "balanceTitle": "Balance capacity",
+    "balanceLine": "Transfer {{name}} to {{doctor}}",
+    "more": "+{{count}} more",
+    "showLess": "Show less"
+  },
+  "prevDay": "Previous day",
+  "nextDay": "Next day",
+  "proposed": "Proposed new time"
 }

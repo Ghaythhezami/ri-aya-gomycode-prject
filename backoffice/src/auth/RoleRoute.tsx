@@ -1,8 +1,9 @@
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { can, type Capability } from '@riaya/shared';
+import { type Capability } from '@riaya/shared';
 import { useAuth } from './AuthContext';
 import { ForbiddenPage } from '../pages/ForbiddenPage';
+import { canUser } from './permissions';
 
 /**
  * Capability guard for a route (AC-005).
@@ -15,13 +16,15 @@ export function RoleRoute({
   capability,
   children,
 }: {
-  capability: Capability;
+  /** One capability, or several where any one is enough. */
+  capability: Capability | readonly Capability[];
   children: ReactNode;
 }) {
   const { user } = useAuth();
 
   if (!user) return <Navigate to="/login" replace />;
-  if (!can(user.role, capability)) return <ForbiddenPage />;
+  const required = Array.isArray(capability) ? capability : [capability as Capability];
+  if (!required.some((item) => canUser(user, item))) return <ForbiddenPage />;
 
   return children;
 }

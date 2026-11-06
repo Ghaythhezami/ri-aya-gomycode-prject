@@ -1,12 +1,19 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { Check, Search, UserPlus } from 'lucide-react';
-import type { CreatePatientInput, PatientDetail, PatientListItem } from '@riaya/shared';
+import {
+  normalizeLocalized,
+  type CreatePatientInput,
+  type LocalizedText,
+  type PatientDetail,
+  type PatientListItem,
+} from '@riaya/shared';
 import { Button } from '../../common/Button';
 import { Field, Input, Select } from '../../common/Input';
+import { isLocalizedFilled, LocalizedInput } from '../../common/LocalizedInput';
 import { Skeleton } from '../../common/Skeleton';
 import { asClinicError } from '../../store/clinicApi';
 import { Avatar } from '../shared/Avatar';
@@ -35,8 +42,14 @@ function detailToChoice(patient: PatientDetail): PatientChoice {
 }
 
 const newPatientSchema = z.object({
-  firstName: z.string().trim().min(1, 'booking.patient.errors.firstName'),
-  lastName: z.string().trim().min(1, 'booking.patient.errors.lastName'),
+  firstNameI18n: z.custom<LocalizedText>(
+    (value) => isLocalizedFilled(value as LocalizedText),
+    'booking.patient.errors.firstName',
+  ),
+  lastNameI18n: z.custom<LocalizedText>(
+    (value) => isLocalizedFilled(value as LocalizedText),
+    'booking.patient.errors.lastName',
+  ),
   dateOfBirth: z
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, 'booking.patient.errors.dateOfBirth')
@@ -96,14 +109,15 @@ function NewPatientForm({
   const [formError, setFormError] = useState<string | null>(null);
   const {
     register,
+    control,
     handleSubmit,
     getValues,
     formState: { errors },
   } = useForm<NewPatientValues>({
     resolver: zodResolver(newPatientSchema),
     defaultValues: {
-      firstName: '',
-      lastName: '',
+      firstNameI18n: {},
+      lastNameI18n: {},
       dateOfBirth: '',
       phone: '',
       email: '',
@@ -114,8 +128,8 @@ function NewPatientForm({
   async function submit(values: NewPatientValues, force: boolean) {
     setFormError(null);
     const input: CreatePatientInput = {
-      firstName: values.firstName.trim(),
-      lastName: values.lastName.trim(),
+      firstNameI18n: normalizeLocalized(values.firstNameI18n),
+      lastNameI18n: normalizeLocalized(values.lastNameI18n),
       dateOfBirth: values.dateOfBirth,
       phone: values.phone.trim(),
       ...(values.email ? { email: values.email } : {}),
@@ -173,12 +187,42 @@ function NewPatientForm({
       ) : null}
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label={t('booking.patient.firstName')} error={errors.firstName?.message}>
-          <Input autoComplete="off" {...register('firstName')} />
-        </Field>
-        <Field label={t('booking.patient.lastName')} error={errors.lastName?.message}>
-          <Input autoComplete="off" {...register('lastName')} />
-        </Field>
+        <div className="sm:col-span-2">
+          <Controller
+            control={control}
+            name="firstNameI18n"
+            render={({ field }) => (
+              <LocalizedInput
+                label={t('booking.patient.firstName')}
+                name="firstNameI18n"
+                required
+                autoComplete="off"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.firstNameI18n?.message}
+              />
+            )}
+          />
+        </div>
+        <div className="sm:col-span-2">
+          <Controller
+            control={control}
+            name="lastNameI18n"
+            render={({ field }) => (
+              <LocalizedInput
+                label={t('booking.patient.lastName')}
+                name="lastNameI18n"
+                required
+                autoComplete="off"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.lastNameI18n?.message}
+              />
+            )}
+          />
+        </div>
         <Field label={t('booking.patient.dateOfBirth')} error={errors.dateOfBirth?.message}>
           <Input type="date" dir="ltr" {...register('dateOfBirth')} />
         </Field>

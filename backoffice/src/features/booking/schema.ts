@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { APPOINTMENT_TYPES } from '@riaya/shared';
 
 /**
  * Booking form model and the per-step validation (APP-3). Messages are i18n keys,
@@ -35,7 +34,8 @@ export interface BookingForm {
   date: string;
   /** ISO instant of the chosen slot, '' when none. */
   startsAt: string;
-  type: (typeof APPOINTMENT_TYPES)[number];
+  /** Appointment type code (system or clinic-defined). */
+  type: string;
   durationMinutes: number;
   reason: string;
   notes: string;
@@ -56,7 +56,7 @@ const dateTimeStep = z.object({
 });
 
 const detailsStep = z.object({
-  type: z.enum(APPOINTMENT_TYPES),
+  type: z.string().min(1, 'booking.errors.type'),
   durationMinutes: z
     .number({ error: 'booking.errors.duration' })
     .int('booking.errors.duration')

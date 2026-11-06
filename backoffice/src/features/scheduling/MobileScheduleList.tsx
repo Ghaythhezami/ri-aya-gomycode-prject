@@ -1,17 +1,19 @@
 import { useTranslation } from 'react-i18next';
 import { AlertTriangle, ArrowRightLeft } from 'lucide-react';
 import { Avatar } from '../shared/Avatar';
-import { typeBlockClass } from '../shared/StatusBadge';
 import { Button } from '../../common/Button';
-import { formatMinute, type RenderBlock, type RenderRow } from './gridMath';
+import { blockAccent, formatMinute, type RenderBlock, type RenderRow } from './gridMath';
+import type { FocusTarget } from './focusTarget';
 import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 /** Below `md`: appointments grouped by doctor, with the same "Move to…" action as the grid. */
 export function MobileScheduleList({
   rows,
+  highlight,
   onOpenMove,
 }: {
   rows: RenderRow[];
+  highlight: FocusTarget | null;
   onOpenMove: (block: RenderBlock) => void;
 }) {
   const { t } = useTranslation();
@@ -19,7 +21,17 @@ export function MobileScheduleList({
   return (
     <div className="space-y-4 p-4">
       {rows.map((row) => (
-        <section key={row.doctor.id} aria-label={row.doctor.name}>
+        <section
+          key={row.doctor.id}
+          aria-label={row.doctor.name}
+          data-row={row.doctor.id}
+          tabIndex={-1}
+          className={
+            highlight?.kind === 'doctor' && highlight.id === row.doctor.id
+              ? 'rounded-md ring-2 ring-primary'
+              : ''
+          }
+        >
           <div className="mb-2 flex items-center gap-3">
             <Avatar initials={row.doctor.initials} />
             <div className="min-w-0">
@@ -36,8 +48,18 @@ export function MobileScheduleList({
               {row.blocks.map((block) => (
                 <li
                   key={block.appointmentId}
-                  className={`flex items-center justify-between gap-2 rounded-md border px-3 py-2 ${typeBlockClass(block.type)} ${
+                  style={{
+                    borderInlineStartColor: blockAccent(block),
+                    backgroundColor: `color-mix(in srgb, ${blockAccent(block)} 12%, var(--color-surface))`,
+                  }}
+                  data-appt={block.appointmentId}
+                  tabIndex={-1}
+                  className={`flex items-center justify-between gap-2 rounded-md border border-s-[3px] border-border px-3 py-2 ${
                     block.pending ? 'border-2 border-dashed border-primary' : ''
+                  } ${
+                    highlight?.kind === 'appointment' && highlight.id === block.appointmentId
+                      ? 'ring-2 ring-primary'
+                      : ''
                   }`}
                 >
                   <div className="min-w-0 text-sm">
@@ -47,7 +69,7 @@ export function MobileScheduleList({
                         {formatMinute(block.startMinute)}–
                         {formatMinute(block.startMinute + block.durationMinutes)}
                       </span>{' '}
-                      · {t(`clinic.type.${block.type}`)}
+                      · {block.typeName || t(`clinic.type.${block.type}`)}
                     </p>
                     {block.conflict && (
                       <p className="flex items-center gap-1 text-xs font-semibold text-error">

@@ -19,7 +19,7 @@
   "appointmentsCount": "Rendez-vous : {{count}}",
   "search": {
     "label": "Rechercher des médecins et du personnel",
-    "placeholder": "Rechercher des médecins et du personnel…"
+    "placeholder": "Rechercher un médecin ou un membre du personnel, dans toutes les langues…"
   },
   "filters": {
     "specialty": "Filtrer par spécialité",
@@ -45,7 +45,10 @@
     "availability": "Disponibilité",
     "hours": "Horaires",
     "appointments": "Rendez-vous",
-    "utilisation": "Occupation"
+    "utilisation": "Occupation",
+    "completed": "Terminés",
+    "noShows": "Absences",
+    "busiestDay": "Jour le plus chargé"
   },
   "empty": {
     "title": "Aucun membre du personnel",
@@ -62,7 +65,8 @@
   },
   "errors": {
     "required": "Ce champ est obligatoire.",
-    "minutes": "Saisissez un nombre entier entre 5 et 240."
+    "minutes": "Saisissez un nombre entier entre 5 et 240.",
+    "tooLong": "Utilisez 120 caractères au maximum."
   },
   "form": {
     "addTitle": "Ajouter un membre du personnel",
@@ -126,5 +130,13 @@
   "upcoming": {
     "title": "Rendez-vous à venir",
     "empty": "Aucun rendez-vous à venir."
+  },
+  "periodStats": "Terminés : {{completed}} · Absences : {{noShows}}",
+  "busiestDayOf": "Jour le plus chargé : {{day}}",
+  "period": {
+    "title": "Activité sur la période choisie",
+    "chart": "Rendez-vous et taux d’occupation par jour",
+    "summary": "Rendez-vous et occupation par jour : {{count}} jours, {{total}} rendez-vous au total.",
+    "chartColumns": "Rendez-vous · Occupation"
   }
 }

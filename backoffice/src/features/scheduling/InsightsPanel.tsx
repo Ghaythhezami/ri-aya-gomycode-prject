@@ -4,8 +4,9 @@ import {
   AlertTriangle,
   ArrowRight,
   CheckCircle2,
-  Clock3,
-  Lightbulb,
+  CalendarClock,
+  ChevronRight,
+  ArrowLeftRight,
   RefreshCw,
   Sparkles,
   Undo2,
@@ -16,7 +17,9 @@ import { Button } from '../../common/Button';
 import { useClinicFormat } from '../shared/format';
 import type { InsightsPhase } from './insightsState';
 import { waitImprovement } from './insightsState';
-import { secondsRemaining, type PendingMove } from './gridMath';
+import { formatMinute, secondsRemaining, type PendingMove } from './gridMath';
+import { buildRecommendations, type Recommendation } from './recommendations';
+import type { FocusTarget } from './focusTarget';
 
 export interface IdleDoctor {
   doctorId: string;
@@ -53,6 +56,52 @@ function Row({ icon, title, children }: { icon: ReactNode; title: string; childr
         <p className="font-semibold text-text">{title}</p>
         {children && <p className="text-xs text-muted">{children}</p>}
       </div>
+    </li>
+  );
+}
+
+const REC_TONE = {
+  move: 'bg-accent text-primary',
+  gap: 'bg-info/10 text-info',
+  balance: 'bg-warning/10 text-warning',
+} as const;
+
+function RecRow({
+  rec,
+  title,
+  detail,
+  onSelect,
+}: {
+  rec: Recommendation;
+  title: string;
+  detail: string;
+  onSelect: () => void;
+}) {
+  const Icon =
+    rec.kind === 'move' ? ArrowRight : rec.kind === 'gap' ? CalendarClock : ArrowLeftRight;
+  return (
+    <li className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={onSelect}
+        className="flex min-h-12 w-full items-center gap-3 rounded-md py-3 text-start transition-colors hover:bg-bg"
+      >
+        <span
+          aria-hidden="true"
+          className={`grid size-9 shrink-0 place-items-center rounded-full ${REC_TONE[rec.kind]}`}
+        >
+          <Icon size={16} className={rec.kind === 'gap' ? '' : 'rtl:-scale-x-100'} />
+        </span>
+        <span className="min-w-0 flex-1 text-sm">
+          <span className="block font-semibold text-text">{title}</span>
+          <span className="block text-xs text-muted">{detail}</span>
+        </span>
+        <ChevronRight
+          size={16}
+          aria-hidden="true"
+          className="shrink-0 text-muted rtl:-scale-x-100"
+        />
+      </button>
     </li>
   );
 }
@@ -95,6 +144,9 @@ export function InsightsPanel({
   day,
   pending,
   idleDoctors,
+  slot,
+  savingsMinutes,
+  onFocus,
   preview,
   applying,
   undoing,
@@ -110,6 +162,10 @@ export function InsightsPanel({
   day: SchedulingDay;
   pending: PendingMove[];
   idleDoctors: IdleDoctor[];
+  slot: number;
+  /** Dashboard estimate of minutes saved, shown before a proposal exists. */
+  savingsMinutes: number | null;
+  onFocus: (target: FocusTarget) => void;
   preview: boolean;
   applying: boolean;
   undoing: boolean;
@@ -119,31 +175,65 @@ export function InsightsPanel({
   onUndo: () => void;
   onRegenerate: () => void;
 }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const fmt = useClinicFormat();
-  const reasonText = (key: string) =>
-    i18n.exists(`scheduling.reason.${reasonTail(key)}`)
-      ? t(`scheduling.reason.${reasonTail(key)}`)
-      : '';
   const now = useNow(phase === 'success');
   const doctorName = (id: string) => day.doctors.find((d) => d.id === id)?.name ?? '';
   const seconds = secondsRemaining(proposal?.undoUntil ?? null, now);
   const mm = `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 
-  const idleList = idleDoctors.length > 0 && (
-    <div className="mt-4">
-      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
-        {t('scheduling.insights.idleDoctors')}
-      </h3>
-      <ul>
-        {idleDoctors.map((d) => (
-          <Row key={d.doctorId} icon={<Clock3 size={16} />} title={d.name}>
-            {t('scheduling.insights.freeMinutes', { count: d.freeMinutes })}
-          </Row>
-        ))}
-      </ul>
-    </div>
-  );
+  const recs = buildRecommendations(proposal, day, idleDoctors, slot);
+  const [expanded, setExpanded] = useState(false);
+  const moveRecs = recs.filter((r) => r.kind === 'move');
+  const otherRecs = recs.filter((r) => r.kind !== 'move');
+  const shownMoves = expanded ? moveRecs : moveRecs.slice(0, 3);
+  const hiddenMoves = moveRecs.length - shownMoves.length;
+  const recCopy = (rec: Recommendation): { title: string; detail: string; target: FocusTarget } => {
+    if (rec.kind === 'move') {
+      return {
+        title: t('scheduling.insights.moveTitle', { name: rec.patientName }),
+        detail: t('scheduling.insights.moveLine', {
+          from: fmt.time(rec.from),
+          to: fmt.time(rec.to),
+          doctor: doctorName(rec.toDoctorId),
+        }),
+        target: { kind: 'appointment', id: rec.appointmentId },
+      };
+    }
+    if (rec.kind === 'gap') {
+      return {
+        title: t('scheduling.insights.gapTitle'),
+        detail: t('scheduling.insights.gapLine', {
+          name: rec.name,
+          count: rec.minutes,
+          time: formatMinute(rec.startMinute),
+        }),
+        target: { kind: 'doctor', id: rec.doctorId },
+      };
+    }
+    return {
+      title: t('scheduling.insights.balanceTitle'),
+      detail: t('scheduling.insights.balanceLine', {
+        name: rec.patientName,
+        doctor: doctorName(rec.toDoctorId),
+      }),
+      target: { kind: 'appointment', id: rec.appointmentId },
+    };
+  };
+  const recList = (list: Recommendation[]) =>
+    list.map((rec) => {
+      const copy = recCopy(rec);
+      return (
+        <RecRow
+          key={rec.key}
+          rec={rec}
+          title={copy.title}
+          detail={copy.detail}
+          onSelect={() => onFocus(copy.target)}
+        />
+      );
+    });
+  const idleList = otherRecs.length > 0 && <ul className="mt-2">{recList(otherRecs)}</ul>;
 
   const unresolvedList = proposal && proposal.unresolved.length > 0 && (
     <div className="mt-4">
@@ -159,6 +249,30 @@ export function InsightsPanel({
           </Row>
         ))}
       </ul>
+    </div>
+  );
+
+  const improvement = proposal ? waitImprovement(proposal) : savingsMinutes;
+  const potential = (
+    <div className="rounded-lg bg-accent p-4">
+      <p className="text-xs font-medium text-primary-dark">{t('scheduling.insights.potential')}</p>
+      {improvement !== null && improvement > 0 ? (
+        <>
+          <p className="mt-1 text-3xl font-semibold text-primary" aria-live="polite">
+            −{t('clinic.minutes', { count: improvement })}
+          </p>
+          <p className="text-xs text-primary-dark">{t('scheduling.insights.avgWaiting')}</p>
+        </>
+      ) : (
+        <p className="mt-1 text-sm text-text">{t('scheduling.insights.invite')}</p>
+      )}
+      {proposal?.engine && (
+        <p className="mt-2 text-[11px] text-muted">
+          {t('scheduling.insights.engine', {
+            engine: t(`scheduling.insights.engines.${proposal.engine}`),
+          })}
+        </p>
+      )}
     </div>
   );
 
@@ -263,59 +377,29 @@ export function InsightsPanel({
     case 'conflicts':
       body = proposal && (
         <>
-          <Notice
-            tone={phase === 'conflicts' ? 'warning' : 'neutral'}
-            icon={<Sparkles size={16} />}
-            title={t('scheduling.insights.awaitingTitle')}
-          >
-            <div className="mt-2 rounded-md bg-accent p-4">
-              <p className="text-xs text-primary-dark">{t('scheduling.insights.potential')}</p>
-              <p className="text-3xl font-semibold text-primary" aria-live="polite">
-                {waitImprovement(proposal) > 0 ? '−' : ''}
-                {t('clinic.minutes', { count: Math.abs(waitImprovement(proposal)) })}
-              </p>
-              <p className="text-xs text-primary-dark">{t('scheduling.insights.avgWaiting')}</p>
-            </div>
-          </Notice>
-          <h3 className="mb-1 mt-4 text-xs font-semibold uppercase tracking-wide text-muted">
-            {t('scheduling.insights.suggestedMoves', { count: proposal.moves.length })}
-          </h3>
-          <ul>
-            {proposal.moves.map((m) => (
-              <Row
-                key={m.appointmentId}
-                icon={<ArrowRight size={16} className="rtl:-scale-x-100" />}
-                title={t('scheduling.insights.moveTitle', { name: m.patientName })}
-              >
-                {t('scheduling.insights.moveLine', {
-                  from: fmt.time(m.fromStartsAt),
-                  to: fmt.time(m.toStartsAt),
-                  doctor: doctorName(m.toDoctorId),
-                })}
-                {reasonText(m.reasonKey) ? ` · ${reasonText(m.reasonKey)}` : ''}
-              </Row>
-            ))}
-          </ul>
-          {unresolvedList}
+          {potential}
+          <ul className="mt-3">{recList(shownMoves)}</ul>
+          {(hiddenMoves > 0 || expanded) && moveRecs.length > 3 && (
+            <button
+              type="button"
+              aria-expanded={expanded}
+              onClick={() => setExpanded((v) => !v)}
+              className="mt-1 min-h-10 rounded-md px-1 text-sm font-medium text-primary hover:underline"
+            >
+              {expanded
+                ? t('scheduling.insights.showLess')
+                : t('scheduling.insights.more', { count: hiddenMoves })}
+            </button>
+          )}
           {idleList}
+          {unresolvedList}
         </>
       );
       break;
     default:
       body = (
         <>
-          <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted">
-            {t('scheduling.insights.tipsTitle')}
-          </h3>
-          <ul>
-            {(['tipGaps', 'tipBalance', 'tipEmergency'] as const).map((key) => (
-              <Row
-                key={key}
-                icon={<Lightbulb size={16} />}
-                title={t(`scheduling.insights.${key}`)}
-              />
-            ))}
-          </ul>
+          {potential}
           {idleList}
         </>
       );
@@ -335,7 +419,7 @@ export function InsightsPanel({
       <div className="p-5">
         {body}
         {canApply && (
-          <div className="mt-4 space-y-2">
+          <div className="sticky bottom-0 -mx-5 -mb-5 mt-4 space-y-2 border-t border-border bg-surface p-4 md:static md:m-0 md:border-0 md:bg-transparent md:p-0 md:pt-4">
             <Button
               variant="secondary"
               className="w-full"
@@ -349,7 +433,7 @@ export function InsightsPanel({
             </Button>
           </div>
         )}
-        <p className="mt-4 text-center text-xs text-muted">{t('scheduling.footerNote')}</p>
+        <p className="mt-4 text-center text-[11px] text-muted">{t('scheduling.footerNote')}</p>
       </div>
     </aside>
   );

@@ -12,17 +12,18 @@ import {
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
+  Rocket,
   Search,
   Settings,
   Sparkles,
   Stethoscope,
+  UserRound,
   Users,
   UsersRound,
   X,
 } from 'lucide-react';
-import { can } from '@riaya/shared';
 import { useAuth } from '../auth/AuthContext';
-import { canSee } from '../auth/roles';
+import { canSeeNav } from '../auth/roles';
 import { Button } from '../common/Button';
 import { Dropdown } from '../common/Dropdown';
 import { ToastProvider } from '../common/Toast';
@@ -39,6 +40,8 @@ import { LanguageSwitcher } from './LanguageSwitcher';
 import { OfflineBanner } from './OfflineBanner';
 import { WorkspaceSwitcher } from './WorkspaceSwitcher';
 import { readSidebarCollapsed, writeSidebarCollapsed } from './sidebar-preference';
+import { canUser } from '../auth/permissions';
+import { useOnboardingStatus } from '../features/onboarding/status';
 
 /** Mockup order. "Design system" stays routable at /design-system but is not in the menu. */
 const items = [
@@ -71,8 +74,13 @@ function NavItems({
   return (
     <>
       {items
-        .filter((item) => user && canSee(user.role, item.key))
+        .filter((item) => user && canSeeNav(user, item.key))
         .map((item) => {
+          // Role managers without settings access land on the Roles section.
+          const to =
+            item.key === 'settings' && !canUser(user, 'manageSettings')
+              ? '/settings/roles'
+              : item.to;
           const Icon = item.icon;
           const label = t(`nav.${item.key}`);
           const badge = item.key === 'notifications' && unread > 0 ? unread : 0;
@@ -81,7 +89,7 @@ function NavItems({
           return (
             <NavLink
               key={item.to}
-              to={item.to}
+              to={to}
               end={item.to === '/'}
               onClick={onNavigate}
               aria-label={collapsed ? label : undefined}
@@ -210,16 +218,36 @@ export function AppShell() {
 
   const initials = `${user?.firstName?.[0] ?? ''}${user?.lastName?.[0] ?? ''}`;
   const toggleLabel = t(collapsed ? 'shell.expandSidebar' : 'shell.collapseSidebar');
-  const canBook = can(user?.role, 'manageAppointments');
+  const canBook = canUser(user, 'manageAppointments');
+  const onboarding = useOnboardingStatus();
+  const roleLabel =
+    user?.roleName || (user ? t(`roles.${user.role}`, { defaultValue: user.role }) : '');
 
   const userItems = [
-    ...(user && canSee(user.role, 'settings')
+    {
+      id: 'profile',
+      label: t('shellnav.myProfile'),
+      icon: <UserRound size={16} aria-hidden="true" />,
+      onSelect: () => navigate('/profile'),
+    },
+    ...(user && canSeeNav(user, 'settings')
       ? [
           {
             id: 'settings',
             label: t('nav.settings'),
             icon: <Settings size={16} aria-hidden="true" />,
-            onSelect: () => navigate('/settings'),
+            onSelect: () =>
+              navigate(canUser(user, 'manageSettings') ? '/settings' : '/settings/roles'),
+          },
+        ]
+      : []),
+    ...(onboarding && !onboarding.completed && canUser(user, 'manageSettings')
+      ? [
+          {
+            id: 'onboarding',
+            label: t('shellnav.onboarding'),
+            icon: <Rocket size={16} aria-hidden="true" />,
+            onSelect: () => navigate('/onboarding'),
           },
         ]
       : []),
@@ -366,11 +394,11 @@ export function AppShell() {
                         {initials}
                       </span>
                       <span className="hidden text-start leading-tight lg:block">
-                        <span className="block max-w-28 truncate text-sm font-medium">
-                          {user?.firstName}
+                        <span className="block max-w-40 truncate text-sm font-medium">
+                          {[user?.firstName, user?.lastName].filter(Boolean).join(' ')}
                         </span>
-                        <span className="block text-xs text-muted">
-                          {user ? t(`roles.${user.role}`, { defaultValue: user.role }) : ''}
+                        <span className="block max-w-40 truncate text-xs text-muted">
+                          {roleLabel}
                         </span>
                       </span>
                     </>

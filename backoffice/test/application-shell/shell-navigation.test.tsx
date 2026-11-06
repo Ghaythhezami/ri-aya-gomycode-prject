@@ -1,7 +1,6 @@
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 /**
  * TEST-061 → AC-001, TEST-062 → AC-002, TEST-063 → AC-003, TEST-064 → AC-004.
@@ -10,7 +9,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
  * tests assert the state, roles and accessible names the shell produces.
  */
 
-const mocks = vi.hoisted(() => ({
+const mocks = {
   user: {
     id: 'u1',
     email: 'amina@riaya.local',
@@ -31,38 +30,38 @@ const mocks = vi.hoisted(() => ({
     role: 'SUPER_ADMIN',
   },
   memberships: [] as unknown[],
-  logout: vi.fn(),
-}));
+  logout: jest.fn(),
+};
 
-vi.mock('../../src/auth/AuthContext', () => ({
+jest.mock('../../src/auth/AuthContext', () => ({
   useAuth: () => ({
     user: mocks.user,
     ready: true,
     sessionMessage: null,
-    setSessionMessage: vi.fn(),
-    login: vi.fn(),
+    setSessionMessage: jest.fn(),
+    login: jest.fn(),
     logout: mocks.logout,
   }),
 }));
 
-vi.mock('../../src/auth/WorkspaceContext', () => ({
+jest.mock('../../src/auth/WorkspaceContext', () => ({
   useWorkspace: () => ({
     memberships: mocks.memberships,
     active: mocks.active,
     loading: false,
     switching: false,
-    switchTo: vi.fn(),
+    switchTo: jest.fn(),
   }),
 }));
 
 import '../../src/i18n';
-vi.mock('../../src/features/notifications/useUnreadCount', () => ({ useUnreadCount: () => 0 }));
-vi.mock('../../src/features/notifications/NotificationBell', () => ({
+jest.mock('../../src/features/notifications/useUnreadCount', () => ({ useUnreadCount: () => 0 }));
+jest.mock('../../src/features/notifications/NotificationBell', () => ({
   NotificationBell: () => null,
 }));
-vi.mock('../../src/features/chat/ChatLauncher', () => ({ ChatLauncher: () => null }));
-vi.mock('../../src/features/booking/BookingWizard', () => ({ BookingWizard: () => null }));
-vi.mock('../../src/features/search/GlobalSearch', () => ({
+jest.mock('../../src/features/chat/ChatLauncher', () => ({ ChatLauncher: () => null }));
+jest.mock('../../src/features/booking/BookingWizard', () => ({ BookingWizard: () => null }));
+jest.mock('../../src/features/search/GlobalSearch', () => ({
   GlobalSearch: () => <input role="combobox" aria-label="Search patients and appointments" />,
 }));
 

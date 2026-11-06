@@ -42,7 +42,11 @@
     "closeAfterOpen": "L'heure de fermeture doit être postérieure à l'heure d'ouverture.",
     "offsetMin": "Un rappel doit précéder le rendez-vous d'au moins 15 minutes (0,25 heure).",
     "offsetMax": "Un rappel peut précéder le rendez-vous de 7 jours (168 heures) au maximum.",
-    "duplicateOffset": "Chaque horaire de rappel doit être différent."
+    "duplicateOffset": "Chaque horaire de rappel doit être différent.",
+    "nameRequired": "Saisissez un nom dans au moins une langue.",
+    "max480": "La durée ne peut pas dépasser 480 minutes.",
+    "step5": "La durée doit être un multiple de 5 minutes.",
+    "color": "Choisissez l'une des couleurs."
   },
   "clinic": {
     "title": "Informations de la clinique",
@@ -89,7 +93,9 @@
     "targetWait": "Temps d'attente cible (min)",
     "targetWaitHelp": "Les patients qui attendent plus longtemps sont mis en évidence.",
     "requireReason": "Exiger un motif d'annulation",
-    "requireReasonHelp": "Le personnel doit saisir un motif lors de l'annulation d'un rendez-vous."
+    "requireReasonHelp": "Le personnel doit saisir un motif lors de l'annulation d'un rendez-vous.",
+    "policyTitle": "Règles de réservation",
+    "policySubtitle": "Taille des créneaux, annulation et objectif d'attente."
   },
   "reminders": {
     "title": "Rappels",
@@ -131,11 +137,171 @@
       "OPERATIONS": "Gérer la clinique, le personnel, les paramètres et les plannings.",
       "CLINICAL": "Ses patients, son planning et ses notes cliniques.",
       "FRONT_DESK": "Réservations, enregistrement et liste d'attente."
+    },
+    "new": "Nouveau rôle",
+    "edit": "Modifier",
+    "reset": "Rétablir les valeurs par défaut",
+    "delete": "Supprimer",
+    "system": "Système",
+    "custom": "Personnalisé",
+    "baseRole": "Rôle de base",
+    "baseRoleHelp": "Détermine les données visibles (un rôle basé sur médecin voit son propre planning).",
+    "name": "Nom",
+    "description": "Description",
+    "template": "Partir d'un modèle",
+    "templateHelp": "Copie les autorisations d'un rôle existant ; vous pourrez les ajuster ensuite dans la matrice.",
+    "templateNone": "Aucune autorisation",
+    "templateCopies": "{{count}} autorisation(s) copiée(s).",
+    "templateDropped": "{{count}} ignorée(s) car vous ne les détenez pas.",
+    "type": "Type",
+    "actions": "Actions",
+    "noAccess": "Vous n'avez pas accès aux rôles et autorisations.",
+    "viewOnly": "Lecture seule : vous ne pouvez pas modifier les rôles.",
+    "createTitle": "Nouveau rôle",
+    "editTitle": "Modifier le rôle",
+    "created": "Rôle créé",
+    "updated": "Rôle mis à jour",
+    "deleted": "Rôle supprimé",
+    "resetDone": "Rôle rétabli par défaut",
+    "saved": "Autorisations de {{name}} enregistrées",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteBody": "Le rôle est supprimé. Un rôle qui a encore des membres ou des invitations en attente ne peut pas être supprimé.",
+    "deleteInUse": "Ce rôle est encore attribué à des membres ou des invitations. Réattribuez-les d'abord.",
+    "resetTitle": "Rétablir {{name}} ?",
+    "resetBody": "Le rôle retrouve son nom et ses autorisations par défaut.",
+    "changed": "modifié",
+    "matrix": {
+      "title": "Matrice des autorisations",
+      "subtitle": "Cochez ce que chaque rôle peut faire. Les changements s'appliquent après enregistrement.",
+      "capability": "Autorisation"
+    },
+    "reason": {
+      "readonly": "Ce rôle est fixe et ne peut pas être modifié.",
+      "locked": "Toujours accordée à l'administrateur pour que la clinique ne puisse pas se verrouiller.",
+      "notHeld": "Vous ne pouvez pas modifier une autorisation que vous ne détenez pas.",
+      "viewOnly": "Lecture seule."
+    },
+    "unsaved": {
+      "title": "{{count}} rôle(s) avec des modifications non enregistrées",
+      "changes": "{{added}} ajoutée(s), {{removed}} retirée(s)",
+      "discard": "Annuler"
+    },
+    "groups": {
+      "workspace": "Espace de travail",
+      "communication": "Communication",
+      "appointments": "Rendez-vous",
+      "patients": "Patients",
+      "doctors": "Médecins",
+      "scheduling": "Planification",
+      "analytics": "Analyses",
+      "administration": "Administration"
+    },
+    "capabilities": {
+      "viewOverview": {
+        "label": "Voir la vue d'ensemble",
+        "help": "Consulter le tableau de bord et les chiffres du jour."
+      },
+      "viewAppointments": {
+        "label": "Voir les rendez-vous",
+        "help": "Ouvrir la liste et le détail des rendez-vous."
+      },
+      "viewCalendar": {
+        "label": "Voir le calendrier",
+        "help": "Ouvrir le calendrier partagé."
+      },
+      "viewPatients": {
+        "label": "Voir les patients",
+        "help": "Rechercher et ouvrir les dossiers patients."
+      },
+      "viewWaitingList": {
+        "label": "Voir la salle d'attente",
+        "help": "Suivre la salle d'attente en direct."
+      },
+      "viewNotifications": {
+        "label": "Voir les notifications",
+        "help": "Lire le centre de notifications."
+      },
+      "viewDesignSystem": {
+        "label": "Voir le design system",
+        "help": "Ouvrir les pages de référence du design system."
+      },
+      "viewAnalytics": {
+        "label": "Voir les analyses",
+        "help": "Consulter les rapports et statistiques."
+      },
+      "manageStaff": {
+        "label": "Gérer le personnel",
+        "help": "Modifier le rôle et les informations des membres."
+      },
+      "inviteStaff": {
+        "label": "Inviter du personnel",
+        "help": "Envoyer des invitations aux nouveaux membres."
+      },
+      "suspendMembership": {
+        "label": "Suspendre des membres",
+        "help": "Retirer à un membre l'accès à cette clinique."
+      },
+      "manageSettings": {
+        "label": "Gérer les paramètres",
+        "help": "Modifier les informations, horaires et types de rendez-vous."
+      },
+      "viewDoctors": {
+        "label": "Voir les médecins",
+        "help": "Consulter la liste et les profils des médecins."
+      },
+      "manageDoctors": {
+        "label": "Gérer les médecins",
+        "help": "Créer et modifier les médecins et leurs disponibilités."
+      },
+      "viewScheduling": {
+        "label": "Voir la planification",
+        "help": "Ouvrir le tableau de planification intelligente."
+      },
+      "applySchedule": {
+        "label": "Appliquer le planning",
+        "help": "Appliquer les changements de planning optimisés."
+      },
+      "manageAppointments": {
+        "label": "Gérer les rendez-vous",
+        "help": "Réserver, déplacer, annuler et modifier les rendez-vous."
+      },
+      "manageQueue": {
+        "label": "Gérer la file d'attente",
+        "help": "Enregistrer l'arrivée des patients et les appeler."
+      },
+      "readClinicalNotes": {
+        "label": "Lire les notes cliniques",
+        "help": "Lire et rédiger les notes cliniques."
+      },
+      "viewAuditLog": {
+        "label": "Voir le journal d'audit",
+        "help": "Consulter l'historique des modifications de la clinique."
+      },
+      "viewChat": {
+        "label": "Utiliser la messagerie",
+        "help": "Échanger avec les collègues dans la messagerie du personnel."
+      },
+      "manageRoles": {
+        "label": "Gérer les rôles",
+        "help": "Créer des rôles et modifier leurs autorisations."
+      }
     }
   },
   "team": {
     "title": "Équipe et invitations",
-    "subtitle": "Invitez des collègues et consultez les invitations en attente."
+    "subtitle": "Invitez des collègues et consultez les invitations en attente.",
+    "members": "Membres",
+    "member": "Membre",
+    "status": "Statut",
+    "active": "Actif",
+    "suspended": "Suspendu",
+    "you": "vous",
+    "roleOf": "Rôle de {{name}}",
+    "ownRole": "Vous ne pouvez pas modifier votre propre rôle.",
+    "roleChanged": "Rôle de {{name}} mis à jour",
+    "loadError": "Impossible de charger les membres",
+    "noMembers": "Aucun membre pour le moment.",
+    "inviteTitle": "Inviter un collègue"
   },
   "audit": {
     "title": "Journal d'audit",
@@ -179,5 +345,48 @@
     "contrastHelp": "Bordures plus marquées et texte secondaire plus foncé.",
     "motion": "Réduire les animations",
     "motionHelp": "Désactiver les animations et les transitions."
+  },
+  "types": {
+    "title": "Types de rendez-vous",
+    "subtitle": "Types, durées et couleurs utilisés lors de la réservation.",
+    "new": "Nouveau type",
+    "createTitle": "Nouveau type de rendez-vous",
+    "editTitle": "Modifier le type de rendez-vous",
+    "name": "Nom",
+    "code": "Code",
+    "duration": "Durée",
+    "usage": "Rendez-vous",
+    "active": "Actif",
+    "on": "Actif",
+    "off": "Inactif",
+    "colour": "Couleur",
+    "emergency": "Urgence",
+    "emergencyHelp": "Un type d'urgence n'est jamais déplacé par l'optimiseur et ignore le délai d'annulation.",
+    "emergencyLocked": "Ce type système est toujours un type d'urgence.",
+    "activeHelp": "Un type inactif ne peut plus être réservé mais reste sur les rendez-vous existants.",
+    "durationHelp": "Entre 5 et 480 minutes, par pas de 5.",
+    "lastBookable": "Au moins un type actif hors urgence doit rester disponible.",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "deleteTitle": "Supprimer {{name}} ?",
+    "deleteBody": "Le type est supprimé définitivement.",
+    "blockedTitle": "{{name}} est utilisé",
+    "blockedBody": "Des rendez-vous utilisent ce type : il ne peut pas être supprimé. Désactivez-le pour arrêter les nouvelles réservations.",
+    "deactivate": "Désactiver",
+    "created": "Type créé",
+    "updated": "Type mis à jour",
+    "deleted": "Type supprimé",
+    "deactivated": "Type désactivé",
+    "reordered": "Ordre enregistré",
+    "loadError": "Impossible de charger les types de rendez-vous",
+    "empty": "Aucun type de rendez-vous.",
+    "colours": {
+      "primary": "Turquoise",
+      "info": "Bleu",
+      "success": "Vert",
+      "warning": "Ambre",
+      "alert": "Orange",
+      "violet": "Violet"
+    }
   }
 }

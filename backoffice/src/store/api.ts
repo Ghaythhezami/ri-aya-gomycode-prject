@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery, type FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
 import type { AuthResponse, AuthUser } from '../lib/types';
+import i18n from '../i18n';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
@@ -9,6 +10,8 @@ export const apiSlice = createApi({
     prepareHeaders: (headers, { getState }) => {
       const token = (getState() as { auth: { accessToken: string | null } }).auth.accessToken;
       if (token) headers.set('authorization', `Bearer ${token}`);
+      // Role names and other stored labels come back in the UI language (ADR 0004 §3).
+      if (i18n.language) headers.set('Accept-Language', i18n.language);
       return headers;
     },
   }),
