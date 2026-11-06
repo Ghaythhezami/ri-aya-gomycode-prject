@@ -223,24 +223,55 @@
     "missingBody": "This link is missing its token. Ask an admin to resend the invitation.",
     "expiredTitle": "Invitation expired",
     "expiredBody": "This invitation has expired or was already used.",
-    "requestNew": "Ask an admin for a new invitation"
+    "requestNew": "Ask an admin for a new invitation",
+    "joining": "You are joining {{clinic}} as {{role}}.",
+    "decline": "Decline invitation",
+    "declinedTitle": "Invitation declined",
+    "declinedBody": "You declined this invitation. The clinic has been notified."
   },
   "workspace": {
     "createOrganization": "+ Create New Organization"
   },
   "staff": {
     "title": "Staff",
-    "subtitle": "Invite staff to this clinic and review pending invitations.",
+    "subtitle": "Manage the clinic's members and their invitations.",
     "email": "Email",
     "role": "Role",
     "invite": "Send invitation",
     "invited": "Invitation sent",
     "inviteError": "Could not send the invitation",
-    "loadError": "Could not load invitations",
-    "pending": "Pending invitations",
-    "empty": "No pending invitations",
+    "loadError": "Could not load the staff directory",
+    "pending": "Invitations",
+    "empty": "No invitations yet",
     "expires": "Expires",
-    "noClinic": "No active clinic found"
+    "status": "Status",
+    "actions": "Actions",
+    "resend": "Resend",
+    "cancel": "Cancel",
+    "cancelled": "Invitation cancelled",
+    "resent": "Invitation resent",
+    "roleChanged": "Role updated",
+    "actionError": "Could not complete the action",
+    "deliveryFailed": "Delivery failed",
+    "noClinic": "No active clinic found",
+    "members": "Members",
+    "member": "Member",
+    "lastLogin": "Last sign-in",
+    "never": "Never",
+    "noMembers": "No members yet",
+    "roleError": "Could not change the role",
+    "lastSuperAdmin": "An organization must keep at least one super admin",
+    "statusLabel": {
+      "PENDING": "Pending",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Declined",
+      "CANCELLED": "Cancelled",
+      "EXPIRED": "Expired"
+    },
+    "memberStatus": {
+      "ACTIVE": "Active",
+      "SUSPENDED": "Suspended"
+    }
   },
   "roles": {
     "SUPER_ADMIN": "Super admin",

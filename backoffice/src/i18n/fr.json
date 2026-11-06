@@ -223,24 +223,55 @@
     "missingBody": "Ce lien n a pas de jeton. Demandez à un administrateur de renvoyer l invitation.",
     "expiredTitle": "Invitation expirée",
     "expiredBody": "Cette invitation a expiré ou a déjà été utilisée.",
-    "requestNew": "Demandez une nouvelle invitation"
+    "requestNew": "Demandez une nouvelle invitation",
+    "joining": "Vous rejoignez {{clinic}} en tant que {{role}}.",
+    "decline": "Refuser l invitation",
+    "declinedTitle": "Invitation refusée",
+    "declinedBody": "Vous avez refusé cette invitation. La clinique a été informée."
   },
   "workspace": {
     "createOrganization": "+ Créer une nouvelle organisation"
   },
   "staff": {
     "title": "Personnel",
-    "subtitle": "Invitez du personnel dans cette clinique et consultez les invitations en attente.",
+    "subtitle": "Gérez les membres de la clinique et leurs invitations.",
     "email": "E-mail",
     "role": "Rôle",
     "invite": "Envoyer l invitation",
     "invited": "Invitation envoyée",
     "inviteError": "Impossible d envoyer l invitation",
-    "loadError": "Impossible de charger les invitations",
-    "pending": "Invitations en attente",
-    "empty": "Aucune invitation en attente",
+    "loadError": "Impossible de charger l’annuaire du personnel",
+    "pending": "Invitations",
+    "empty": "Aucune invitation pour le moment",
     "expires": "Expire le",
-    "noClinic": "Aucune clinique active"
+    "status": "Statut",
+    "actions": "Actions",
+    "resend": "Renvoyer",
+    "cancel": "Annuler",
+    "cancelled": "Invitation annulée",
+    "resent": "Invitation renvoyée",
+    "roleChanged": "Rôle mis à jour",
+    "actionError": "Impossible de terminer l action",
+    "deliveryFailed": "Échec de l envoi",
+    "noClinic": "Aucune clinique active",
+    "members": "Membres",
+    "member": "Membre",
+    "lastLogin": "Dernière connexion",
+    "never": "Jamais",
+    "noMembers": "Aucun membre pour le moment",
+    "roleError": "Impossible de modifier le rôle",
+    "lastSuperAdmin": "Une organisation doit conserver au moins un super administrateur",
+    "statusLabel": {
+      "PENDING": "En attente",
+      "ACCEPTED": "Acceptée",
+      "REJECTED": "Refusée",
+      "CANCELLED": "Annulée",
+      "EXPIRED": "Expirée"
+    },
+    "memberStatus": {
+      "ACTIVE": "Actif",
+      "SUSPENDED": "Suspendu"
+    }
   },
   "roles": {
     "SUPER_ADMIN": "Super administrateur",
