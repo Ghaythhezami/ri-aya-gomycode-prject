@@ -72,6 +72,13 @@ class NotificationsRepo:
         return flt
 
     async def create(self, clinic_id: str, item: NotificationIn) -> tuple[str, bool]:
+        notification_id, doc = await self.create_with_doc(clinic_id, item)
+        return notification_id, doc is not None
+
+    async def create_with_doc(
+        self, clinic_id: str, item: NotificationIn
+    ) -> tuple[str, dict | None]:
+        """Like `create`, but returns the inserted document (None for a duplicate)."""
         doc = build_doc(clinic_id, item)
         try:
             await self.col.insert_one(doc)
@@ -81,20 +88,27 @@ class NotificationsRepo:
             )
             if existing is None:  # key belongs to another clinic: do not reveal it
                 raise validation_failed("dedupeKey is not available") from None
-            return existing["_id"], False
-        return doc["_id"], True
+            return existing["_id"], None
+        return doc["_id"], doc
 
     async def bulk(self, clinic_id: str, items: list[NotificationIn]) -> tuple[int, int]:
+        inserted, duplicates = await self.bulk_docs(clinic_id, items)
+        return len(inserted), duplicates
+
+    async def bulk_docs(
+        self, clinic_id: str, items: list[NotificationIn]
+    ) -> tuple[list[dict], int]:
+        """Inserted documents and the duplicate count."""
         docs = [build_doc(clinic_id, i) for i in items]
-        duplicates = 0
+        failed: set[int] = set()
         try:
             await self.col.insert_many(docs, ordered=False)
         except BulkWriteError as exc:
             errors = exc.details.get("writeErrors", [])
             if any(e.get("code") != DUPLICATE_KEY for e in errors):
                 raise
-            duplicates = len(errors)
-        return len(docs) - duplicates, duplicates
+            failed = {e["index"] for e in errors}
+        return [d for i, d in enumerate(docs) if i not in failed], len(failed)
 
     async def unread_count(
         self, clinic_id: str, user_id: str, mark: datetime | None = None, *, use_mark: bool = False

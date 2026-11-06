@@ -169,7 +169,13 @@ class ChatRepo:
     async def post_message(
         self, clinic_id: str, user_id: str, conversation_id: str, body: str
     ) -> dict:
-        await self.member_conversation(clinic_id, user_id, conversation_id)
+        return (await self.post_message_to(clinic_id, user_id, conversation_id, body))[0]
+
+    async def post_message_to(
+        self, clinic_id: str, user_id: str, conversation_id: str, body: str
+    ) -> tuple[dict, list[str]]:
+        """The new message and the member ids to notify."""
+        conversation = await self.member_conversation(clinic_id, user_id, conversation_id)
         now = now_ms()
         doc = {
             "_id": str(uuid.uuid4()),
@@ -184,12 +190,18 @@ class ChatRepo:
         await self.conversations.update_one(
             {"_id": conversation_id, "clinicId": clinic_id}, {"$set": {"updatedAt": now}}
         )
-        return message_dto(doc)
+        return message_dto(doc), list(conversation["memberIds"])
 
     async def mark_read(self, clinic_id: str, user_id: str, conversation_id: str) -> int:
-        await self.member_conversation(clinic_id, user_id, conversation_id)
+        return (await self.mark_read_for(clinic_id, user_id, conversation_id))[0]
+
+    async def mark_read_for(
+        self, clinic_id: str, user_id: str, conversation_id: str
+    ) -> tuple[int, list[str]]:
+        """Modified count and the member ids to notify."""
+        conversation = await self.member_conversation(clinic_id, user_id, conversation_id)
         result = await self.messages.update_many(
             {"conversationId": conversation_id, "clinicId": clinic_id, "readBy": {"$ne": user_id}},
             {"$addToSet": {"readBy": user_id}},
         )
-        return result.modified_count
+        return result.modified_count, list(conversation["memberIds"])

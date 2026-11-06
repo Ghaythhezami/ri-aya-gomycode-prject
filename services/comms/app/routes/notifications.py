@@ -1,3 +1,4 @@
+import logging
 from datetime import UTC, date, datetime, timedelta
 
 from fastapi import APIRouter, Depends, Query, Response
@@ -6,7 +7,8 @@ from pymongo.asynchronous.database import AsyncDatabase
 from app.auth import Principal, authenticate
 from app.db import get_db
 from app.errors import validation_failed
-from app.notifications import NotificationsRepo
+from app.notifications import NotificationsRepo, to_dto
+from app.realtime import BULK_EMIT_LIMIT, Realtime, get_realtime
 from app.schemas import (
     BulkNotificationsIn,
     BulkOut,
@@ -21,6 +23,7 @@ from app.schemas import (
 )
 from app.timeutil import as_utc, now_ms
 
+log = logging.getLogger("comms")
 router = APIRouter(prefix="/v1/notifications", tags=["notifications"])
 
 
@@ -39,16 +42,30 @@ def parse_bound(value: str, name: str) -> tuple[datetime, bool]:
         raise validation_failed(f"`{name}` must be an ISO 8601 date or datetime") from None
 
 
+async def announce(rt: Realtime, notifications: NotificationsRepo, clinic_id: str, doc: dict):
+    """Push a stored notification. Never raises: the write already succeeded."""
+    user_id = doc.get("userId")
+    try:
+        count = (await notifications.unread_count(clinic_id, user_id))[0] if user_id else None
+        await rt.notification_created(clinic_id, user_id, to_dto(doc, user_id or ""), count)
+    except Exception as exc:
+        log.warning("realtime announce failed", extra={"fields": {"error": type(exc).__name__}})
+
+
 @router.post("", response_model=CreatedOut, status_code=201)
 async def create(
     body: NotificationIn,
     response: Response,
     p: Principal = Depends(authenticate),
     notifications: NotificationsRepo = Depends(repo),
+    rt: Realtime = Depends(get_realtime),
 ):
-    notification_id, created = await notifications.create(p.clinic_id, body)
-    if not created:
+    notification_id, doc = await notifications.create_with_doc(p.clinic_id, body)
+    created = doc is not None
+    if doc is None:
         response.status_code = 200
+    else:
+        await announce(rt, notifications, p.clinic_id, doc)
     return {"id": notification_id, "created": created}
 
 
@@ -57,9 +74,12 @@ async def bulk(
     body: BulkNotificationsIn,
     p: Principal = Depends(authenticate),
     notifications: NotificationsRepo = Depends(repo),
+    rt: Realtime = Depends(get_realtime),
 ):
-    created, duplicates = await notifications.bulk(p.clinic_id, body.items)
-    return {"created": created, "duplicates": duplicates}
+    inserted, duplicates = await notifications.bulk_docs(p.clinic_id, body.items)
+    for doc in inserted[:BULK_EMIT_LIMIT]:  # larger imports are picked up by polling
+        await announce(rt, notifications, p.clinic_id, doc)
+    return {"created": len(inserted), "duplicates": duplicates}
 
 
 @router.get("", response_model=NotificationPageOut)
@@ -86,9 +106,13 @@ async def unread_count(
 
 @router.post("/read-all", response_model=UpdatedOut)
 async def read_all(
-    p: Principal = Depends(authenticate), notifications: NotificationsRepo = Depends(repo)
+    p: Principal = Depends(authenticate),
+    notifications: NotificationsRepo = Depends(repo),
+    rt: Realtime = Depends(get_realtime),
 ):
-    return {"updated": await notifications.mark_all_read(p.clinic_id, p.user_id)}
+    updated = await notifications.mark_all_read(p.clinic_id, p.user_id)
+    await rt.notification_read(p.user_id, 0)
+    return {"updated": updated}
 
 
 @router.get("/stats", response_model=StatsOut, response_model_by_alias=True)
@@ -114,6 +138,12 @@ async def read_one(
     notification_id: str,
     p: Principal = Depends(authenticate),
     notifications: NotificationsRepo = Depends(repo),
+    rt: Realtime = Depends(get_realtime),
 ):
     await notifications.mark_read(p.clinic_id, p.user_id, notification_id)
+    try:
+        count = (await notifications.unread_count(p.clinic_id, p.user_id))[0]
+        await rt.notification_read(p.user_id, count)
+    except Exception as exc:
+        log.warning("realtime announce failed", extra={"fields": {"error": type(exc).__name__}})
     return {"success": True}

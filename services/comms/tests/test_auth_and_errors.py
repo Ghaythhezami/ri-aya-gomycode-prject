@@ -6,7 +6,11 @@ from tests.conftest import TEST_SECRET, auth, make_token
 async def test_health_is_open(client):
     r = await client.get("/health")
     assert r.status_code == 200
-    assert r.json() == {"status": "ok", "store": "up"}
+    assert r.json() == {
+        "status": "ok",
+        "store": "up",
+        "realtime": {"sockets": 0, "redis": "none"},
+    }
 
 
 async def test_request_id_passthrough_and_generated(client):
@@ -123,7 +127,8 @@ async def test_store_down_returns_503(client):
         assert r.status_code == 503
         assert r.json()["code"] == "SERVICE_UNAVAILABLE"
         h = await client.get("/health")
-        assert h.json() == {"status": "degraded", "store": "down"}
+        assert h.json()["status"] == "degraded"
+        assert h.json()["store"] == "down"
     finally:
         await db_module._client.close()
         db_module._client, db_module._indexed = real_client, real_flag

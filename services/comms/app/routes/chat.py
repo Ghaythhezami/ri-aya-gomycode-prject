@@ -4,6 +4,7 @@ from pymongo.asynchronous.database import AsyncDatabase
 from app.auth import Principal, authenticate
 from app.chat import ChatRepo
 from app.db import get_db
+from app.realtime import Realtime, get_realtime
 from app.schemas import (
     ConversationIn,
     ConversationOut,
@@ -55,12 +56,22 @@ async def post_message(
     body: MessageIn,
     p: Principal = Depends(authenticate),
     chat: ChatRepo = Depends(repo),
+    rt: Realtime = Depends(get_realtime),
 ):
-    return await chat.post_message(p.clinic_id, p.user_id, conversation_id, body.body)
+    message, members = await chat.post_message_to(
+        p.clinic_id, p.user_id, conversation_id, body.body
+    )
+    await rt.chat_message(conversation_id, message, members)
+    return message
 
 
 @router.post("/{conversation_id}/read", response_model=UpdatedOut)
 async def read_conversation(
-    conversation_id: str, p: Principal = Depends(authenticate), chat: ChatRepo = Depends(repo)
+    conversation_id: str,
+    p: Principal = Depends(authenticate),
+    chat: ChatRepo = Depends(repo),
+    rt: Realtime = Depends(get_realtime),
 ):
-    return {"updated": await chat.mark_read(p.clinic_id, p.user_id, conversation_id)}
+    updated, members = await chat.mark_read_for(p.clinic_id, p.user_id, conversation_id)
+    await rt.chat_read(conversation_id, p.user_id, members)
+    return {"updated": updated}

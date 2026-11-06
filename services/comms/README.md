@@ -17,13 +17,18 @@ Docker: `docker build -t riaya-comms . && docker run -p 4200:4200 -e SERVICE_JWT
 
 ## Environment
 
-| Variable             | Default                     | Notes                                                     |
-| -------------------- | --------------------------- | --------------------------------------------------------- |
-| `SERVICE_JWT_SECRET` | none, required              | at least 32 characters (any length when `COMMS_ENV=test`) |
-| `MONGODB_URI`        | `mongodb://localhost:27017` |                                                           |
-| `MONGODB_DB`         | `riaya_comms`               |                                                           |
-| `PORT`               | `4200`                      |                                                           |
-| `COMMS_ENV`          | `production`                | `test` relaxes the secret length only                     |
+| Variable                      | Default                                       | Notes                                                                          |
+| ----------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------ |
+| `SERVICE_JWT_SECRET`          | none, required                                | at least 32 characters (any length when `COMMS_ENV=test`)                      |
+| `MONGODB_URI`                 | `mongodb://localhost:27017`                   |                                                                                |
+| `MONGODB_DB`                  | `riaya_comms`                                 |                                                                                |
+| `PORT`                        | `4200`                                        |                                                                                |
+| `COMMS_ENV`                   | `production`                                  | `test` relaxes the secret length only; `development` enables the docs          |
+| `REDIS_URL`                   | unset                                         | enables the `riaya:events` relay, Redis `jti` store and multi-instance fan-out |
+| `REALTIME_CORS_ORIGINS`       | `http://localhost:3000,5173,5174,5175`        | comma-separated browser origins allowed to open the socket                     |
+| `REALTIME_TRUST_PROXY`        | `false`                                       | `true` takes the client IP for the connect throttle from `X-Forwarded-For`     |
+| `REALTIME_MAX_SOCKET_SECONDS` | `900`                                         | maximum socket lifetime; the client reconnects with a fresh ticket             |
+| `DOCS_ENABLED`                | `false` (`true` when `COMMS_ENV=development`) | serves `/docs` and `/openapi.json`                                             |
 
 Indexes are created idempotently at startup and again on the first request if the store was down.
 The Mongo client uses `serverSelectionTimeoutMS=3000` and `maxPoolSize=10`.
@@ -48,7 +53,7 @@ base64 of `createdAt|id`; ordering is `createdAt desc, id desc`; a bad cursor is
 
 | Method and path                        | Body / query                                                   | Response                                                                            |
 | -------------------------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
-| `GET /health`                          | open                                                           | `{status: "ok"\|"degraded", store: "up"\|"down"}`                                   |
+| `GET /health`                          | open                                                           | `{status, store: "up"\|"down", realtime: {sockets, redis: "up"\|"down"\|"none"}}`   |
 | `POST /v1/notifications`               | `NotificationIn`                                               | `{id, created}` (201 new, 200 duplicate `dedupeKey`)                                |
 | `POST /v1/notifications/bulk`          | `{items: NotificationIn[1..1000]}`                             | `{created, duplicates}`                                                             |
 | `GET /v1/notifications`                | `category`, `unread`, `cursor`, `limit` 1-100 (20)             | `{items: NotificationDto[], nextCursor, unreadCount}` (`unreadCount` capped at 100) |
@@ -191,3 +196,51 @@ PG_URL=postgresql://... MONGODB_URI=... MONGODB_DB=riaya_comms uv run python scr
 Reads `notifications`, `chat_conversations`, `chat_messages` (joined to the conversation for
 `clinicId`) with server-side cursors in chunks of 5 000 and upserts by id, so it is idempotent.
 Prints counts only. Migrated notifications older than 90 days are removed by the TTL index.
+
+## Realtime (Socket.IO)
+
+`python-socketio` is mounted on the same port at `/socket.io` (`socketio.ASGIApp(sio, other_asgi_app=api)`),
+so `uvicorn app.main:app` serves REST and sockets. ADR 0004 section 4.
+
+Connect flow: the SPA calls `POST /api/realtime/ticket` on the NestJS API (JWT, `viewNotifications`,
+10/min) and connects with `io(url, { path: "/socket.io", auth: { ticket } })`. The ticket is an HS256 JWT
+signed with `SERVICE_JWT_SECRET`: `iss riaya-api`, `aud riaya-realtime`, `sub`, `clinic_id`, `role`,
+`jti`, 60 s. It is verified once on connect and its `jti` is consumed (`SET riaya:rt:jti:<jti> 1 NX EX 120`
+with `REDIS_URL`, an in-memory TTL set without; if Redis is configured but down, connections are
+refused). Refusals are `connect_error` with `{message, data: {code}}`, `code` one of `UNAUTHORIZED`,
+`RATE_LIMITED` (20 attempts/min per IP, per instance) or `TOO_MANY_CONNECTIONS` (5 sockets per user,
+per instance). The socket joins `user:<sub>` and `clinic:<clinic_id>`; clients cannot join rooms.
+
+| Event (server to client)                                                                   | Room                                                    | Payload                                                             |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------- | ------------------------------------------------------------------- |
+| `notification.created`                                                                     | `user:<id>` (targeted) or `clinic:<id>` (`userId` null) | `{notification: NotificationDto (read=false), unreadCount}`         |
+| `notification.read`                                                                        | `user:<sub>` after read / read-all                      | `{unreadCount}`                                                     |
+| `chat.message`                                                                             | `user:<member>` for every member                        | `{conversationId, message: MessageOut}`                             |
+| `chat.read`                                                                                | `user:<member>` for every member                        | `{conversationId, userId}`                                          |
+| `queue.updated`, `appointment.created`, `appointment.cancelled`, `appointment.rescheduled` | `clinic:<clinicId>`                                     | the envelope `payload` of `packages/shared/src/schemas/realtime.ts` |
+
+`unreadCount` is the capped count of the REST API (at most 100). For a targeted notification it is the
+recipient's count; for a broadcast it is `null` because the value differs per member, so the client
+refetches `GET /v1/notifications/unread-count`. Bulk imports push at most 50 notifications; larger
+imports are picked up by polling. Emitting never fails the REST write.
+
+Relay: with `REDIS_URL` a background task subscribes to `riaya:events`, validates the envelope
+(contract version 1, strict payloads, same rules as the NestJS relay), drops invalid messages (logged
+without content) and emits `event` with its `payload` to `clinic:<clinicId>` of the sockets on this
+instance, reconnecting with backoff (1 s up to 30 s). Several instances share rooms through
+`socketio.AsyncRedisManager(REDIS_URL)`. Logs contain counts and error class names only.
+
+Hardening: a socket lives at most `REALTIME_MAX_SOCKET_SECONDS`, and the API's internal
+`membership.suspended` / `membership.role_changed` events (`{clinicId, payload: {userId}}` on
+`riaya:events`) disconnect that user's sockets in that clinic; comms never emits them to browsers.
+With `REALTIME_TRUST_PROXY=true` the rightmost `X-Forwarded-For` entry is the client IP. In production
+(`COMMS_ENV` not `development`/`test`) sockets are refused with `UNAVAILABLE`, and a warning is logged
+at startup, when `REALTIME_CORS_ORIGINS` or `REDIS_URL` is unset; REST keeps working. Tickets over 4096
+characters and auth objects with more than 8 keys are refused, other auth keys are ignored, and inbound
+messages are capped at 16 KiB. The notification `dedupeKey` is unique per clinic (`clinic_dedupe_unique`);
+the old global `dedupeKey_unique` index is dropped at startup.
+
+Hosting: sockets and the subscriber need a long-running process (Docker, Fly, Render, a VM), not
+Vercel functions. Run one process per container and put the instances behind a load balancer with
+sticky sessions or websocket-only transport. Without `REALTIME_PUBLIC_URL` on the API the ticket
+endpoint answers `{url: null, ticket: null}` and the SPA keeps polling.

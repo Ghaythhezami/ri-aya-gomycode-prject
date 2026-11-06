@@ -14,12 +14,35 @@ async def test_create_is_idempotent_on_dedupe_key(client):
     assert r2.json() == {"id": r1.json()["id"], "created": False}
 
 
-async def test_dedupe_key_of_other_clinic_is_not_revealed(client):
-    await client.post("/v1/notifications", headers=auth("clinic-a"), json=notification("shared"))
-    r = await client.post(
+async def test_dedupe_key_is_scoped_to_the_clinic(client):
+    """The same key in another clinic is an independent notification: no existence oracle."""
+    a = await client.post(
+        "/v1/notifications", headers=auth("clinic-a"), json=notification("shared")
+    )
+    b = await client.post(
         "/v1/notifications", headers=auth("clinic-b"), json=notification("shared")
     )
-    assert r.status_code == 422
+    assert a.status_code == 201 and b.status_code == 201
+    assert a.json()["id"] != b.json()["id"]
+    again = await client.post(
+        "/v1/notifications", headers=auth("clinic-b"), json=notification("shared")
+    )
+    assert again.status_code == 200 and again.json()["id"] == b.json()["id"]
+
+
+async def test_legacy_global_dedupe_index_is_dropped(client, db):
+    from pymongo import ASCENDING
+
+    from app.db import ensure_indexes
+
+    await db["notifications"].create_index(
+        [("dedupeKey", ASCENDING)], name="dedupeKey_unique", unique=True
+    )
+    await ensure_indexes(db)
+    await ensure_indexes(db)  # idempotent
+    info = await db["notifications"].index_information()
+    assert "dedupeKey_unique" not in info
+    assert "clinic_dedupe_unique" in info
 
 
 async def test_bulk_counts_duplicates(client):
@@ -234,7 +257,9 @@ async def test_indexes_exist_including_ttl(client, db):
     assert len(ttl) == 1
     assert ttl[0]["expireAfterSeconds"] == 90 * 24 * 3600
     assert ttl[0]["key"] == [("createdAt", 1)]
-    assert any(v.get("unique") and v["key"] == [("dedupeKey", 1)] for v in info.values())
+    assert any(
+        v.get("unique") and v["key"] == [("clinicId", 1), ("dedupeKey", 1)] for v in info.values()
+    )
     assert any(
         v["key"] == [("clinicId", 1), ("userId", 1), ("createdAt", -1), ("_id", -1)]
         for v in info.values()

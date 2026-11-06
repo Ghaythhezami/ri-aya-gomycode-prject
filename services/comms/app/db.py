@@ -4,6 +4,7 @@ import logging
 
 from pymongo import ASCENDING, DESCENDING, AsyncMongoClient, IndexModel
 from pymongo.asynchronous.database import AsyncDatabase
+from pymongo.errors import OperationFailure
 
 from app.config import load_settings
 
@@ -14,7 +15,11 @@ NOTIFICATION_TTL_SECONDS = 90 * 24 * 3600
 # Shared with scripts/migrate_from_postgres.py (sync pymongo accepts the same IndexModel).
 INDEXES: dict[str, list[IndexModel]] = {
     "notifications": [
-        IndexModel([("dedupeKey", ASCENDING)], name="dedupeKey_unique", unique=True),
+        IndexModel(
+            [("clinicId", ASCENDING), ("dedupeKey", ASCENDING)],
+            name="clinic_dedupe_unique",
+            unique=True,
+        ),
         IndexModel(
             [
                 ("clinicId", ASCENDING),
@@ -60,9 +65,20 @@ def get_client() -> AsyncMongoClient:
     return _client
 
 
+LEGACY_INDEXES = {"notifications": ["dedupeKey_unique"]}  # global unique: a cross-tenant oracle
+INDEX_NOT_FOUND = 27
+
+
 async def ensure_indexes(db: AsyncDatabase) -> None:
     for name, models in INDEXES.items():
         await db[name].create_indexes(models)
+    for name, legacy in LEGACY_INDEXES.items():
+        for index in legacy:
+            try:
+                await db[name].drop_index(index)
+            except OperationFailure as exc:
+                if exc.code != INDEX_NOT_FOUND:
+                    raise
 
 
 async def get_db() -> AsyncDatabase:
