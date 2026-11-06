@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import type { Response } from 'express';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { CAPABILITY_ROLES } from '@riaya/shared';
@@ -10,7 +22,13 @@ import { TenantContext } from './tenant-context';
 import { OnboardingService } from './onboarding.service';
 import { TenancyService } from './tenancy.service';
 import { RegisterDto } from './dto/register.dto';
-import { AcceptInvitationDto, CreateOrganizationDto, InviteDto } from './dto/invitation.dto';
+import {
+  AcceptInvitationDto,
+  ChangeRoleDto,
+  CreateOrganizationDto,
+  DeclineInvitationDto,
+  InviteDto,
+} from './dto/invitation.dto';
 import { MAIL_SERVICE } from '../mail/mail.module';
 import type { MailService } from '../mail/mail.service';
 import type { UserRecord } from '../users/user.types';
@@ -75,27 +93,160 @@ export class TenancyController {
       invitedById: user.id,
     });
 
+    // The link carries the target scope as a convenience for the accept page. The
+    // persisted row stays the source of truth: the server ignores these claims on
+    // acceptance (FR-046, FR-047).
     const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5174';
-    const acceptUrl = `${backoffice}/accept-invite?token=${result.token}`;
-    await this.mail.sendInvitation({
+    const acceptUrl =
+      `${backoffice}/accept-invite?token=${result.token}` +
+      `&organizationId=${result.invitation.organizationId}` +
+      `&clinicId=${result.invitation.clinicId}` +
+      `&role=${result.invitation.role}`;
+
+    // The send runs OUTSIDE the invitation transaction (NFR-016) and its outcome
+    // is recorded, not thrown: a provider fault leaves the row PENDING for a
+    // resend (AC-049, EC-019). A mock that returns nothing reports SENT.
+    const outcome = await this.mail.sendInvitation({
       email: dto.email,
       acceptUrl,
       clinicName: result.clinicName,
       role: dto.role,
       locale: user.preferredLocale,
     });
+    await this.onboarding.recordDelivery(result.invitation.id, outcome ?? { status: 'SENT' });
 
     // The raw token is never returned over HTTP; it is delivered by email only.
-    return { invitationId: result.invitation.id, expiresAt: result.invitation.expiresAt };
+    return {
+      invitationId: result.invitation.id,
+      expiresAt: result.invitation.expiresAt,
+      organizationId: result.invitation.organizationId,
+      clinicId: result.invitation.clinicId,
+      role: result.invitation.role,
+      deliveryStatus: outcome?.status ?? 'SENT',
+    };
   }
 
   @Get('invitations')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'List pending invitations for the active clinic' })
-  listInvitations() {
+  @ApiOperation({ summary: 'List invitations for the active clinic, every status, paginated' })
+  async listInvitations(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Res({ passthrough: true }) res?: Response,
+  ) {
     const scope = this.tenant.get();
-    return this.onboarding.listPendingInvitations(scope);
+    const result = await this.onboarding.listInvitations(
+      scope,
+      page ? Number(page) : undefined,
+      pageSize ? Number(pageSize) : undefined,
+    );
+    // The body stays a bare array for the existing consumers; the page bounds and
+    // the total travel in headers, so a read is still paginated (NFR-019) without
+    // changing the v1 array shape (CON-605).
+    res?.setHeader('X-Total-Count', String(result.total));
+    res?.setHeader('X-Page', String(result.page));
+    res?.setHeader('X-Page-Size', String(result.pageSize));
+    return result.items;
+  }
+
+  @Get('invitations/:token')
+  @ApiOperation({ summary: 'Resolve the scope of an invitation link without consuming it' })
+  getInvitation(@Param('token') token: string) {
+    return this.onboarding.getInvitationByToken(token);
+  }
+
+  @Patch('invitations/:id/cancel')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.inviteStaff)
+  @ApiOperation({ summary: 'Cancel a pending invitation; its token can no longer be used' })
+  async cancelInvitation(@CurrentUser() user: UserRecord, @Param('id') id: string) {
+    const scope = this.tenant.get();
+    await this.onboarding.cancelInvitation(id, user.id, scope);
+    return { success: true };
+  }
+
+  @Post('invitations/:id/resend')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.inviteStaff)
+  @Throttle({ default: { limit: throttleLimit(20), ttl: 60_000 } })
+  @ApiOperation({ summary: 'Re-issue the token and re-send a pending invitation' })
+  async resendInvitation(@CurrentUser() user: UserRecord, @Param('id') id: string) {
+    const scope = this.tenant.get();
+    const result = await this.onboarding.resendInvitation(id, scope);
+
+    const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5174';
+    const acceptUrl =
+      `${backoffice}/accept-invite?token=${result.token}` +
+      `&organizationId=${result.invitation.organizationId}` +
+      `&clinicId=${result.invitation.clinicId}` +
+      `&role=${result.invitation.role}`;
+
+    const outcome = await this.mail.sendInvitation({
+      email: result.invitation.email,
+      acceptUrl,
+      clinicName: result.clinicName,
+      role: result.invitation.role,
+      locale: user.preferredLocale,
+    });
+    await this.onboarding.recordDelivery(result.invitation.id, outcome ?? { status: 'SENT' });
+
+    return { invitationId: result.invitation.id, deliveryStatus: outcome?.status ?? 'SENT' };
+  }
+
+  @Post('invitations/:token/decline')
+  @Throttle({ default: { limit: throttleLimit(10), ttl: 60_000 } })
+  @ApiOperation({ summary: 'Decline an invitation; its token is invalidated' })
+  async declineInvitation(@Param('token') token: string, @Body() dto: DeclineInvitationDto) {
+    // The path token is authoritative; the body token is accepted for clients that
+    // post it, but a mismatch is ignored in favour of the path segment.
+    await this.onboarding.declineInvitation(token || dto.token);
+    return { success: true };
+  }
+
+  @Get('memberships')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'List the members of the active clinic with their last login' })
+  async listMembers(
+    @Query('page') page?: string,
+    @Query('pageSize') pageSize?: string,
+    @Res({ passthrough: true }) res?: Response,
+  ) {
+    const result = await this.tenancy.listClinicMembers(
+      this.tenant.get(),
+      page ? Number(page) : undefined,
+      pageSize ? Number(pageSize) : undefined,
+    );
+    // Bounds travel in headers so a read is paginated (NFR-019) while the body
+    // stays a bare array, matching the invitations list (CON-605).
+    res?.setHeader('X-Total-Count', String(result.total));
+    res?.setHeader('X-Page', String(result.page));
+    res?.setHeader('X-Page-Size', String(result.pageSize));
+    return result.items;
+  }
+
+  @Patch('memberships/:id/role')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageStaff)
+  @ApiOperation({ summary: "Change a member's role within the caller's scope" })
+  async changeRole(
+    @CurrentUser() user: UserRecord,
+    @Param('id') id: string,
+    @Body() dto: ChangeRoleDto,
+  ) {
+    const scope = this.tenant.get();
+    const organizationWide = scope.role === UserRole.SUPER_ADMIN;
+    await this.tenancy.changeMembershipRole({
+      membershipId: id,
+      role: dto.role,
+      actorUserId: user.id,
+      organizationWide,
+    });
+    return { success: true };
   }
 
   @Patch('memberships/:id/suspend')

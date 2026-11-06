@@ -11,6 +11,7 @@ import { AuditService } from '../audit/audit.service';
 import { UserRole } from '../users/user-role.enum';
 import { clinicWhere, organizationWhere, type TenantScope } from './tenant-context';
 import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/password-strength';
+import type { DeliveryOutcome } from '../mail/mail.service';
 
 const INVITATION_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -205,9 +206,12 @@ export class OnboardingService {
     const email = params.email.toLowerCase();
     const raw = randomBytes(32).toString('hex');
 
+    // Issuing a new invitation revokes every earlier unfinalised one for the same
+    // email + clinic, so only the newest token works (FR-031, EC-024). The rows
+    // stay for the record, so they move to CANCELLED rather than being deleted.
     await this.prisma.invitation.updateMany({
-      where: { email, clinicId: params.clinicId, consumedAt: null },
-      data: { consumedAt: new Date() },
+      where: { email, clinicId: params.clinicId, status: 'PENDING' },
+      data: { status: 'CANCELLED' },
     });
 
     const invitation = await this.prisma.invitation.create({
@@ -219,10 +223,29 @@ export class OnboardingService {
         tokenHash: this.hashToken(raw),
         expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
         invitedById: params.invitedById,
+        status: 'PENDING',
+        deliveryStatus: 'PENDING',
       },
     });
 
     return { invitation, token: raw, clinicName: clinic.name };
+  }
+
+  /**
+   * Record the outcome of the mail send (FR-041, AC-048).
+   *
+   * Called AFTER the invitation transaction committed, so a slow or failing
+   * provider can never roll back the invitation row (NFR-016). A FAILED outcome
+   * is recorded, not thrown, leaving the invitation PENDING for a resend (EC-019).
+   */
+  async recordDelivery(invitationId: string, outcome: DeliveryOutcome): Promise<void> {
+    await this.prisma.invitation.update({
+      where: { id: invitationId },
+      data: {
+        deliveryStatus: outcome.status,
+        deliveryError: outcome.status === 'FAILED' ? (outcome.error ?? 'Unknown error') : null,
+      },
+    });
   }
 
   /**
@@ -245,7 +268,11 @@ export class OnboardingService {
     const tokenHash = this.hashToken(params.token);
     const invitation = await this.prisma.invitation.findUnique({ where: { tokenHash } });
 
-    if (!invitation || invitation.consumedAt || invitation.expiresAt.getTime() < Date.now()) {
+    if (
+      !invitation ||
+      invitation.status !== 'PENDING' ||
+      invitation.expiresAt.getTime() < Date.now()
+    ) {
       throw new BadRequestException({
         code: 'INVALID_INVITATION',
         message: 'This invitation is invalid or has expired',
@@ -287,7 +314,7 @@ export class OnboardingService {
 
       await tx.invitation.update({
         where: { id: invitation.id },
-        data: { consumedAt: new Date() },
+        data: { consumedAt: new Date(), status: 'ACCEPTED' },
       });
 
       await this.audit.record(tx, {
@@ -304,12 +331,207 @@ export class OnboardingService {
     });
   }
 
-  /** Pending (unconsumed, unexpired) invitations for the caller's clinic (FR-027). */
+  /**
+   * Invitations for the caller's clinic, every status, paginated (FR-042, FR-048, NFR-019).
+   *
+   * `EXPIRED` is derived here for an unconsumed row whose `expiresAt` has passed,
+   * so the directory shows one of the five statuses without any scheduled write
+   * (AC-050, AC-051). The page is bounded so a read never loads the whole table.
+   */
+  async listInvitations(scope: TenantScope, page = 1, pageSize = 25) {
+    const take = Math.min(Math.max(pageSize, 1), 100);
+    const skip = Math.max(page - 1, 0) * take;
+
+    const where = clinicWhere(scope);
+    const rows = await this.prisma.invitation.findMany({
+      where,
+      select: {
+        id: true,
+        email: true,
+        role: true,
+        status: true,
+        deliveryStatus: true,
+        expiresAt: true,
+        createdAt: true,
+        consumedAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+      take,
+      skip,
+    });
+    const total = await this.prisma.invitation.count({ where });
+
+    const now = Date.now();
+    const items = rows.map((row: (typeof rows)[number]) => ({
+      ...row,
+      // Derived, never stored: a PENDING row past its expiry reads EXPIRED.
+      displayStatus:
+        row.status === 'PENDING' && row.expiresAt.getTime() < now ? 'EXPIRED' : row.status,
+    }));
+
+    return { items, total, page, pageSize: take };
+  }
+
+  /**
+   * Pending (unconsumed, unexpired) invitations for the caller's clinic (FR-027).
+   * Retained so the strict-tenant-isolation scoping test keeps a stable surface;
+   * the directory uses `listInvitations`.
+   */
   async listPendingInvitations(scope: TenantScope) {
     return this.prisma.invitation.findMany({
-      where: { ...clinicWhere(scope), consumedAt: null, expiresAt: { gt: new Date() } },
+      where: { ...clinicWhere(scope), status: 'PENDING', expiresAt: { gt: new Date() } },
       select: { id: true, email: true, role: true, expiresAt: true, createdAt: true },
       orderBy: { createdAt: 'desc' },
     });
+  }
+
+  /**
+   * Cancel a PENDING invitation (FR-043, AC-053..AC-055).
+   *
+   * The row leaves PENDING, so a later accept can never succeed. A non-pending
+   * invitation is refused with a stable code and nothing is written. The status
+   * change and its audit row share one transaction (AC-054).
+   */
+  async cancelInvitation(id: string, actorUserId: string, scope: TenantScope): Promise<void> {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id, ...clinicWhere(scope) },
+    });
+    if (!invitation) {
+      throw new NotFoundException({
+        code: 'INVITATION_NOT_FOUND',
+        message: 'Invitation not found',
+      });
+    }
+
+    if (invitation.status !== 'PENDING') {
+      throw new ConflictException({
+        code: 'INVITATION_NOT_PENDING',
+        message: 'Only a pending invitation can be cancelled',
+      });
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.invitation.update({
+        where: { id: invitation.id },
+        data: { status: 'CANCELLED' },
+      });
+      await this.audit.record(tx, {
+        actorUserId,
+        action: 'update',
+        entity: 'invitation',
+        entityId: invitation.id,
+        before: { status: invitation.status },
+        after: { status: 'CANCELLED' },
+        organizationId: invitation.organizationId,
+        clinicId: invitation.clinicId,
+      });
+    });
+  }
+
+  /**
+   * Decline an invitation as the invitee (FR-044, AC-056, AC-057).
+   *
+   * The link token identifies the invitation; a valid, unconsumed, unexpired row
+   * moves to REJECTED and its token is invalidated. No membership is created.
+   */
+  async declineInvitation(token: string): Promise<void> {
+    const tokenHash = this.hashToken(token);
+    const invitation = await this.prisma.invitation.findUnique({ where: { tokenHash } });
+
+    if (
+      !invitation ||
+      invitation.status !== 'PENDING' ||
+      invitation.expiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException({
+        code: 'INVALID_INVITATION',
+        message: 'This invitation is invalid or has expired',
+      });
+    }
+
+    await this.prisma.invitation.update({
+      where: { id: invitation.id },
+      data: { status: 'REJECTED' },
+    });
+  }
+
+  /**
+   * Resolve an invitation from its link token WITHOUT consuming it (FR-046, FR-047).
+   *
+   * Returns the scope the accept page should render plus whether an identity
+   * already exists for the invited email, so the page asks only for profile and
+   * login details. The persisted row is the source of truth: the link claims are
+   * never trusted over this record (AC-064).
+   */
+  async getInvitationByToken(token: string) {
+    const tokenHash = this.hashToken(token);
+    const invitation = await this.prisma.invitation.findUnique({
+      where: { tokenHash },
+      include: { clinic: true, organization: true },
+    });
+
+    if (
+      !invitation ||
+      invitation.status !== 'PENDING' ||
+      invitation.expiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException({
+        code: 'INVALID_INVITATION',
+        message: 'This invitation is invalid or has expired',
+      });
+    }
+
+    const existing = await this.prisma.user.findUnique({ where: { email: invitation.email } });
+
+    return {
+      email: invitation.email,
+      organizationId: invitation.organizationId,
+      organizationName: invitation.organization.name,
+      clinicId: invitation.clinicId,
+      clinicName: invitation.clinic.name,
+      role: invitation.role,
+      expiresAt: invitation.expiresAt,
+      emailKnown: Boolean(existing),
+    };
+  }
+
+  /**
+   * Re-issue an invitation's token and return the fresh link (FR-031, EC-020, EC-024).
+   *
+   * A resend is a brand-new token: the previous token hash is replaced, so the
+   * old link is dead the moment the new one is issued. Refused for an invitation
+   * that is no longer PENDING (already accepted, cancelled, rejected or expired).
+   */
+  async resendInvitation(id: string, scope: TenantScope) {
+    const invitation = await this.prisma.invitation.findFirst({
+      where: { id, ...clinicWhere(scope) },
+      include: { clinic: true },
+    });
+    if (!invitation) {
+      throw new NotFoundException({
+        code: 'INVITATION_NOT_FOUND',
+        message: 'Invitation not found',
+      });
+    }
+
+    if (invitation.status !== 'PENDING' || invitation.expiresAt.getTime() < Date.now()) {
+      throw new ConflictException({
+        code: 'INVITATION_NOT_PENDING',
+        message: 'Only a pending invitation can be resent',
+      });
+    }
+
+    const raw = randomBytes(32).toString('hex');
+    const updated = await this.prisma.invitation.update({
+      where: { id: invitation.id },
+      data: {
+        tokenHash: this.hashToken(raw),
+        expiresAt: new Date(Date.now() + INVITATION_TTL_MS),
+        deliveryStatus: 'PENDING',
+        deliveryError: null,
+      },
+    });
+
+    return { invitation: updated, token: raw, clinicName: invitation.clinic.name };
   }
 }

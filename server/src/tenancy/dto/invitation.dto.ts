@@ -49,3 +49,17 @@ export class CreateOrganizationDto {
   @IsString()
   clinicName!: string;
 }
+
+/** Declining an invitation (FR-044). The token alone identifies the invitation. */
+export class DeclineInvitationDto {
+  @ApiProperty()
+  @IsString()
+  token!: string;
+}
+
+/** Changing a member's role within the caller's scope (FR-045). */
+export class ChangeRoleDto {
+  @ApiProperty({ enum: UserRole })
+  @IsIn(Object.values(UserRole))
+  role!: UserRole;
+}

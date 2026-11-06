@@ -1,5 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { AuditService } from '../audit/audit.service';
 import { UserRole } from '../users/user-role.enum';
 import { TenantContext, clinicWhere, organizationWhere, type TenantScope } from './tenant-context';
 
@@ -30,6 +31,10 @@ export class TenancyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tenant: TenantContext,
+    // Optional so the pre-existing scoping/timezone unit tests, which construct
+    // this service directly with two arguments, keep compiling. Nest always
+    // injects it (AuditModule is global), so runtime behaviour is unchanged.
+    private readonly audit?: AuditService,
   ) {}
 
   /** The clinic-scoped filter for a query in the current request. */
@@ -99,6 +104,41 @@ export class TenancyService {
   }
 
   /**
+   * Members of the active clinic for the staff directory (FR-048, NFR-019).
+   *
+   * Scoped with `clinicWhere`, so a caller reads only their own clinic, and
+   * bounded by a page so the directory never loads every membership at once.
+   * `lastLoginAt` is read from the identity, never newly modelled here.
+   */
+  async listClinicMembers(scope: TenantScope, page = 1, pageSize = 25) {
+    const take = Math.min(Math.max(pageSize, 1), 100);
+    const skip = Math.max(page - 1, 0) * take;
+
+    const where = clinicWhere(scope);
+    const rows = await this.prisma.userMembership.findMany({
+      where,
+      include: { user: true },
+      orderBy: { createdAt: 'asc' },
+      take,
+      skip,
+    });
+    const total = await this.prisma.userMembership.count({ where });
+
+    const items = rows.map((row) => ({
+      membershipId: row.id,
+      userId: row.userId,
+      firstName: row.user.firstName,
+      lastName: row.user.lastName,
+      email: row.user.email,
+      role: row.role as UserRole,
+      status: row.status,
+      lastLoginAt: row.user.lastLoginAt,
+    }));
+
+    return { items, total, page, pageSize: take };
+  }
+
+  /**
    * Suspend a membership (FR-018). Audit history is untouched (FR-020).
    *
    * The membership id arrives from the request path, so the caller supplies the
@@ -152,6 +192,68 @@ export class TenancyService {
     return this.prisma.userMembership.findFirst({
       where: { id: request.membershipId, ...filter },
       select: { id: true, role: true, organizationId: true },
+    });
+  }
+
+  /**
+   * Change a member's role within the caller's scope (FR-045, AC-058..AC-060).
+   *
+   * The membership id arrives from the request path, so it MUST resolve inside
+   * the caller's tenant: a foreign membership is reported as not found, never as
+   * forbidden. A SUPER_ADMIN is organization-wide; every other role acts only
+   * within their own clinic. A change that would leave the organization with zero
+   * active SUPER_ADMINs is refused by the same invariant suspension uses (FR-029).
+   * The role change and its audit row share one transaction (AC-060).
+   */
+  async changeMembershipRole(request: {
+    membershipId: string;
+    role: UserRole;
+    actorUserId: string;
+    organizationWide: boolean;
+  }): Promise<void> {
+    const membership = await this.findMembershipInTenant(request);
+    if (!membership) {
+      throw new NotFoundException({
+        code: 'MEMBERSHIP_NOT_FOUND',
+        message: 'Membership not found',
+      });
+    }
+
+    if (membership.role === request.role) {
+      return;
+    }
+
+    // Demoting the last SUPER_ADMIN would orphan the organization (FR-029, AC-059).
+    if (membership.role === UserRole.SUPER_ADMIN && request.role !== UserRole.SUPER_ADMIN) {
+      const remaining = await this.prisma.userMembership.count({
+        where: {
+          organizationId: membership.organizationId,
+          role: UserRole.SUPER_ADMIN,
+          status: 'ACTIVE',
+          id: { not: membership.id },
+        },
+      });
+      if (remaining === 0) {
+        throw new ConflictException({
+          code: 'LAST_SUPER_ADMIN',
+          message: 'An organization must keep at least one active super admin',
+        });
+      }
+    }
+
+    await this.prisma.$transaction(async (tx) => {
+      await tx.userMembership.update({
+        where: { id: membership.id },
+        data: { role: request.role },
+      });
+      await this.audit?.record(tx, {
+        actorUserId: request.actorUserId,
+        action: 'update',
+        entity: 'user_membership',
+        entityId: membership.id,
+        before: { role: membership.role },
+        after: { role: request.role },
+      });
     });
   }
 }
