@@ -216,8 +216,16 @@ export class RedisCacheService implements OnModuleDestroy {
    * the fail-closed code path exercisable in tests. Every other environment
    * fails closed (NFR-009, AC-031).
    */
+  /**
+   * Strict (security) state may live in process memory only in tests, or when a
+   * deployment without Redis opts in explicitly with SECURITY_STATE_MEMORY=true
+   * (the hosted demo, ADR 0001). Then lockout counters are per instance; refresh
+   * token rotation and family revocation are still enforced in PostgreSQL.
+   * Without Redis and without the opt-in, security paths keep failing closed.
+   */
   private get useStrictMemory(): boolean {
-    return this.client === null && process.env.NODE_ENV === 'test';
+    if (this.client !== null) return false;
+    return process.env.NODE_ENV === 'test' || process.env.SECURITY_STATE_MEMORY === 'true';
   }
 
   private requireClient(): Redis {

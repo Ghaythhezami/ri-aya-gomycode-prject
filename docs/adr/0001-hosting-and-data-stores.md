@@ -26,7 +26,10 @@ request-scoped functions: no long-lived processes, no WebSocket server, no local
 3. **Redis is optional at runtime.** With `REDIS_URL` set (Docker Compose locally) it backs lockout
    counters, revoked refresh tokens, slot locks, caches and the `riaya:events` channel for the
    realtime service. Without it (hosted demo) the same services fall back to per-instance memory,
-   which is acceptable for a demo and documented as such.
+   which is acceptable for a demo and documented as such. Security state (lockout counters,
+   revoked-token list) still fails closed without Redis unless `SECURITY_STATE_MEMORY=true` is
+   set explicitly, as on the hosted demo; refresh rotation and family revocation remain enforced
+   in PostgreSQL either way. Adding Upstash Redis (`REDIS_URL`) removes the per-instance caveat.
 4. **Realtime degrades to polling.** The Socket.IO realtime service (`realtime/`, MongoDB-backed)
    runs under Docker Compose. The hosted backoffice polls live screens (queue 5 s, notifications
    20 s, dashboard 30 s) when `VITE_REALTIME_URL` is not configured.
