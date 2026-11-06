@@ -8,7 +8,7 @@
       "planSection": "Invitation Email Delivery (Mailtrap)",
       "taskIds": ["T8.1", "T8.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-040",
@@ -16,7 +16,7 @@
       "planSection": "Invitation Email Delivery (Mailtrap)",
       "taskIds": ["T8.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-041",
@@ -24,7 +24,7 @@
       "planSection": "Invitation Lifecycle & Status",
       "taskIds": ["T8.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-042",
@@ -32,7 +32,7 @@
       "planSection": "Invitation Lifecycle & Status",
       "taskIds": ["T8.3", "T8.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-043",
@@ -40,7 +40,7 @@
       "planSection": "Cancel, Decline & Role Change",
       "taskIds": ["T8.5"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-044",
@@ -48,7 +48,7 @@
       "planSection": "Cancel, Decline & Role Change",
       "taskIds": ["T8.6"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-045",
@@ -56,7 +56,7 @@
       "planSection": "Cancel, Decline & Role Change",
       "taskIds": ["T8.7"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-046",
@@ -64,7 +64,7 @@
       "planSection": "Link-Carried Scope & Fast Accept",
       "taskIds": ["T8.8"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-047",
@@ -72,7 +72,7 @@
       "planSection": "Link-Carried Scope & Fast Accept",
       "taskIds": ["T8.8"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-048",
@@ -80,7 +80,7 @@
       "planSection": "Staff Directory Lifecycle UI",
       "taskIds": ["T8.9", "T8.10"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-014",
@@ -88,7 +88,7 @@
       "planSection": "Invitation Email Delivery (Mailtrap)",
       "taskIds": ["T8.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-015",
@@ -96,7 +96,7 @@
       "planSection": "Invitation Email Delivery (Mailtrap)",
       "taskIds": ["T8.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-016",
@@ -104,7 +104,7 @@
       "planSection": "Invitation Email Delivery (Mailtrap)",
       "taskIds": ["T8.1", "T8.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-017",
@@ -112,7 +112,7 @@
       "planSection": "Invitation Email Delivery (Mailtrap)",
       "taskIds": ["T8.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-018",
@@ -120,7 +120,7 @@
       "planSection": "Staff Directory Lifecycle UI",
       "taskIds": ["T8.9", "T8.10"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-019",
@@ -128,7 +128,7 @@
       "planSection": "Staff Directory Lifecycle UI",
       "taskIds": ["T8.4", "T8.9"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     }
   ]
 }

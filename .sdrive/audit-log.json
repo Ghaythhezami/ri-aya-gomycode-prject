@@ -986,6 +986,50 @@
       "event": "gate_approved",
       "prevHash": "a2ac14358264c386938f122deea3c4108b3ebef3161933c53e1d707363029535",
       "hash": "7ec4ff1d8c6ece1302b7de663856b518256e7477ba2ed0a82b521e6e4e5f5497"
+    },
+    {
+      "timestamp": "2026-11-06T19:18:59.722Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "7ec4ff1d8c6ece1302b7de663856b518256e7477ba2ed0a82b521e6e4e5f5497",
+      "hash": "555265a4cc6a6c4504749eed167b6fc57849ad15178bf79c7f92cbcd83c75050"
+    },
+    {
+      "timestamp": "2026-11-06T19:19:14.725Z",
+      "actor": "KENULE-NWINEE",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 124,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "555265a4cc6a6c4504749eed167b6fc57849ad15178bf79c7f92cbcd83c75050",
+      "hash": "4f6aa1c25357997ea060bcef0f8a3e5e073fa787a9237ab190f7d5b4361b9d57"
+    },
+    {
+      "timestamp": "2026-11-06T19:30:40.280Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "4f6aa1c25357997ea060bcef0f8a3e5e073fa787a9237ab190f7d5b4361b9d57",
+      "hash": "3b4b2c8c6407c05743b4a16a96f6c10956a8b674fc41dab11a204b76a23466f8"
+    },
+    {
+      "timestamp": "2026-11-06T19:37:25.822Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 116,
+      "durationMs": 191318,
+      "event": "test_passed",
+      "prevHash": "3b4b2c8c6407c05743b4a16a96f6c10956a8b674fc41dab11a204b76a23466f8",
+      "hash": "adf3ff115ea7bfcf2bf833ef81df45bd5123556167fcb27ad60317a2b46963c6"
     }
   ]
 }

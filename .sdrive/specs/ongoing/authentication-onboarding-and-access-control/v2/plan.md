@@ -72,6 +72,11 @@ provider failure degrades to a resend affordance rather than a lost invitation.
 | `/api/memberships/:id/role`       | PATCH  | create | Changes a member's role in scope; refuses the last-SUPER_ADMIN case (FR-045); audits before/after.                                                             |
 | `/api/invitations/:id/resend`     | POST   | create | Re-issues the token and re-sends the email; revokes the previous token (FR-031, EC-020, EC-024).                                                               |
 
+`plan.json`'s `apiContracts` is left empty on purpose, matching the `realtime-service` precedent: this
+feature is NestJS, and `verify.js`'s `detectEndpoints()` recognises only Express/FastAPI/Next.js
+routes, so a declared NestJS route would be reported missing on every run. The routes above are
+enforced by the `roles-metadata` test and the e2e suites instead.
+
 ## Security Considerations
 
 | Requirement | Control                                                                                                         |

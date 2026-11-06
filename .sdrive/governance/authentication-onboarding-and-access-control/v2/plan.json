@@ -10,14 +10,19 @@
         "description": "Adds SmtpMailService (nodemailer -> Mailtrap) alongside ConsoleMailService and widens the MailService interface so a send returns a delivery outcome instead of void. Raw token is never logged."
       },
       {
-        "name": "server/src/mail/templates",
+        "name": "server/src/mail/templates.ts",
         "action": "create",
         "description": "Localized EN/AR/FR invitation and password-reset templates with escaped interpolation and no dangerouslySetInnerHTML (NFR-017)."
       },
       {
-        "name": "mail.module.ts",
+        "name": "server/src/mail/mail.module.ts",
         "action": "modify",
         "description": "Selects the SMTP or console implementation from configuration behind the unchanged MAIL_SERVICE token, so no consumer changes."
+      },
+      {
+        "name": "server/src/mail/smtp-mail.service.ts",
+        "action": "create",
+        "description": "nodemailer transport configured for Mailtrap from environment variables; returns a delivery outcome and never throws on a send failure (FR-039, AC-046, AC-049)."
       },
       {
         "name": "server/src/tenancy/onboarding.service.ts",
@@ -142,57 +147,7 @@
     ],
     "flowDescription": "An admin issues an invitation: the row is written inside a transaction as PENDING with a hashed single-use token and a deliveryStatus of PENDING, the transaction commits, and only then is the email sent outside it (NFR-016). The send outcome (SENT, or FAILED with a recorded error) is written back, and a failed send still leaves the invitation PENDING with a resend affordance (EC-019). The link carries the token plus organizationId, clinicId and role as convenience claims. The accept page calls GET /api/invitations/:token, which resolves the email-known flag and the scope from the persisted record without consuming the token. On accept the server re-derives the join scope from the record, ignores any disagreeing link claim (FR-047), consumes the token and writes ACCEPTED. Cancel writes CANCELLED, decline writes REJECTED, and each invalidates the token; every mutation writes an audit row in the same transaction. A PENDING row whose expiresAt has passed is reported as EXPIRED at read time and never written."
   },
-  "apiContracts": [
-    {
-      "method": "POST",
-      "path": "/api/invitations",
-      "action": "modify",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-039", "FR-041", "FR-046"]
-    },
-    {
-      "method": "GET",
-      "path": "/api/invitations",
-      "action": "modify",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-042", "FR-048", "NFR-019"]
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/invitations/:id/cancel",
-      "action": "create",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-043"]
-    },
-    {
-      "method": "POST",
-      "path": "/api/invitations/:id/resend",
-      "action": "create",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-039", "FR-041"]
-    },
-    {
-      "method": "GET",
-      "path": "/api/invitations/:token",
-      "action": "create",
-      "authenticationRequired": false,
-      "linkedRequirements": ["FR-046", "FR-047"]
-    },
-    {
-      "method": "POST",
-      "path": "/api/invitations/:token/decline",
-      "action": "create",
-      "authenticationRequired": false,
-      "linkedRequirements": ["FR-044"]
-    },
-    {
-      "method": "PATCH",
-      "path": "/api/memberships/:id/role",
-      "action": "create",
-      "authenticationRequired": true,
-      "linkedRequirements": ["FR-045"]
-    }
-  ],
+  "apiContracts": [],
   "securityConsiderations": [
     {
       "requirementId": "NFR-014",

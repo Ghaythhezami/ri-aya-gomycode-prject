@@ -1,0 +1,230 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "status": "pass",
+  "checkedAt": "2026-11-06T19:38:29.267Z",
+  "summary": {
+    "matched": 28,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 0,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "server/src/mail/mail.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/mail/mail.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/mail/templates.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/mail/templates.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/mail/mail.module.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/mail/mail.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/mail/smtp-mail.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/mail/smtp-mail.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/onboarding.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/tenancy.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/tenancy.controller.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/invitation.dto.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/invitation.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/prisma/schema.prisma",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/permissions.ts",
+        "action": "reuse",
+        "resolution": null,
+        "file": "packages/shared/src/permissions.ts"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/StaffDirectoryPage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/StaffDirectoryPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/AcceptInvitePage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/AcceptInvitePage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/i18n",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/i18n"
+      },
+      {
+        "type": "component",
+        "name": "server/.env.example",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/.env.example"
+      },
+      {
+        "type": "entity",
+        "name": "Invitation",
+        "action": "update",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "status",
+        "fieldType": "InvitationStatus",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "deliveryStatus",
+        "fieldType": "DeliveryStatus",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "deliveryError",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "entity",
+        "name": "UserMembership",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "role",
+        "fieldType": "UserRole",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "dependency",
+        "name": "nodemailer",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "Mailtrap",
+        "action": "no_change",
+        "depType": "external",
+        "resolution": null,
+        "note": "external dependency; not manifest-verifiable"
+      },
+      {
+        "type": "dependency",
+        "name": "@prisma/client",
+        "action": "update",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "class-validator",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@riaya/shared",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [],
+    "withdrawn": []
+  }
+}
