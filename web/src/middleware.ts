@@ -4,6 +4,11 @@ import { routing } from './i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-  // `app` is the backoffice SPA (public/app) and `api` the proxied API: never localise them.
-  matcher: ['/', '/(ar|en|fr)/:path*', '/((?!api|app(?:/|$)|_next|_vercel|.*\\..*).*)'],
+  // Never localise the permanent /app redirect, the API, Next internals or metadata files
+  // (opengraph-image, icon, manifest, sitemap.xml, robots.txt).
+  matcher: [
+    '/',
+    '/(ar|en|fr)/:path*',
+    '/((?!api|app(?:/|$)|_next|_vercel|opengraph-image|twitter-image|icon|apple-icon|manifest|.*\..*).*)',
+  ],
 };

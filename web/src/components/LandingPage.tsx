@@ -12,11 +12,9 @@ import {
 import { Header } from './Header';
 import { DashboardPreview } from './DashboardPreview';
 import { BrandLogo } from './BrandLogo';
+import { APP_URL } from '@/lib/site';
 
-const workspace = (process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174').replace(
-  /\/$/,
-  '',
-);
+const workspace = APP_URL;
 
 export function LandingPage() {
   const hero = useTranslations('hero');

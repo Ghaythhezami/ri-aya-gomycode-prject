@@ -6,11 +6,9 @@ import { Menu, X } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { BrandLogo } from './BrandLogo';
+import { APP_URL } from '@/lib/site';
 
-const workspace = (process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174').replace(
-  /\/$/,
-  '',
-);
+const workspace = APP_URL;
 
 export function Header() {
   const t = useTranslations('nav');

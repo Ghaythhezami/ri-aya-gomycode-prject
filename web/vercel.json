@@ -1,6 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "nextjs",
-  "installCommand": "cd .. && pnpm install --frozen-lockfile --filter web... --filter backoffice...",
-  "buildCommand": "cd .. && pnpm --filter @riaya/shared build && VITE_BASE=/app/ pnpm --filter backoffice build && node scripts/copy-backoffice.mjs && cd web && pnpm build"
+  "installCommand": "cd .. && pnpm install --frozen-lockfile --filter web...",
+  "buildCommand": "next build"
 }
