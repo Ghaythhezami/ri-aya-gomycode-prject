@@ -7,13 +7,15 @@ import {
   type WorkingRule,
 } from '../core/availability';
 import { formatMinuteOfDay, todayIn, weekdayOf } from '../core/clinic-time';
-import { doctorName, initials } from '../common/mappers';
+import { doctorName, initials, localizedNames } from '../common/mappers';
 import { computeUtilisation } from './utilisation';
 
 export interface DoctorCardSource {
   id: string;
   firstName: string;
   lastName: string;
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
   specialty: string;
   consultationMinutes: number;
   isActive: boolean;
@@ -84,12 +86,13 @@ export function buildDoctorCard(input: {
       )}`
     : null;
 
+  const names = localizedNames(doctor);
   return {
     id: doctor.id,
     name: doctorName(doctor),
     firstName: doctor.firstName,
     lastName: doctor.lastName,
-    initials: initials(doctor.firstName, doctor.lastName),
+    initials: initials(names.firstName, names.lastName),
     specialty: doctor.specialty,
     consultationMinutes: doctor.consultationMinutes,
     isActive: doctor.isActive,

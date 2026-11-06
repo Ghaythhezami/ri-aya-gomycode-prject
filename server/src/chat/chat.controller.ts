@@ -23,10 +23,9 @@ import {
   MaxLength,
   Min,
 } from 'class-validator';
-import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { TenantContext } from '../tenancy/tenant-context';
 import { ChatService } from './chat.service';
 
@@ -67,7 +66,7 @@ export class MessagesQueryDto {
 @ApiBearerAuth()
 @Controller('chat')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(...CAPABILITY_ROLES.viewChat)
+@RequireCapability('viewChat')
 export class ChatController {
   constructor(
     private readonly chat: ChatService,

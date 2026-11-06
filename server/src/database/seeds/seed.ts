@@ -14,6 +14,8 @@ import * as argon2 from 'argon2';
 import { config as loadEnv } from 'dotenv';
 import { addDays, localMinuteOfDay, localToUtc, todayIn, weekdayOf } from '../../core/clinic-time';
 import { UserRole } from '../../users/user-role.enum';
+import { buildSearchText } from '../../common/locale/localized-input';
+import { clinicNameI18n, nameI18n, roomNameI18n } from './seed-names';
 
 /** Set by runSeed: the CLI passes its own client, the demo-reset job passes the app's. */
 let prisma: PrismaClient;
@@ -529,6 +531,9 @@ interface PatientRow {
   code: string;
   firstName: string;
   lastName: string;
+  firstNameI18n: Prisma.InputJsonValue;
+  lastNameI18n: Prisma.InputJsonValue;
+  searchText: string;
   dateOfBirth: Date;
   phone: string;
   email: string;
@@ -599,12 +604,24 @@ async function seedClinicalData(
   // done by the caller; here we only build the clinical rows.
 
   // ---- rooms
-  const roomRows: Array<{ id: string; clinicId: string; name: string; kind: string }> = [];
+  const roomRows: Array<{
+    id: string;
+    clinicId: string;
+    name: string;
+    nameI18n: Prisma.InputJsonValue;
+    kind: string;
+  }> = [];
   const roomIdByName = new Map<string, string>();
   CLINICS.forEach((clinic, ci) => {
     ROOMS[ci]!.forEach((room, ri) => {
       const id = fid('4', ci * 10 + ri + 1);
-      roomRows.push({ id, clinicId: clinic.id, name: room.name, kind: room.kind });
+      roomRows.push({
+        id,
+        clinicId: clinic.id,
+        name: room.name,
+        nameI18n: roomNameI18n(room.name),
+        kind: room.kind,
+      });
       roomIdByName.set(`${ci}:${room.name}`, id);
     });
   });
@@ -616,6 +633,8 @@ async function seedClinicalData(
     userId: d.userEmail ? (userIds[d.userEmail] ?? null) : null,
     firstName: d.firstName,
     lastName: d.lastName,
+    firstNameI18n: nameI18n(d.firstName),
+    lastNameI18n: nameI18n(d.lastName),
     specialty: d.specialty,
     licenseNumber: `LIC-${String(d.id.slice(-4))}`,
     consultationMinutes: d.minutes,
@@ -733,6 +752,17 @@ async function seedClinicalData(
         code: `P-${String(n + 1).padStart(3, '0')}`,
         firstName,
         lastName,
+        firstNameI18n: nameI18n(firstName),
+        lastNameI18n: nameI18n(lastName),
+        searchText: buildSearchText([
+          firstName,
+          nameI18n(firstName),
+          lastName,
+          nameI18n(lastName),
+          `P-${String(n + 1).padStart(3, '0')}`,
+          phone,
+          `${email}@example.com`,
+        ]),
         dateOfBirth: new Date(Date.UTC(1938 + int(84), int(12), 1 + int(28))),
         phone,
         email: `${email}@example.com`,
@@ -1377,6 +1407,7 @@ export async function runSeed(client: PrismaClient, options: SeedOptions = {}): 
       where: { id: clinic.id },
       update: {
         name: clinic.name,
+        nameI18n: clinicNameI18n(clinic.name),
         timezone: clinic.timezone,
         currency: clinic.currency,
         address: clinic.address,
@@ -1385,6 +1416,7 @@ export async function runSeed(client: PrismaClient, options: SeedOptions = {}): 
         id: clinic.id,
         organizationId: organization.id,
         name: clinic.name,
+        nameI18n: clinicNameI18n(clinic.name),
         timezone: clinic.timezone,
         currency: clinic.currency,
         address: clinic.address,
@@ -1404,11 +1436,23 @@ export async function runSeed(client: PrismaClient, options: SeedOptions = {}): 
           passwordHash: await argon2.hash(item.password),
           firstName: item.firstName,
           lastName: item.lastName,
+          firstNameI18n: nameI18n(item.firstName),
+          lastNameI18n: nameI18n(item.lastName),
           preferredLocale: 'en',
           isActive: true,
         },
       }));
     userIds[item.email] = user.id;
+    if (existing) {
+      // Idempotent: existing dev users gain the per-language spellings too.
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          firstNameI18n: nameI18n(item.firstName),
+          lastNameI18n: nameI18n(item.lastName),
+        },
+      });
+    }
 
     if (existing) {
       log(`skip ${item.email} (exists)`);

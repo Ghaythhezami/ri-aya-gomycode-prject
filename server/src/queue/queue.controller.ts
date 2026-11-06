@@ -9,10 +9,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { TenantContext } from '../tenancy/tenant-context';
 import { QueueService } from './queue.service';
 import { CallNextDto, CheckInDto, NotifyDelayDto, PriorityDto } from './queue.dto';
@@ -21,7 +20,7 @@ import { CallNextDto, CheckInDto, NotifyDelayDto, PriorityDto } from './queue.dt
 @ApiBearerAuth()
 @Controller('queue')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(...CAPABILITY_ROLES.manageQueue)
+@RequireCapability('manageQueue')
 export class QueueController {
   constructor(
     private readonly queue: QueueService,

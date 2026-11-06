@@ -15,3 +15,4 @@ export * from './schemas/tenancy';
 export * from './schemas/membership';
 export * from './schemas/realtime';
 export * from './schemas/clinic';
+export * from './schemas/platform';

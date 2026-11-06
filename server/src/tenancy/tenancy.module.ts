@@ -3,12 +3,13 @@ import { TenancyService } from './tenancy.service';
 import { TenantContext } from './tenant-context';
 import { TenantContextMiddleware } from './tenant-context.middleware';
 import { OnboardingService } from './onboarding.service';
+import { MembersService } from './members.service';
 import { TenancyController } from './tenancy.controller';
 
 @Global()
 @Module({
   controllers: [TenancyController],
-  providers: [TenancyService, TenantContext, OnboardingService],
+  providers: [TenancyService, TenantContext, OnboardingService, MembersService],
   exports: [TenancyService, TenantContext, OnboardingService],
 })
 export class TenancyModule implements NestModule {

@@ -34,6 +34,7 @@ export const CAPABILITIES = [
   'readClinicalNotes',
   'viewAuditLog',
   'viewChat',
+  'manageRoles',
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -63,7 +64,68 @@ export const CAPABILITY_ROLES: Record<Capability, readonly UserRole[]> = {
   readClinicalNotes: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR'],
   viewAuditLog: ADMIN,
   viewChat: ALL,
+  manageRoles: ADMIN,
 };
+
+/** Group of each capability, for the permissions editor. */
+export const CAPABILITY_GROUPS: Record<Capability, CapabilityGroupKey> = {
+  viewOverview: 'workspace',
+  viewDesignSystem: 'workspace',
+  viewNotifications: 'communication',
+  viewChat: 'communication',
+  viewAppointments: 'appointments',
+  viewCalendar: 'appointments',
+  manageAppointments: 'appointments',
+  viewWaitingList: 'appointments',
+  manageQueue: 'appointments',
+  viewPatients: 'patients',
+  readClinicalNotes: 'patients',
+  viewDoctors: 'doctors',
+  manageDoctors: 'doctors',
+  viewScheduling: 'scheduling',
+  applySchedule: 'scheduling',
+  viewAnalytics: 'analytics',
+  manageStaff: 'administration',
+  inviteStaff: 'administration',
+  suspendMembership: 'administration',
+  manageSettings: 'administration',
+  manageRoles: 'administration',
+  viewAuditLog: 'administration',
+};
+
+type CapabilityGroupKey =
+  | 'workspace'
+  | 'appointments'
+  | 'patients'
+  | 'doctors'
+  | 'scheduling'
+  | 'analytics'
+  | 'communication'
+  | 'administration';
+
+/**
+ * Capabilities the clinic-admin system role always keeps, so a clinic can never lock
+ * itself out of role management. SUPER_ADMIN is not editable at all.
+ */
+export const LOCKED_ADMIN_CAPABILITIES: readonly Capability[] = [
+  'manageRoles',
+  'manageSettings',
+  'manageStaff',
+  'viewOverview',
+];
+
+/** Default capabilities of a system role (the matrix above). */
+export function defaultCapabilities(role: string): Capability[] {
+  return CAPABILITIES.filter((c) => CAPABILITY_ROLES[c].includes(role as UserRole));
+}
+
+/** Deny-by-default check against an explicit capability list (custom roles). */
+export function hasCapability(
+  capabilities: readonly string[] | null | undefined,
+  capability: Capability,
+): boolean {
+  return Boolean(capabilities?.includes(capability));
+}
 
 /** Deny when the role, the capability, or the entry is unknown. */
 export function can(role: string | null | undefined, capability: Capability): boolean {

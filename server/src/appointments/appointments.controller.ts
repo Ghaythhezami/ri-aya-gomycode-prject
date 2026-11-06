@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  Headers,
   Param,
   Patch,
   Post,
@@ -10,15 +11,16 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { RateLimit } from '../common/throttle/rate-limit';
+import { parseAcceptLanguage } from '../appointment-types/appointment-type-rules';
 import { AppointmentsService } from './appointments.service';
 import {
   BulkActionDto,
   CancelAppointmentDto,
+  ChangeAppointmentTypeDto,
   CreateAppointmentDto,
   CreateLockDto,
   ListAppointmentsQueryDto,
@@ -34,77 +36,113 @@ export class AppointmentsController {
   constructor(private readonly appointments: AppointmentsService) {}
 
   @Get()
-  @Roles(...CAPABILITY_ROLES.viewAppointments)
-  list(@Query() query: ListAppointmentsQueryDto) {
-    return this.appointments.list(query);
+  @RequireCapability('viewAppointments')
+  async list(@Query() query: ListAppointmentsQueryDto, @Headers('accept-language') lang?: string) {
+    const page = await this.appointments.list(query);
+    return {
+      ...page,
+      items: await this.appointments.withTypeInfo(page.items, parseAcceptLanguage(lang)),
+    };
   }
 
   // Static routes are declared before ':id' so they are not captured by it.
   @Get('calendar')
-  @Roles(...CAPABILITY_ROLES.viewCalendar)
-  calendar(@Query() query: ListAppointmentsQueryDto) {
-    return this.appointments.calendar(query);
+  @RequireCapability('viewCalendar')
+  async calendar(
+    @Query() query: ListAppointmentsQueryDto,
+    @Headers('accept-language') lang?: string,
+  ) {
+    return this.appointments.withTypeInfo(
+      await this.appointments.calendar(query),
+      parseAcceptLanguage(lang),
+    );
   }
 
   @Post('bulk')
   @RateLimit(10)
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
+  @RequireCapability('manageAppointments')
   bulk(@Body() dto: BulkActionDto) {
     return this.appointments.bulk(dto);
   }
 
   @Post('locks')
   @RateLimit(30)
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
+  @RequireCapability('manageAppointments')
   lock(@Body() dto: CreateLockDto) {
     return this.appointments.lock(dto);
   }
 
   @Delete('locks/:token')
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
+  @RequireCapability('manageAppointments')
   unlock(@Param('token') token: string) {
     return this.appointments.unlock(token);
   }
 
   @Post('reminders/:deliveryId/retry')
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
+  @RequireCapability('manageAppointments')
   retryReminder(@Param('deliveryId') deliveryId: string) {
     return this.appointments.retryReminder(deliveryId);
   }
 
   @Post()
   @RateLimit(20)
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
-  create(@Body() dto: CreateAppointmentDto) {
-    return this.appointments.create(dto);
+  @RequireCapability('manageAppointments')
+  async create(@Body() dto: CreateAppointmentDto, @Headers('accept-language') lang?: string) {
+    return this.appointments.withTypeInfo(
+      await this.appointments.create(dto),
+      parseAcceptLanguage(lang),
+    );
   }
 
   @Get(':id')
-  @Roles(...CAPABILITY_ROLES.viewAppointments)
-  get(@Param('id') id: string) {
-    return this.appointments.get(id);
+  @RequireCapability('viewAppointments')
+  async get(@Param('id') id: string, @Headers('accept-language') lang?: string) {
+    return this.appointments.withTypeInfo(
+      await this.appointments.get(id),
+      parseAcceptLanguage(lang),
+    );
   }
 
   @Patch(':id')
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
-  update(@Param('id') id: string, @Body() dto: UpdateAppointmentDto) {
-    return this.appointments.update(id, dto);
+  @RequireCapability('manageAppointments')
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateAppointmentDto,
+    @Headers('accept-language') lang?: string,
+  ) {
+    return this.appointments.withTypeInfo(
+      await this.appointments.update(id, dto),
+      parseAcceptLanguage(lang),
+    );
+  }
+
+  @Patch(':id/type')
+  @RequireCapability('manageAppointments')
+  async changeType(
+    @Param('id') id: string,
+    @Body() dto: ChangeAppointmentTypeDto,
+    @Headers('accept-language') lang?: string,
+  ) {
+    return this.appointments.withTypeInfo(
+      await this.appointments.changeType(id, dto),
+      parseAcceptLanguage(lang),
+    );
   }
 
   @Post(':id/status')
-  @Roles(...CAPABILITY_ROLES.viewAppointments)
+  @RequireCapability('viewAppointments')
   status(@Param('id') id: string, @Body() dto: StatusChangeDto) {
     return this.appointments.changeStatus(id, dto.status);
   }
 
   @Post(':id/cancel')
-  @Roles(...CAPABILITY_ROLES.manageAppointments)
+  @RequireCapability('manageAppointments')
   cancel(@Param('id') id: string, @Body() dto: CancelAppointmentDto) {
     return this.appointments.cancel(id, dto.reason);
   }
 
   @Get(':id/alternatives')
-  @Roles(...CAPABILITY_ROLES.viewAppointments)
+  @RequireCapability('viewAppointments')
   alternatives(@Param('id') id: string) {
     return this.appointments.alternativesFor(id);
   }

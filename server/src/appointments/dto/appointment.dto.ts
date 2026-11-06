@@ -9,12 +9,13 @@ import {
   IsISO8601,
   IsOptional,
   IsString,
+  Matches,
   IsUUID,
   Max,
   MaxLength,
   Min,
 } from 'class-validator';
-import { APPOINTMENT_STATUSES, APPOINTMENT_TYPES } from '@riaya/shared';
+import { APPOINTMENT_STATUSES } from '@riaya/shared';
 import type { AppointmentStatus, AppointmentType } from '@riaya/shared';
 import { PaginationQueryDto } from '../../common/pagination';
 
@@ -22,7 +23,7 @@ export class CreateAppointmentDto {
   @IsUUID() patientId!: string;
   @IsUUID() doctorId!: string;
   @IsISO8601() startsAt!: string;
-  @IsIn(APPOINTMENT_TYPES) type!: AppointmentType;
+  @IsString() @MaxLength(32) @Matches(/^[A-Z0-9_]+$/) type!: AppointmentType;
   @IsOptional() @Type(() => Number) @IsInt() @Min(5) @Max(480) durationMinutes?: number;
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
   @IsOptional() @IsString() @MaxLength(2000) notes?: string;
@@ -40,7 +41,7 @@ export class UpdateAppointmentDto {
   @IsOptional() @IsUUID() doctorId?: string;
   @IsOptional() @IsISO8601() startsAt?: string;
   @IsOptional() @Type(() => Number) @IsInt() @Min(5) @Max(480) durationMinutes?: number;
-  @IsOptional() @IsIn(APPOINTMENT_TYPES) type?: AppointmentType;
+  @IsOptional() @IsString() @MaxLength(32) @Matches(/^[A-Z0-9_]+$/) type?: AppointmentType;
   @IsOptional() @IsString() @MaxLength(500) reason?: string;
   @IsOptional() @IsString() @MaxLength(2000) notes?: string;
   @IsOptional() @IsUUID() roomId?: string | null;
@@ -82,4 +83,9 @@ export class ListAppointmentsQueryDto extends PaginationQueryDto {
   @IsOptional() @IsString() @MaxLength(200) status?: string;
   @IsOptional() @IsString() @MaxLength(200) type?: string;
   @IsOptional() @IsString() @MaxLength(100) search?: string;
+}
+
+export class ChangeAppointmentTypeDto {
+  @IsString() @MaxLength(32) @Matches(/^[A-Z0-9_]+$/) type!: string;
+  @IsOptional() @IsBoolean() keepDuration?: boolean;
 }

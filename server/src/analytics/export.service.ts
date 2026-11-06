@@ -1,9 +1,19 @@
-import { Injectable } from '@nestjs/common';
-import type { AnalyticsDto } from '@riaya/shared';
+import { Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  SUPPORTED_LOCALES,
+  type AnalyticsDto,
+  type Locale,
+  type SchedulingInsights,
+} from '@riaya/shared';
+import { ClinicSettingsReader } from '../core/clinic-settings.reader';
 import { localParts, localToUtc, addDays } from '../core/clinic-time';
 import { PrismaService } from '../database/prisma.service';
 import { doctorName } from '../common/mappers';
+import { ServiceClient } from '../services/service-client';
+import { SCHEDULER_CLIENT } from '../services/service-tokens';
+import type { TenantScope } from '../tenancy/tenant-context';
 import { CSV_BOM, csvRow } from './csv';
+import { InsightsService } from './insights.service';
 import { PdfBuilder } from './pdf-writer';
 
 export const CSV_HEADER = [
@@ -19,10 +29,78 @@ export const CSV_HEADER = [
 ];
 
 const CHUNK = 500;
+/** The Python renderer shapes Arabic and draws charts; give it more time than a JSON call. */
+export const PDF_RENDER_TIMEOUT_MS = 20_000;
+
+/** First `Accept-Language` tag when it is a supported locale, otherwise `fallback`. */
+export function pickReportLocale(header: string | undefined, fallback: Locale): Locale {
+  const first = header?.split(',')[0]?.split(';')[0]?.trim().toLowerCase().split('-')[0];
+  return SUPPORTED_LOCALES.find((l) => l === first) ?? fallback;
+}
 
 @Injectable()
 export class ExportService {
-  constructor(private readonly prisma: PrismaService) {}
+  private readonly logger = new Logger(ExportService.name);
+
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly settings: ClinicSettingsReader,
+    private readonly insights: InsightsService,
+    @Inject(SCHEDULER_CLIENT) private readonly scheduler: ServiceClient,
+  ) {}
+
+  /**
+   * The analytics PDF. With the scheduler service enabled it is rendered there (charts, Arabic
+   * shaping, optional insights); on any failure, or when the service is off, the in-process
+   * writer produces the plain report so the export never breaks.
+   */
+  async renderPdf(
+    scope: TenantScope,
+    report: AnalyticsDto,
+    clinicName: string,
+    acceptLanguage?: string,
+    now = new Date(),
+  ): Promise<Buffer> {
+    if (!this.scheduler.enabled) return this.buildPdf(report, clinicName);
+    try {
+      const [clinicSettings, insights] = await Promise.all([
+        this.settings.get(scope.clinicId),
+        this.insights
+          .insights(scope, { from: report.range.from, to: report.range.to })
+          .catch((): SchedulingInsights | null => null),
+      ]);
+      const { buffer, contentType } = await this.scheduler.requestBuffer({
+        path: '/v1/reports/analytics',
+        principal: { clinicId: scope.clinicId, userId: scope.userId, role: scope.role },
+        body: {
+          locale: pickReportLocale(acceptLanguage, clinicSettings.defaultLanguage ?? 'en'),
+          clinic: {
+            name: clinicName || clinicSettings.clinic.name,
+            timeZone: clinicSettings.clinic.timezone,
+            currency: clinicSettings.clinic.currency,
+          },
+          range: { from: report.range.from, to: report.range.to },
+          scope: report.scope,
+          generatedAt: now.toISOString(),
+          analytics: report,
+          insights,
+        },
+        timeoutMs: PDF_RENDER_TIMEOUT_MS,
+      });
+      if (
+        !contentType.startsWith('application/pdf') ||
+        buffer.subarray(0, 4).toString() !== '%PDF'
+      ) {
+        throw new Error(`unexpected report response (${contentType})`);
+      }
+      return buffer;
+    } catch (error) {
+      this.logger.warn(
+        `scheduler PDF failed, using the built-in writer: ${(error as Error).message}`,
+      );
+      return this.buildPdf(report, clinicName);
+    }
+  }
 
   /** Calls `write` with the BOM + header, then with each chunk of rows. */
   async streamCsv(

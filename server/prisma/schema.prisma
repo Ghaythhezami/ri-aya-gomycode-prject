@@ -29,16 +29,23 @@ enum MembershipStatus {
 }
 
 model User {
-  id              String          @id @default(uuid())
-  email           String          @unique
-  passwordHash    String
-  firstName       String
-  lastName        String
-  isActive        Boolean         @default(true)
-  preferredLocale PreferredLocale @default(en)
-  lastLoginAt     DateTime?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id                    String          @id @default(uuid())
+  email                 String          @unique
+  passwordHash          String
+  firstName             String
+  lastName              String
+  /// Optional per-language spellings {en, ar, fr}; firstName/lastName stay the canonical value.
+  firstNameI18n         Json            @default("{}")
+  lastNameI18n          Json            @default("{}")
+  phone                 String?
+  jobTitle              String?
+  /// Set when the user finishes (or skips) the onboarding wizard.
+  onboardingCompletedAt DateTime?
+  isActive              Boolean         @default(true)
+  preferredLocale       PreferredLocale @default(en)
+  lastLoginAt           DateTime?
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 
   /// @deprecated Clinic-scoped role now lives on UserMembership.role.
   /// Retained only while existing call sites are migrated (see tasks T3.3).
@@ -82,24 +89,29 @@ model Clinic {
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   name           String
+  nameI18n       Json         @default("{}")
   timezone       String       @default("UTC")
   currency       String       @default("USD")
   address        String?
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 
-  memberships      UserMembership[]
-  invitations      Invitation[]
-  auditLogs        AuditLog[]
-  patients         Patient[]
-  doctors          Doctor[]
-  appointments     Appointment[]
-  rooms            Room[]
-  queueEntries     QueueEntry[]
-  notifications    Notification[]
-  settings         ClinicSettings?
-  optimizationRuns OptimizationRun[]
-  conversations    ChatConversation[]
+  memberships           UserMembership[]
+  invitations           Invitation[]
+  auditLogs             AuditLog[]
+  patients              Patient[]
+  doctors               Doctor[]
+  appointments          Appointment[]
+  rooms                 Room[]
+  queueEntries          QueueEntry[]
+  notifications         Notification[]
+  settings              ClinicSettings?
+  optimizationRuns      OptimizationRun[]
+  conversations         ChatConversation[]
+  roles                 ClinicRole[]
+  appointmentTypes      AppointmentTypeDef[]
+  /// Set when an administrator finishes the clinic onboarding checklist.
+  onboardingCompletedAt DateTime?
 
   @@index([organizationId])
   @@map("clinics")
@@ -116,11 +128,15 @@ model UserMembership {
   clinicId       String
   clinic         Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   role           UserRole
+  /// Custom or customised role of the clinic; null = the system role named by `role`.
+  roleId         String?
+  clinicRole     ClinicRole?      @relation(fields: [roleId], references: [id], onDelete: Restrict)
   status         MembershipStatus @default(ACTIVE)
   createdAt      DateTime         @default(now())
   updatedAt      DateTime         @updatedAt
 
   @@unique([userId, clinicId])
+  @@index([roleId])
   @@index([userId, status])
   @@index([clinicId, status])
   @@map("user_memberships")
@@ -135,6 +151,8 @@ model Invitation {
   clinicId       String
   clinic         Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   role           UserRole
+  roleId         String?
+  clinicRole     ClinicRole?  @relation(fields: [roleId], references: [id], onDelete: SetNull)
   tokenHash      String       @unique
   expiresAt      DateTime
   consumedAt     DateTime?
@@ -215,12 +233,6 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
-enum AppointmentType {
-  CONSULTATION
-  FOLLOW_UP
-  EMERGENCY
-}
-
 enum PatientStatus {
   ACTIVE
   ARCHIVED
@@ -264,6 +276,10 @@ model Patient {
   code              String
   firstName         String
   lastName          String
+  firstNameI18n     Json          @default("{}")
+  lastNameI18n      Json          @default("{}")
+  /// Lower-cased canonical and per-language names, code and phone, for search (trigram index).
+  searchText        String        @default("")
   dateOfBirth       DateTime
   phone             String
   email             String?
@@ -286,6 +302,7 @@ model Patient {
   @@index([clinicId, lastName])
   @@index([clinicId, phone])
   @@index([clinicId, status])
+  @@index([searchText(ops: raw("gin_trgm_ops"))], type: Gin, map: "patients_searchText_trgm_idx")
   @@map("patients")
 }
 
@@ -295,6 +312,7 @@ model Room {
   clinicId  String
   clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   name      String
+  nameI18n  Json     @default("{}")
   kind      String   @default("CONSULTATION")
   isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
@@ -317,6 +335,8 @@ model Doctor {
   user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   firstName           String   @default("")
   lastName            String   @default("")
+  firstNameI18n       Json     @default("{}")
+  lastNameI18n        Json     @default("{}")
   specialty           String
   licenseNumber       String?
   consultationMinutes Int      @default(30)
@@ -381,7 +401,8 @@ model Appointment {
   startsAt         DateTime
   endsAt           DateTime
   status           AppointmentStatus @default(SCHEDULED)
-  type             AppointmentType   @default(CONSULTATION)
+  /// Code of an AppointmentTypeDef of the clinic (system codes: CONSULTATION, FOLLOW_UP, EMERGENCY).
+  type             String            @default("CONSULTATION")
   reason           String?
   notes            String?
   cancelReason     String?
@@ -570,4 +591,54 @@ model SecurityState {
 
   @@index([expiresAt])
   @@map("security_state")
+}
+
+/// A clinic role: a customised system role (key = UserRole name, isSystem) or a custom role.
+/// Effective capabilities of a membership = its role row, else the default matrix of `role`.
+model ClinicRole {
+  id           String   @id @default(uuid())
+  clinicId     String
+  clinic       Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  /// Slug, unique per clinic. System roles use the UserRole name.
+  key          String
+  /// LocalizedText {en, ar, fr}.
+  name         Json
+  description  Json     @default("{}")
+  /// Data-scope behaviour (a DOCTOR-based role sees its own schedule) and the legacy role.
+  baseRole     UserRole
+  capabilities String[]
+  isSystem     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  memberships UserMembership[]
+  invitations Invitation[]
+
+  @@unique([clinicId, key])
+  @@map("clinic_roles")
+}
+
+/// Appointment types of a clinic. The three system types exist for every clinic.
+model AppointmentTypeDef {
+  id              String   @id @default(uuid())
+  clinicId        String
+  clinic          Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  /// Upper-case code stored on appointments.type, unique per clinic.
+  code            String
+  /// LocalizedText {en, ar, fr}.
+  name            Json
+  durationMinutes Int
+  /// Design-token colour key (primary, info, success, warning, alert, violet).
+  color           String   @default("primary")
+  /// Emergency types are never moved by the optimiser and jump the queue.
+  isEmergency     Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  isSystem        Boolean  @default(false)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([clinicId, code])
+  @@index([clinicId, isActive])
+  @@map("appointment_types")
 }

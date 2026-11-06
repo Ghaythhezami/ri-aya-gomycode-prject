@@ -7,7 +7,8 @@ import {
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import {
-  CAPABILITY_ROLES,
+  normalizeLocalized,
+  type LocalizedText,
   type AppointmentListItem,
   type DuplicateCheckResult,
   type Paginated,
@@ -16,9 +17,13 @@ import {
 } from '@riaya/shared';
 import { PrismaService } from '../database/prisma.service';
 import { AuditService } from '../audit/audit.service';
+import { RbacService } from '../rbac/rbac.service';
 import { RedisCacheService } from '../cache/redis-cache.service';
 import { DomainEventsService } from '../events/domain-events.service';
 import { TenantContext, type TenantScope } from '../tenancy/tenant-context';
+import { ClinicSettingsReader } from '../core/clinic-settings.reader';
+import { RequestLocale } from '../common/locale/request-locale';
+import { buildSearchText, resolveNameInput } from '../common/locale/localized-input';
 import { paginated, parseSort, resolvePagination } from '../common/pagination';
 import { APPOINTMENT_LIST_INCLUDE, toAppointmentListItem } from '../common/mappers';
 import {
@@ -68,10 +73,21 @@ export class PatientsService {
     private readonly audit: AuditService,
     private readonly cache: RedisCacheService,
     private readonly events: DomainEventsService,
+    private readonly settings: ClinicSettingsReader,
+    private readonly rbac: RbacService,
   ) {}
 
-  private canReadNotes(scope: TenantScope): boolean {
-    return CAPABILITY_ROLES.readClinicalNotes.includes(scope.role);
+  private canReadNotes(scope: TenantScope): Promise<boolean> {
+    return this.rbac.has(scope, 'readClinicalNotes');
+  }
+
+  /** Clinic default language for deriving canonical names; null when settings are unavailable. */
+  private async defaultLanguage(clinicId: string): Promise<string | null> {
+    try {
+      return (await this.settings.get(clinicId)).defaultLanguage;
+    } catch {
+      return null;
+    }
   }
 
   // ------------------------------------------------------------------ cache
@@ -134,7 +150,7 @@ export class PatientsService {
   async list(query: ListPatientsQueryDto): Promise<Paginated<PatientListItem>> {
     const { clinicId } = this.tenant.get();
     const version = await this.version(clinicId);
-    const cacheKey = `patients:list:${clinicId}:${version}:${JSON.stringify(query)}`;
+    const cacheKey = `patients:list:${clinicId}:${version}:${RequestLocale.get() ?? '-'}:${JSON.stringify(query)}`;
     const cached = await this.cache.get<Paginated<PatientListItem>>(cacheKey);
     if (cached) return cached;
 
@@ -150,12 +166,11 @@ export class PatientsService {
       const terms = search.split(/\s+/).filter(Boolean);
       const phoneIds = await this.phoneMatchIds(clinicId, normalisePhone(search), false);
       where.OR = [
+        // searchText holds every language's spelling, lower-cased; Prisma parameterises the
+        // pattern and escapes % and _ in `contains`, so the trigram index serves it.
         {
           AND: terms.map((term) => ({
-            OR: [
-              { firstName: { contains: term, mode: 'insensitive' as const } },
-              { lastName: { contains: term, mode: 'insensitive' as const } },
-            ],
+            searchText: { contains: term.toLowerCase(), mode: 'insensitive' as const },
           })),
         },
         { code: { contains: search, mode: 'insensitive' } },
@@ -247,7 +262,7 @@ export class PatientsService {
     const scope = this.tenant.get();
     const row = await this.load(scope.clinicId, id);
     const visits = await this.visits(scope.clinicId, [id]);
-    return toPatientDetail(row, this.canReadNotes(scope), visits.get(id));
+    return toPatientDetail(row, await this.canReadNotes(scope), visits.get(id));
   }
 
   async appointments(
@@ -288,10 +303,13 @@ export class PatientsService {
   async create(dto: CreatePatientDto): Promise<PatientDetail> {
     const scope = this.tenant.get();
     const dateOfBirth = parseDob(dto.dateOfBirth);
+    const lang = await this.defaultLanguage(scope.clinicId);
+    const first = resolveNameInput('firstName', dto.firstName, dto.firstNameI18n, lang);
+    const last = resolveNameInput('lastName', dto.lastName, dto.lastNameI18n, lang);
     if (!dto.force) {
       const { matches } = await this.findDuplicates({
-        firstName: dto.firstName,
-        lastName: dto.lastName,
+        firstName: first.canonical,
+        lastName: last.canonical,
         dateOfBirth: dto.dateOfBirth,
         phone: dto.phone,
       });
@@ -312,8 +330,19 @@ export class PatientsService {
             data: {
               clinicId: scope.clinicId,
               code,
-              firstName: dto.firstName.trim(),
-              lastName: dto.lastName.trim(),
+              firstName: first.canonical,
+              lastName: last.canonical,
+              firstNameI18n: first.i18n,
+              lastNameI18n: last.i18n,
+              searchText: buildSearchText([
+                first.canonical,
+                first.i18n,
+                last.canonical,
+                last.i18n,
+                code,
+                dto.phone.trim(),
+                dto.email,
+              ]),
               dateOfBirth,
               phone: dto.phone.trim(),
               email: dto.email ?? null,
@@ -340,7 +369,7 @@ export class PatientsService {
           actorUserId: scope.userId,
           payload: { patientId: created.id },
         });
-        return toPatientDetail(created, this.canReadNotes(scope));
+        return toPatientDetail(created, await this.canReadNotes(scope));
       } catch (error) {
         const unique =
           error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
@@ -351,7 +380,7 @@ export class PatientsService {
 
   async update(id: string, dto: UpdatePatientDto): Promise<PatientDetail> {
     const scope = this.tenant.get();
-    if (dto.clinicalNotes !== undefined && !this.canReadNotes(scope)) {
+    if (dto.clinicalNotes !== undefined && !(await this.canReadNotes(scope))) {
       throw new ForbiddenException({
         code: 'FORBIDDEN',
         message: 'You cannot edit clinical notes',
@@ -359,8 +388,39 @@ export class PatientsService {
     }
     const before = await this.load(scope.clinicId, id);
     const data: Prisma.PatientUpdateInput = {};
-    if (dto.firstName !== undefined) data.firstName = dto.firstName.trim();
-    if (dto.lastName !== undefined) data.lastName = dto.lastName.trim();
+    const lang = await this.defaultLanguage(scope.clinicId);
+    const names = {
+      firstName: before.firstName,
+      lastName: before.lastName,
+      firstNameI18n: normalizeLocalized(before.firstNameI18n) as LocalizedText,
+      lastNameI18n: normalizeLocalized(before.lastNameI18n) as LocalizedText,
+    };
+    if (dto.firstName !== undefined || dto.firstNameI18n !== undefined) {
+      const given = dto.firstNameI18n !== undefined ? normalizeLocalized(dto.firstNameI18n) : null;
+      const r = resolveNameInput(
+        'firstName',
+        dto.firstName ?? (given && Object.keys(given).length === 0 ? names.firstName : undefined),
+        given ?? names.firstNameI18n,
+        lang,
+      );
+      names.firstName = r.canonical;
+      names.firstNameI18n = r.i18n;
+      data.firstName = r.canonical;
+      data.firstNameI18n = r.i18n;
+    }
+    if (dto.lastName !== undefined || dto.lastNameI18n !== undefined) {
+      const given = dto.lastNameI18n !== undefined ? normalizeLocalized(dto.lastNameI18n) : null;
+      const r = resolveNameInput(
+        'lastName',
+        dto.lastName ?? (given && Object.keys(given).length === 0 ? names.lastName : undefined),
+        given ?? names.lastNameI18n,
+        lang,
+      );
+      names.lastName = r.canonical;
+      names.lastNameI18n = r.i18n;
+      data.lastName = r.canonical;
+      data.lastNameI18n = r.i18n;
+    }
     if (dto.dateOfBirth !== undefined) data.dateOfBirth = parseDob(dto.dateOfBirth);
     if (dto.phone !== undefined) data.phone = dto.phone.trim();
     if (dto.email !== undefined) data.email = dto.email;
@@ -369,6 +429,15 @@ export class PatientsService {
     if (dto.contactPreference !== undefined) data.contactPreference = dto.contactPreference;
     if (dto.adminNotes !== undefined) data.adminNotes = dto.adminNotes;
     if (dto.clinicalNotes !== undefined) data.clinicalNotes = dto.clinicalNotes;
+    data.searchText = buildSearchText([
+      names.firstName,
+      names.firstNameI18n,
+      names.lastName,
+      names.lastNameI18n,
+      before.code,
+      data.phone !== undefined ? (data.phone as string) : before.phone,
+      data.email !== undefined ? (data.email as string | null) : before.email,
+    ]);
 
     const updated = await this.prisma.$transactionWith(async (tx) => {
       const row = await tx.patient.update({ where: { id: before.id }, data });
@@ -384,7 +453,7 @@ export class PatientsService {
     });
     await this.invalidate(scope.clinicId);
     const visits = await this.visits(scope.clinicId, [id]);
-    return toPatientDetail(updated, this.canReadNotes(scope), visits.get(id));
+    return toPatientDetail(updated, await this.canReadNotes(scope), visits.get(id));
   }
 
   async archive(id: string): Promise<PatientDetail> {
@@ -407,6 +476,6 @@ export class PatientsService {
     });
     await this.invalidate(scope.clinicId);
     const visits = await this.visits(scope.clinicId, [id]);
-    return toPatientDetail(updated, this.canReadNotes(scope), visits.get(id));
+    return toPatientDetail(updated, await this.canReadNotes(scope), visits.get(id));
   }
 }

@@ -340,8 +340,14 @@ export class QueueService implements OnModuleInit {
           select: { number: true },
         });
         const number = formatQueueNumber(nextQueueSequence(numbers.map((n) => n.number)));
+        // Emergency appointment types (system or custom) enter the queue as EMERGENCY.
+        const typeDef = await tx.appointmentTypeDef.findFirst({
+          where: { clinicId, code: appointment.type },
+          select: { isEmergency: true },
+        });
         const priority: QueuePriority =
-          params.priority ?? (appointment.type === 'EMERGENCY' ? 'EMERGENCY' : 'NORMAL');
+          params.priority ??
+          (typeDef?.isEmergency || appointment.type === 'EMERGENCY' ? 'EMERGENCY' : 'NORMAL');
         const created = await tx.queueEntry.create({
           data: {
             clinicId,

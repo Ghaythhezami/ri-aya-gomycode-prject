@@ -1,11 +1,15 @@
 import type { PatientDetail, PatientListItem } from '@riaya/shared';
-import { initials, maskPhone } from '../common/mappers';
+import { normalizeLocalized } from '@riaya/shared';
+import { initials, localizedNames, maskPhone, personName } from '../common/mappers';
 
 export interface PatientRow {
   id: string;
   code: string;
   firstName: string;
   lastName: string;
+  /** Optional so rows from selects without the JSON columns still map. */
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
   dateOfBirth: Date;
   phone: string;
   email: string | null;
@@ -24,13 +28,14 @@ export interface PatientVisits {
 }
 
 export function toPatientListItem(row: PatientRow, visits?: PatientVisits): PatientListItem {
+  const names = localizedNames(row);
   return {
     id: row.id,
     code: row.code,
     firstName: row.firstName,
     lastName: row.lastName,
-    name: `${row.firstName} ${row.lastName}`.trim(),
-    initials: initials(row.firstName, row.lastName),
+    name: personName(row),
+    initials: initials(names.firstName, names.lastName),
     phoneMasked: maskPhone(row.phone),
     gender: row.gender,
     status: row.status === 'ARCHIVED' ? 'ARCHIVED' : 'ACTIVE',
@@ -48,6 +53,8 @@ export function toPatientDetail(
   void _masked;
   const detail: PatientDetail = {
     ...base,
+    firstNameI18n: normalizeLocalized(row.firstNameI18n),
+    lastNameI18n: normalizeLocalized(row.lastNameI18n),
     phone: row.phone,
     email: row.email,
     dateOfBirth: row.dateOfBirth.toISOString().slice(0, 10),
@@ -69,6 +76,8 @@ export function patientAuditSnapshot(row: PatientRow & { archivedAt?: Date | nul
     code: row.code,
     firstName: row.firstName,
     lastName: row.lastName,
+    firstNameI18n: normalizeLocalized(row.firstNameI18n),
+    lastNameI18n: normalizeLocalized(row.lastNameI18n),
     dateOfBirth: row.dateOfBirth.toISOString().slice(0, 10),
     phone: row.phone,
     email: row.email,

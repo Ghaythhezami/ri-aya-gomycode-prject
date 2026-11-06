@@ -13,7 +13,10 @@ export type DomainEventType =
   | 'schedule.optimized'
   | 'patient.created'
   | 'doctor.availability_changed'
-  | 'settings.updated';
+  | 'settings.updated'
+  /** Internal: a member was suspended / had their role changed (comms disconnects their sockets). */
+  | 'membership.suspended'
+  | 'membership.role_changed';
 
 export interface DomainEvent {
   type: DomainEventType;

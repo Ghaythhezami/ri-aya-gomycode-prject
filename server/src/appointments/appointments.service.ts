@@ -10,9 +10,7 @@ import {
 import { Prisma } from '@prisma/client';
 import {
   APPOINTMENT_STATUSES,
-  APPOINTMENT_TYPES,
   CLINIC_ERROR_CODES,
-  DEFAULT_DURATIONS,
   type AlternativeSlot,
   type AppointmentDetail,
   type AppointmentListItem,
@@ -25,6 +23,7 @@ import {
   type SlotLock,
 } from '@riaya/shared';
 import { PrismaService } from '../database/prisma.service';
+import { AppointmentTypesService } from '../appointment-types/appointment-types.service';
 import { AuditService } from '../audit/audit.service';
 import { DomainEventsService } from '../events/domain-events.service';
 import { DomainEventType } from '../events/domain-events';
@@ -50,6 +49,7 @@ import {
   BulkActionDto,
   CreateAppointmentDto,
   CreateLockDto,
+  ChangeAppointmentTypeDto,
   ListAppointmentsQueryDto,
   UpdateAppointmentDto,
 } from './dto/appointment.dto';
@@ -162,6 +162,7 @@ export class AppointmentsService {
     private readonly settings: ClinicSettingsReader,
     private readonly locks: SlotLockService,
     private readonly doctors: DoctorsService,
+    private readonly types: AppointmentTypesService,
   ) {}
 
   // ------------------------------------------------------------------ helpers
@@ -227,7 +228,8 @@ export class AppointmentsService {
     }
     if (query.type) {
       const types = query.type.split(',').map((s) => s.trim().toUpperCase());
-      if (!types.every((s) => (APPOINTMENT_TYPES as readonly string[]).includes(s))) {
+      const known = await this.types.byCode(scope.clinicId);
+      if (!types.every((s) => known.has(s))) {
         throw validation('Invalid type filter', { type: query.type });
       }
       where.type = { in: types as AppointmentType[] };
@@ -317,12 +319,12 @@ export class AppointmentsService {
   private async assertWithinHours(
     clinicId: string,
     doctorId: string,
-    type: AppointmentType,
+    isEmergency: boolean,
     start: Date,
     end: Date,
     timeZone: string,
   ): Promise<void> {
-    if (type === 'EMERGENCY') return;
+    if (isEmergency) return;
     const [rules, leaves] = await Promise.all([
       this.prisma.workingHour.findMany({ where: { doctorId, doctor: { clinicId } } }),
       this.prisma.doctorLeave.findMany({
@@ -534,8 +536,8 @@ export class AppointmentsService {
     const settings = await this.settings.get(scope.clinicId);
     const timeZone = settings.clinic.timezone;
     const startsAt = parseInstant(dto.startsAt, 'startsAt');
-    const duration =
-      dto.durationMinutes ?? settings.durations[dto.type] ?? DEFAULT_DURATIONS[dto.type];
+    const typeDef = await this.types.requireActive(scope.clinicId, dto.type);
+    const duration = dto.durationMinutes ?? typeDef.durationMinutes;
     const endsAt = new Date(startsAt.getTime() + duration * MINUTE);
 
     const held = await this.locks.get(dto.doctorId, startsAt);
@@ -566,7 +568,14 @@ export class AppointmentsService {
       });
     }
 
-    await this.assertWithinHours(scope.clinicId, doctor.id, dto.type, startsAt, endsAt, timeZone);
+    await this.assertWithinHours(
+      scope.clinicId,
+      doctor.id,
+      typeDef.isEmergency,
+      startsAt,
+      endsAt,
+      timeZone,
+    );
 
     let created: DetailRow;
     try {
@@ -635,7 +644,11 @@ export class AppointmentsService {
 
   // ------------------------------------------------------------------ update / reschedule
 
-  async update(id: string, dto: UpdateAppointmentDto): Promise<AppointmentDetail> {
+  async update(
+    id: string,
+    dto: UpdateAppointmentDto,
+    opts: { typeChange?: boolean } = {},
+  ): Promise<AppointmentDetail> {
     const scope = this.tenant.get();
     const existing = await this.loadDetail(scope.clinicId, id);
     if (!isEditable(existing.status)) throw illegalTransition(existing.status, existing.status);
@@ -650,6 +663,10 @@ export class AppointmentsService {
     const duration = dto.durationMinutes ?? oldDuration;
     const endsAt = new Date(startsAt.getTime() + duration * MINUTE);
     const type = dto.type ?? (existing.type as AppointmentType);
+    const typeDef =
+      type !== existing.type
+        ? await this.types.requireActive(scope.clinicId, type)
+        : (await this.types.byCode(scope.clinicId)).get(type);
     const roomId = dto.roomId === undefined ? existing.roomId : dto.roomId;
 
     const doctorChanged = doctorId !== existing.doctorId;
@@ -681,7 +698,14 @@ export class AppointmentsService {
     if (timeChanged) {
       const held = await this.locks.get(doctorId, startsAt);
       if (held && held.userId !== scope.userId) throw this.lockedError();
-      await this.assertWithinHours(scope.clinicId, doctorId, type, startsAt, endsAt, timeZone);
+      await this.assertWithinHours(
+        scope.clinicId,
+        doctorId,
+        typeDef?.isEmergency ?? false,
+        startsAt,
+        endsAt,
+        timeZone,
+      );
     }
 
     let updated: DetailRow;
@@ -736,7 +760,7 @@ export class AppointmentsService {
       throw error;
     }
 
-    if (timeChanged) {
+    if (timeChanged && !opts.typeChange) {
       await this.emit(scope, 'appointment.rescheduled', {
         appointmentId: id,
         fromStartsAt: existing.startsAt.toISOString(),
@@ -752,6 +776,52 @@ export class AppointmentsService {
       });
     }
     return toDetail(updated);
+  }
+
+  /**
+   * Change the type of a SCHEDULED or CONFIRMED future appointment. The end time follows the
+   * new type's duration unless `keepDuration`; the change goes through `update`, so the
+   * SERIALIZABLE booking transaction, overlap check and working hours all apply.
+   */
+  async changeType(id: string, dto: ChangeAppointmentTypeDto): Promise<AppointmentDetail> {
+    const scope = this.tenant.get();
+    const existing = await this.loadDetail(scope.clinicId, id);
+    if (existing.status !== 'SCHEDULED' && existing.status !== 'CONFIRMED') {
+      throw illegalTransition(existing.status, existing.status);
+    }
+    if (existing.startsAt.getTime() <= Date.now()) {
+      throw new UnprocessableEntityException({
+        code: 'VALIDATION_FAILED',
+        message: 'Only future appointments can change type',
+        details: { field: 'startsAt' },
+      });
+    }
+    const typeDef = await this.types.requireActive(scope.clinicId, dto.type);
+    return this.update(
+      id,
+      {
+        type: dto.type,
+        ...(dto.keepDuration ? {} : { durationMinutes: typeDef.durationMinutes }),
+      },
+      { typeChange: true },
+    );
+  }
+
+  /** Adds `typeName` (request language) and `typeColor` to appointment DTOs. */
+  async withTypeInfo<T extends AppointmentListItem>(items: T[], locale?: string): Promise<T[]>;
+  async withTypeInfo<T extends AppointmentListItem>(item: T, locale?: string): Promise<T>;
+  async withTypeInfo<T extends AppointmentListItem>(
+    input: T | T[],
+    locale?: string,
+  ): Promise<T | T[]> {
+    const list = Array.isArray(input) ? input : [input];
+    if (list.length === 0) return list;
+    const map = await this.types.byCode(this.tenant.get().clinicId, locale);
+    const out = list.map((a) => {
+      const t = map.get(a.type);
+      return { ...a, typeName: t?.displayName ?? a.type, typeColor: t?.color ?? 'primary' };
+    });
+    return Array.isArray(input) ? out : out[0]!;
   }
 
   // ------------------------------------------------------------------ status / cancel

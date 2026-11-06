@@ -123,4 +123,58 @@ describe('ServiceClient', () => {
       ServiceUnavailableException,
     );
   });
+
+  describe('requestBuffer', () => {
+    const make = (fetchImpl: unknown) =>
+      new ServiceClient({
+        audience: 'riaya-scheduler',
+        baseUrl: 'http://s',
+        secret: SECRET,
+        fetchImpl: fetchImpl as typeof fetch,
+      });
+
+    it('returns the raw bytes and content type with a signed request', async () => {
+      const bytes = Buffer.from('%PDF-1.4 fake');
+      const fetchImpl = jest.fn(
+        async (_url: URL | RequestInfo, _init?: RequestInit) =>
+          new Response(bytes, { status: 200, headers: { 'content-type': 'application/pdf' } }),
+      );
+      const result = await make(fetchImpl).requestBuffer({
+        path: '/v1/reports/analytics',
+        principal,
+        body: { locale: 'en' },
+        timeoutMs: 20_000,
+      });
+      expect(result.contentType).toBe('application/pdf');
+      expect(result.buffer.equals(bytes)).toBe(true);
+      const init = fetchImpl.mock.calls[0][1];
+      expect(init?.method).toBe('POST');
+      expect((init?.headers as Record<string, string>).authorization).toMatch(/^Bearer /);
+    });
+
+    it('keeps 4xx bodies and maps 5xx and network errors to 503', async () => {
+      await expect(
+        make(async () => jsonResponse(422, { code: 'VALIDATION_FAILED' })).requestBuffer({
+          path: '/v1/r',
+          principal,
+          body: {},
+        }),
+      ).rejects.toMatchObject({ status: 422 });
+      await expect(
+        make(async () => jsonResponse(500, {})).requestBuffer({ path: '/v1/r', principal }),
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
+      await expect(
+        make(async () => {
+          throw new Error('boom');
+        }).requestBuffer({ path: '/v1/r', principal }),
+      ).rejects.toBeInstanceOf(ServiceUnavailableException);
+    });
+
+    it('is refused when the service is disabled', async () => {
+      const client = new ServiceClient({ audience: 'riaya-scheduler', baseUrl: '', secret: '' });
+      await expect(client.requestBuffer({ path: '/v1/r', principal })).rejects.toBeInstanceOf(
+        ServiceUnavailableException,
+      );
+    });
+  });
 });

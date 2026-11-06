@@ -1,11 +1,11 @@
-import { Controller, Get, Query, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, Headers, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { IsIn, IsOptional, Matches } from 'class-validator';
 import type { Response } from 'express';
-import { CAPABILITY_ROLES, type AnalyticsScope } from '@riaya/shared';
+import { type AnalyticsScope } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { TenantContext } from '../tenancy/tenant-context';
 import { AnalyticsService } from './analytics.service';
 import { ExportService } from './export.service';
@@ -51,25 +51,25 @@ export class AnalyticsController {
 
   /** Large-history scheduling insights from the Python scheduler service (ADR 0003). */
   @Get('analytics/insights')
-  @Roles(...CAPABILITY_ROLES.viewAnalytics)
+  @RequireCapability('viewAnalytics')
   insights(@Query() query: InsightsQueryDto) {
     return this.insightsService.insights(this.tenant.get(), query);
   }
 
   @Get('dashboard')
-  @Roles(...CAPABILITY_ROLES.viewOverview)
+  @RequireCapability('viewOverview')
   dashboard() {
     return this.analytics.dashboard(this.tenant.get().clinicId);
   }
 
   @Get('analytics')
-  @Roles(...CAPABILITY_ROLES.viewAnalytics)
+  @RequireCapability('viewAnalytics')
   report(@Query() query: AnalyticsQueryDto) {
     return this.analytics.analytics(this.tenant.get(), query);
   }
 
   @Get('analytics/export.csv')
-  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @RequireCapability('manageSettings')
   async exportCsv(@Query() query: AnalyticsQueryDto, @Res() res: Response) {
     const { from, to, clinics } = await this.analytics.resolve(this.tenant.get(), query);
     res.status(200);
@@ -88,13 +88,19 @@ export class AnalyticsController {
   }
 
   @Get('analytics/export.pdf')
-  @Roles(...CAPABILITY_ROLES.manageSettings)
-  async exportPdf(@Query() query: AnalyticsQueryDto, @Res() res: Response) {
+  @RequireCapability('manageSettings')
+  async exportPdf(
+    @Query() query: AnalyticsQueryDto,
+    @Res() res: Response,
+    @Headers('accept-language') acceptLanguage?: string,
+  ) {
     const scope = this.tenant.get();
     const report = await this.analytics.analytics(scope, query);
     const { clinics } = await this.analytics.resolve(scope, query);
     const name = report.scope === 'organization' ? 'All clinics' : (clinics[0]?.name ?? '');
-    const buffer = this.exports.buildPdf(report, name);
+    // Python report renderer (charts, Arabic shaping) when the scheduler is configured,
+    // the built-in writer otherwise or on failure (ADR 0003).
+    const buffer = await this.exports.renderPdf(scope, report, name, acceptLanguage);
     res.status(200);
     res.setHeader('Content-Type', 'application/pdf');
     res.setHeader(

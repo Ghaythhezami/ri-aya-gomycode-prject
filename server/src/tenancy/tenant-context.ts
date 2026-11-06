@@ -9,6 +9,8 @@ export interface TenantScope {
   clinicId: string;
   role: UserRole;
   membershipId: string;
+  /** Custom or customised clinic role of the membership; null/undefined = system role `role`. */
+  roleId?: string | null;
 }
 
 /**

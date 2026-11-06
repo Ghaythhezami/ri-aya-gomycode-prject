@@ -609,15 +609,25 @@ export class MemoryPrisma {
       where,
       data,
     }: {
-      where: { email?: string; clinicId?: string; consumedAt?: Date | null };
+      where: {
+        id?: string;
+        email?: string;
+        clinicId?: string;
+        consumedAt?: Date | null;
+        expiresAt?: { gt?: Date };
+      };
       data: { consumedAt?: Date | null };
     }) => {
       let count = 0;
       for (const [id, invitation] of this.invitations) {
+        const idOk = where.id ? invitation.id === where.id : true;
         const emailOk = where.email ? invitation.email === where.email : true;
         const clinicOk = where.clinicId ? invitation.clinicId === where.clinicId : true;
         const consumedOk = where.consumedAt === null ? invitation.consumedAt === null : true;
-        if (emailOk && clinicOk && consumedOk) {
+        const expiryOk = where.expiresAt?.gt
+          ? invitation.expiresAt.getTime() > where.expiresAt.gt.getTime()
+          : true;
+        if (idOk && emailOk && clinicOk && consumedOk && expiryOk) {
           this.invitations.set(id, { ...invitation, ...data });
           count += 1;
         }

@@ -120,6 +120,28 @@ export class ServiceClient {
   }
 
   async request<T>(req: ServiceRequest): Promise<T> {
+    const { response, requestId } = await this.dispatch(req);
+    const text = await response.text();
+    const payload: unknown = text ? safeJson(text) : null;
+    if (!response.ok) this.throwHttpError(response.status, payload, req.path, requestId);
+    return payload as T;
+  }
+
+  /** Like `request`, but returns the raw body (e.g. a PDF) and its content type. */
+  async requestBuffer(req: ServiceRequest): Promise<{ buffer: Buffer; contentType: string }> {
+    const { response, requestId } = await this.dispatch(req);
+    if (!response.ok) {
+      const text = await response.text();
+      this.throwHttpError(response.status, text ? safeJson(text) : null, req.path, requestId);
+    }
+    return {
+      buffer: Buffer.from(await response.arrayBuffer()),
+      contentType: response.headers.get('content-type') ?? 'application/octet-stream',
+    };
+  }
+
+  /** Signs, sends and applies the circuit breaker; resolves with any non-5xx response. */
+  private async dispatch(req: ServiceRequest): Promise<{ response: Response; requestId: string }> {
     if (!this.baseUrl || !this.jwt) throw unavailable(this.options.audience);
     if (this.circuitOpen) throw unavailable(this.options.audience);
 
@@ -153,23 +175,21 @@ export class ServiceClient {
       throw unavailable(this.options.audience);
     }
     this.failures = 0;
+    return { response, requestId };
+  }
 
-    const text = await response.text();
-    const payload: unknown = text ? safeJson(text) : null;
-    if (!response.ok) {
-      const body =
-        payload && typeof payload === 'object'
-          ? payload
-          : { code: 'INTERNAL', message: `${this.options.audience} answered ${response.status}` };
-      // A 401 from a service means the shared secret is wrong: an operator problem, not the
-      // caller's. Report it as unavailable instead of logging the user out.
-      if (response.status === 401) {
-        this.logger.error(`service token rejected path=${req.path} requestId=${requestId}`);
-        throw unavailable(this.options.audience);
-      }
-      throw new HttpException(body as Record<string, unknown>, response.status);
+  private throwHttpError(status: number, payload: unknown, path: string, requestId: string): never {
+    const body =
+      payload && typeof payload === 'object'
+        ? payload
+        : { code: 'INTERNAL', message: `${this.options.audience} answered ${status}` };
+    // A 401 from a service means the shared secret is wrong: an operator problem, not the
+    // caller's. Report it as unavailable instead of logging the user out.
+    if (status === 401) {
+      this.logger.error(`service token rejected path=${path} requestId=${requestId}`);
+      throw unavailable(this.options.audience);
     }
-    return payload as T;
+    throw new HttpException(body as Record<string, unknown>, status);
   }
 
   private recordFailure(path: string, requestId: string, reason: string): void {

@@ -1,3 +1,4 @@
+import { localizedNames } from '../common/mappers';
 import {
   BadRequestException,
   ForbiddenException,
@@ -19,7 +20,9 @@ import { isStrongPassword, PASSWORD_POLICY_MESSAGE } from '../common/validators/
 import { LoginAttemptService } from '../cache/login-attempt.service';
 import { TokenBlacklistService } from '../cache/token-blacklist.service';
 import { TenancyService } from '../tenancy/tenancy.service';
-import type { TenantScope } from '../tenancy/tenant-context';
+import { TenantContext, type TenantScope } from '../tenancy/tenant-context';
+import { RbacService } from '../rbac/rbac.service';
+import { pickLocalized, type Capability, type LocalizedText } from '@riaya/shared';
 import type { UserRole } from '../users/user-role.enum';
 import { JWT_ALGORITHM, resolveJwtSecret } from './jwt-secret';
 
@@ -36,6 +39,8 @@ export class AuthService {
     private readonly loginAttempts: LoginAttemptService,
     private readonly blacklist: TokenBlacklistService,
     private readonly tenancy: TenancyService,
+    private readonly rbac: RbacService,
+    private readonly tenant: TenantContext,
     @Inject(MAIL_SERVICE) private readonly mail: MailService,
   ) {}
 
@@ -99,7 +104,7 @@ export class AuthService {
     await this.issueRefreshCookie(user, res, meta, randomUUID(), scope?.clinicId ?? null);
     return {
       accessToken,
-      user: this.publicUser(user, scope?.role ?? null),
+      user: { ...this.publicUser(user, scope?.role ?? null), ...(await this.access(scope, null)) },
       scope,
     };
   }
@@ -184,8 +189,28 @@ export class AuthService {
     return { success: true };
   }
 
-  me(user: UserRecord) {
-    return this.publicUser(user);
+  async me(user: UserRecord, locale: string | null = null) {
+    return { ...this.publicUser(user), ...(await this.access(this.tenant.peek(), locale)) };
+  }
+
+  /** Effective capabilities and the (localized) role of the active membership. */
+  private async access(
+    scope: TenantScope | null,
+    locale: string | null,
+  ): Promise<{
+    capabilities: Capability[];
+    roleKey: string | null;
+    roleName: string;
+    roleNameI18n: LocalizedText;
+  }> {
+    if (!scope) return { capabilities: [], roleKey: null, roleName: '', roleNameI18n: {} };
+    const { capabilities, roleKey, roleName, defaultLocale } = await this.rbac.describe(scope);
+    return {
+      capabilities,
+      roleKey,
+      roleName: pickLocalized(roleName, locale, roleKey, defaultLocale),
+      roleNameI18n: roleName,
+    };
   }
 
   async changePassword(user: UserRecord, currentPassword: string, newPassword: string) {
@@ -416,11 +441,16 @@ export class AuthService {
   }
 
   publicUser(user: UserRecord, role?: UserRole | null) {
+    // Names in the request language when the user entered other spellings (ADR 0004 §3);
+    // the in-memory user store has no i18n columns and falls back to the canonical names.
+    const names = localizedNames(
+      user as UserRecord & { firstNameI18n?: unknown; lastNameI18n?: unknown },
+    );
     return {
       id: user.id,
       email: user.email,
-      firstName: user.firstName,
-      lastName: user.lastName,
+      firstName: names.firstName,
+      lastName: names.lastName,
       // The ACTIVE membership's role is authoritative (FR-028). `user.role` is the
       // deprecated identity column and is NULL for anyone who self-registered, so
       // relying on it reported `role: null` for every new owner (D13).

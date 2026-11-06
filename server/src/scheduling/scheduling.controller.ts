@@ -10,10 +10,9 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { TenantContext } from '../tenancy/tenant-context';
 import { DateQueryDto, OptimizeDto, ValidateMoveDto } from './scheduling.dto';
 import { SchedulingService } from './scheduling.service';
@@ -29,41 +28,41 @@ export class SchedulingController {
   ) {}
 
   @Get('day')
-  @Roles(...CAPABILITY_ROLES.viewScheduling)
+  @RequireCapability('viewScheduling')
   day(@Query() query: DateQueryDto) {
     return this.scheduling.day(this.tenant.get().clinicId, query.date);
   }
 
   @Get('metrics')
-  @Roles(...CAPABILITY_ROLES.viewScheduling)
+  @RequireCapability('viewScheduling')
   metrics(@Query() query: DateQueryDto) {
     return this.scheduling.metrics(this.tenant.get().clinicId, query.date);
   }
 
   @Post('optimize')
   @HttpCode(200)
-  @Roles(...CAPABILITY_ROLES.applySchedule)
+  @RequireCapability('applySchedule')
   optimize(@Body() dto: OptimizeDto) {
     const { clinicId, userId } = this.tenant.get();
     return this.scheduling.optimizeDay(clinicId, userId, dto.date, dto.objective);
   }
 
   @Get('proposals/:id')
-  @Roles(...CAPABILITY_ROLES.applySchedule)
+  @RequireCapability('applySchedule')
   proposal(@Param('id', ParseUUIDPipe) id: string) {
     return this.scheduling.getProposal(this.tenant.get().clinicId, id);
   }
 
   @Post('validate-move')
   @HttpCode(200)
-  @Roles(...CAPABILITY_ROLES.applySchedule)
+  @RequireCapability('applySchedule')
   validateMove(@Body() dto: ValidateMoveDto) {
     return this.scheduling.validateMove(this.tenant.get().clinicId, dto);
   }
 
   @Post('proposals/:id/apply')
   @HttpCode(200)
-  @Roles(...CAPABILITY_ROLES.applySchedule)
+  @RequireCapability('applySchedule')
   apply(@Param('id', ParseUUIDPipe) id: string) {
     const { clinicId, userId } = this.tenant.get();
     return this.scheduling.apply(clinicId, userId, id);
@@ -71,7 +70,7 @@ export class SchedulingController {
 
   @Post('proposals/:id/undo')
   @HttpCode(200)
-  @Roles(...CAPABILITY_ROLES.applySchedule)
+  @RequireCapability('applySchedule')
   undo(@Param('id', ParseUUIDPipe) id: string) {
     const { clinicId, userId } = this.tenant.get();
     return this.scheduling.undo(clinicId, userId, id);

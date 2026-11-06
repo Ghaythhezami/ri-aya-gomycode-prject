@@ -11,6 +11,7 @@ import { SwitchWorkspaceDto } from './dto/switch-workspace.dto';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { UserRecord } from '../users/user.types';
+import { parseAcceptLanguage } from '../rbac/locale.util';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -62,9 +63,9 @@ export class AuthController {
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Return the signed-in user' })
-  me(@CurrentUser() user: UserRecord) {
-    return this.auth.me(user);
+  @ApiOperation({ summary: 'Return the signed-in user with capabilities, roleKey and roleName' })
+  me(@CurrentUser() user: UserRecord, @Req() req: Request) {
+    return this.auth.me(user, parseAcceptLanguage(req.headers['accept-language']));
   }
 
   @Get('memberships')

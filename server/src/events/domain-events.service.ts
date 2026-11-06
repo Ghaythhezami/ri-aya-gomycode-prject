@@ -4,6 +4,15 @@ import Redis from 'ioredis';
 import { REALTIME_CONTRACT_VERSION, REALTIME_EVENTS_CHANNEL } from '@riaya/shared';
 import type { DomainEvent, DomainEventType } from './domain-events';
 
+/** Longest a publish waits for the Redis connection to become ready. */
+export const READY_WAIT_MS = 1_000;
+
+/** Internal events published on the channel for riaya-comms only (not in the public contract). */
+const INTERNAL_EVENTS: ReadonlySet<string> = new Set([
+  'membership.suspended',
+  'membership.role_changed',
+]);
+
 type Handler = (event: DomainEvent) => void | Promise<void>;
 
 /**
@@ -19,6 +28,7 @@ export class DomainEventsService implements OnModuleDestroy {
   private readonly logger = new Logger(DomainEventsService.name);
   private readonly handlers = new Map<DomainEventType | '*', Handler[]>();
   private readonly publisher: Redis | null;
+  private readonly inflight = new Set<Promise<void>>();
 
   constructor(config: ConfigService) {
     const url = config.get<string>('REDIS_URL');
@@ -49,11 +59,51 @@ export class DomainEventsService implements OnModuleDestroy {
         }
       }),
     );
-    await this.publishRealtime(full);
+    // Fire-and-forget: the request path never waits for Redis (see `flush`).
+    this.track(this.publishRealtime(full));
+  }
+
+  /** Resolves when every realtime publish started so far has settled (tests, shutdown). */
+  async flush(): Promise<void> {
+    await Promise.all([...this.inflight]);
+  }
+
+  private track(work: Promise<void>): void {
+    this.inflight.add(work);
+    void work.finally(() => this.inflight.delete(work));
+  }
+
+  /**
+   * A cold serverless start emits before ioredis finished connecting; wait up to
+   * READY_WAIT_MS for it instead of dropping the event. Never throws.
+   */
+  private async waitUntilReady(): Promise<boolean> {
+    const publisher = this.publisher;
+    if (!publisher) return false;
+    if (publisher.status === 'ready') return true;
+    if (publisher.status === 'end') return false;
+    return new Promise<boolean>((resolve) => {
+      const done = (ok: boolean): void => {
+        clearTimeout(timer);
+        publisher.off('ready', onReady);
+        resolve(ok);
+      };
+      const onReady = (): void => done(true);
+      const timer = setTimeout(() => done(false), READY_WAIT_MS);
+      publisher.once('ready', onReady);
+    });
   }
 
   private async publishRealtime(event: DomainEvent): Promise<void> {
-    if (!this.publisher || this.publisher.status !== 'ready') return;
+    try {
+      await this.publishWire(event);
+    } catch (error) {
+      this.logger.debug(`Realtime publish skipped: ${(error as Error).message}`);
+    }
+  }
+
+  private async publishWire(event: DomainEvent): Promise<void> {
+    if (!this.publisher) return;
     const p = event.payload;
     let wire: Record<string, unknown> | null = null;
     const base = {
@@ -105,13 +155,20 @@ export class DomainEventsService implements OnModuleDestroy {
           completed: Number(p.completed ?? 0),
         },
       };
+    } else if (INTERNAL_EVENTS.has(event.type as string) && typeof p.userId === 'string') {
+      // Consumed by riaya-comms to drop that user's sockets; never relayed to browsers.
+      wire = {
+        event: event.type,
+        ...base,
+        payload: { userId: p.userId },
+      };
     }
     if (!wire) return;
-    try {
-      await this.publisher.publish(REALTIME_EVENTS_CHANNEL, JSON.stringify(wire));
-    } catch (error) {
-      this.logger.debug(`Realtime publish skipped: ${(error as Error).message}`);
+    if (!(await this.waitUntilReady())) {
+      this.logger.debug(`Realtime publish skipped: Redis not ready after ${READY_WAIT_MS} ms`);
+      return;
     }
+    await this.publisher.publish(REALTIME_EVENTS_CHANNEL, JSON.stringify(wire));
   }
 
   onModuleDestroy(): void {

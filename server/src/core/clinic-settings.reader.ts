@@ -60,9 +60,15 @@ export class ClinicSettingsReader {
       });
     }
 
-    const durations = {
+    // Appointment types are the source of truth; the stored map is the fallback.
+    const typeRows = await this.prisma.appointmentTypeDef.findMany({
+      where: { clinicId },
+      select: { code: true, durationMinutes: true },
+    });
+    const durations: Record<AppointmentType, number> = {
       ...DEFAULT_DURATIONS,
       ...((row.durations ?? {}) as Partial<Record<AppointmentType, number>>),
+      ...Object.fromEntries(typeRows.map((t) => [t.code, t.durationMinutes])),
     };
     const dto: ClinicSettingsDto = {
       clinic: {
@@ -102,6 +108,9 @@ export class ClinicSettingsReader {
 
   async invalidate(clinicId: string): Promise<void> {
     await this.cache.del(ClinicSettingsReader.cacheKey(clinicId));
-    await this.cache.del(`reference:${clinicId}`);
+    // Reference data is cached per language (ClinicReferenceService.cacheKey); clear each.
+    await Promise.all(
+      ['', ':en', ':ar', ':fr'].map((suffix) => this.cache.del(`reference:${clinicId}${suffix}`)),
+    );
   }
 }

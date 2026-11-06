@@ -1,3 +1,4 @@
+import { RequestLocale } from '../common/locale/request-locale';
 import { BadRequestException, ForbiddenException, Injectable, OnModuleInit } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import type { AnalyticsDto, AnalyticsScope, AppointmentStatus, DashboardDto } from '@riaya/shared';
@@ -90,7 +91,8 @@ export class AnalyticsService implements OnModuleInit {
   // ================================================================ dashboard
 
   async dashboard(clinicId: string, now = new Date()): Promise<DashboardDto> {
-    const key = `dashboard:${clinicId}`;
+    // Per language: the dashboard carries doctor and patient names (ADR 0004 §3).
+    const key = `dashboard:${clinicId}${RequestLocale.get() ? `:${RequestLocale.get()}` : ''}`;
     const cached = await this.cache.get<DashboardDto>(key);
     if (cached) return cached;
 
@@ -438,6 +440,7 @@ export class AnalyticsService implements OnModuleInit {
       query.scope === 'organization' ? `org:${scopeCtx.organizationId}` : scopeCtx.clinicId,
       query.from ?? '-',
       query.to ?? '-',
+      RequestLocale.get() ?? '-',
     ].join(':');
     const cached = await this.cache.get<AnalyticsDto>(key);
     if (cached) return cached;

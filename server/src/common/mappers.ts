@@ -5,6 +5,8 @@ import type {
   DoctorRef,
   PersonRef,
 } from '@riaya/shared';
+import { normalizeLocalized, pickLocalized } from '@riaya/shared';
+import { RequestLocale } from './locale/request-locale';
 
 const MINUTE = 60_000;
 
@@ -15,32 +17,89 @@ export function initials(firstName: string, lastName: string): string {
   return `${first}${last}`.toUpperCase() || '?';
 }
 
+/**
+ * Optional localized-name columns. Rows loaded without them (selects of other modules) still
+ * map: an absent or empty value falls back to the canonical column.
+ */
+export interface NameI18nFields {
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
+}
+
+/** One localized value for the current request language (canonical column as last resort). */
+export function localizedValue(i18n: unknown, canonical: string): string {
+  return pickLocalized(normalizeLocalized(i18n), RequestLocale.get(), canonical);
+}
+
+/** First and last name in the request language. */
+export function localizedNames(person: {
+  firstName: string;
+  lastName: string;
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
+}): { firstName: string; lastName: string } {
+  return {
+    firstName: localizedValue(person.firstNameI18n, person.firstName),
+    lastName: localizedValue(person.lastNameI18n, person.lastName),
+  };
+}
+
+/** "First Last" in the request language. */
+export function personName(person: {
+  firstName: string;
+  lastName: string;
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
+}): string {
+  const n = localizedNames(person);
+  return `${n.firstName} ${n.lastName}`.replace(/\s+/g, ' ').trim();
+}
+
+/** A room name in the request language. */
+export function roomName(room: { name: string; nameI18n?: unknown }): string {
+  return localizedValue(room.nameI18n, room.name);
+}
+
 export function toPersonRef(person: {
   id: string;
   firstName: string;
   lastName: string;
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
 }): PersonRef {
+  const n = localizedNames(person);
   return {
     id: person.id,
-    name: `${person.firstName} ${person.lastName}`.trim(),
-    initials: initials(person.firstName, person.lastName),
+    name: personName(person),
+    initials: initials(n.firstName, n.lastName),
   };
 }
 
-export function doctorName(doctor: { firstName: string; lastName: string }): string {
-  return `Dr. ${doctor.firstName} ${doctor.lastName}`.replace(/\s+/g, ' ').trim();
+const DOCTOR_TITLE: Record<string, string> = { ar: 'د.', fr: 'Dr' };
+
+export function doctorName(doctor: {
+  firstName: string;
+  lastName: string;
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
+}): string {
+  const title = DOCTOR_TITLE[RequestLocale.get() ?? ''] ?? 'Dr.';
+  return `${title} ${personName(doctor)}`.replace(/\s+/g, ' ').trim();
 }
 
 export function toDoctorRef(doctor: {
   id: string;
   firstName: string;
   lastName: string;
+  firstNameI18n?: unknown;
+  lastNameI18n?: unknown;
   specialty: string;
 }): DoctorRef {
+  const n = localizedNames(doctor);
   return {
     id: doctor.id,
     name: doctorName(doctor),
-    initials: initials(doctor.firstName, doctor.lastName),
+    initials: initials(n.firstName, n.lastName),
     specialty: doctor.specialty,
   };
 }
@@ -62,9 +121,27 @@ export function maskPhone(phone: string): string {
 
 /** Prisma `include` that gives toAppointmentListItem everything in ONE query. */
 export const APPOINTMENT_LIST_INCLUDE = {
-  patient: { select: { id: true, code: true, firstName: true, lastName: true } },
-  doctor: { select: { id: true, firstName: true, lastName: true, specialty: true } },
-  room: { select: { id: true, name: true } },
+  patient: {
+    select: {
+      id: true,
+      code: true,
+      firstName: true,
+      lastName: true,
+      firstNameI18n: true,
+      lastNameI18n: true,
+    },
+  },
+  doctor: {
+    select: {
+      id: true,
+      firstName: true,
+      lastName: true,
+      firstNameI18n: true,
+      lastNameI18n: true,
+      specialty: true,
+    },
+  },
+  room: { select: { id: true, name: true, nameI18n: true } },
 } as const;
 
 export interface AppointmentRow {
@@ -77,9 +154,23 @@ export interface AppointmentRow {
   reason: string | null;
   needsReschedule: boolean;
   locked: boolean;
-  patient: { id: string; code: string; firstName: string; lastName: string };
-  doctor: { id: string; firstName: string; lastName: string; specialty: string };
-  room: { id: string; name: string } | null;
+  patient: {
+    id: string;
+    code: string;
+    firstName: string;
+    lastName: string;
+    firstNameI18n?: unknown;
+    lastNameI18n?: unknown;
+  };
+  doctor: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    firstNameI18n?: unknown;
+    lastNameI18n?: unknown;
+    specialty: string;
+  };
+  room: { id: string; name: string; nameI18n?: unknown } | null;
 }
 
 export function toAppointmentListItem(row: AppointmentRow): AppointmentListItem {
@@ -88,7 +179,7 @@ export function toAppointmentListItem(row: AppointmentRow): AppointmentListItem 
     code: row.code,
     patient: { ...toPersonRef(row.patient), code: row.patient.code },
     doctor: toDoctorRef(row.doctor),
-    room: row.room ? { id: row.room.id, name: row.room.name } : null,
+    room: row.room ? { id: row.room.id, name: roomName(row.room) } : null,
     startsAt: row.startsAt.toISOString(),
     endsAt: row.endsAt.toISOString(),
     durationMinutes: Math.round((row.endsAt.getTime() - row.startsAt.getTime()) / MINUTE),

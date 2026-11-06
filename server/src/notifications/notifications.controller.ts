@@ -14,14 +14,10 @@ import { ApiBearerAuth, ApiExcludeController, ApiTags } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { timingSafeEqual } from 'node:crypto';
-import {
-  CAPABILITY_ROLES,
-  NOTIFICATION_CATEGORIES,
-  type NotificationCategory,
-} from '@riaya/shared';
+import { NOTIFICATION_CATEGORIES, type NotificationCategory } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { TenantContext } from '../tenancy/tenant-context';
 import { NotificationsService } from './notifications.service';
 import { ReminderProcessor } from './reminder.processor';
@@ -52,7 +48,7 @@ export class ListNotificationsDto {
 @ApiBearerAuth()
 @Controller('notifications')
 @UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(...CAPABILITY_ROLES.viewNotifications)
+@RequireCapability('viewNotifications')
 export class NotificationsController {
   constructor(
     private readonly notifications: NotificationsService,

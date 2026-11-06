@@ -1,5 +1,14 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEmail, IsIn, IsOptional, IsString, IsUUID, MinLength, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsIn,
+  IsOptional,
+  IsString,
+  IsUUID,
+  MinLength,
+  MaxLength,
+  ValidateIf,
+} from 'class-validator';
 import { UserRole } from '../../users/user-role.enum';
 
 export class InviteDto {
@@ -15,9 +24,22 @@ export class InviteDto {
   @IsUUID()
   clinicId!: string;
 
-  @ApiProperty({ enum: UserRole })
+  @ApiPropertyOptional({
+    enum: UserRole,
+    description: 'System role. Optional when roleKey is given (the role then comes from it).',
+  })
+  @ValidateIf((o: InviteDto) => !o.roleKey)
   @IsIn(Object.values(UserRole))
-  role!: UserRole;
+  role?: UserRole;
+
+  @ApiPropertyOptional({
+    description: 'System role name or custom role key of the clinic. Takes precedence over role.',
+  })
+  @IsOptional()
+  @IsString()
+  @MinLength(1)
+  @MaxLength(60)
+  roleKey?: string;
 }
 
 export class AcceptInvitationDto {
@@ -31,6 +53,14 @@ export class AcceptInvitationDto {
   @MinLength(8)
   @MaxLength(128)
   password!: string;
+
+  @ApiPropertyOptional({
+    description: 'Required when the invited email already has an account (proves ownership).',
+  })
+  @IsOptional()
+  @IsString()
+  @MaxLength(128)
+  currentPassword?: string;
 
   @ApiPropertyOptional()
   @IsOptional()

@@ -1,5 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
+import { DomainEventsService } from '../events/domain-events.service';
+import { RbacService } from '../rbac/rbac.service';
 import { UserRole } from '../users/user-role.enum';
 import { TenantContext, clinicWhere, organizationWhere, type TenantScope } from './tenant-context';
 
@@ -30,6 +32,8 @@ export class TenancyService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly tenant: TenantContext,
+    @Optional() private readonly rbac?: RbacService,
+    @Optional() private readonly events?: DomainEventsService,
   ) {}
 
   /** The clinic-scoped filter for a query in the current request. */
@@ -78,6 +82,7 @@ export class TenancyService {
       clinicId: membership.clinicId,
       role: membership.role as UserRole,
       membershipId: membership.id,
+      roleId: membership.roleId ?? null,
     };
   }
 
@@ -95,6 +100,7 @@ export class TenancyService {
       clinicId: membership.clinicId,
       role: membership.role as UserRole,
       membershipId: membership.id,
+      roleId: membership.roleId ?? null,
     };
   }
 
@@ -133,9 +139,23 @@ export class TenancyService {
       }
     }
 
+    // The target must not be more powerful than the caller, and the clinic must keep a role manager.
+    if (this.rbac) {
+      await this.rbac.assertCanManageMember(this.tenant.get(), membership, null);
+    }
+
     await this.prisma.userMembership.update({
       where: { id: membership.id },
       data: { status: 'SUSPENDED' },
+    });
+    if (this.rbac) await this.rbac.invalidate(membership.clinicId);
+    // After the write: comms disconnects the member's sockets.
+    await this.events?.emit({
+      type: 'membership.suspended',
+      clinicId: membership.clinicId,
+      organizationId: membership.organizationId,
+      actorUserId: this.tenant.peek()?.userId ?? null,
+      payload: { userId: membership.userId },
     });
   }
 
@@ -144,14 +164,28 @@ export class TenancyService {
    * `clinicId` is null the caller is organization-wide and may reach any clinic
    * in their organization; otherwise the membership must belong to that clinic.
    */
-  private async findMembershipInTenant(
-    request: SuspendMembershipRequest,
-  ): Promise<{ id: string; role: string; organizationId: string } | null> {
+  private async findMembershipInTenant(request: SuspendMembershipRequest): Promise<{
+    id: string;
+    userId: string;
+    clinicId: string;
+    role: string;
+    roleId: string | null;
+    status: string;
+    organizationId: string;
+  } | null> {
     const filter = request.organizationWide ? this.organizationFilter() : this.clinicFilter();
 
     return this.prisma.userMembership.findFirst({
       where: { id: request.membershipId, ...filter },
-      select: { id: true, role: true, organizationId: true },
+      select: {
+        id: true,
+        userId: true,
+        clinicId: true,
+        role: true,
+        roleId: true,
+        status: true,
+        organizationId: true,
+      },
     });
   }
 }

@@ -25,6 +25,13 @@ const DASHBOARD_EVENTS: DomainEventType[] = [
 /** Drops cached day metrics and the dashboard when the schedule or queue changes (SMT-1). */
 @Injectable()
 export class SchedulingCache implements OnModuleInit {
+  /** The dashboard is cached per language; drop every variant. */
+  static async dropDashboard(cache: RedisCacheService, clinicId: string): Promise<void> {
+    await Promise.all(
+      ['', ':en', ':ar', ':fr'].map((suffix) => cache.del(`dashboard:${clinicId}${suffix}`)),
+    );
+  }
+
   constructor(
     private readonly events: DomainEventsService,
     private readonly cache: RedisCacheService,
@@ -35,7 +42,7 @@ export class SchedulingCache implements OnModuleInit {
   onModuleInit(): void {
     for (const type of APPOINTMENT_EVENTS) this.events.on(type, (e) => this.invalidate(e));
     for (const type of DASHBOARD_EVENTS) {
-      this.events.on(type, (e) => this.cache.del(`dashboard:${e.clinicId}`));
+      this.events.on(type, (e) => void SchedulingCache.dropDashboard(this.cache, e.clinicId));
     }
   }
 
@@ -63,7 +70,7 @@ export class SchedulingCache implements OnModuleInit {
 
   async invalidate(e: DomainEvent): Promise<void> {
     // Dashboard first: it must be dropped even if the settings lookup fails.
-    await this.cache.del(`dashboard:${e.clinicId}`);
+    await SchedulingCache.dropDashboard(this.cache, e.clinicId);
     const timeZone = (await this.settings.get(e.clinicId)).clinic.timezone;
     for (const date of await this.dates(e, timeZone)) {
       await this.cache.del(SchedulingService.metricsKey(e.clinicId, date));

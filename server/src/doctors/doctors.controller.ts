@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Delete,
   Get,
   Param,
@@ -11,10 +12,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
+import { RbacService } from '../rbac/rbac.service';
+import { TenantContext } from '../tenancy/tenant-context';
 import { DoctorsService } from './doctors.service';
 import {
   CreateDoctorDto,
@@ -26,71 +28,92 @@ import {
   UpdateDoctorDto,
 } from './dto/doctor.dto';
 
-const SCHEDULE_EDITORS = ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR'];
-
 @ApiTags('doctors')
 @ApiBearerAuth()
 @Controller('doctors')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class DoctorsController {
-  constructor(private readonly doctors: DoctorsService) {}
+  constructor(
+    private readonly doctors: DoctorsService,
+    private readonly rbac: RbacService,
+    private readonly tenant: TenantContext,
+  ) {}
+
+  /**
+   * Schedule edits need `manageDoctors`, or `viewScheduling` on the doctor's OWN profile
+   * (the service also pins DOCTOR users to their own schedule). A role name alone grants nothing.
+   */
+  private async assertScheduleEditor(doctorId: string): Promise<void> {
+    const scope = this.tenant.get();
+    if (await this.rbac.has(scope, 'manageDoctors')) return;
+    if (
+      (await this.rbac.has(scope, 'viewScheduling')) &&
+      (await this.doctors.ownDoctorId(scope)) === doctorId
+    ) {
+      return;
+    }
+    throw new ForbiddenException({
+      code: 'FORBIDDEN',
+      message: 'You do not have permission to perform this action',
+    });
+  }
 
   @Get()
-  @Roles(...CAPABILITY_ROLES.viewDoctors)
+  @RequireCapability('viewDoctors')
   list(@Query() query: ListDoctorsQueryDto) {
     return this.doctors.list(query);
   }
 
   @Post()
-  @Roles(...CAPABILITY_ROLES.manageDoctors)
+  @RequireCapability('manageDoctors')
   create(@Body() dto: CreateDoctorDto) {
     return this.doctors.create(dto);
   }
 
   @Get(':id')
-  @Roles(...CAPABILITY_ROLES.viewDoctors)
+  @RequireCapability('viewDoctors')
   get(@Param('id') id: string, @Query() query: DoctorDateQueryDto) {
-    return this.doctors.get(id, query.date);
+    return this.doctors.get(id, query.date, query.from, query.to);
   }
 
   @Patch(':id')
-  @Roles(...CAPABILITY_ROLES.manageDoctors)
+  @RequireCapability('manageDoctors')
   update(@Param('id') id: string, @Body() dto: UpdateDoctorDto) {
     return this.doctors.update(id, dto);
   }
 
   @Post(':id/deactivate')
-  @Roles(...CAPABILITY_ROLES.manageDoctors)
+  @RequireCapability('manageDoctors')
   deactivate(@Param('id') id: string) {
     return this.doctors.deactivate(id);
   }
 
   @Post(':id/activate')
-  @Roles(...CAPABILITY_ROLES.manageDoctors)
+  @RequireCapability('manageDoctors')
   activate(@Param('id') id: string) {
     return this.doctors.activate(id);
   }
 
   @Put(':id/working-hours')
-  @Roles(...SCHEDULE_EDITORS)
-  putWorkingHours(@Param('id') id: string, @Body() dto: PutWorkingHoursDto) {
+  async putWorkingHours(@Param('id') id: string, @Body() dto: PutWorkingHoursDto) {
+    await this.assertScheduleEditor(id);
     return this.doctors.putWorkingHours(id, dto);
   }
 
   @Post(':id/leaves')
-  @Roles(...SCHEDULE_EDITORS)
-  addLeave(@Param('id') id: string, @Body() dto: CreateLeaveDto) {
+  async addLeave(@Param('id') id: string, @Body() dto: CreateLeaveDto) {
+    await this.assertScheduleEditor(id);
     return this.doctors.addLeave(id, dto);
   }
 
   @Delete(':id/leaves/:leaveId')
-  @Roles(...SCHEDULE_EDITORS)
-  removeLeave(@Param('id') id: string, @Param('leaveId') leaveId: string) {
+  async removeLeave(@Param('id') id: string, @Param('leaveId') leaveId: string) {
+    await this.assertScheduleEditor(id);
     return this.doctors.removeLeave(id, leaveId);
   }
 
   @Get(':id/slots')
-  @Roles(...CAPABILITY_ROLES.viewDoctors)
+  @RequireCapability('viewDoctors')
   slots(@Param('id') id: string, @Query() query: SlotsQueryDto) {
     return this.doctors.slots(id, query);
   }

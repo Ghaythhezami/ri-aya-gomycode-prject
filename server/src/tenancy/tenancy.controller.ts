@@ -1,13 +1,13 @@
 import { Body, Controller, Get, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RateLimit } from '../common/throttle/rate-limit';
-import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
-import { Roles } from '../common/decorators/roles.decorator';
+import { RequireCapability } from '../common/decorators/capability.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import { TenantContext } from './tenant-context';
 import { OnboardingService } from './onboarding.service';
+import { MembersService } from './members.service';
 import { TenancyService } from './tenancy.service';
 import { RegisterDto } from './dto/register.dto';
 import { AcceptInvitationDto, CreateOrganizationDto, InviteDto } from './dto/invitation.dto';
@@ -22,6 +22,7 @@ export class TenancyController {
   constructor(
     private readonly onboarding: OnboardingService,
     private readonly tenancy: TenancyService,
+    private readonly members: MembersService,
     private readonly tenant: TenantContext,
     @Inject(MAIL_SERVICE) private readonly mail: MailService,
   ) {}
@@ -57,7 +58,7 @@ export class TenancyController {
   @Post('invitations')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...CAPABILITY_ROLES.inviteStaff)
+  @RequireCapability('inviteStaff')
   @RateLimit(20)
   @ApiOperation({ summary: 'Invite a person to the active clinic with a role' })
   async invite(@CurrentUser() user: UserRecord, @Body() dto: InviteDto) {
@@ -70,6 +71,7 @@ export class TenancyController {
       // body is attacker-controlled and a foreign clinic id must not be honoured.
       scope,
       role: dto.role,
+      roleKey: dto.roleKey,
       invitedById: user.id,
     });
 
@@ -79,7 +81,7 @@ export class TenancyController {
       email: dto.email,
       acceptUrl,
       clinicName: result.clinicName,
-      role: dto.role,
+      role: result.role,
       locale: user.preferredLocale,
     });
 
@@ -89,17 +91,37 @@ export class TenancyController {
 
   @Get('invitations')
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'List pending invitations for the active clinic' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @RequireCapability('inviteStaff')
+  @ApiOperation({
+    summary: 'List pending invitations for the active clinic',
+    description: 'Items: { id, email, role, roleId, roleKey, roleName, expiresAt, createdAt }.',
+  })
+  @ApiResponse({ status: 200, description: 'Pending invitations with their localized role name' })
+  @ApiResponse({ status: 403, description: 'Needs inviteStaff' })
   listInvitations() {
     const scope = this.tenant.get();
     return this.onboarding.listPendingInvitations(scope);
   }
 
+  @Get('memberships')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'List the staff of the active clinic (manageStaff or inviteStaff)',
+    description:
+      'Items: { membershipId, userId, name, email, roleKey, roleName, role, status, isSelf }, sorted by name.',
+  })
+  @ApiResponse({ status: 200, description: 'Members of the caller clinic' })
+  @ApiResponse({ status: 403, description: 'Needs manageStaff or inviteStaff' })
+  listMembers() {
+    return this.members.list();
+  }
+
   @Patch('memberships/:id/suspend')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(...CAPABILITY_ROLES.suspendMembership)
+  @RequireCapability('suspendMembership')
   @ApiOperation({ summary: 'Suspend a membership, revoking that clinic access immediately' })
   async suspend(@Param('id') id: string) {
     const scope = this.tenant.get();

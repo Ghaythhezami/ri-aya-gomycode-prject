@@ -6,7 +6,15 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import type { DoctorCard, DoctorDetail, HoursConflict, LeaveDto, SlotDto } from '@riaya/shared';
+import {
+  normalizeLocalized,
+  type DoctorCard,
+  type DoctorDetail,
+  type HoursConflict,
+  type LeaveDto,
+  type LocalizedText,
+  type SlotDto,
+} from '@riaya/shared';
 import { PrismaService } from '../database/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { DomainEventsService } from '../events/domain-events.service';
@@ -14,7 +22,9 @@ import { TenantContext, type TenantScope } from '../tenancy/tenant-context';
 import { ClinicSettingsReader } from '../core/clinic-settings.reader';
 import { ClinicReferenceService, toRoomDto } from '../clinic/clinic-reference.service';
 import { SlotLockService } from '../appointments/slot-lock.service';
-import { APPOINTMENT_LIST_INCLUDE, toAppointmentListItem } from '../common/mappers';
+import { APPOINTMENT_LIST_INCLUDE, personName, toAppointmentListItem } from '../common/mappers';
+import { escapeLike, resolveNameInput } from '../common/locale/localized-input';
+import { computePeriodStats, resolvePeriod } from './period-stats';
 import {
   dayRuleIntervals,
   generateSlots,
@@ -178,19 +188,24 @@ export class DoctorsService {
     const { clinic } = await this.settings.get(clinicId);
     const date = await this.resolveDate(query.date, clinic.timezone);
     const search = query.search?.trim();
+    const period = resolvePeriod(query.from, query.to);
+    const i18nIds = search ? await this.i18nSearchIds(clinicId, search) : [];
     const where: Prisma.DoctorWhereInput = {
       ...(query.specialty
         ? { specialty: { equals: query.specialty.trim(), mode: 'insensitive' } }
         : {}),
       ...(search
         ? {
-            OR: search
-              .split(/\s+/)
-              .flatMap((term) => [
-                { firstName: { contains: term, mode: 'insensitive' as const } },
-                { lastName: { contains: term, mode: 'insensitive' as const } },
-                { specialty: { contains: term, mode: 'insensitive' as const } },
-              ]),
+            OR: [
+              ...search
+                .split(/\s+/)
+                .flatMap((term) => [
+                  { firstName: { contains: term, mode: 'insensitive' as const } },
+                  { lastName: { contains: term, mode: 'insensitive' as const } },
+                  { specialty: { contains: term, mode: 'insensitive' as const } },
+                ]),
+              ...(i18nIds.length ? [{ id: { in: i18nIds } }] : []),
+            ],
           }
         : {}),
     };
@@ -200,10 +215,84 @@ export class DoctorsService {
       clinic.timezone,
       where,
     );
-    return doctors.map((d) => this.cardOf(d, appointments, date, clinic.timezone));
+    const cards = doctors.map((d) => this.cardOf(d, appointments, date, clinic.timezone));
+    if (period) {
+      const stats = await this.periodStats(clinicId, doctors, period, clinic.timezone);
+      for (const card of cards) card.period = stats.get(card.id)?.period;
+    }
+    return cards;
   }
 
-  private async detailOf(clinicId: string, id: string, dateInput?: string): Promise<DoctorDetail> {
+  /** Doctors whose localized names match every term (Arabic and French spellings). */
+  private async i18nSearchIds(clinicId: string, search: string): Promise<string[]> {
+    const terms = search.split(/\s+/).filter(Boolean);
+    if (!terms.length) return [];
+    const conds = terms.map(
+      (t) =>
+        Prisma.sql`lower("firstNameI18n"::text || ' ' || "lastNameI18n"::text) LIKE ${`%${escapeLike(t.toLowerCase())}%`}`,
+    );
+    const rows = await this.prisma.$queryRaw<{ id: string }[]>`
+      SELECT id FROM doctors WHERE "clinicId" = ${clinicId} AND ${Prisma.join(conds, ' AND ')}`;
+    return rows.map((r) => r.id);
+  }
+
+  /** Period statistics for several doctors: one leave query and one appointment query in total. */
+  private async periodStats(
+    clinicId: string,
+    doctors: {
+      id: string;
+      workingHours: { weekday: number; startMinute: number; endMinute: number; kind: string }[];
+    }[],
+    period: { from: string; to: string },
+    timeZone: string,
+  ) {
+    const result = new Map<string, ReturnType<typeof computePeriodStats>>();
+    if (doctors.length === 0) return result;
+    const start = localDayBounds(period.from, timeZone).start;
+    const end = localDayBounds(period.to, timeZone).end;
+    const ids = doctors.map((d) => d.id);
+    const [appointments, leaves] = await Promise.all([
+      this.prisma.appointment.findMany({
+        where: {
+          clinicId,
+          doctorId: { in: ids },
+          startsAt: { gte: start, lt: end },
+          status: { not: 'CANCELLED' },
+        },
+        select: { doctorId: true, startsAt: true, endsAt: true, status: true },
+      }),
+      this.prisma.doctorLeave.findMany({
+        where: {
+          doctorId: { in: ids },
+          endsAt: { gt: new Date(start.getTime() - DAY_MS) },
+          startsAt: { lt: end },
+        },
+      }),
+    ]);
+    for (const doctor of doctors) {
+      result.set(
+        doctor.id,
+        computePeriodStats({
+          from: period.from,
+          to: period.to,
+          timeZone,
+          rules: doctor.workingHours,
+          leaves: leaves.filter((l) => l.doctorId === doctor.id),
+          appointments: appointments.filter((a) => a.doctorId === doctor.id),
+        }),
+      );
+    }
+    return result;
+  }
+
+  private async detailOf(
+    clinicId: string,
+    id: string,
+    dateInput?: string,
+    from?: string,
+    to?: string,
+  ): Promise<DoctorDetail> {
+    const period = resolvePeriod(from, to);
     const { clinic } = await this.settings.get(clinicId);
     const date = await this.resolveDate(dateInput, clinic.timezone);
     const { doctors, appointments } = await this.cardSources(clinicId, date, clinic.timezone, {
@@ -223,8 +312,14 @@ export class DoctorsService {
         take: 10,
       }),
     ]);
+    const stats = period
+      ? (await this.periodStats(clinicId, [doctor], period, clinic.timezone)).get(id)
+      : undefined;
     return {
       ...this.cardOf(doctor, appointments, date, clinic.timezone),
+      firstNameI18n: normalizeLocalized(doctor.firstNameI18n),
+      lastNameI18n: normalizeLocalized(doctor.lastNameI18n),
+      ...(stats ? { period: stats.period, daily: stats.daily } : {}),
       licenseNumber: doctor.licenseNumber,
       workingHours: toWorkingIntervals(doctor.workingHours),
       leaves: leaves.map(toLeaveDto),
@@ -232,8 +327,8 @@ export class DoctorsService {
     };
   }
 
-  get(id: string, date?: string): Promise<DoctorDetail> {
-    return this.detailOf(this.tenant.get().clinicId, id, date);
+  get(id: string, date?: string, from?: string, to?: string): Promise<DoctorDetail> {
+    return this.detailOf(this.tenant.get().clinicId, id, date, from, to);
   }
 
   // ------------------------------------------------------------------ CRUD
@@ -247,6 +342,8 @@ export class DoctorsService {
   private snapshot(d: {
     firstName: string;
     lastName: string;
+    firstNameI18n?: unknown;
+    lastNameI18n?: unknown;
     specialty: string;
     consultationMinutes: number;
     licenseNumber: string | null;
@@ -256,6 +353,8 @@ export class DoctorsService {
     return {
       firstName: d.firstName,
       lastName: d.lastName,
+      firstNameI18n: normalizeLocalized(d.firstNameI18n),
+      lastNameI18n: normalizeLocalized(d.lastNameI18n),
       specialty: d.specialty,
       consultationMinutes: d.consultationMinutes,
       licenseNumber: d.licenseNumber,
@@ -267,12 +366,17 @@ export class DoctorsService {
   async create(dto: CreateDoctorDto): Promise<DoctorDetail> {
     const scope = this.tenant.get();
     await this.assertRoom(scope.clinicId, dto.roomId);
+    const lang = (await this.settings.get(scope.clinicId)).defaultLanguage;
+    const first = resolveNameInput('firstName', dto.firstName, dto.firstNameI18n, lang);
+    const last = resolveNameInput('lastName', dto.lastName, dto.lastNameI18n, lang);
     const created = await this.prisma.$transactionWith(async (tx) => {
       const row = await tx.doctor.create({
         data: {
           clinicId: scope.clinicId,
-          firstName: dto.firstName.trim(),
-          lastName: dto.lastName.trim(),
+          firstName: first.canonical,
+          lastName: last.canonical,
+          firstNameI18n: first.i18n,
+          lastNameI18n: last.i18n,
           specialty: dto.specialty.trim(),
           consultationMinutes: dto.consultationMinutes ?? 30,
           licenseNumber: dto.licenseNumber ?? null,
@@ -298,8 +402,32 @@ export class DoctorsService {
     const before = await this.loadDoctor(scope.clinicId, id);
     if (dto.roomId !== undefined) await this.assertRoom(scope.clinicId, dto.roomId);
     const data: Prisma.DoctorUncheckedUpdateInput = {};
-    if (dto.firstName !== undefined) data.firstName = dto.firstName.trim();
-    if (dto.lastName !== undefined) data.lastName = dto.lastName.trim();
+    if (dto.firstName !== undefined || dto.firstNameI18n !== undefined) {
+      const lang = (await this.settings.get(scope.clinicId)).defaultLanguage;
+      const given: LocalizedText | null =
+        dto.firstNameI18n !== undefined ? normalizeLocalized(dto.firstNameI18n) : null;
+      const r = resolveNameInput(
+        'firstName',
+        dto.firstName ?? (given && !Object.keys(given).length ? before.firstName : undefined),
+        given ?? before.firstNameI18n,
+        lang,
+      );
+      data.firstName = r.canonical;
+      data.firstNameI18n = r.i18n;
+    }
+    if (dto.lastName !== undefined || dto.lastNameI18n !== undefined) {
+      const lang = (await this.settings.get(scope.clinicId)).defaultLanguage;
+      const given: LocalizedText | null =
+        dto.lastNameI18n !== undefined ? normalizeLocalized(dto.lastNameI18n) : null;
+      const r = resolveNameInput(
+        'lastName',
+        dto.lastName ?? (given && !Object.keys(given).length ? before.lastName : undefined),
+        given ?? before.lastNameI18n,
+        lang,
+      );
+      data.lastName = r.canonical;
+      data.lastNameI18n = r.i18n;
+    }
     if (dto.specialty !== undefined) data.specialty = dto.specialty.trim();
     if (dto.consultationMinutes !== undefined) data.consultationMinutes = dto.consultationMinutes;
     if (dto.licenseNumber !== undefined) data.licenseNumber = dto.licenseNumber;
@@ -439,7 +567,11 @@ export class DoctorsService {
           status: { notIn: FREED },
           type: { not: 'EMERGENCY' },
         },
-        include: { patient: { select: { firstName: true, lastName: true } } },
+        include: {
+          patient: {
+            select: { firstName: true, lastName: true, firstNameI18n: true, lastNameI18n: true },
+          },
+        },
         orderBy: { startsAt: 'asc' },
       }),
       this.prisma.doctorLeave.findMany({
@@ -455,7 +587,7 @@ export class DoctorsService {
         conflict: {
           appointmentId: a.id,
           code: a.code,
-          patientName: `${a.patient.firstName} ${a.patient.lastName}`.trim(),
+          patientName: personName(a.patient),
           startsAt: a.startsAt.toISOString(),
         },
       }));

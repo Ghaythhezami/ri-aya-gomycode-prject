@@ -4,6 +4,8 @@ import type { RoomDto } from '@riaya/shared';
 import { PrismaService } from '../database/prisma.service';
 import { AuditService } from '../audit/audit.service';
 import { TenantContext } from '../tenancy/tenant-context';
+import { ClinicSettingsReader } from '../core/clinic-settings.reader';
+import { resolveNameInput } from '../common/locale/localized-input';
 import { ClinicReferenceService, toRoomDto } from './clinic-reference.service';
 import type { CreateRoomDto } from './dto/create-room.dto';
 
@@ -14,6 +16,7 @@ export class RoomsService {
     private readonly tenant: TenantContext,
     private readonly audit: AuditService,
     private readonly reference: ClinicReferenceService,
+    private readonly settings: ClinicSettingsReader,
   ) {}
 
   async list(): Promise<RoomDto[]> {
@@ -27,12 +30,15 @@ export class RoomsService {
 
   async create(dto: CreateRoomDto): Promise<RoomDto> {
     const scope = this.tenant.get();
+    const lang = (await this.settings.get(scope.clinicId)).defaultLanguage;
+    const name = resolveNameInput('name', dto.name, dto.nameI18n, lang);
     try {
       const room = await this.prisma.$transactionWith(async (tx) => {
         const created = await tx.room.create({
           data: {
             clinicId: scope.clinicId,
-            name: dto.name.trim(),
+            name: name.canonical,
+            nameI18n: name.i18n,
             kind: dto.kind ?? 'CONSULTATION',
           },
         });

@@ -31,7 +31,7 @@ import { ClinicSettingsReader } from '../core/clinic-settings.reader';
 import { localDayBounds, localMinuteOfDay, toLocalDate } from '../core/clinic-time';
 import { PrismaService } from '../database/prisma.service';
 import { DomainEventsService } from '../events/domain-events.service';
-import { doctorName, initials } from '../common/mappers';
+import { doctorName, initials, personName, localizedValue } from '../common/mappers';
 import { NotificationsService } from '../notifications/notifications.service';
 import { computeDayMetrics } from './metrics';
 import {
@@ -49,7 +49,11 @@ import { SCHEDULER_CLIENT } from '../services/service-tokens';
 export const UNDO_WINDOW_MS = 15 * 60_000;
 const INACTIVE = ['CANCELLED', 'NO_SHOW'];
 
-type Db = { doctor: PrismaService['doctor']; appointment: PrismaService['appointment'] };
+type Db = {
+  doctor: PrismaService['doctor'];
+  appointment: PrismaService['appointment'];
+  appointmentTypeDef: PrismaService['appointmentTypeDef'];
+};
 type Tx = Prisma.TransactionClient;
 
 interface DoctorCtx {
@@ -74,6 +78,8 @@ interface AppointmentCtx {
   type: string;
   locked: boolean;
   patientName: string;
+  typeName?: string;
+  typeColor?: string | null;
 }
 
 export interface DayContext {
@@ -138,9 +144,19 @@ export class SchedulingService {
     });
     const rows = await db.appointment.findMany({
       where: { clinicId, startsAt: { gte: start, lt: end } },
-      include: { patient: { select: { firstName: true, lastName: true } } },
+      include: {
+        patient: {
+          select: { firstName: true, lastName: true, firstNameI18n: true, lastNameI18n: true },
+        },
+      },
       orderBy: [{ startsAt: 'asc' }, { code: 'asc' }],
     });
+    const typeDefs = await db.appointmentTypeDef.findMany({
+      where: { clinicId },
+      select: { code: true, name: true, color: true, isEmergency: true },
+    });
+    const types = new Map(typeDefs.map((t) => [t.code, t]));
+    const emergencyCodes = new Set(typeDefs.filter((t) => t.isEmergency).map((t) => t.code));
     return {
       clinicId,
       date,
@@ -172,8 +188,10 @@ export class SchedulingService {
         endsAt: a.endsAt,
         status: a.status,
         type: a.type,
-        locked: a.locked,
-        patientName: `${a.patient.firstName} ${a.patient.lastName}`.trim(),
+        locked: a.locked || emergencyCodes.has(a.type),
+        patientName: personName(a.patient),
+        typeName: types.has(a.type) ? localizedValue(types.get(a.type)!.name, a.type) : a.type,
+        typeColor: types.get(a.type)?.color ?? null,
       })),
     };
   }
@@ -243,6 +261,8 @@ export class SchedulingService {
             code: a.code,
             patientName: a.patientName,
             type: a.type as GridBlock['type'],
+            typeName: a.typeName,
+            typeColor: a.typeColor,
             status: a.status as GridBlock['status'],
             startsAt: a.startsAt.toISOString(),
             endsAt: a.endsAt.toISOString(),
@@ -720,9 +740,14 @@ export class SchedulingService {
       type: appointment.type,
       locked: appointment.locked,
     };
+    const typeDef = await this.prisma.appointmentTypeDef.findFirst({
+      where: { clinicId, code: opt.type },
+      select: { isEmergency: true },
+    });
     if (
       !['SCHEDULED', 'CONFIRMED'].includes(opt.status) ||
       opt.type === 'EMERGENCY' ||
+      typeDef?.isEmergency ||
       opt.locked
     ) {
       return invalid('notMovable');

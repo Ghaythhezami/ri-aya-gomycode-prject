@@ -2,6 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
 import type { AuditDto, ClinicSettingsDto, CursorPage, RoleSummary } from '@riaya/shared';
+import { AppointmentTypesService } from '../appointment-types/appointment-types.service';
 import { AuditService } from '../audit/audit.service';
 import { ClinicSettingsReader } from '../core/clinic-settings.reader';
 import { addDays, localToUtc } from '../core/clinic-time';
@@ -21,6 +22,7 @@ export class SettingsService {
     private readonly reader: ClinicSettingsReader,
     private readonly audit: AuditService,
     private readonly events: DomainEventsService,
+    private readonly types: AppointmentTypesService,
   ) {}
 
   get(clinicId: string): Promise<ClinicSettingsDto> {
@@ -54,7 +56,10 @@ export class SettingsService {
     if (dto.requireCancelReason !== undefined) data.requireCancelReason = dto.requireCancelReason;
     if (dto.targetWaitMinutes !== undefined) data.targetWaitMinutes = dto.targetWaitMinutes;
     if (dto.slotMinutes !== undefined) data.slotMinutes = dto.slotMinutes;
-    if (dto.durations) data.durations = { ...before.durations, ...stripUndefined(dto.durations) };
+    const durationsPatch = dto.durations
+      ? (stripUndefined(dto.durations) as Record<string, number>)
+      : undefined;
+    if (durationsPatch) data.durations = { ...before.durations, ...durationsPatch };
     if (dto.reminderOffsets) data.reminderOffsets = [...dto.reminderOffsets].sort((a, b) => b - a);
     if (dto.reminderChannels) data.reminderChannels = [...new Set(dto.reminderChannels)];
     if (dto.openingHours) {
@@ -82,6 +87,8 @@ export class SettingsService {
       if (Object.keys(clinicData).length)
         await tx.clinic.update({ where: { id: clinicId }, data: clinicData });
       await tx.clinicSettings.update({ where: { clinicId }, data });
+      // Durations are owned by the appointment types; keep them in step.
+      if (durationsPatch) await this.types.applyDurations(tx, clinicId, durationsPatch);
       const after = {
         ...stripUndefined(dto as unknown as Record<string, unknown>),
       };
@@ -98,6 +105,7 @@ export class SettingsService {
     });
 
     await this.reader.invalidate(clinicId);
+    if (durationsPatch) await this.types.invalidate(clinicId);
     await this.events.emit({
       type: 'settings.updated',
       clinicId,

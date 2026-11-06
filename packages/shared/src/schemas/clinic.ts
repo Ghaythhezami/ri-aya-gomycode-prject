@@ -6,6 +6,8 @@
  * time zone is applied in the UI. The full endpoint list is in docs/API-CONTRACT.md.
  */
 
+import type { LocalizedText } from './platform';
+
 export const APPOINTMENT_STATUSES = [
   'SCHEDULED',
   'CONFIRMED',
@@ -17,11 +19,14 @@ export const APPOINTMENT_STATUSES = [
 ] as const;
 export type AppointmentStatus = (typeof APPOINTMENT_STATUSES)[number];
 
+/** The three system appointment types every clinic has; clinics add their own (AppointmentTypeDto). */
 export const APPOINTMENT_TYPES = ['CONSULTATION', 'FOLLOW_UP', 'EMERGENCY'] as const;
-export type AppointmentType = (typeof APPOINTMENT_TYPES)[number];
+export type SystemAppointmentType = (typeof APPOINTMENT_TYPES)[number];
+/** Code of one of the clinic's appointment types (system or custom, upper-case). */
+export type AppointmentType = string;
 
-/** Default durations in minutes per type (overridable in clinic settings). */
-export const DEFAULT_DURATIONS: Record<AppointmentType, number> = {
+/** Default durations in minutes of the system types (each clinic can change them). */
+export const DEFAULT_DURATIONS: Record<SystemAppointmentType, number> = {
   CONSULTATION: 30,
   FOLLOW_UP: 15,
   EMERGENCY: 20,
@@ -131,7 +136,10 @@ export interface DoctorRef extends PersonRef {
 
 export interface RoomDto {
   id: string;
+  /** Localized for the request language (Accept-Language), canonical name as fallback. */
   name: string;
+  /** Every language the name was entered in. */
+  nameI18n?: LocalizedText;
   kind: string;
   isActive: boolean;
 }
@@ -143,9 +151,14 @@ export type PatientStatus = 'ACTIVE' | 'ARCHIVED';
 export interface PatientListItem {
   id: string;
   code: string;
+  /** Canonical (single-language) columns, used for sorting and search. */
   firstName: string;
   lastName: string;
+  /** Full name localized for the request language. */
   name: string;
+  /** Present on detail/edit shapes only. */
+  firstNameI18n?: LocalizedText;
+  lastNameI18n?: LocalizedText;
   initials: string;
   /** Masked in lists, e.g. "+971 50 ••• 1447". */
   phoneMasked: string;
@@ -169,8 +182,11 @@ export interface PatientDetail extends Omit<PatientListItem, 'phoneMasked'> {
 }
 
 export interface CreatePatientInput {
-  firstName: string;
-  lastName: string;
+  /** Canonical names; optional when `firstNameI18n`/`lastNameI18n` carry at least one language. */
+  firstName?: string;
+  lastName?: string;
+  firstNameI18n?: LocalizedText;
+  lastNameI18n?: LocalizedText;
   dateOfBirth: string; // YYYY-MM-DD
   phone: string;
   email?: string;
@@ -209,11 +225,36 @@ export interface LeaveDto {
   reason: string | null;
 }
 
+/** Utilisation of one doctor over a date range (`from`/`to` inclusive, clinic time zone). */
+export interface DoctorPeriodStats {
+  from: string;
+  to: string;
+  appointmentsCount: number;
+  completedCount: number;
+  noShowCount: number;
+  bookedMinutes: number;
+  availableMinutes: number;
+  /** 0..100 */
+  utilisation: number;
+  /** Local date (YYYY-MM-DD) with the most appointments, null when there are none. */
+  busiestDay: string | null;
+}
+
+export interface DoctorDailyStats {
+  date: string;
+  appointments: number;
+  utilisation: number;
+}
+
 export interface DoctorCard {
   id: string;
+  /** Localized for the request language, prefixed "Dr.". */
   name: string;
   firstName: string;
   lastName: string;
+  /** Present on detail/edit shapes only. */
+  firstNameI18n?: LocalizedText;
+  lastNameI18n?: LocalizedText;
   initials: string;
   specialty: string;
   consultationMinutes: number;
@@ -225,9 +266,13 @@ export interface DoctorCard {
   /** booked minutes / available minutes for the selected day, 0..100. */
   utilisation: number;
   room: RoomDto | null;
+  /** Set when the list/detail was requested with `from`/`to`. */
+  period?: DoctorPeriodStats;
 }
 
 export interface DoctorDetail extends DoctorCard {
+  /** Per-day breakdown of `period`, set with `from`/`to`. */
+  daily?: DoctorDailyStats[];
   licenseNumber: string | null;
   workingHours: WorkingInterval[];
   leaves: LeaveDto[];
@@ -235,8 +280,11 @@ export interface DoctorDetail extends DoctorCard {
 }
 
 export interface CreateDoctorInput {
-  firstName: string;
-  lastName: string;
+  /** Canonical names; optional when the i18n values carry at least one language. */
+  firstName?: string;
+  lastName?: string;
+  firstNameI18n?: LocalizedText;
+  lastNameI18n?: LocalizedText;
   specialty: string;
   consultationMinutes?: number;
   licenseNumber?: string;
@@ -277,6 +325,10 @@ export interface AppointmentListItem {
   durationMinutes: number;
   status: AppointmentStatus;
   type: AppointmentType;
+  /** Type name in the request language (Accept-Language). */
+  typeName?: string;
+  /** Colour token key of the type (AppointmentTypeColor). */
+  typeColor?: string;
   reason: string | null;
   needsReschedule: boolean;
   locked: boolean;
@@ -409,6 +461,10 @@ export interface GridBlock {
   code: string;
   patientName: string;
   type: AppointmentType;
+  /** Localized name of the clinic's appointment type. */
+  typeName?: string;
+  /** Colour key of the type (APPOINTMENT_TYPE_COLORS). */
+  typeColor?: string | null;
   status: AppointmentStatus;
   startsAt: string;
   endsAt: string;
@@ -702,7 +758,13 @@ export interface AuditDto {
 
 /** Lookup data for selects and filters, cached per clinic. */
 export interface ClinicReference {
-  clinic: { id: string; name: string; timezone: string };
+  clinic: {
+    id: string;
+    name: string;
+    timezone: string;
+    /** Clinic default language; canonical names follow it (ADR 0004 §3). */
+    defaultLanguage?: 'en' | 'ar' | 'fr';
+  };
   doctors: DoctorRef[];
   specialties: string[];
   rooms: RoomDto[];

@@ -1,4 +1,5 @@
-import { Transform } from 'class-transformer';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
   IsEmail,
@@ -8,15 +9,28 @@ import {
   Matches,
   MaxLength,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
+import { LocalizedTextDto } from '../../common/locale/localized-text.dto';
 import { PaginationQueryDto } from '../../common/pagination';
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const PHONE = /^\+?[0-9 ()-]{6,24}$/;
 
 export class CreatePatientDto {
-  @IsString() @MinLength(1) @MaxLength(80) firstName!: string;
-  @IsString() @MinLength(1) @MaxLength(80) lastName!: string;
+  /** Canonical name; derived from the i18n value (clinic default language, else first filled) when absent. */
+  @IsOptional() @IsString() @MinLength(1) @MaxLength(80) firstName?: string;
+  @IsOptional() @IsString() @MinLength(1) @MaxLength(80) lastName?: string;
+  @ApiPropertyOptional({ type: LocalizedTextDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LocalizedTextDto)
+  firstNameI18n?: LocalizedTextDto;
+  @ApiPropertyOptional({ type: LocalizedTextDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LocalizedTextDto)
+  lastNameI18n?: LocalizedTextDto;
   @Matches(DATE) dateOfBirth!: string;
   @Matches(PHONE) phone!: string;
   @IsOptional() @IsEmail() email?: string;
@@ -30,6 +44,16 @@ export class CreatePatientDto {
 export class UpdatePatientDto {
   @IsOptional() @IsString() @MinLength(1) @MaxLength(80) firstName?: string;
   @IsOptional() @IsString() @MinLength(1) @MaxLength(80) lastName?: string;
+  @ApiPropertyOptional({ type: LocalizedTextDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LocalizedTextDto)
+  firstNameI18n?: LocalizedTextDto;
+  @ApiPropertyOptional({ type: LocalizedTextDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LocalizedTextDto)
+  lastNameI18n?: LocalizedTextDto;
   @IsOptional() @Matches(DATE) dateOfBirth?: string;
   @IsOptional() @Matches(PHONE) phone?: string;
   @IsOptional() @IsEmail() email?: string;
