@@ -1,33 +1,23 @@
 {
-  "feature": "localised-data-and-api-messages",
-  "version": "v1",
-  "recordedAt": "2026-11-04T22:22:06.843Z",
+  "feature": "authentication-onboarding-and-access-control",
+  "version": "v2",
+  "recordedAt": "2026-11-06T19:43:41.533Z",
   "by": null,
   "steps": [
     {
-      "command": "sdrive approve application-shell review",
-      "kind": "human",
-      "why": "All four group reviews pass at a83226e; approving is a sign-off, so it stays with you."
+      "command": "sdrive verify authentication-onboarding-and-access-control",
+      "kind": "cli",
+      "why": "Verify compares plan.json to the code before any gate reads it."
     },
     {
-      "command": "sdrive approve strict-tenant-isolation review",
-      "kind": "human",
-      "why": "PASS review recorded; the review gate needs the owner's sign-off."
+      "command": "sdrive test authentication-onboarding-and-access-control",
+      "kind": "cli",
+      "why": "The implementation gate needs a recorded passing run."
     },
     {
-      "command": "sdrive approve role-based-access-control-and-clinic-scoping review",
+      "command": "sdrive approve authentication-onboarding-and-access-control implementation",
       "kind": "human",
-      "why": "PASS review recorded; the review gate needs the owner's sign-off."
-    },
-    {
-      "command": "sdrive approve localised-data-and-api-messages review",
-      "kind": "human",
-      "why": "PASS review recorded; the review gate needs the owner's sign-off."
-    },
-    {
-      "command": "sdrive archive --all",
-      "kind": "human",
-      "why": "The four features share one branch and, per CON-611, merge once when every review gate is approved."
+      "why": "Approving is a sign-off, so it stays with you."
     }
   ]
 }
