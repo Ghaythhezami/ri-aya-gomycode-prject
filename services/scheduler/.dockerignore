@@ -1,0 +1,10 @@
+.venv
+.pytest_cache
+.ruff_cache
+__pycache__
+*.pyc
+tests
+scripts
+README.md
+uv.lock
+.env*

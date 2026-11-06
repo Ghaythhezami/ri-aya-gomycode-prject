@@ -1,0 +1,189 @@
+{
+  "input": {
+    "now": 1793944800000,
+    "slotMinutes": 15,
+    "dayStart": 1793923200000,
+    "dayEnd": 1794009600000,
+    "objective": "MIN_WAIT",
+    "doctors": [
+      {
+        "id": "a",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793955600000,
+            "end": 1793966400000
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793955600000,
+            "end": 1793966400000
+          }
+        ]
+      }
+    ],
+    "appointments": [
+      {
+        "id": "l0",
+        "code": "AP-l0",
+        "doctorId": "a",
+        "start": 1793955600000,
+        "end": 1793957400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": true
+      },
+      {
+        "id": "l1",
+        "code": "AP-l1",
+        "doctorId": "a",
+        "start": 1793957400000,
+        "end": 1793959200000,
+        "status": "SCHEDULED",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "l2",
+        "code": "AP-l2",
+        "doctorId": "a",
+        "start": 1793959200000,
+        "end": 1793961000000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "l3",
+        "code": "AP-l3",
+        "doctorId": "a",
+        "start": 1793961000000,
+        "end": 1793962800000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "l4",
+        "code": "AP-l4",
+        "doctorId": "a",
+        "start": 1793962800000,
+        "end": 1793964600000,
+        "status": "CONFIRMED",
+        "type": "CONSULTATION",
+        "locked": false
+      }
+    ]
+  },
+  "output": {
+    "moves": [
+      {
+        "appointmentId": "l2",
+        "code": "AP-l2",
+        "fromDoctorId": "a",
+        "toDoctorId": "b",
+        "fromStart": 1793959200000,
+        "toStart": 1793959200000,
+        "durationMinutes": 30,
+        "reasonKey": "scheduling.reasons.MIN_WAIT"
+      },
+      {
+        "appointmentId": "l3",
+        "code": "AP-l3",
+        "fromDoctorId": "a",
+        "toDoctorId": "a",
+        "fromStart": 1793961000000,
+        "toStart": 1793960100000,
+        "durationMinutes": 30,
+        "reasonKey": "scheduling.reasons.MIN_WAIT"
+      }
+    ],
+    "before": {
+      "appointments": 5,
+      "bookedMinutes": 150,
+      "availableMinutes": 360,
+      "utilisation": 42,
+      "availability": 58,
+      "idleGapMinutes": 0,
+      "estimatedWaitMinutes": 9
+    },
+    "after": {
+      "appointments": 5,
+      "bookedMinutes": 150,
+      "availableMinutes": 360,
+      "utilisation": 42,
+      "availability": 58,
+      "idleGapMinutes": 30,
+      "estimatedWaitMinutes": 0.9
+    },
+    "unresolved": [],
+    "idleDoctors": [
+      {
+        "doctorId": "a",
+        "freeMinutes": 60
+      },
+      {
+        "doctorId": "b",
+        "freeMinutes": 150
+      }
+    ],
+    "status": "IMPROVED",
+    "appointments": [
+      {
+        "id": "l0",
+        "code": "AP-l0",
+        "doctorId": "a",
+        "start": 1793955600000,
+        "end": 1793957400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": true
+      },
+      {
+        "id": "l1",
+        "code": "AP-l1",
+        "doctorId": "a",
+        "start": 1793957400000,
+        "end": 1793959200000,
+        "status": "SCHEDULED",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "l2",
+        "code": "AP-l2",
+        "doctorId": "b",
+        "start": 1793959200000,
+        "end": 1793961000000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "l3",
+        "code": "AP-l3",
+        "doctorId": "a",
+        "start": 1793960100000,
+        "end": 1793961900000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "l4",
+        "code": "AP-l4",
+        "doctorId": "a",
+        "start": 1793962800000,
+        "end": 1793964600000,
+        "status": "CONFIRMED",
+        "type": "CONSULTATION",
+        "locked": false
+      }
+    ]
+  }
+}

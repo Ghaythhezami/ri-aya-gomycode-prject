@@ -1,0 +1,94 @@
+{
+  "input": {
+    "now": 1793944800000,
+    "slotMinutes": 15,
+    "dayStart": 1793923200000,
+    "dayEnd": 1794009600000,
+    "objective": "MIN_WAIT",
+    "doctors": [
+      {
+        "id": "a",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793955600000,
+            "end": 1793966400000
+          }
+        ]
+      }
+    ],
+    "appointments": [
+      {
+        "id": "n0",
+        "code": "AP-n0",
+        "doctorId": "a",
+        "start": 1793955600000,
+        "end": 1793957400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "n1",
+        "code": "AP-n1",
+        "doctorId": "a",
+        "start": 1793959200000,
+        "end": 1793961000000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      }
+    ]
+  },
+  "output": {
+    "moves": [],
+    "before": {
+      "appointments": 2,
+      "bookedMinutes": 60,
+      "availableMinutes": 180,
+      "utilisation": 33,
+      "availability": 67,
+      "idleGapMinutes": 30,
+      "estimatedWaitMinutes": 0
+    },
+    "after": {
+      "appointments": 2,
+      "bookedMinutes": 60,
+      "availableMinutes": 180,
+      "utilisation": 33,
+      "availability": 67,
+      "idleGapMinutes": 30,
+      "estimatedWaitMinutes": 0
+    },
+    "unresolved": [],
+    "idleDoctors": [
+      {
+        "doctorId": "a",
+        "freeMinutes": 120
+      }
+    ],
+    "status": "NO_IMPROVEMENT",
+    "appointments": [
+      {
+        "id": "n0",
+        "code": "AP-n0",
+        "doctorId": "a",
+        "start": 1793955600000,
+        "end": 1793957400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "n1",
+        "code": "AP-n1",
+        "doctorId": "a",
+        "start": 1793959200000,
+        "end": 1793961000000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      }
+    ]
+  }
+}

@@ -1,0 +1,219 @@
+{
+  "input": {
+    "now": 1793944800000,
+    "slotMinutes": 15,
+    "dayStart": 1793923200000,
+    "dayEnd": 1794009600000,
+    "objective": "MAX_UTILISATION",
+    "doctors": [
+      {
+        "id": "a",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793955600000,
+            "end": 1793966400000
+          }
+        ]
+      },
+      {
+        "id": "b",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793955600000,
+            "end": 1793966400000
+          }
+        ]
+      }
+    ],
+    "appointments": [
+      {
+        "id": "s0",
+        "code": "AP-s0",
+        "doctorId": "a",
+        "start": 1793955600000,
+        "end": 1793957400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s1",
+        "code": "AP-s1",
+        "doctorId": "a",
+        "start": 1793957400000,
+        "end": 1793959200000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s2",
+        "code": "AP-s2",
+        "doctorId": "a",
+        "start": 1793959200000,
+        "end": 1793961000000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s3",
+        "code": "AP-s3",
+        "doctorId": "a",
+        "start": 1793961000000,
+        "end": 1793962800000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s4",
+        "code": "AP-s4",
+        "doctorId": "a",
+        "start": 1793962800000,
+        "end": 1793964600000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s5",
+        "code": "AP-s5",
+        "doctorId": "a",
+        "start": 1793964600000,
+        "end": 1793966400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      }
+    ]
+  },
+  "output": {
+    "moves": [
+      {
+        "appointmentId": "s0",
+        "code": "AP-s0",
+        "fromDoctorId": "a",
+        "toDoctorId": "b",
+        "fromStart": 1793955600000,
+        "toStart": 1793955600000,
+        "durationMinutes": 30,
+        "reasonKey": "scheduling.reasons.MAX_UTILISATION"
+      },
+      {
+        "appointmentId": "s1",
+        "code": "AP-s1",
+        "fromDoctorId": "a",
+        "toDoctorId": "b",
+        "fromStart": 1793957400000,
+        "toStart": 1793957400000,
+        "durationMinutes": 30,
+        "reasonKey": "scheduling.reasons.MAX_UTILISATION"
+      },
+      {
+        "appointmentId": "s2",
+        "code": "AP-s2",
+        "fromDoctorId": "a",
+        "toDoctorId": "b",
+        "fromStart": 1793959200000,
+        "toStart": 1793959200000,
+        "durationMinutes": 30,
+        "reasonKey": "scheduling.reasons.MAX_UTILISATION"
+      }
+    ],
+    "before": {
+      "appointments": 6,
+      "bookedMinutes": 180,
+      "availableMinutes": 360,
+      "utilisation": 50,
+      "availability": 50,
+      "idleGapMinutes": 0,
+      "estimatedWaitMinutes": 11.3
+    },
+    "after": {
+      "appointments": 6,
+      "bookedMinutes": 180,
+      "availableMinutes": 360,
+      "utilisation": 50,
+      "availability": 50,
+      "idleGapMinutes": 0,
+      "estimatedWaitMinutes": 4.5
+    },
+    "unresolved": [],
+    "idleDoctors": [
+      {
+        "doctorId": "a",
+        "freeMinutes": 90
+      },
+      {
+        "doctorId": "b",
+        "freeMinutes": 90
+      }
+    ],
+    "status": "IMPROVED",
+    "appointments": [
+      {
+        "id": "s0",
+        "code": "AP-s0",
+        "doctorId": "b",
+        "start": 1793955600000,
+        "end": 1793957400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s1",
+        "code": "AP-s1",
+        "doctorId": "b",
+        "start": 1793957400000,
+        "end": 1793959200000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s2",
+        "code": "AP-s2",
+        "doctorId": "b",
+        "start": 1793959200000,
+        "end": 1793961000000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s3",
+        "code": "AP-s3",
+        "doctorId": "a",
+        "start": 1793961000000,
+        "end": 1793962800000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s4",
+        "code": "AP-s4",
+        "doctorId": "a",
+        "start": 1793962800000,
+        "end": 1793964600000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "s5",
+        "code": "AP-s5",
+        "doctorId": "a",
+        "start": 1793964600000,
+        "end": 1793966400000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      }
+    ]
+  }
+}

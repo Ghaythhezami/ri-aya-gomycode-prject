@@ -1,0 +1,533 @@
+{
+  "input": {
+    "doctors": [
+      {
+        "id": "d0",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793952000000,
+            "end": 1793966400000
+          },
+          {
+            "start": 1793970000000,
+            "end": 1793984400000
+          }
+        ]
+      },
+      {
+        "id": "d1",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793952000000,
+            "end": 1793966400000
+          },
+          {
+            "start": 1793970000000,
+            "end": 1793984400000
+          }
+        ]
+      },
+      {
+        "id": "d2",
+        "specialty": "GP",
+        "available": [
+          {
+            "start": 1793948400000,
+            "end": 1793962800000
+          },
+          {
+            "start": 1793966400000,
+            "end": 1793980800000
+          }
+        ]
+      },
+      {
+        "id": "d3",
+        "specialty": "ENT",
+        "available": [
+          {
+            "start": 1793948400000,
+            "end": 1793962800000
+          },
+          {
+            "start": 1793966400000,
+            "end": 1793980800000
+          }
+        ]
+      }
+    ],
+    "appointments": [
+      {
+        "id": "a0",
+        "code": "AP-1000",
+        "doctorId": "d0",
+        "start": 1793972700000,
+        "end": 1793973600000,
+        "status": "SCHEDULED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a1",
+        "code": "AP-1001",
+        "doctorId": "d0",
+        "start": 1793973600000,
+        "end": 1793974500000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a2",
+        "code": "AP-1002",
+        "doctorId": "d0",
+        "start": 1793982600000,
+        "end": 1793983500000,
+        "status": "COMPLETED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a3",
+        "code": "AP-1003",
+        "doctorId": "d0",
+        "start": 1793954700000,
+        "end": 1793955600000,
+        "status": "CHECKED_IN",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "a4",
+        "code": "AP-1004",
+        "doctorId": "d0",
+        "start": 1793975400000,
+        "end": 1793976300000,
+        "status": "COMPLETED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a5",
+        "code": "AP-1005",
+        "doctorId": "d0",
+        "start": 1793958300000,
+        "end": 1793959200000,
+        "status": "CHECKED_IN",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a6",
+        "code": "AP-1006",
+        "doctorId": "d0",
+        "start": 1793960100000,
+        "end": 1793961900000,
+        "status": "COMPLETED",
+        "type": "FOLLOW_UP",
+        "locked": true
+      },
+      {
+        "id": "a7",
+        "code": "AP-1007",
+        "doctorId": "d0",
+        "start": 1793979900000,
+        "end": 1793980800000,
+        "status": "IN_PROGRESS",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a8",
+        "code": "AP-1008",
+        "doctorId": "d1",
+        "start": 1793954700000,
+        "end": 1793955600000,
+        "status": "CONFIRMED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a9",
+        "code": "AP-1009",
+        "doctorId": "d1",
+        "start": 1793964600000,
+        "end": 1793965500000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a10",
+        "code": "AP-1010",
+        "doctorId": "d1",
+        "start": 1793974500000,
+        "end": 1793976300000,
+        "status": "COMPLETED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a11",
+        "code": "AP-1011",
+        "doctorId": "d1",
+        "start": 1793976300000,
+        "end": 1793978100000,
+        "status": "CONFIRMED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a12",
+        "code": "AP-1012",
+        "doctorId": "d1",
+        "start": 1793973600000,
+        "end": 1793974500000,
+        "status": "CHECKED_IN",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "a13",
+        "code": "AP-1013",
+        "doctorId": "d1",
+        "start": 1793955600000,
+        "end": 1793956500000,
+        "status": "SCHEDULED",
+        "type": "FOLLOW_UP",
+        "locked": true
+      },
+      {
+        "id": "a14",
+        "code": "AP-1014",
+        "doctorId": "d1",
+        "start": 1793957400000,
+        "end": 1793959200000,
+        "status": "CHECKED_IN",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "a15",
+        "code": "AP-1015",
+        "doctorId": "d2",
+        "start": 1793970000000,
+        "end": 1793971800000,
+        "status": "CONFIRMED",
+        "type": "CONSULTATION",
+        "locked": true
+      },
+      {
+        "id": "a16",
+        "code": "AP-1016",
+        "doctorId": "d2",
+        "start": 1793971800000,
+        "end": 1793972700000,
+        "status": "SCHEDULED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a17",
+        "code": "AP-1017",
+        "doctorId": "d2",
+        "start": 1793978100000,
+        "end": 1793979900000,
+        "status": "CHECKED_IN",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a18",
+        "code": "AP-1018",
+        "doctorId": "d3",
+        "start": 1793970900000,
+        "end": 1793971800000,
+        "status": "CHECKED_IN",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a19",
+        "code": "AP-1019",
+        "doctorId": "d3",
+        "start": 1793949300000,
+        "end": 1793951100000,
+        "status": "CONFIRMED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      }
+    ],
+    "objective": "MAX_UTILISATION",
+    "now": 1793962800000,
+    "slotMinutes": 30,
+    "dayStart": 1793923200000,
+    "dayEnd": 1794009600000
+  },
+  "output": {
+    "moves": [
+      {
+        "appointmentId": "a9",
+        "code": "AP-1009",
+        "fromDoctorId": "d1",
+        "toDoctorId": "d2",
+        "fromStart": 1793964600000,
+        "toStart": 1793966400000,
+        "durationMinutes": 15,
+        "reasonKey": "scheduling.reasons.MAX_UTILISATION"
+      },
+      {
+        "appointmentId": "a0",
+        "code": "AP-1000",
+        "fromDoctorId": "d0",
+        "toDoctorId": "d2",
+        "fromStart": 1793972700000,
+        "toStart": 1793973600000,
+        "durationMinutes": 15,
+        "reasonKey": "scheduling.reasons.MAX_UTILISATION"
+      }
+    ],
+    "before": {
+      "appointments": 20,
+      "bookedMinutes": 405,
+      "availableMinutes": 1920,
+      "utilisation": 21,
+      "availability": 79,
+      "idleGapMinutes": 360,
+      "estimatedWaitMinutes": 0.9
+    },
+    "after": {
+      "appointments": 20,
+      "bookedMinutes": 405,
+      "availableMinutes": 1920,
+      "utilisation": 21,
+      "availability": 79,
+      "idleGapMinutes": 300,
+      "estimatedWaitMinutes": 0.8
+    },
+    "unresolved": [],
+    "idleDoctors": [
+      {
+        "doctorId": "d0",
+        "freeMinutes": 360
+      },
+      {
+        "doctorId": "d1",
+        "freeMinutes": 345
+      },
+      {
+        "doctorId": "d2",
+        "freeMinutes": 375
+      },
+      {
+        "doctorId": "d3",
+        "freeMinutes": 435
+      }
+    ],
+    "status": "IMPROVED",
+    "appointments": [
+      {
+        "id": "a0",
+        "code": "AP-1000",
+        "doctorId": "d2",
+        "start": 1793973600000,
+        "end": 1793974500000,
+        "status": "SCHEDULED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a1",
+        "code": "AP-1001",
+        "doctorId": "d0",
+        "start": 1793973600000,
+        "end": 1793974500000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a2",
+        "code": "AP-1002",
+        "doctorId": "d0",
+        "start": 1793982600000,
+        "end": 1793983500000,
+        "status": "COMPLETED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a3",
+        "code": "AP-1003",
+        "doctorId": "d0",
+        "start": 1793954700000,
+        "end": 1793955600000,
+        "status": "CHECKED_IN",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "a4",
+        "code": "AP-1004",
+        "doctorId": "d0",
+        "start": 1793975400000,
+        "end": 1793976300000,
+        "status": "COMPLETED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a5",
+        "code": "AP-1005",
+        "doctorId": "d0",
+        "start": 1793958300000,
+        "end": 1793959200000,
+        "status": "CHECKED_IN",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a6",
+        "code": "AP-1006",
+        "doctorId": "d0",
+        "start": 1793960100000,
+        "end": 1793961900000,
+        "status": "COMPLETED",
+        "type": "FOLLOW_UP",
+        "locked": true
+      },
+      {
+        "id": "a7",
+        "code": "AP-1007",
+        "doctorId": "d0",
+        "start": 1793979900000,
+        "end": 1793980800000,
+        "status": "IN_PROGRESS",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a8",
+        "code": "AP-1008",
+        "doctorId": "d1",
+        "start": 1793954700000,
+        "end": 1793955600000,
+        "status": "CONFIRMED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a9",
+        "code": "AP-1009",
+        "doctorId": "d2",
+        "start": 1793966400000,
+        "end": 1793967300000,
+        "status": "SCHEDULED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a10",
+        "code": "AP-1010",
+        "doctorId": "d1",
+        "start": 1793974500000,
+        "end": 1793976300000,
+        "status": "COMPLETED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a11",
+        "code": "AP-1011",
+        "doctorId": "d1",
+        "start": 1793976300000,
+        "end": 1793978100000,
+        "status": "CONFIRMED",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a12",
+        "code": "AP-1012",
+        "doctorId": "d1",
+        "start": 1793973600000,
+        "end": 1793974500000,
+        "status": "CHECKED_IN",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "a13",
+        "code": "AP-1013",
+        "doctorId": "d1",
+        "start": 1793955600000,
+        "end": 1793956500000,
+        "status": "SCHEDULED",
+        "type": "FOLLOW_UP",
+        "locked": true
+      },
+      {
+        "id": "a14",
+        "code": "AP-1014",
+        "doctorId": "d1",
+        "start": 1793957400000,
+        "end": 1793959200000,
+        "status": "CHECKED_IN",
+        "type": "EMERGENCY",
+        "locked": false
+      },
+      {
+        "id": "a15",
+        "code": "AP-1015",
+        "doctorId": "d2",
+        "start": 1793970000000,
+        "end": 1793971800000,
+        "status": "CONFIRMED",
+        "type": "CONSULTATION",
+        "locked": true
+      },
+      {
+        "id": "a16",
+        "code": "AP-1016",
+        "doctorId": "d2",
+        "start": 1793971800000,
+        "end": 1793972700000,
+        "status": "SCHEDULED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      },
+      {
+        "id": "a17",
+        "code": "AP-1017",
+        "doctorId": "d2",
+        "start": 1793978100000,
+        "end": 1793979900000,
+        "status": "CHECKED_IN",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a18",
+        "code": "AP-1018",
+        "doctorId": "d3",
+        "start": 1793970900000,
+        "end": 1793971800000,
+        "status": "CHECKED_IN",
+        "type": "CONSULTATION",
+        "locked": false
+      },
+      {
+        "id": "a19",
+        "code": "AP-1019",
+        "doctorId": "d3",
+        "start": 1793949300000,
+        "end": 1793951100000,
+        "status": "CONFIRMED",
+        "type": "FOLLOW_UP",
+        "locked": false
+      }
+    ]
+  }
+}
