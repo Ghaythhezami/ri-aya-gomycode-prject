@@ -110,7 +110,7 @@ async def request_context(request: Request, call_next):
 
 async def health(request: Request):
     try:
-        up = await asyncio.wait_for(ping(), timeout=4)
+        up = await asyncio.wait_for(ping(), timeout=12)
     except TimeoutError:
         up = False
     return {

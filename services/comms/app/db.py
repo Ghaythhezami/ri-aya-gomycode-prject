@@ -55,7 +55,15 @@ _indexed = False
 
 
 def make_client(uri: str) -> AsyncMongoClient:
-    return AsyncMongoClient(uri, serverSelectionTimeoutMS=3000, maxPoolSize=10, tz_aware=True)
+    # Atlas over SRV + TLS takes ~3 s to the first answer from a cold container (DNS SRV/TXT
+    # lookup, TLS, SCRAM), so a 3 s selection timeout reported a healthy cluster as down.
+    return AsyncMongoClient(
+        uri,
+        serverSelectionTimeoutMS=10_000,
+        connectTimeoutMS=10_000,
+        maxPoolSize=10,
+        tz_aware=True,
+    )
 
 
 def get_client() -> AsyncMongoClient:
@@ -92,11 +100,24 @@ async def get_db() -> AsyncDatabase:
     return db
 
 
+_last_ping_error: str | None = None
+
+
 async def ping() -> bool:
+    global _last_ping_error
     try:
         await get_client().admin.command("ping")
+        _last_ping_error = None
         return True
-    except Exception:
+    except Exception as exc:  # noqa: BLE001 - health must never raise
+        # Error class and server code only (8000 = Atlas bad auth); never the URI.
+        reason = type(exc).__name__
+        code = getattr(exc, "code", None)
+        if code is not None:
+            reason = f"{reason}:{code}"
+        if reason != _last_ping_error:
+            log.warning("mongo ping failed", extra={"fields": {"reason": reason}})
+            _last_ping_error = reason
         return False
 
 
