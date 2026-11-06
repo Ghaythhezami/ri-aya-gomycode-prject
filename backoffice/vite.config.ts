@@ -21,7 +21,9 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:4000',
+        // VITE_API_PROXY points the dev proxy at another local API (e.g. one wired to the
+        // Python services on 4010); the default is the API on 4000.
+        target: process.env.VITE_API_PROXY ?? 'http://localhost:4000',
         changeOrigin: true,
       },
     },

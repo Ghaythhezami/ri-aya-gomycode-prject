@@ -67,5 +67,60 @@
     "title": "No activity in this range",
     "body": "There are no appointments between {{from}} and {{to}}. Try a longer range.",
     "action": "Show last 90 days"
+  },
+  "insights": {
+    "title": "Smart scheduling insights",
+    "description": "Demand patterns, no-show risk and a 14-day forecast, with suggested actions for your schedule.",
+    "perClinicNote": "Insights are computed per clinic. Showing the current clinic.",
+    "provenance": "Computed by the scheduling service over {{rows}} appointments in {{ms}} ms.",
+    "unavailable": "Insights are temporarily unavailable",
+    "unavailableBody": "The scheduling service is not responding. Try again in a moment.",
+    "loadError": "The insights could not be loaded",
+    "empty": {
+      "title": "No appointments to analyse",
+      "body": "There is no appointment history for this period yet."
+    },
+    "visits": "{{count}} visits",
+    "noShowRate": "No-show rate",
+    "noShowSummary": "{{title}}: highest no-show rate is {{label}} at {{value}}.",
+    "leadTimeColumn": "Booked in advance",
+    "weekdayColumn": "Weekday",
+    "expected": "Expected appointments",
+    "forecastSummary": "Forecast for the next {{count}} days: busiest day is {{label}} with {{value}} expected appointments.",
+    "recommendations": "Suggested actions",
+    "noRecommendations": "No action suggested for this period.",
+    "kpi": {
+      "noShowRate": "No-show rate",
+      "appointments": "Appointments analysed",
+      "completed": "Completed",
+      "noShows": "No-shows"
+    },
+    "heatmap": {
+      "title": "Demand by weekday and hour",
+      "region": "Demand heatmap, scrollable",
+      "cell": "{{weekday}} {{time}}, {{count}} bookings",
+      "summary": "Demand heatmap: the busiest slot is {{label}} with {{count}} bookings.",
+      "slot": "Weekday and hour",
+      "bookings": "Bookings",
+      "legendLow": "Fewer bookings",
+      "legendHigh": "More bookings"
+    },
+    "charts": {
+      "leadTime": "No-show rate by booking lead time",
+      "weekday": "No-show rate by weekday",
+      "forecast": "Forecast: next 14 days"
+    },
+    "lead": {
+      "0-1d": "0-1 days",
+      "2-7d": "2-7 days",
+      "8-30d": "8-30 days",
+      "31d+": "31+ days"
+    },
+    "rec": {
+      "highNoShow": "{{weekday}} at {{time}} has a {{rate}}% no-show rate ({{count}} visits): send an extra reminder or overbook one slot.",
+      "peak": "Busiest slots: {{cells}}.",
+      "underused": "{{name}} is booked {{booked}} min against a median of {{median}} min: open more online slots.",
+      "underusedUnnamed": "A doctor is booked {{booked}} min against a median of {{median}} min: open more online slots."
+    }
   }
 }

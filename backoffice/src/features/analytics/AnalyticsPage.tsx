@@ -39,6 +39,7 @@ import { PageHeader } from '../shared/PageHeader';
 import { useClinicFormat } from '../shared/format';
 import { downloadExport, useAnalyticsQuery } from './api';
 import { ChartPanel } from './ChartPanel';
+import { InsightsPanel } from './InsightsPanel';
 import {
   RANGE_PRESETS,
   changeInfo,
@@ -444,6 +445,9 @@ export function AnalyticsPage() {
                     dataKey="name"
                     orientation={rtl ? 'right' : 'left'}
                     width={96}
+                    // In an RTL document SVG text anchors flip, so `start` would draw the label
+                    // over the bars; `end` keeps it in the reserved axis column.
+                    tick={rtl ? { textAnchor: 'end' } : undefined}
                     {...axisProps}
                   />
                   <Tooltip
@@ -631,6 +635,14 @@ export function AnalyticsPage() {
       </section>
 
       {content}
+
+      {valid && (
+        <InsightsPanel
+          from={range.from}
+          to={range.to}
+          organizationScope={effectiveScope === 'organization'}
+        />
+      )}
     </div>
   );
 }

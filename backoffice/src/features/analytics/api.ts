@@ -1,4 +1,4 @@
-import type { AnalyticsDto, AnalyticsScope } from '@riaya/shared';
+import type { AnalyticsDto, AnalyticsScope, SchedulingInsights } from '@riaya/shared';
 import { api } from '../../lib/api';
 import { clinicApi } from '../../store/clinicApi';
 import { filenameFromDisposition } from './ranges';
@@ -15,10 +15,14 @@ const analyticsApi = clinicApi.injectEndpoints({
       query: (params) => ({ url: '/api/analytics', params: { ...params } }),
       providesTags: ['Analytics'],
     }),
+    insights: build.query<SchedulingInsights, { from: string; to: string }>({
+      query: (params) => ({ url: '/api/analytics/insights', params: { ...params } }),
+      providesTags: ['Analytics'],
+    }),
   }),
 });
 
-export const { useAnalyticsQuery } = analyticsApi;
+export const { useAnalyticsQuery, useInsightsQuery } = analyticsApi;
 
 /** Download an export through the authenticated client and hand it to the browser. */
 export async function downloadExport(

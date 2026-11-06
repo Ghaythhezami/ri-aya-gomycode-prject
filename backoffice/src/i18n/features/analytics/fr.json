@@ -67,5 +67,60 @@
     "title": "Aucune activité sur cette période",
     "body": "Aucun rendez-vous entre le {{from}} et le {{to}}. Essayez une période plus longue.",
     "action": "Afficher les 90 derniers jours"
+  },
+  "insights": {
+    "title": "Analyses de planification intelligente",
+    "description": "Schémas de demande, risque d'absence et prévisions sur 14 jours, avec des actions suggérées pour votre planning.",
+    "perClinicNote": "Les analyses sont calculées par clinique. La clinique actuelle est affichée.",
+    "provenance": "Calculé par le service de planification sur {{rows}} rendez-vous en {{ms}} ms.",
+    "unavailable": "Les analyses sont momentanément indisponibles",
+    "unavailableBody": "Le service de planification ne répond pas. Réessayez dans un instant.",
+    "loadError": "Impossible de charger les analyses",
+    "empty": {
+      "title": "Aucun rendez-vous à analyser",
+      "body": "Il n'y a pas encore d'historique de rendez-vous pour cette période."
+    },
+    "visits": "{{count}} visites",
+    "noShowRate": "Taux d'absence",
+    "noShowSummary": "{{title}} : le taux d'absence le plus élevé est {{label}}, à {{value}}.",
+    "leadTimeColumn": "Délai de réservation",
+    "weekdayColumn": "Jour de la semaine",
+    "expected": "Rendez-vous attendus",
+    "forecastSummary": "Prévisions pour les {{count}} prochains jours : le jour le plus chargé est {{label}} avec {{value}} rendez-vous attendus.",
+    "recommendations": "Actions suggérées",
+    "noRecommendations": "Aucune action suggérée pour cette période.",
+    "kpi": {
+      "noShowRate": "Taux d'absence",
+      "appointments": "Rendez-vous analysés",
+      "completed": "Terminés",
+      "noShows": "Absences"
+    },
+    "heatmap": {
+      "title": "Demande par jour et par heure",
+      "region": "Carte de chaleur de la demande, défilable",
+      "cell": "{{weekday}} {{time}}, {{count}} réservations",
+      "summary": "Carte de chaleur de la demande : le créneau le plus chargé est {{label}} avec {{count}} réservations.",
+      "slot": "Jour et heure",
+      "bookings": "Réservations",
+      "legendLow": "Moins de réservations",
+      "legendHigh": "Plus de réservations"
+    },
+    "charts": {
+      "leadTime": "Taux d'absence selon le délai de réservation",
+      "weekday": "Taux d'absence par jour de la semaine",
+      "forecast": "Prévisions : 14 prochains jours"
+    },
+    "lead": {
+      "0-1d": "0-1 jour",
+      "2-7d": "2-7 jours",
+      "8-30d": "8-30 jours",
+      "31d+": "31 jours et plus"
+    },
+    "rec": {
+      "highNoShow": "Le créneau de {{weekday}} à {{time}} affiche un taux d'absence de {{rate}} % ({{count}} visites) : envoyez un rappel supplémentaire ou surréservez un créneau.",
+      "peak": "Créneaux les plus chargés : {{cells}}.",
+      "underused": "{{name}} est réservé(e) {{booked}} min contre une médiane de {{median}} min : ouvrez plus de créneaux en ligne.",
+      "underusedUnnamed": "Un médecin est réservé {{booked}} min contre une médiane de {{median}} min : ouvrez plus de créneaux en ligne."
+    }
   }
 }
