@@ -15,6 +15,7 @@ import {
   type DepartmentsValues,
 } from './forms';
 import { SectionCard, useSectionForm } from './useSectionForm';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 function SpecialtyPicker({
   form,
@@ -26,6 +27,7 @@ function SpecialtyPicker({
   options: string[];
 }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const name = `departments.${index}.specialties` as const;
   const selected = form.watch(name) ?? [];
   const all = [...new Set([...options, ...selected])];
@@ -59,7 +61,7 @@ function SpecialtyPicker({
                 onChange={() => toggle(s)}
                 className="size-4 accent-primary"
               />
-              {s}
+              {specialtyLabel(s)}
             </label>
           ))}
         </div>

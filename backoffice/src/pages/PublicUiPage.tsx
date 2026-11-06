@@ -13,7 +13,7 @@ export function PublicUiPage() {
       <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur lg:px-8">
         <div className="flex items-center gap-3">
           <img
-            src="/logo.png"
+            src={`${import.meta.env.BASE_URL}logo.png`}
             alt="RI'AYA"
             className="h-11 w-11 rounded-xl bg-black object-cover"
           />

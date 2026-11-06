@@ -39,7 +39,7 @@ function Item({
   const path = entityPath(n);
   return (
     <li
-      className={`flex items-start gap-4 border-b border-border px-5 py-4 last:border-b-0 ${
+      className={`flex flex-wrap items-start gap-x-4 gap-y-1 border-b border-border px-4 py-4 sm:flex-nowrap sm:px-5 last:border-b-0 ${
         read ? '' : 'bg-accent/30'
       }`}
     >
@@ -50,7 +50,7 @@ function Item({
         <Icon size={18} />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="flex items-center gap-2 text-sm font-semibold text-text">
+        <p className="flex flex-wrap items-center gap-2 text-sm font-semibold text-text">
           {title}
           {!read && (
             <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-medium text-white">
@@ -61,7 +61,7 @@ function Item({
         {body && <p className="mt-0.5 text-sm text-muted">{body}</p>}
         <p className="mt-1 text-xs text-muted">{text.ago(n.createdAt)}</p>
       </div>
-      <div className="flex shrink-0 items-center gap-1">
+      <div className="ms-14 flex shrink-0 items-center gap-1 sm:ms-0">
         {path && (
           <Link
             to={path}

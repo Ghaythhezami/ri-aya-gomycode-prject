@@ -31,6 +31,7 @@ import { StatusBadge } from '../shared/StatusBadge';
 import { useDashboardQuery } from './api';
 import { DashboardCharts } from './DashboardCharts';
 import { relativeTime, scheduleMarkers, signed } from './logic';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 type Tone = 'good' | 'bad' | 'neutral';
 
@@ -151,6 +152,7 @@ function KpiGrid({ data }: { data: DashboardDto['kpis'] }) {
 
 function ScheduleCard({ items, now }: { items: AppointmentListItem[]; now: number }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const format = useClinicFormat();
   const { user } = useAuth();
   const sorted = useMemo(
@@ -264,7 +266,7 @@ function ScheduleCard({ items, now }: { items: AppointmentListItem[]; now: numbe
                       {item.doctor.name}
                     </span>
                     <span className="block truncate text-xs text-muted">
-                      {item.doctor.specialty}
+                      {specialtyLabel(item.doctor.specialty)}
                     </span>
                   </span>
                   <StatusBadge status={item.status} />

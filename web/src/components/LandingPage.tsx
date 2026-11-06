@@ -13,7 +13,10 @@ import { Header } from './Header';
 import { DashboardPreview } from './DashboardPreview';
 import { BrandLogo } from './BrandLogo';
 
-const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174';
+const workspace = (process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174').replace(
+  /\/$/,
+  '',
+);
 
 export function LandingPage() {
   const hero = useTranslations('hero');
@@ -35,7 +38,7 @@ export function LandingPage() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top_right,#ddf6f3,transparent_42%),linear-gradient(180deg,#f7fbfa,#f7f9fc)]">
       <Header />
-      <main>
+      <main id="main">
         <section className="mx-auto grid max-w-6xl gap-12 px-4 py-16 lg:grid-cols-2 lg:items-center lg:px-6 lg:py-24">
           <div>
             <p className="inline-flex min-h-8 items-center rounded-full bg-accent px-3 text-xs font-semibold text-primary">
@@ -192,20 +195,20 @@ export function LandingPage() {
         <div className="mx-auto grid max-w-6xl gap-8 px-4 py-12 md:grid-cols-4 lg:px-6">
           <div className="md:col-span-2">
             <div className="flex items-center gap-3">
-              <BrandLogo className="h-12 w-12" />
+              <BrandLogo className="h-12 w-12" alt="" />
               <span className="font-semibold text-navy">RI&apos;AYA</span>
             </div>
             <p className="mt-3 max-w-sm text-sm text-muted">{footer('blurb')}</p>
           </div>
           <div>
             <p className="text-sm font-semibold">{footer('product')}</p>
-            <a className="mt-3 block text-sm text-muted" href="#platform">
+            <a className="mt-1 flex min-h-10 items-center text-sm text-muted" href="#platform">
               {nav('platform')}
             </a>
-            <a className="mt-2 block text-sm text-muted" href={`${workspace}/ui`}>
+            <a className="flex min-h-10 items-center text-sm text-muted" href={`${workspace}/ui`}>
               {hero('designSystem')}
             </a>
-            <a className="mt-2 block text-sm text-muted" href={workspace}>
+            <a className="flex min-h-10 items-center text-sm text-muted" href={workspace}>
               {nav('openWorkspace')}
             </a>
           </div>

@@ -10,7 +10,8 @@ export const store = configureStore({
     [apiSlice.reducerPath]: apiSlice.reducer,
     [clinicApi.reducerPath]: clinicApi.reducer,
   },
-  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(apiSlice.middleware, clinicApi.middleware),
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(apiSlice.middleware, clinicApi.middleware),
 });
 
 setupListeners(store.dispatch);

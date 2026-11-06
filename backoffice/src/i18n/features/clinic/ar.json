@@ -30,5 +30,13 @@
   "noResults": "لا توجد نتائج",
   "viewAll": "عرض الكل",
   "actions": "إجراءات",
-  "today": "اليوم"
+  "today": "اليوم",
+  "specialty": {
+    "Cardiology": "أمراض القلب",
+    "General Medicine": "الطب العام",
+    "Dermatology": "الأمراض الجلدية",
+    "Orthopedics": "جراحة العظام",
+    "Pediatrics": "طب الأطفال",
+    "Internal Medicine": "الباطنية"
+  }
 }

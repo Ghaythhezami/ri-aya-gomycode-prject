@@ -43,7 +43,7 @@ const MonthCell = memo(function MonthCell({
           { count: blocks.length },
         )}`}
         aria-current={isToday ? 'date' : undefined}
-        className={`mb-1 grid size-8 place-items-center rounded-full text-sm ${
+        className={`mb-1 grid size-10 place-items-center rounded-full text-sm ${
           isToday
             ? 'bg-primary font-semibold text-white'
             : outside

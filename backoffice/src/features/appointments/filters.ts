@@ -22,6 +22,14 @@ export interface AppointmentFilters {
 
 export const PAGE_SIZE = 10;
 
+/** The list opens on today through today + 7 days. */
+export const DEFAULT_RANGE_DAYS = 7;
+
+/** True when the dates are the untouched default range (not a user-chosen filter). */
+export function isDefaultRange(filters: AppointmentFilters, today: string): boolean {
+  return filters.from === today && filters.to === addDays(today, DEFAULT_RANGE_DAYS);
+}
+
 export const SORT_FIELDS = ['code', 'patient', 'doctor', 'startsAt', 'type', 'status'] as const;
 export type SortField = (typeof SORT_FIELDS)[number];
 
@@ -55,10 +63,17 @@ export function parseFilters(params: URLSearchParams, today: string): Appointmen
   const page = Number.parseInt(params.get('page') ?? '1', 10);
   const sortRaw = params.get('sort') ?? '';
   const sortField = sortRaw.replace(/^-/, '');
+  let from = resolveDate(params.get('from'), today, 'from');
+  let to = resolveDate(params.get('to'), today, 'to');
+  // Empty URL = default range (today to +7 days). `dates=all` is the explicit "All dates".
+  if (!from && !to && params.get('dates') !== 'all') {
+    from = today;
+    to = addDays(today, DEFAULT_RANGE_DAYS);
+  }
   return {
     search: (params.get('search') ?? '').slice(0, 100),
-    from: resolveDate(params.get('from'), today, 'from'),
-    to: resolveDate(params.get('to'), today, 'to'),
+    from,
+    to,
     doctorId: params.get('doctorId') ?? '',
     specialty: params.get('specialty') ?? '',
     status: pickList(params.get('status'), APPOINTMENT_STATUSES),
@@ -74,6 +89,7 @@ export function serializeFilters(filters: AppointmentFilters): URLSearchParams {
   if (filters.search) params.set('search', filters.search);
   if (filters.from) params.set('from', filters.from);
   if (filters.to) params.set('to', filters.to);
+  if (!filters.from && !filters.to) params.set('dates', 'all');
   if (filters.doctorId) params.set('doctorId', filters.doctorId);
   if (filters.specialty) params.set('specialty', filters.specialty);
   if (filters.status.length) params.set('status', filters.status.join(','));

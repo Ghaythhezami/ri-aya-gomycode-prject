@@ -45,7 +45,14 @@
     "signupError": "Unable to create the account. Try again.",
     "firstName": "First name",
     "lastName": "Last name",
-    "nameRequired": "Enter your name"
+    "nameRequired": "Enter your name",
+    "loginTitle": "Sign in to RI'AYA",
+    "brandHeadline": "Your Health, Our Priority",
+    "brandBody": "Access your workspace and manage patient care, appointments and more with ease.",
+    "valueSecure": "Secure & private",
+    "valueScheduling": "Easy scheduling",
+    "valueCare": "Better patient care",
+    "brandHome": "RI'AYA home"
   },
   "nav": {
     "overview": "Overview",

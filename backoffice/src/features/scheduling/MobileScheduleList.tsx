@@ -4,6 +4,7 @@ import { Avatar } from '../shared/Avatar';
 import { typeBlockClass } from '../shared/StatusBadge';
 import { Button } from '../../common/Button';
 import { formatMinute, type RenderBlock, type RenderRow } from './gridMath';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 /** Below `md`: appointments grouped by doctor, with the same "Move to…" action as the grid. */
 export function MobileScheduleList({
@@ -14,6 +15,7 @@ export function MobileScheduleList({
   onOpenMove: (block: RenderBlock) => void;
 }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   return (
     <div className="space-y-4 p-4">
       {rows.map((row) => (
@@ -22,7 +24,7 @@ export function MobileScheduleList({
             <Avatar initials={row.doctor.initials} />
             <div className="min-w-0">
               <h3 className="truncate text-sm font-semibold text-text">{row.doctor.name}</h3>
-              <p className="truncate text-xs text-muted">{row.doctor.specialty}</p>
+              <p className="truncate text-xs text-muted">{specialtyLabel(row.doctor.specialty)}</p>
             </div>
           </div>
           {row.blocks.length === 0 ? (

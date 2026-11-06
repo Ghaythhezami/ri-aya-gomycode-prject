@@ -4,6 +4,7 @@ import type { AlternativeSlot } from '@riaya/shared';
 import { Avatar } from '../shared/Avatar';
 import { useClinicFormat } from '../shared/format';
 import type { BookingForm } from './schema';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 export function ReviewStep({
   form,
@@ -18,6 +19,7 @@ export function ReviewStep({
   onPickAlternative: (slot: AlternativeSlot) => void;
 }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const format = useClinicFormat();
 
   if (!form.patient || !form.doctor || !form.startsAt) return null;
@@ -91,7 +93,7 @@ export function ReviewStep({
           <div className="min-w-0">
             <dt className="text-xs text-muted">{t('booking.review.doctor')}</dt>
             <dd className="truncate text-sm font-semibold text-text">{form.doctor.name}</dd>
-            <dd className="text-xs text-muted">{form.doctor.specialty}</dd>
+            <dd className="text-xs text-muted">{specialtyLabel(form.doctor.specialty)}</dd>
           </div>
         </div>
         <div className="flex items-center gap-3 p-4">

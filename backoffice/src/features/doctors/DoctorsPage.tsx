@@ -28,6 +28,7 @@ import { useDebounced } from '../patients/hooks';
 import { useDoctorsQuery } from './api';
 import { AvailabilityChip, UtilisationBar } from './AvailabilityChip';
 import { DoctorFormModal } from './DoctorFormModal';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const VIEW_KEY = 'riaya.doctors.view';
 type View = 'cards' | 'table';
@@ -42,6 +43,7 @@ function readView(): View {
 
 export function DoctorsPage() {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const fmt = useClinicFormat();
   const { user } = useAuth();
   const canManage = user ? can(user.role, 'manageDoctors') : false;
@@ -145,7 +147,7 @@ export function DoctorsPage() {
       <EmptyState
         icon={<Search size={18} />}
         title={t('doctors.noResults.title')}
-        description={t('doctors.noResults.body', { query: debounced || specialty })}
+        description={t('doctors.noResults.body', { query: debounced || specialtyLabel(specialty) })}
         action={
           <Button
             variant="secondary"
@@ -192,7 +194,7 @@ export function DoctorsPage() {
               <AvailabilityChip availability={d.availability} />
             </div>
             <h2 className="mt-3 text-base font-semibold text-text">{d.name}</h2>
-            <p className="text-sm text-muted">{d.specialty}</p>
+            <p className="text-sm text-muted">{specialtyLabel(d.specialty)}</p>
             <ul className="mt-4 space-y-1.5 text-sm text-muted">
               <li className="flex items-center justify-center gap-2">
                 <Clock size={14} aria-hidden="true" />
@@ -268,7 +270,7 @@ export function DoctorsPage() {
             <option value="">{t('doctors.filters.allSpecialties')}</option>
             {(reference?.specialties ?? []).map((s) => (
               <option key={s} value={s}>
-                {s}
+                {specialtyLabel(s)}
               </option>
             ))}
           </Select>

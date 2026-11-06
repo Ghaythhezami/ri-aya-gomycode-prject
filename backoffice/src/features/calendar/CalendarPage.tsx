@@ -67,13 +67,19 @@ export function CalendarPage() {
     : 'week';
   const dateParam = params.get('date');
   const date = isYmd(dateParam) ? dateParam : today;
-  const doctorId = params.get('doctorId') ?? '';
+  const doctorParam = params.get('doctorId') ?? '';
+  // Week view with every doctor is unreadable (3+ overlapping columns), so an untouched
+  // week view opens on the first doctor; `doctorId=all` is the explicit "All doctors".
+  const defaultDoctorId =
+    !doctorParam && view === 'week' ? (reference.data?.doctors[0]?.id ?? '') : '';
+  const awaitingDefault = !doctorParam && view === 'week' && reference.isLoading;
+  const doctorId = doctorParam === 'all' ? '' : doctorParam || defaultDoctorId;
 
   function setState(
     next: { view?: CalendarView; date?: string; doctorId?: string },
     replace = false,
   ) {
-    const merged = { view, date, doctorId, ...next };
+    const merged = { view, date, doctorId: doctorParam, ...next };
     const out = new URLSearchParams();
     out.set('view', merged.view);
     out.set('date', merged.date);
@@ -84,7 +90,7 @@ export function CalendarPage() {
   const range = viewRange(view, date);
   const { data, isLoading, isFetching, isError, error, refetch } = useApptCalendarQuery(
     { from: range.from, to: range.to, doctorId: doctorId || undefined },
-    { pollingInterval: 60_000, skipPollingIfUnfocused: true },
+    { pollingInterval: 60_000, skipPollingIfUnfocused: true, skip: awaitingDefault },
   );
 
   // Layout is computed once per data set, not per render.
@@ -187,7 +193,7 @@ export function CalendarPage() {
           <span className="sr-only">{t('calendar.doctor')}</span>
           <Select
             value={doctorId}
-            onChange={(event) => setState({ doctorId: event.target.value }, true)}
+            onChange={(event) => setState({ doctorId: event.target.value || 'all' }, true)}
             className="w-auto min-w-40"
           >
             <option value="">{t('appointments.allDoctors')}</option>
@@ -218,7 +224,7 @@ export function CalendarPage() {
               type="button"
               aria-pressed={view === option}
               onClick={() => setState({ view: option })}
-              className={`min-h-9 rounded-md px-3 text-xs ${
+              className={`min-h-10 rounded-md px-3 text-xs ${
                 view === option
                   ? 'bg-primary font-semibold text-white'
                   : 'text-muted hover:text-text'
@@ -231,7 +237,7 @@ export function CalendarPage() {
       </div>
 
       <div aria-busy={isFetching}>
-        {isLoading ? (
+        {isLoading || awaitingDefault ? (
           <Skeleton className="h-[32rem]" />
         ) : isError && !data ? (
           <ErrorState

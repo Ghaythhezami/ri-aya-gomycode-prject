@@ -9,7 +9,7 @@ import { useAuth } from '../auth/AuthContext';
 import { rtkErrorMessage } from '../store/api';
 import { Button } from '../common/Button';
 import { Field, Input } from '../common/Input';
-import { LanguageSwitcher } from '../layouts/LanguageSwitcher';
+import { AuthLayout } from './AuthLayout';
 
 export function LoginPage() {
   const { t } = useTranslation();
@@ -29,86 +29,76 @@ export function LoginPage() {
   if (user) return <Navigate to="/" replace />;
 
   return (
-    <div className="grid min-h-screen place-items-center bg-bg p-6">
-      <div className="w-full max-w-md rounded-lg border border-border bg-surface p-8 shadow-(--shadow-card)">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <img
-              src="/logo.png"
-              alt="RI'AYA"
-              className="h-12 w-12 rounded-xl bg-black object-cover"
-            />
-            <div>
-              <p className="text-xs font-semibold tracking-wide text-primary">{t('app.name')}</p>
-              <h1 className="text-xl font-semibold">{t('auth.welcome')}</h1>
-            </div>
-          </div>
-          <LanguageSwitcher />
-        </div>
-        <p className="mb-6 text-sm text-muted">{t('auth.subtitle')}</p>
-        {(sessionMessage || serverError) && (
-          <p className="mb-4 rounded-md bg-error/10 px-3 py-2 text-sm text-error" role="alert">
-            {serverError ?? t(sessionMessage ?? '')}
-          </p>
-        )}
-        <form
-          className="space-y-4"
-          onSubmit={form.handleSubmit(async (values) => {
-            setServerError(null);
-            try {
-              await login(values.email, values.password);
-              navigate('/');
-            } catch (error) {
-              // Login goes through RTK Query, whose error shape is `{ data }` —
-              // NOT axios's `{ response: { data } }`. Using the axios extractor
-              // here always fell back to the generic message, hiding the real
-              // cause (e.g. SECURITY_STATE_UNAVAILABLE).
-              const code = (error as { data?: { code?: string } } | undefined)?.data?.code;
-              setServerError(
-                code === 'SECURITY_STATE_UNAVAILABLE'
-                  ? t('auth.securityUnavailable')
-                  : rtkErrorMessage(error, t('auth.genericError')),
-              );
-            }
-          })}
-        >
-          <Field label={t('auth.email')} error={form.formState.errors.email?.message}>
-            <Input type="email" autoComplete="username" {...form.register('email')} />
-          </Field>
-          <Field label={t('auth.password')} error={form.formState.errors.password?.message}>
-            <div className="relative">
-              <Input
-                type={show ? 'text' : 'password'}
-                autoComplete="current-password"
-                className="pe-12"
-                {...form.register('password')}
-              />
-              <button
-                type="button"
-                className="absolute inset-y-0 end-0 grid min-w-11 place-items-center text-muted"
-                onClick={() => setShow((value) => !value)}
-                aria-label={show ? t('auth.hidePassword') : t('auth.showPassword')}
-              >
-                {show ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-          </Field>
-          <div className="text-end">
-            <Link className="text-sm text-primary" to="/forgot-password">
-              {t('auth.forgot')}
-            </Link>
-          </div>
-          <Button className="w-full" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? t('auth.submitting') : t('auth.submit')}
-          </Button>
-        </form>
-        <p className="mt-6 text-sm text-muted">
-          {t('auth.noAccount')}{' '}
-          <Link className="font-medium text-primary" to="/signup">
-            {t('auth.signupSubmit')}
-          </Link>
+    <AuthLayout
+      eyebrow={t('auth.welcome')}
+      title={t('auth.loginTitle')}
+      subtitle={t('auth.subtitle')}
+    >
+      {(sessionMessage || serverError) && (
+        <p className="mb-4 rounded-md bg-error/10 px-3 py-2 text-sm text-error" role="alert">
+          {serverError ?? t(sessionMessage ?? '')}
         </p>
-      </div>
-    </div>
+      )}
+      <form
+        className="space-y-4"
+        onSubmit={form.handleSubmit(async (values) => {
+          setServerError(null);
+          try {
+            await login(values.email, values.password);
+            navigate('/');
+          } catch (error) {
+            // Login goes through RTK Query, whose error shape is `{ data }` —
+            // NOT axios's `{ response: { data } }`. Using the axios extractor
+            // here always fell back to the generic message, hiding the real
+            // cause (e.g. SECURITY_STATE_UNAVAILABLE).
+            const code = (error as { data?: { code?: string } } | undefined)?.data?.code;
+            setServerError(
+              code === 'SECURITY_STATE_UNAVAILABLE'
+                ? t('auth.securityUnavailable')
+                : rtkErrorMessage(error, t('auth.genericError')),
+            );
+          }
+        })}
+      >
+        <Field label={t('auth.email')} error={form.formState.errors.email?.message}>
+          <Input type="email" autoComplete="username" {...form.register('email')} />
+        </Field>
+        <Field label={t('auth.password')} error={form.formState.errors.password?.message}>
+          <div className="relative">
+            <Input
+              type={show ? 'text' : 'password'}
+              autoComplete="current-password"
+              className="pe-12"
+              {...form.register('password')}
+            />
+            <button
+              type="button"
+              className="absolute inset-y-0 end-0 grid min-w-11 place-items-center text-muted"
+              onClick={() => setShow((value) => !value)}
+              aria-label={show ? t('auth.hidePassword') : t('auth.showPassword')}
+            >
+              {show ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
+        </Field>
+        <div className="text-end">
+          <Link
+            className="inline-flex min-h-10 items-center text-sm font-medium text-primary underline-offset-4 hover:underline"
+            to="/forgot-password"
+          >
+            {t('auth.forgot')}
+          </Link>
+        </div>
+        <Button className="w-full" disabled={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? t('auth.submitting') : t('auth.submit')}
+        </Button>
+      </form>
+      <p className="mt-6 text-sm text-muted">
+        {t('auth.noAccount')}{' '}
+        <Link className="font-medium text-primary" to="/signup">
+          {t('auth.signupSubmit')}
+        </Link>
+      </p>
+    </AuthLayout>
   );
 }

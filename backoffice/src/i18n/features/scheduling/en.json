@@ -111,6 +111,7 @@
     "tipEmergency": "Keep a free slot per doctor for urgent and emergency arrivals.",
     "preview": "Preview changes",
     "hidePreview": "Hide preview",
-    "apply": "Apply schedule"
+    "apply": "Apply schedule",
+    "noImprovementUtilisationBody": "No other doctor with the same specialty is free at the moment, so utilisation cannot be improved. Try the shorter-wait objective."
   }
 }

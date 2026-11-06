@@ -46,7 +46,10 @@ describe('appointment filters in the URL', () => {
     const filters = parseFilters(new URLSearchParams('from=today&to=today'), TODAY);
     expect(filters.from).toBe(TODAY);
     expect(filters.to).toBe(TODAY);
-    expect(serializeFilters(EMPTY_FILTERS).toString()).toBe('');
+    // "All dates" is explicit; an empty URL means the default range.
+    expect(serializeFilters(EMPTY_FILTERS).toString()).toBe('dates=all');
+    expect(parseFilters(new URLSearchParams(''), TODAY).from).toBe(TODAY);
+    expect(parseFilters(new URLSearchParams('dates=all'), TODAY).from).toBe('');
     expect(serializeFilters({ ...filters, page: 1 }).toString()).toBe(`from=${TODAY}&to=${TODAY}`);
   });
 
@@ -55,7 +58,8 @@ describe('appointment filters in the URL', () => {
       new URLSearchParams('from=banana&status=NOPE,CONFIRMED&type=X&page=-4&sort=password'),
       TODAY,
     );
-    expect(filters.from).toBe('');
+    // The junk date is dropped, so the default range (today to +7 days) applies.
+    expect(filters.from).toBe(TODAY);
     expect(filters.status).toEqual(['CONFIRMED']);
     expect(filters.type).toEqual([]);
     expect(filters.page).toBe(1);

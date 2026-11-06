@@ -49,6 +49,7 @@ import {
   type DateRange,
   type RangePreset,
 } from './ranges';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const PALETTE = [
   color.primary,
@@ -125,6 +126,7 @@ function StatTile({
 /** ANA-2: range-driven operational analytics with exports. */
 export function AnalyticsPage() {
   const { t, i18n } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const fmt = useClinicFormat();
   const toast = useToast();
   const { user } = useAuth();
@@ -361,17 +363,28 @@ export function AnalyticsPage() {
               title={t('analytics.charts.specialty')}
               summary={summary(
                 t('analytics.charts.specialty'),
-                data.bySpecialty.map((s): [string, number] => [s.specialty, s.count]),
+                data.bySpecialty.map((s): [string, number] => [
+                  specialtyLabel(s.specialty),
+                  s.count,
+                ]),
               )}
               columns={[t('analytics.specialty'), t('analytics.appointments')]}
-              rows={mapRows(data.bySpecialty.map((s): [string, number] => [s.specialty, s.count]))}
+              rows={mapRows(
+                data.bySpecialty.map((s): [string, number] => [
+                  specialtyLabel(s.specialty),
+                  s.count,
+                ]),
+              )}
             >
               <div className="flex flex-wrap items-center justify-center gap-6">
                 <div className="relative size-44">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={data.bySpecialty}
+                        data={data.bySpecialty.map((s) => ({
+                          ...s,
+                          specialty: specialtyLabel(s.specialty),
+                        }))}
                         dataKey="count"
                         nameKey="specialty"
                         innerRadius={55}
@@ -403,7 +416,7 @@ export function AnalyticsPage() {
                           className="size-2.5 rounded-full"
                           style={{ background: PALETTE[i % PALETTE.length] }}
                         />
-                        {s.specialty}
+                        {specialtyLabel(s.specialty)}
                       </span>
                       <span className="font-semibold text-text">{fmt.number(s.count)}</span>
                     </li>

@@ -111,6 +111,7 @@
     "tipEmergency": "Gardez un créneau libre par médecin pour les arrivées urgentes.",
     "preview": "Aperçu des changements",
     "hidePreview": "Masquer l'aperçu",
-    "apply": "Appliquer le planning"
+    "apply": "Appliquer le planning",
+    "noImprovementUtilisationBody": "Aucun autre médecin de la même spécialité n'est disponible, l'utilisation ne peut donc pas être améliorée. Essayez l'objectif d'attente réduite."
   }
 }

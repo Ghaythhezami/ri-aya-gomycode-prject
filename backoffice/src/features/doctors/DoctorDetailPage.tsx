@@ -20,9 +20,11 @@ import { isOwnProfile } from './hours';
 import { LeavesPanel } from './LeavesPanel';
 import { ScheduleEditor } from './ScheduleEditor';
 import { WeeklyVisual } from './WeeklyVisual';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 export function DoctorDetailPage() {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const { id = '' } = useParams();
   const { user } = useAuth();
   const toast = useToast();
@@ -89,7 +91,7 @@ export function DoctorDetailPage() {
         <Avatar initials={doctor.initials} size="lg" />
         <div className="min-w-0 flex-1">
           <h1 className="truncate text-2xl font-semibold text-text">{doctor.name}</h1>
-          <p className="mt-1 text-sm text-muted">{doctor.specialty}</p>
+          <p className="mt-1 text-sm text-muted">{specialtyLabel(doctor.specialty)}</p>
           <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
             <AvailabilityChip availability={doctor.availability} />
             <span className="inline-flex items-center gap-1.5">

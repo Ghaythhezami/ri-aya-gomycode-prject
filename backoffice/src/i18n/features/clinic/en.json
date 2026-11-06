@@ -30,5 +30,13 @@
   "noResults": "No results",
   "viewAll": "View all",
   "actions": "Actions",
-  "today": "Today"
+  "today": "Today",
+  "specialty": {
+    "Cardiology": "Cardiology",
+    "General Medicine": "General Medicine",
+    "Dermatology": "Dermatology",
+    "Orthopedics": "Orthopedics",
+    "Pediatrics": "Pediatrics",
+    "Internal Medicine": "Internal Medicine"
+  }
 }

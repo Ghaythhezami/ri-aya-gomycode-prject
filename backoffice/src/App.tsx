@@ -1,3 +1,4 @@
+import { Suspense, lazy } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { store } from './store/store';
@@ -9,26 +10,52 @@ import { WorkspaceProvider } from './auth/WorkspaceContext';
 import { LoginPage } from './pages/LoginPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
-import { DesignSystemPage } from './pages/DesignSystemPage';
-import { PublicUiPage } from './pages/PublicUiPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AcceptInvitePage } from './pages/AcceptInvitePage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import { DashboardPage } from './features/dashboard/DashboardPage';
 import { AppointmentsPage } from './features/appointments/AppointmentsPage';
 import { AppointmentDetailPage } from './features/appointments/AppointmentDetailPage';
-import { CalendarPage } from './features/calendar/CalendarPage';
 import { PatientsPage } from './features/patients/PatientsPage';
 import { PatientProfilePage } from './features/patients/PatientProfilePage';
 import { DoctorsPage } from './features/doctors/DoctorsPage';
 import { DoctorDetailPage } from './features/doctors/DoctorDetailPage';
 import { WaitingListPage } from './features/queue/WaitingListPage';
-import { PublicDisplayPage } from './features/display/PublicDisplayPage';
-import { SelfCheckInPage } from './features/display/SelfCheckInPage';
-import { SmartSchedulingPage } from './features/scheduling/SmartSchedulingPage';
-import { AnalyticsPage } from './features/analytics/AnalyticsPage';
 import { NotificationsPage } from './features/notifications/NotificationsPage';
-import { SettingsPage } from './features/settings/SettingsPage';
+const CalendarPage = lazy(() =>
+  import('./features/calendar/CalendarPage').then((m) => ({ default: m.CalendarPage })),
+);
+const PublicDisplayPage = lazy(() =>
+  import('./features/display/PublicDisplayPage').then((m) => ({ default: m.PublicDisplayPage })),
+);
+const SelfCheckInPage = lazy(() =>
+  import('./features/display/SelfCheckInPage').then((m) => ({ default: m.SelfCheckInPage })),
+);
+const SmartSchedulingPage = lazy(() =>
+  import('./features/scheduling/SmartSchedulingPage').then((m) => ({
+    default: m.SmartSchedulingPage,
+  })),
+);
+const AnalyticsPage = lazy(() =>
+  import('./features/analytics/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })),
+);
+const PublicUiPage = lazy(() =>
+  import('./pages/PublicUiPage').then((m) => ({ default: m.PublicUiPage })),
+);
+const SettingsPage = lazy(() =>
+  import('./features/settings/SettingsPage').then((m) => ({ default: m.SettingsPage })),
+);
+const DesignSystemPage = lazy(() =>
+  import('./pages/DesignSystemPage').then((m) => ({ default: m.DesignSystemPage })),
+);
+
+function RouteFallback() {
+  return (
+    <div className="grid min-h-screen place-items-center bg-bg" role="status" aria-busy="true">
+      <span className="h-8 w-8 animate-spin rounded-full border-2 border-border border-t-primary motion-reduce:animate-none" />
+    </div>
+  );
+}
 
 /**
  * Route table. Base path comes from Vite's `base` (`/app/` when the backoffice is
@@ -39,66 +66,68 @@ export default function App() {
     <Provider store={store}>
       <AuthProvider>
         <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || undefined}>
-          <Routes>
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/accept-invite" element={<AcceptInvitePage />} />
-            {/* FR-037: the pending-approval screen is retired; registration is the only path. */}
-            <Route path="/signup" element={<Navigate to="/register" replace />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-            <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/ui" element={<PublicUiPage />} />
-            {/* QUE-2: public screens, no authentication and no personal data. */}
-            <Route path="/display/:clinicId" element={<PublicDisplayPage />} />
-            <Route path="/check-in/:clinicId" element={<SelfCheckInPage />} />
-            <Route
-              element={
-                <ProtectedRoute>
-                  <WorkspaceProvider>
-                    <AppShell />
-                  </WorkspaceProvider>
-                </ProtectedRoute>
-              }
-            >
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/appointments" element={<AppointmentsPage />} />
-              <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
-              <Route path="/calendar" element={<CalendarPage />} />
-              <Route path="/patients" element={<PatientsPage />} />
-              <Route path="/patients/:id" element={<PatientProfilePage />} />
-              <Route path="/doctors" element={<DoctorsPage />} />
-              <Route path="/doctors/:id" element={<DoctorDetailPage />} />
-              <Route path="/staff" element={<Navigate to="/doctors" replace />} />
-              <Route path="/waiting-list" element={<WaitingListPage />} />
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/accept-invite" element={<AcceptInvitePage />} />
+              {/* FR-037: the pending-approval screen is retired; registration is the only path. */}
+              <Route path="/signup" element={<Navigate to="/register" replace />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/reset-password" element={<ResetPasswordPage />} />
+              <Route path="/ui" element={<PublicUiPage />} />
+              {/* QUE-2: public screens, no authentication and no personal data. */}
+              <Route path="/display/:clinicId" element={<PublicDisplayPage />} />
+              <Route path="/check-in/:clinicId" element={<SelfCheckInPage />} />
               <Route
-                path="/scheduling"
                 element={
-                  <RoleRoute capability="viewScheduling">
-                    <SmartSchedulingPage />
-                  </RoleRoute>
+                  <ProtectedRoute>
+                    <WorkspaceProvider>
+                      <AppShell />
+                    </WorkspaceProvider>
+                  </ProtectedRoute>
                 }
-              />
-              <Route
-                path="/analytics"
-                element={
-                  <RoleRoute capability="viewAnalytics">
-                    <AnalyticsPage />
-                  </RoleRoute>
-                }
-              />
-              <Route path="/notifications" element={<NotificationsPage />} />
-              <Route
-                path="/settings/*"
-                element={
-                  <RoleRoute capability="manageSettings">
-                    <SettingsPage />
-                  </RoleRoute>
-                }
-              />
-              <Route path="/design-system" element={<DesignSystemPage />} />
-              <Route path="*" element={<NotFoundPage />} />
-            </Route>
-          </Routes>
+              >
+                <Route path="/" element={<DashboardPage />} />
+                <Route path="/appointments" element={<AppointmentsPage />} />
+                <Route path="/appointments/:id" element={<AppointmentDetailPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/patients" element={<PatientsPage />} />
+                <Route path="/patients/:id" element={<PatientProfilePage />} />
+                <Route path="/doctors" element={<DoctorsPage />} />
+                <Route path="/doctors/:id" element={<DoctorDetailPage />} />
+                <Route path="/staff" element={<Navigate to="/doctors" replace />} />
+                <Route path="/waiting-list" element={<WaitingListPage />} />
+                <Route
+                  path="/scheduling"
+                  element={
+                    <RoleRoute capability="viewScheduling">
+                      <SmartSchedulingPage />
+                    </RoleRoute>
+                  }
+                />
+                <Route
+                  path="/analytics"
+                  element={
+                    <RoleRoute capability="viewAnalytics">
+                      <AnalyticsPage />
+                    </RoleRoute>
+                  }
+                />
+                <Route path="/notifications" element={<NotificationsPage />} />
+                <Route
+                  path="/settings/*"
+                  element={
+                    <RoleRoute capability="manageSettings">
+                      <SettingsPage />
+                    </RoleRoute>
+                  }
+                />
+                <Route path="/design-system" element={<DesignSystemPage />} />
+                <Route path="*" element={<NotFoundPage />} />
+              </Route>
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </AuthProvider>
     </Provider>

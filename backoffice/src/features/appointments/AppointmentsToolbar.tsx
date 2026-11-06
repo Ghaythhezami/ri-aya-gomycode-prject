@@ -11,6 +11,7 @@ import { addDays, formatYmdRange, startOfWeek } from '../calendar/dates';
 import { useClinicReferenceQuery } from '../shared/api';
 import { useDebounced } from '../search/useDebounced';
 import { moreFiltersCount, type AppointmentFilters } from './filters';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const TRIGGER =
   'inline-flex min-h-10 items-center gap-2 rounded-md border border-border bg-surface px-3 text-sm text-text hover:bg-bg';
@@ -32,6 +33,7 @@ export function AppointmentsToolbar({
   onChange: (partial: Partial<AppointmentFilters>) => void;
 }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const navigate = useNavigate();
   const reference = useClinicReferenceQuery();
   const [text, setText] = useState(filters.search);
@@ -224,7 +226,7 @@ export function AppointmentsToolbar({
               <option value="">{t('appointments.allSpecialties')}</option>
               {(reference.data?.specialties ?? []).map((name) => (
                 <option key={name} value={name}>
-                  {name}
+                  {specialtyLabel(name)}
                 </option>
               ))}
             </Select>
@@ -247,21 +249,21 @@ export function AppointmentsToolbar({
         <button
           type="button"
           aria-pressed="true"
-          className="min-h-9 rounded-md bg-primary px-3 text-xs font-semibold text-white"
+          className="min-h-10 rounded-md bg-primary px-3 text-xs font-semibold text-white"
         >
           {t('appointments.view.list')}
         </button>
         <button
           type="button"
           onClick={() => openCalendar('day')}
-          className="min-h-9 rounded-md px-3 text-xs text-muted hover:text-text"
+          className="min-h-10 rounded-md px-3 text-xs text-muted hover:text-text"
         >
           {t('appointments.view.day')}
         </button>
         <button
           type="button"
           onClick={() => openCalendar('week')}
-          className="min-h-9 rounded-md px-3 text-xs text-muted hover:text-text"
+          className="min-h-10 rounded-md px-3 text-xs text-muted hover:text-text"
         >
           {t('appointments.view.week')}
         </button>

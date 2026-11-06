@@ -10,7 +10,8 @@
     "signIn": "Connexion",
     "openWorkspace": "Ouvrir l'espace",
     "menu": "Ouvrir le menu",
-    "close": "Fermer le menu"
+    "close": "Fermer le menu",
+    "skip": "Aller au contenu"
   },
   "hero": {
     "badge": "Opérations cliniques intelligentes",

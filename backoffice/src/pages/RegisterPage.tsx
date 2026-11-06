@@ -6,6 +6,7 @@ import { useAuth } from '../auth/AuthContext';
 import { markFirstRun } from '../lib/firstRun';
 import { Button } from '../common/Button';
 import { Field, Input } from '../common/Input';
+import { AuthLayout } from './AuthLayout';
 
 type Step = 1 | 2 | 3;
 
@@ -92,11 +93,8 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-semibold text-text">{t('register.title')}</h1>
-      <p className="mt-1 text-sm text-muted">{t('register.subtitle')}</p>
-
-      <ol className="mt-6 flex items-center gap-2 text-xs" aria-label={t('register.progress')}>
+    <AuthLayout title={t('register.title')} subtitle={t('register.subtitle')}>
+      <ol className="mt-2 flex items-center gap-2 text-xs" aria-label={t('register.progress')}>
         {[1, 2, 3].map((n) => (
           <li
             key={n}
@@ -187,10 +185,13 @@ export function RegisterPage() {
 
       <p className="mt-6 text-sm text-muted">
         {t('register.haveAccount')}{' '}
-        <Link className="text-primary underline" to="/login">
+        <Link
+          className="inline-flex min-h-10 items-center font-medium text-primary underline"
+          to="/login"
+        >
           {t('auth.signIn')}
         </Link>
       </p>
-    </div>
+    </AuthLayout>
   );
 }

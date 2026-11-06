@@ -120,7 +120,7 @@ function Brand({ collapsed = false, size = 'md' }: { collapsed?: boolean; size?:
   return (
     <div className="flex items-center gap-3">
       <img
-        src="/riaya-logo.png"
+        src={`${import.meta.env.BASE_URL}riaya-logo.png`}
         alt=""
         className={`${size === 'sm' ? 'size-10' : 'size-11'} shrink-0 rounded-lg bg-white object-contain p-0.5`}
       />

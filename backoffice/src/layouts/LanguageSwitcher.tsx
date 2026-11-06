@@ -12,7 +12,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="flex rounded-full border border-border bg-surface p-1"
+      className="flex rounded-full border border-border bg-bg p-0.5"
       role="group"
       aria-label={t('shell.language')}
     >
@@ -20,8 +20,8 @@ export function LanguageSwitcher() {
         <button
           key={lang.id}
           type="button"
-          className={`min-h-8 min-w-10 rounded-full px-2 text-xs font-semibold ${
-            current.startsWith(lang.id) ? 'bg-navy text-white' : 'text-muted'
+          className={`min-h-10 min-w-11 rounded-full px-2 text-xs font-semibold ${
+            current.startsWith(lang.id) ? 'bg-primary text-white' : 'text-muted'
           }`}
           onClick={() => void i18n.changeLanguage(lang.id)}
         >

@@ -381,7 +381,7 @@ export function SmartSchedulingPage() {
             type="button"
             onClick={() => setNotice(null)}
             aria-label={t('clinic.close')}
-            className="grid size-8 shrink-0 place-items-center rounded-md hover:bg-error/10"
+            className="grid size-10 shrink-0 place-items-center rounded-md hover:bg-error/10"
           >
             <X size={14} aria-hidden="true" />
           </button>
@@ -468,6 +468,7 @@ export function SmartSchedulingPage() {
           <InsightsPanel
             phase={phase}
             proposal={proposal}
+            objective={objective}
             day={day}
             pending={pendingList}
             idleDoctors={idleDoctors}

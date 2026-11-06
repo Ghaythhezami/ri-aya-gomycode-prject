@@ -7,6 +7,7 @@ import { Skeleton } from '../../common/Skeleton';
 import { Avatar } from '../shared/Avatar';
 import { useBookDoctorsQuery, useBookSpecialtiesQuery } from './api';
 import type { DoctorChoice } from './schema';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const AVAILABILITY_TONE: Record<DoctorAvailability, string> = {
   AVAILABLE: 'bg-success/10 text-success',
@@ -44,6 +45,7 @@ export function DoctorStep({
   onChange: (doctor: DoctorChoice) => void;
 }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const specialties = useBookSpecialtiesQuery();
   const doctors = useBookDoctorsQuery({ date, specialty: specialty || undefined });
   const list = doctors.data ?? [];
@@ -57,7 +59,7 @@ export function DoctorStep({
           <option value="">{t('booking.doctor.allSpecialties')}</option>
           {(specialties.data ?? []).map((name) => (
             <option key={name} value={name}>
-              {name}
+              {specialtyLabel(name)}
             </option>
           ))}
         </Select>
@@ -117,7 +119,7 @@ export function DoctorStep({
                         </span>
                         <span className="flex items-center gap-1 truncate text-xs text-muted">
                           <Stethoscope size={12} aria-hidden="true" />
-                          {doctor.specialty}
+                          {specialtyLabel(doctor.specialty)}
                         </span>
                       </span>
                       {selected ? (

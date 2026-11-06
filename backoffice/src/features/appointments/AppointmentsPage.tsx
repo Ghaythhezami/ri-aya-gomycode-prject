@@ -32,10 +32,10 @@ import { allowedActions, canBulkCancel, canBulkConfirm, type RowAction } from '.
 import { AppointmentsToolbar } from './AppointmentsToolbar';
 import { CancelDialog } from './CancelDialog';
 import {
-  EMPTY_FILTERS,
   PAGE_SIZE,
   effectiveSort,
   hasActiveFilters,
+  isDefaultRange,
   nextSort,
   parseFilters,
   serializeFilters,
@@ -45,6 +45,7 @@ import {
 } from './filters';
 import { RescheduleDialog, type RescheduleTarget } from './RescheduleDialog';
 import { useAppointmentActions } from './useActions';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const COLUMNS: { field: SortField; labelKey: string; className?: string }[] = [
   { field: 'code', labelKey: 'appointments.columns.id', className: 'hidden xl:table-cell' },
@@ -91,6 +92,7 @@ function SortHeader({
 
 export function AppointmentsPage() {
   const { t, i18n } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const navigate = useNavigate();
   const format = useClinicFormat();
   const toast = useToast();
@@ -213,7 +215,9 @@ export function AppointmentsPage() {
   const clinicError = asClinicError(error);
   const from = total === 0 ? 0 : (filters.page - 1) * PAGE_SIZE + 1;
   const to = Math.min(filters.page * PAGE_SIZE, total);
-  const filtered = hasActiveFilters(filters);
+  const filtered = hasActiveFilters(
+    isDefaultRange(filters, today) ? { ...filters, from: '', to: '' } : filters,
+  );
   const doctorName =
     reference.data?.doctors.find((doctor) => doctor.id === filters.doctorId)?.name ?? '';
 
@@ -295,17 +299,19 @@ export function AppointmentsPage() {
                 <thead className="border-y border-border bg-bg">
                   <tr>
                     {manage ? (
-                      <th scope="col" className="w-10 ps-4">
-                        <input
-                          ref={headerCheckbox}
-                          type="checkbox"
-                          aria-label={t('appointments.bulk.selectAll')}
-                          checked={allSelected}
-                          onChange={() =>
-                            setSelected(allSelected ? new Set() : new Set(visibleIds))
-                          }
-                          className="size-4"
-                        />
+                      <th scope="col" className="w-14 ps-2">
+                        <label className="grid size-10 cursor-pointer place-items-center">
+                          <input
+                            ref={headerCheckbox}
+                            type="checkbox"
+                            aria-label={t('appointments.bulk.selectAll')}
+                            checked={allSelected}
+                            onChange={() =>
+                              setSelected(allSelected ? new Set() : new Set(visibleIds))
+                            }
+                            className="size-5"
+                          />
+                        </label>
                       </th>
                     ) : null}
                     {COLUMNS.map((column) => (
@@ -340,9 +346,7 @@ export function AppointmentsPage() {
                           filters={filters}
                           doctorName={doctorName}
                           manage={manage}
-                          onReset={() =>
-                            setSearchParams(serializeFilters(EMPTY_FILTERS), { replace: true })
-                          }
+                          onReset={() => setSearchParams(new URLSearchParams(), { replace: true })}
                         />
                       </td>
                     </tr>
@@ -358,14 +362,16 @@ export function AppointmentsPage() {
                         className="cursor-pointer border-b border-border transition hover:bg-bg"
                       >
                         {manage ? (
-                          <td className="ps-4">
-                            <input
-                              type="checkbox"
-                              className="size-4"
-                              aria-label={t('appointments.bulk.selectRow', { code: item.code })}
-                              checked={selected.has(item.id)}
-                              onChange={() => toggleOne(item.id)}
-                            />
+                          <td className="ps-2">
+                            <label className="grid size-10 cursor-pointer place-items-center">
+                              <input
+                                type="checkbox"
+                                className="size-5"
+                                aria-label={t('appointments.bulk.selectRow', { code: item.code })}
+                                checked={selected.has(item.id)}
+                                onChange={() => toggleOne(item.id)}
+                              />
+                            </label>
                           </td>
                         ) : null}
                         <td className="hidden px-3 py-3 text-xs text-muted xl:table-cell">
@@ -374,7 +380,7 @@ export function AppointmentsPage() {
                         <td className="px-3 py-3">
                           <Link
                             to={`/appointments/${item.id}`}
-                            className="flex items-center gap-3 rounded-md font-semibold text-text hover:text-primary"
+                            className="flex min-h-10 items-center gap-3 rounded-md font-semibold text-text hover:text-primary"
                           >
                             <Avatar initials={item.patient.initials} />
                             <span className="truncate">{item.patient.name}</span>
@@ -382,7 +388,9 @@ export function AppointmentsPage() {
                         </td>
                         <td className="px-3 py-3">
                           <span className="block font-medium text-text">{item.doctor.name}</span>
-                          <span className="block text-xs text-muted">{item.doctor.specialty}</span>
+                          <span className="block text-xs text-muted">
+                            {specialtyLabel(item.doctor.specialty)}
+                          </span>
                         </td>
                         <td className="px-3 py-3">
                           <span className="block font-medium text-text">
@@ -427,9 +435,7 @@ export function AppointmentsPage() {
                     filters={filters}
                     doctorName={doctorName}
                     manage={manage}
-                    onReset={() =>
-                      setSearchParams(serializeFilters(EMPTY_FILTERS), { replace: true })
-                    }
+                    onReset={() => setSearchParams(new URLSearchParams(), { replace: true })}
                   />
                 </li>
               ) : (
@@ -437,17 +443,19 @@ export function AppointmentsPage() {
                   <li key={item.id} className="rounded-lg border border-border bg-surface p-3">
                     <div className="flex items-start gap-3">
                       {manage ? (
-                        <input
-                          type="checkbox"
-                          className="mt-3 size-4"
-                          aria-label={t('appointments.bulk.selectRow', { code: item.code })}
-                          checked={selected.has(item.id)}
-                          onChange={() => toggleOne(item.id)}
-                        />
+                        <label className="grid size-10 cursor-pointer place-items-center">
+                          <input
+                            type="checkbox"
+                            className="size-5"
+                            aria-label={t('appointments.bulk.selectRow', { code: item.code })}
+                            checked={selected.has(item.id)}
+                            onChange={() => toggleOne(item.id)}
+                          />
+                        </label>
                       ) : null}
                       <Link
                         to={`/appointments/${item.id}`}
-                        className="flex min-w-0 flex-1 items-center gap-3"
+                        className="flex min-h-10 min-w-0 flex-1 items-center gap-3"
                       >
                         <Avatar initials={item.patient.initials} />
                         <span className="min-w-0">
@@ -455,7 +463,7 @@ export function AppointmentsPage() {
                             {item.patient.name}
                           </span>
                           <span className="block truncate text-xs text-muted">
-                            {item.doctor.name} · {item.doctor.specialty}
+                            {item.doctor.name} · {specialtyLabel(item.doctor.specialty)}
                           </span>
                         </span>
                       </Link>
@@ -576,6 +584,7 @@ function EmptyBlock({
   onReset: () => void;
 }) {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   if (!filtered) {
     return (
       <EmptyState
@@ -598,7 +607,7 @@ function EmptyBlock({
     filters.search ? `“${filters.search}”` : '',
     filters.from || filters.to ? `${filters.from || '…'} → ${filters.to || '…'}` : '',
     doctorName,
-    filters.specialty,
+    specialtyLabel(filters.specialty),
     ...filters.status.map((status) => t(`clinic.status.${status}`)),
     ...filters.type.map((type) => t(`clinic.type.${type}`)),
   ].filter(Boolean);

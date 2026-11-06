@@ -29,6 +29,7 @@ import { useApptDetailQuery, useApptRetryReminderMutation, useApptUpdateMutation
 import { CancelDialog } from './CancelDialog';
 import { RescheduleDialog } from './RescheduleDialog';
 import { useAppointmentActions, useErrorText } from './useActions';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const FLOW: AppointmentStatus[] = [
   'SCHEDULED',
@@ -243,6 +244,7 @@ function NotesCard({
 
 export function AppointmentDetailPage() {
   const { t } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const { id = '' } = useParams();
   const format = useClinicFormat();
   const { user } = useAuth();
@@ -447,7 +449,9 @@ export function AppointmentDetailPage() {
                 <span className="block truncate text-sm font-semibold text-text">
                   {data.doctor.name}
                 </span>
-                <span className="block text-xs text-muted">{data.doctor.specialty}</span>
+                <span className="block text-xs text-muted">
+                  {specialtyLabel(data.doctor.specialty)}
+                </span>
               </span>
             </Link>
           </Card>

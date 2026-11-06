@@ -29,6 +29,7 @@ import {
   type RenderRow,
 } from './gridMath';
 import './scheduling.css';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 const DOCTOR_COLUMN = 192;
 
@@ -132,7 +133,7 @@ function BlockView({
           type="button"
           onClick={() => onOpenMove(block)}
           aria-label={t('scheduling.moveToFor', { name: block.patientName })}
-          className="absolute end-0 top-0 grid size-8 place-items-center rounded-md text-muted hover:bg-surface hover:text-text"
+          className="absolute end-0 top-0 grid size-10 place-items-center rounded-md text-muted hover:bg-surface hover:text-text"
         >
           <MoreVertical size={14} aria-hidden="true" />
         </button>
@@ -195,6 +196,7 @@ export function ScheduleGrid({
   onOpenMove: (block: RenderBlock) => void;
 }) {
   const { t, i18n } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const rtl = i18n.dir() === 'rtl';
   const span = day.dayEndMinute - day.dayStartMinute;
   const timelinePx = span * PX_PER_MINUTE;
@@ -315,7 +317,9 @@ export function ScheduleGrid({
                   <Avatar initials={row.doctor.initials} />
                   <div className="min-w-0">
                     <p className="truncate text-sm font-semibold text-text">{row.doctor.name}</p>
-                    <p className="truncate text-xs text-muted">{row.doctor.specialty}</p>
+                    <p className="truncate text-xs text-muted">
+                      {specialtyLabel(row.doctor.specialty)}
+                    </p>
                   </div>
                 </div>
                 <div

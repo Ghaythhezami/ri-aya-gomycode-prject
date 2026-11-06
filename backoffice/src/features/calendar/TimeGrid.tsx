@@ -68,6 +68,8 @@ const DayColumn = memo(function DayColumn({
         const { top, height } = blockGeometry(block.start, block.end, gridStart, PX_PER_MINUTE);
         const Icon = STATUS_ICON[item.status];
         const tall = height >= 44;
+        // 3+ overlapping columns are too narrow for a name: show time + doctor initials only.
+        const compact = block.cols > 2;
         const status = t(`clinic.status.${item.status}`);
         const type = t(`clinic.type.${item.type}`);
         return (
@@ -75,6 +77,7 @@ const DayColumn = memo(function DayColumn({
             key={item.id}
             type="button"
             data-block
+            data-compact={compact}
             onClick={() => onOpen(item.id)}
             aria-label={`${block.label} ${item.patient.name}, ${type}, ${item.doctor.name}, ${status}`}
             title={`${block.label} ${item.patient.name} · ${type} · ${item.doctor.name} · ${status}`}
@@ -84,23 +87,39 @@ const DayColumn = memo(function DayColumn({
               insetInlineStart: `${(block.col / block.cols) * 100}%`,
               width: `calc(${100 / block.cols}% - 2px)`,
             }}
-            className={`absolute overflow-hidden rounded-md border px-1.5 py-0.5 text-start text-[11px] leading-tight transition hover:z-10 hover:shadow-(--shadow-card) ${typeBlockClass(item.type)} ${
+            className={`absolute overflow-hidden rounded-md border px-1.5 py-0.5 text-start text-[11px] data-[compact=true]:px-0.5 data-[compact=true]:text-[10px] leading-tight transition hover:z-10 hover:shadow-(--shadow-card) ${typeBlockClass(item.type)} ${
               FADED.has(item.status) ? 'border-dashed opacity-60' : ''
             }`}
           >
-            <span className="flex items-center gap-1">
-              <Icon size={11} aria-hidden="true" className="shrink-0" />
-              <span dir="ltr" className="font-semibold">
-                {block.label}
+            {compact ? (
+              <span className="flex flex-col items-start leading-tight">
+                <span dir="ltr" className="font-semibold">
+                  {block.label}
+                </span>
+                <span className="inline-flex items-center gap-0.5 font-medium">
+                  {block.cols <= 3 ? (
+                    <Icon size={10} aria-hidden="true" className="shrink-0" />
+                  ) : null}
+                  {item.doctor.initials}
+                </span>
               </span>
-              <span className="truncate font-medium">{item.patient.name}</span>
-            </span>
-            {tall ? (
+            ) : (
+              <span className="flex items-center gap-1">
+                <Icon size={11} aria-hidden="true" className="shrink-0" />
+                <span dir="ltr" className="font-semibold">
+                  {block.label}
+                </span>
+                <span className="truncate font-medium">{item.patient.name}</span>
+              </span>
+            )}
+            {tall && !compact ? (
               <span className="block truncate opacity-90">
                 {type} · {item.doctor.name}
               </span>
             ) : null}
-            {height >= 60 ? <span className="block truncate opacity-90">{status}</span> : null}
+            {height >= 60 && !compact ? (
+              <span className="block truncate opacity-90">{status}</span>
+            ) : null}
           </button>
         );
       })}

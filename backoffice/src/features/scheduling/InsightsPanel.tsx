@@ -11,7 +11,7 @@ import {
   Undo2,
   UserX,
 } from 'lucide-react';
-import type { OptimizationProposal, SchedulingDay } from '@riaya/shared';
+import type { OptimizationObjective, OptimizationProposal, SchedulingDay } from '@riaya/shared';
 import { Button } from '../../common/Button';
 import { useClinicFormat } from '../shared/format';
 import type { InsightsPhase } from './insightsState';
@@ -91,6 +91,7 @@ function Notice({
 export function InsightsPanel({
   phase,
   proposal,
+  objective,
   day,
   pending,
   idleDoctors,
@@ -105,6 +106,7 @@ export function InsightsPanel({
 }: {
   phase: InsightsPhase;
   proposal: OptimizationProposal | null;
+  objective?: OptimizationObjective;
   day: SchedulingDay;
   pending: PendingMove[];
   idleDoctors: IdleDoctor[];
@@ -235,7 +237,11 @@ export function InsightsPanel({
           tone="neutral"
           icon={<CheckCircle2 size={16} />}
           title={t('scheduling.insights.noImprovementTitle')}
-          body={t('scheduling.insights.noImprovementBody')}
+          body={t(
+            objective === 'MAX_UTILISATION'
+              ? 'scheduling.insights.noImprovementUtilisationBody'
+              : 'scheduling.insights.noImprovementBody',
+          )}
         />
       );
       break;

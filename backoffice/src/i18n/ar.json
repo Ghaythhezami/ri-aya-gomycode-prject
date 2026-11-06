@@ -45,7 +45,14 @@
     "signupError": "تعذر إنشاء الحساب. حاول مرة أخرى.",
     "firstName": "الاسم",
     "lastName": "اللقب",
-    "nameRequired": "أدخل اسمك"
+    "nameRequired": "أدخل اسمك",
+    "loginTitle": "تسجيل الدخول إلى رعاية",
+    "brandHeadline": "صحتكم، أولويتنا",
+    "brandBody": "ادخل إلى مساحة عملك وأدر رعاية المرضى والمواعيد وأكثر بكل سهولة.",
+    "valueSecure": "آمن وخاص",
+    "valueScheduling": "جدولة سهلة",
+    "valueCare": "رعاية أفضل للمرضى",
+    "brandHome": "رعاية - الرئيسية"
   },
   "nav": {
     "overview": "نظرة عامة",

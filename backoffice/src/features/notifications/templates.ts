@@ -130,6 +130,11 @@ interface Translator {
   exists: (key: string) => boolean;
 }
 
+/** A param the API did not send must never show as a raw `{{placeholder}}`. */
+function fillMissing(text: string): string {
+  return text.replace(/\{\{\s*\w+\s*\}\}/g, '—');
+}
+
 /** Translate a notification's title and body; unknown templates get a readable fallback. */
 export function renderNotification(
   n: Pick<NotificationDto, 'titleKey' | 'bodyKey' | 'params'>,
@@ -141,7 +146,7 @@ export function renderNotification(
     ? i18n.t(n.titleKey, params)
     : humanize(templateName(n.titleKey));
   const body = i18n.exists(n.bodyKey) ? i18n.t(n.bodyKey, params) : '';
-  return { title, body };
+  return { title: fillMissing(title), body: fillMissing(body) };
 }
 
 /** Localised relative time ("5 minutes ago") from an ISO instant. */

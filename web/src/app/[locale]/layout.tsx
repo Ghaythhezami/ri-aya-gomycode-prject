@@ -36,12 +36,21 @@ export async function generateMetadata({
       },
     },
     openGraph: {
+      siteName: "RI'AYA",
+      images: [{ url: '/logo.png', width: 512, height: 512, alt: "RI'AYA" }],
       title: messages.meta.title,
       description: messages.meta.description,
       locale,
       type: 'website',
       url: `${site}/${locale}`,
     },
+    twitter: {
+      card: 'summary',
+      title: messages.meta.title,
+      description: messages.meta.description,
+      images: ['/logo.png'],
+    },
+    icons: { icon: '/logo.png' },
   };
 }
 

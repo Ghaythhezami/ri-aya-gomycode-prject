@@ -45,7 +45,14 @@
     "signupError": "Impossible de créer le compte. Réessayez.",
     "firstName": "Prénom",
     "lastName": "Nom",
-    "nameRequired": "Saisissez votre nom"
+    "nameRequired": "Saisissez votre nom",
+    "loginTitle": "Connexion à RI'AYA",
+    "brandHeadline": "Votre santé, notre priorité",
+    "brandBody": "Accédez à votre espace et gérez les soins, les rendez-vous et plus encore, en toute simplicité.",
+    "valueSecure": "Sûr et confidentiel",
+    "valueScheduling": "Planification simple",
+    "valueCare": "Meilleurs soins aux patients",
+    "brandHome": "Accueil RI'AYA"
   },
   "nav": {
     "overview": "Vue d'ensemble",

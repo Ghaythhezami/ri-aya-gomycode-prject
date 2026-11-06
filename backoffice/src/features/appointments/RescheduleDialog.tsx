@@ -13,6 +13,7 @@ import { useClinicFormat } from '../shared/format';
 import { useApptUpdateMutation } from './api';
 import { useErrorText } from './useActions';
 import { useToast } from '../../common/Toast';
+import { useSpecialtyLabel } from '../shared/useSpecialtyLabel';
 
 export interface RescheduleTarget {
   id: string;
@@ -33,6 +34,7 @@ export function RescheduleDialog({
   onClose: () => void;
 }) {
   const { t, i18n } = useTranslation();
+  const specialtyLabel = useSpecialtyLabel();
   const format = useClinicFormat();
   const toast = useToast();
   const errorText = useErrorText();
@@ -136,7 +138,7 @@ export function RescheduleDialog({
             >
               {doctors.map((doctor) => (
                 <option key={doctor.id} value={doctor.id}>
-                  {doctor.name} — {doctor.specialty}
+                  {doctor.name} — {specialtyLabel(doctor.specialty)}
                 </option>
               ))}
             </Select>

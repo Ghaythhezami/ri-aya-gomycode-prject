@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { Button } from '../common/Button';
 import { Field, Input } from '../common/Input';
+import { AuthLayout } from './AuthLayout';
 
 /**
  * Invitation landing page (FR-008, AC-016).
@@ -47,34 +48,33 @@ export function AcceptInvitePage() {
 
   if (!token) {
     return (
-      <div className="mx-auto max-w-md px-6 py-16 text-center">
-        <h1 className="text-xl font-semibold text-text">{t('invite.missingTitle')}</h1>
-        <p className="mt-2 text-sm text-muted">{t('invite.missingBody')}</p>
-        <Link className="mt-6 inline-block text-primary underline" to="/login">
+      <AuthLayout title={t('invite.missingTitle')} subtitle={t('invite.missingBody')}>
+        <Link
+          className="inline-flex min-h-10 items-center font-medium text-primary underline"
+          to="/login"
+        >
           {t('auth.signIn')}
         </Link>
-      </div>
+      </AuthLayout>
     );
   }
 
   if (expired) {
     return (
-      <div className="mx-auto max-w-md px-6 py-16 text-center">
-        <h1 className="text-xl font-semibold text-text">{t('invite.expiredTitle')}</h1>
-        <p className="mt-2 text-sm text-muted">{t('invite.expiredBody')}</p>
-        <Link className="mt-6 inline-block text-primary underline" to="/login">
+      <AuthLayout title={t('invite.expiredTitle')} subtitle={t('invite.expiredBody')}>
+        <Link
+          className="inline-flex min-h-10 items-center font-medium text-primary underline"
+          to="/login"
+        >
           {t('invite.requestNew')}
         </Link>
-      </div>
+      </AuthLayout>
     );
   }
 
   return (
-    <div className="mx-auto max-w-md px-6 py-16">
-      <h1 className="text-2xl font-semibold text-text">{t('invite.title')}</h1>
-      <p className="mt-1 text-sm text-muted">{t('invite.subtitle')}</p>
-
-      <form className="mt-6 space-y-4" onSubmit={submit}>
+    <AuthLayout title={t('invite.title')} subtitle={t('invite.subtitle')}>
+      <form className="space-y-4" onSubmit={submit}>
         <Field label={t('register.firstName')}>
           <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
         </Field>
@@ -101,6 +101,6 @@ export function AcceptInvitePage() {
           {t('invite.accept')}
         </Button>
       </form>
-    </div>
+    </AuthLayout>
   );
 }
