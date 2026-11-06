@@ -27,6 +27,9 @@ export const color = {
   warning: '#92400e',
   error: '#b91c1c',
   accent: '#ddf6f3',
+  info: '#1d4ed8',
+  alert: '#c2410c',
+  sidebar: '#0f2236',
 } as const;
 
 export const font = {

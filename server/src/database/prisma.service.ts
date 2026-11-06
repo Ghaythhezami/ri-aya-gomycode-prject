@@ -1,5 +1,5 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { MemoryPrisma } from './memory-prisma';
 
 @Injectable()
@@ -48,6 +48,71 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
 
   get auditLog() {
     return (this.inner as PrismaClient).auditLog;
+  }
+
+  get patient() {
+    return (this.inner as PrismaClient).patient;
+  }
+
+  get doctor() {
+    return (this.inner as PrismaClient).doctor;
+  }
+
+  get appointment() {
+    return (this.inner as PrismaClient).appointment;
+  }
+
+  get room() {
+    return (this.inner as PrismaClient).room;
+  }
+
+  get workingHour() {
+    return (this.inner as PrismaClient).workingHour;
+  }
+
+  get doctorLeave() {
+    return (this.inner as PrismaClient).doctorLeave;
+  }
+
+  get queueEntry() {
+    return (this.inner as PrismaClient).queueEntry;
+  }
+
+  get clinicSettings() {
+    return (this.inner as PrismaClient).clinicSettings;
+  }
+
+  get notification() {
+    return (this.inner as PrismaClient).notification;
+  }
+
+  get reminderDelivery() {
+    return (this.inner as PrismaClient).reminderDelivery;
+  }
+
+  get optimizationRun() {
+    return (this.inner as PrismaClient).optimizationRun;
+  }
+
+  get chatConversation() {
+    return (this.inner as PrismaClient).chatConversation;
+  }
+
+  get chatMessage() {
+    return (this.inner as PrismaClient).chatMessage;
+  }
+
+  /** Tagged-template raw query (parameterised; used by analytics aggregations). */
+  get $queryRaw() {
+    return (this.inner as PrismaClient).$queryRaw.bind(this.inner as PrismaClient);
+  }
+
+  /** Interactive transaction with options (isolation level, timeout). */
+  $transactionWith<T>(
+    fn: (tx: Prisma.TransactionClient) => Promise<T>,
+    options?: { isolationLevel?: Prisma.TransactionIsolationLevel; timeout?: number },
+  ): Promise<T> {
+    return (this.inner as PrismaClient).$transaction(fn, options);
   }
 
   /** Run several operations in one transaction (used by registration and audit). */

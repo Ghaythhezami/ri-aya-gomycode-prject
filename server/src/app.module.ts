@@ -10,6 +10,9 @@ import { PrismaModule } from './database/prisma.module';
 import { RedisCacheModule } from './cache/redis-cache.module';
 import { TenancyModule } from './tenancy/tenancy.module';
 import { AuditModule } from './audit/audit.module';
+import { EventsModule } from './events/events.module';
+import { ClinicalModule } from './clinical.module';
+import { OperationsModule } from './operations.module';
 
 @Module({
   imports: [
@@ -35,6 +38,9 @@ import { AuditModule } from './audit/audit.module';
     AuthModule,
     UsersModule,
     HealthModule,
+    EventsModule,
+    ClinicalModule,
+    OperationsModule,
   ],
   providers: [
     {

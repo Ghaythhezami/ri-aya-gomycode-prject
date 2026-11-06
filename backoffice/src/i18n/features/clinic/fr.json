@@ -1,0 +1,34 @@
+{
+  "status": {
+    "SCHEDULED": "Planifié",
+    "CONFIRMED": "Confirmé",
+    "CHECKED_IN": "Arrivé",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminé",
+    "CANCELLED": "Annulé",
+    "NO_SHOW": "Absent"
+  },
+  "type": {
+    "CONSULTATION": "Consultation",
+    "FOLLOW_UP": "Suivi",
+    "EMERGENCY": "Urgence"
+  },
+  "priority": {
+    "NORMAL": "Normale",
+    "URGENT": "Urgente",
+    "EMERGENCY": "Urgence vitale"
+  },
+  "minutes": "{{count}} min",
+  "retry": "Réessayer",
+  "loading": "Chargement…",
+  "save": "Enregistrer",
+  "cancel": "Annuler",
+  "back": "Retour",
+  "next": "Continuer",
+  "close": "Fermer",
+  "search": "Rechercher",
+  "noResults": "Aucun résultat",
+  "viewAll": "Tout voir",
+  "actions": "Actions",
+  "today": "Aujourd’hui"
+}

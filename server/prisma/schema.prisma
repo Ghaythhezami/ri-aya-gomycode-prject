@@ -27,20 +27,20 @@ enum MembershipStatus {
 }
 
 model User {
-  id          String          @id @default(uuid())
-  email       String          @unique
-  passwordHash String
-  firstName   String
-  lastName    String
-  isActive    Boolean         @default(true)
+  id              String          @id @default(uuid())
+  email           String          @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  isActive        Boolean         @default(true)
   preferredLocale PreferredLocale @default(en)
-  lastLoginAt DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  lastLoginAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   /// @deprecated Clinic-scoped role now lives on UserMembership.role.
   /// Retained only while existing call sites are migrated (see tasks T3.3).
-  role        UserRole?
+  role UserRole?
 
   /// @deprecated Lockout state moved to Redis (LoginAttemptService, FR-014).
   /// Retained so historical rows keep their values; no longer read by the API.
@@ -48,12 +48,12 @@ model User {
   failedLoginWindowStart DateTime?
   lockedUntil            DateTime?
 
-  refreshTokens          RefreshToken[]
-  passwordResetTokens    PasswordResetToken[]
-  memberships            UserMembership[]
-  sentInvitations        Invitation[]        @relation("InvitationInviter")
-  auditLogs              AuditLog[]
-  doctorProfiles         Doctor[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  memberships         UserMembership[]
+  sentInvitations     Invitation[]         @relation("InvitationInviter")
+  auditLogs           AuditLog[]
+  doctorProfiles      Doctor[]
 
   @@map("users")
 }
@@ -76,22 +76,28 @@ model Organization {
 
 /// The working workspace. All clinical data is scoped to a clinic.
 model Clinic {
-  id             String   @id @default(uuid())
+  id             String       @id @default(uuid())
   organizationId String
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   name           String
-  timezone       String   @default("UTC")
-  currency       String   @default("USD")
+  timezone       String       @default("UTC")
+  currency       String       @default("USD")
   address        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
 
-  memberships UserMembership[]
-  invitations Invitation[]
-  auditLogs   AuditLog[]
-  patients     Patient[]
-  doctors      Doctor[]
-  appointments Appointment[]
+  memberships      UserMembership[]
+  invitations      Invitation[]
+  auditLogs        AuditLog[]
+  patients         Patient[]
+  doctors          Doctor[]
+  appointments     Appointment[]
+  rooms            Room[]
+  queueEntries     QueueEntry[]
+  notifications    Notification[]
+  settings         ClinicSettings?
+  optimizationRuns OptimizationRun[]
+  conversations    ChatConversation[]
 
   @@index([organizationId])
   @@map("clinics")
@@ -100,17 +106,17 @@ model Clinic {
 /// Links one global identity to one clinic with one role. This is what makes a
 /// user able to hold a different role per clinic (FR-001, FR-028).
 model UserMembership {
-  id             String   @id @default(uuid())
+  id             String           @id @default(uuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   clinicId       String
-  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinic         Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   role           UserRole
   status         MembershipStatus @default(ACTIVE)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@unique([userId, clinicId])
   @@index([userId, status])
@@ -120,19 +126,19 @@ model UserMembership {
 
 /// Single-use, expiring invitation to join one clinic with one role (FR-007).
 model Invitation {
-  id          String   @id @default(uuid())
-  email       String
+  id             String       @id @default(uuid())
+  email          String
   organizationId String
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  clinicId    String
-  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  role        UserRole
-  tokenHash   String   @unique
-  expiresAt   DateTime
-  consumedAt  DateTime?
-  invitedById String?
-  invitedBy   User?    @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clinicId       String
+  clinic         Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  role           UserRole
+  tokenHash      String       @unique
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  invitedById    String?
+  invitedBy      User?        @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
 
   @@index([email, clinicId])
   @@index([expiresAt])
@@ -141,9 +147,9 @@ model Invitation {
 
 /// Append-only record of every mutation (FR-016, NFR-013).
 model AuditLog {
-  id             String   @id @default(uuid())
+  id             String        @id @default(uuid())
   actorUserId    String?
-  actor          User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actor          User?         @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
   action         String
   entity         String
   entityId       String
@@ -152,8 +158,8 @@ model AuditLog {
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   clinicId       String?
-  clinic         Clinic?  @relation(fields: [clinicId], references: [id], onDelete: SetNull)
-  createdAt      DateTime @default(now())
+  clinic         Clinic?       @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
 
   @@index([entity, entityId])
   @@index([actorUserId])
@@ -194,8 +200,8 @@ model PasswordResetToken {
   @@map("password_reset_tokens")
 }
 
-/// Lifecycle of one appointment. Transitions are BP-019's; this feature only
-/// defines the states a row can hold (BP-002, FR-003).
+/// Lifecycle of one appointment. Allowed transitions live in
+/// appointments/appointment-state.ts (APP-1).
 enum AppointmentStatus {
   SCHEDULED
   CONFIRMED
@@ -206,69 +212,343 @@ enum AppointmentStatus {
   NO_SHOW
 }
 
-/// A person receiving care at one clinic. Deliberately carries no credentials:
-/// patients do not authenticate in this version (BP-002, FR-001).
+enum AppointmentType {
+  CONSULTATION
+  FOLLOW_UP
+  EMERGENCY
+}
+
+enum PatientStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum QueuePriority {
+  NORMAL
+  URGENT
+  EMERGENCY
+}
+
+enum QueueStatus {
+  WAITING
+  CALLED
+  IN_CONSULTATION
+  COMPLETED
+  NO_SHOW
+  RESCHEDULED
+}
+
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+  CANCELLED
+}
+
+enum OptimizationStatus {
+  PROPOSED
+  APPLIED
+  UNDONE
+  REJECTED
+}
+
+/// A person receiving care at one clinic. Patients do not authenticate.
 model Patient {
-  id          String   @id @default(uuid())
-  clinicId    String
-  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Restrict)
-  firstName   String
-  lastName    String
-  dateOfBirth DateTime
-  phone       String
-  email       String?
-  gender      String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                String        @id @default(uuid())
+  clinicId          String
+  clinic            Clinic        @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  /// Human-readable id, unique per clinic (P-001).
+  code              String
+  firstName         String
+  lastName          String
+  dateOfBirth       DateTime
+  phone             String
+  email             String?
+  gender            String?
+  address           String?
+  status            PatientStatus @default(ACTIVE)
+  archivedAt        DateTime?
+  /// Clinical notes: doctors and admins only (PAT-2 field-level permission).
+  clinicalNotes     String?
+  /// Administrative notes: visible to every staff role.
+  adminNotes        String?
+  contactPreference String        @default("SMS")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   appointments Appointment[]
+  queueEntries QueueEntry[]
 
-  /// The patient directory lists and searches by clinic, then name (BP-015).
+  @@unique([clinicId, code])
   @@index([clinicId, lastName])
+  @@index([clinicId, phone])
+  @@index([clinicId, status])
   @@map("patients")
 }
 
-/// A clinician's profile at one clinic. It MAY link to a global identity through
-/// `userId`; deleting that identity keeps the clinical record (BP-002, FR-002, EC-004).
+/// A physical room or piece of equipment that can be booked once at a time.
+model Room {
+  id        String   @id @default(uuid())
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name      String
+  kind      String   @default("CONSULTATION")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  doctors      Doctor[]
+  appointments Appointment[]
+  queueEntries QueueEntry[]
+
+  @@unique([clinicId, name])
+  @@map("rooms")
+}
+
+/// A clinician's profile at one clinic. It MAY link to a global identity through `userId`.
 model Doctor {
   id                  String   @id @default(uuid())
   clinicId            String
   clinic              Clinic   @relation(fields: [clinicId], references: [id], onDelete: Restrict)
   userId              String?
   user                User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  firstName           String   @default("")
+  lastName            String   @default("")
   specialty           String
   licenseNumber       String?
   consultationMinutes Int      @default(30)
   isActive            Boolean  @default(true)
+  roomId              String?
+  room                Room?    @relation(fields: [roomId], references: [id], onDelete: SetNull)
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 
   appointments Appointment[]
+  workingHours WorkingHour[]
+  leaves       DoctorLeave[]
 
   @@index([clinicId, isActive])
   @@map("doctors")
 }
 
-/// One booked visit. Every row is clinic-scoped, and the two indexes below are the
-/// access paths BP-015 and BP-019 depend on (BP-002, FR-003, FR-005).
-model Appointment {
-  id        String            @id @default(uuid())
-  clinicId  String
-  clinic    Clinic            @relation(fields: [clinicId], references: [id], onDelete: Restrict)
-  patientId String
-  patient   Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+/// One interval on a weekday (0 = Sunday). Several rows per day are allowed;
+/// `kind = BREAK` rows carve breaks out of the working intervals (DOC-2).
+model WorkingHour {
+  id          String @id @default(uuid())
+  doctorId    String
+  doctor      Doctor @relation(fields: [doctorId], references: [id], onDelete: Cascade)
+  weekday     Int
+  /// Minutes after local midnight in the clinic time zone.
+  startMinute Int
+  endMinute   Int
+  kind        String @default("WORK")
+
+  @@index([doctorId, weekday])
+  @@map("working_hours")
+}
+
+/// A leave or holiday that blocks a doctor's availability between two instants.
+model DoctorLeave {
+  id        String   @id @default(uuid())
   doctorId  String
-  doctor    Doctor            @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  doctor    Doctor   @relation(fields: [doctorId], references: [id], onDelete: Cascade)
   startsAt  DateTime
   endsAt    DateTime
-  status    AppointmentStatus @default(SCHEDULED)
   reason    String?
-  createdAt DateTime          @default(now())
-  updatedAt DateTime          @updatedAt
+  createdAt DateTime @default(now())
 
-  /// A doctor's day: ordered by start time inside one doctor (FR-005).
   @@index([doctorId, startsAt])
-  /// A patient's history: every appointment for one patient (FR-005).
+  @@map("doctor_leaves")
+}
+
+/// One booked visit. Overlaps per doctor are rejected by the `appointments_no_overlap`
+/// exclusion constraint added in SQL (APP-2).
+model Appointment {
+  id               String            @id @default(uuid())
+  clinicId         String
+  clinic           Clinic            @relation(fields: [clinicId], references: [id], onDelete: Restrict)
+  /// Human-readable id, unique per clinic (AP-1001).
+  code             String
+  patientId        String
+  patient          Patient           @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  doctorId         String
+  doctor           Doctor            @relation(fields: [doctorId], references: [id], onDelete: Restrict)
+  roomId           String?
+  room             Room?             @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  startsAt         DateTime
+  endsAt           DateTime
+  status           AppointmentStatus @default(SCHEDULED)
+  type             AppointmentType   @default(CONSULTATION)
+  reason           String?
+  notes            String?
+  cancelReason     String?
+  /// Locked appointments are never moved by the optimiser.
+  locked           Boolean           @default(false)
+  /// Set when the doctor is deactivated: staff must reschedule (DOC-1).
+  needsReschedule  Boolean           @default(false)
+  reminderChannels String[]          @default(["SMS", "EMAIL"])
+  createdById      String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  queueEntry QueueEntry?
+  reminders  ReminderDelivery[]
+
+  @@unique([clinicId, code])
+  @@index([doctorId, startsAt])
   @@index([patientId])
+  @@index([clinicId, startsAt])
+  @@index([clinicId, status])
   @@map("appointments")
+}
+
+/// Live queue entry created at check-in (QUE-1).
+model QueueEntry {
+  id            String        @id @default(uuid())
+  clinicId      String
+  clinic        Clinic        @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  appointmentId String        @unique
+  appointment   Appointment   @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  patientId     String
+  patient       Patient       @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  roomId        String?
+  room          Room?         @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  /// Display number, unique per clinic and day (A010).
+  number        String
+  priority      QueuePriority @default(NORMAL)
+  status        QueueStatus   @default(WAITING)
+  /// DESK or QR (self check-in).
+  source        String        @default("DESK")
+  checkedInAt   DateTime      @default(now())
+  calledAt      DateTime?
+  startedAt     DateTime?
+  completedAt   DateTime?
+  delayMinutes  Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([clinicId, status])
+  @@index([clinicId, checkedInAt])
+  @@map("queue_entries")
+}
+
+/// Clinic configuration (SET-1). One row per clinic.
+model ClinicSettings {
+  id                      String   @id @default(uuid())
+  clinicId                String   @unique
+  clinic                  Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  contactEmail            String?
+  phone                   String?
+  defaultLanguage         String   @default("en")
+  /// Cancellations closer than this to the start are "late" and need an admin.
+  cancellationNoticeHours Int      @default(2)
+  requireCancelReason     Boolean  @default(true)
+  targetWaitMinutes       Int      @default(15)
+  slotMinutes             Int      @default(15)
+  /// { CONSULTATION: 30, FOLLOW_UP: 15, EMERGENCY: 20 }
+  durations               Json
+  /// Minutes before start, e.g. [1440, 120].
+  reminderOffsets         Int[]    @default([1440, 120])
+  reminderChannels        String[] @default(["SMS", "EMAIL"])
+  /// [{ weekday, open, close, closed }] in minutes after local midnight.
+  openingHours            Json
+  /// [{ id, name, specialties: string[] }]
+  departments             Json
+  /// { density, highContrast, reduceMotion }
+  appearance              Json
+  updatedAt               DateTime @updatedAt
+
+  @@map("clinic_settings")
+}
+
+/// In-app notification (RT-3). Stored in PostgreSQL per the Ri'aya feature doc.
+model Notification {
+  id         String   @id @default(uuid())
+  clinicId   String
+  clinic     Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  /// null = every staff member of the clinic.
+  userId     String?
+  category   String
+  titleKey   String
+  bodyKey    String
+  params     Json
+  entityType String?
+  entityId   String?
+  /// Makes creation idempotent on retries.
+  dedupeKey  String   @unique
+  readBy     String[] @default([])
+  createdAt  DateTime @default(now())
+
+  @@index([clinicId, createdAt])
+  @@map("notifications")
+}
+
+/// One reminder for one appointment on one channel (APP-5).
+model ReminderDelivery {
+  id            String         @id @default(uuid())
+  appointmentId String
+  appointment   Appointment    @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  channel       String
+  offsetMinutes Int
+  scheduledFor  DateTime
+  status        DeliveryStatus @default(PENDING)
+  attempts      Int            @default(0)
+  sentAt        DateTime?
+  error         String?
+  createdAt     DateTime       @default(now())
+
+  @@unique([appointmentId, channel, offsetMinutes])
+  @@index([status, scheduledFor])
+  @@map("reminder_deliveries")
+}
+
+/// A smart-scheduling proposal and its lifecycle (SMT-2, SMT-3).
+model OptimizationRun {
+  id              String             @id @default(uuid())
+  clinicId        String
+  clinic          Clinic             @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  /// Local clinic date, YYYY-MM-DD.
+  date            String
+  objective       String
+  /// Hash of the day's schedule when the proposal was generated (stale check).
+  scheduleVersion String
+  proposal        Json
+  status          OptimizationStatus @default(PROPOSED)
+  createdById     String?
+  appliedAt       DateTime?
+  undoneAt        DateTime?
+  createdAt       DateTime           @default(now())
+
+  @@index([clinicId, date])
+  @@map("optimization_runs")
+}
+
+/// Staff chat (RT-2), stored in PostgreSQL per the Ri'aya feature doc.
+model ChatConversation {
+  id        String   @id @default(uuid())
+  clinicId  String
+  clinic    Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  title     String?
+  isGroup   Boolean  @default(false)
+  memberIds String[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  messages ChatMessage[]
+
+  @@index([clinicId])
+  @@map("chat_conversations")
+}
+
+model ChatMessage {
+  id             String           @id @default(uuid())
+  conversationId String
+  conversation   ChatConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  body           String
+  readBy         String[]         @default([])
+  createdAt      DateTime         @default(now())
+
+  @@index([conversationId, createdAt])
+  @@map("chat_messages")
 }

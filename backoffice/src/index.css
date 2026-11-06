@@ -14,6 +14,9 @@
   --color-warning: #92400e;
   --color-error: #b91c1c;
   --color-accent: #ddf6f3;
+  --color-info: #1d4ed8;
+  --color-alert: #c2410c;
+  --color-sidebar: #0f2236;
   --font-sans: Inter, 'Noto Sans Arabic', ui-sans-serif, system-ui, sans-serif;
   --radius-sm: 8px;
   --radius-md: 12px;

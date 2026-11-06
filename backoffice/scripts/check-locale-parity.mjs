@@ -42,6 +42,43 @@ for (const name of readdirSync(localesDir)) {
   }
 }
 
+// Feature catalogues (src/i18n/features/<feature>/<locale>.json) are mounted under
+// the feature key at runtime, so they are flattened with that prefix here.
+const featuresDir = join(localesDir, 'features');
+let featureNames = [];
+try {
+  featureNames = readdirSync(featuresDir, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name);
+} catch {
+  featureNames = [];
+}
+for (const feature of featureNames) {
+  for (const locale of REQUIRED) {
+    const file = join(featuresDir, feature, `${locale}.json`);
+    let parsed;
+    try {
+      parsed = JSON.parse(readFileSync(file, 'utf8'));
+    } catch {
+      console.error(`
+✖ features/${feature}/${locale}.json is missing or not valid JSON.
+`);
+      process.exit(1);
+    }
+    if (catalogues.get(locale).has(feature) || [...catalogues.get(locale)].some((k) => k.startsWith(`${feature}.`) && !k.startsWith(`${feature}.__`))) {
+      // A root key with the same name would be shadowed at runtime.
+      const clash = [...catalogues.get(locale)].find((k) => k === feature || k.startsWith(`${feature}.`));
+      if (clash && !clash.startsWith(`${feature}.__`)) {
+        console.error(`
+✖ ${locale}.json defines "${clash}", which features/${feature} would shadow.
+`);
+        process.exit(1);
+      }
+    }
+    flatten(parsed, feature, catalogues.get(locale));
+  }
+}
+
 const union = new Set();
 for (const keys of catalogues.values()) for (const key of keys) union.add(key);
 

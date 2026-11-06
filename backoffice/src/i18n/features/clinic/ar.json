@@ -1,0 +1,34 @@
+{
+  "status": {
+    "SCHEDULED": "مجدول",
+    "CONFIRMED": "مؤكد",
+    "CHECKED_IN": "تم الوصول",
+    "IN_PROGRESS": "قيد الكشف",
+    "COMPLETED": "مكتمل",
+    "CANCELLED": "ملغى",
+    "NO_SHOW": "لم يحضر"
+  },
+  "type": {
+    "CONSULTATION": "استشارة",
+    "FOLLOW_UP": "متابعة",
+    "EMERGENCY": "طوارئ"
+  },
+  "priority": {
+    "NORMAL": "عادي",
+    "URGENT": "عاجل",
+    "EMERGENCY": "طوارئ"
+  },
+  "minutes": "{{count}} د",
+  "retry": "إعادة المحاولة",
+  "loading": "جارٍ التحميل…",
+  "save": "حفظ التغييرات",
+  "cancel": "إلغاء",
+  "back": "رجوع",
+  "next": "متابعة",
+  "close": "إغلاق",
+  "search": "بحث",
+  "noResults": "لا توجد نتائج",
+  "viewAll": "عرض الكل",
+  "actions": "إجراءات",
+  "today": "اليوم"
+}

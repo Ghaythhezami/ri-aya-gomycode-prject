@@ -1,0 +1,34 @@
+{
+  "status": {
+    "SCHEDULED": "Scheduled",
+    "CONFIRMED": "Confirmed",
+    "CHECKED_IN": "Checked in",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled",
+    "NO_SHOW": "No-show"
+  },
+  "type": {
+    "CONSULTATION": "Consultation",
+    "FOLLOW_UP": "Follow-up",
+    "EMERGENCY": "Emergency"
+  },
+  "priority": {
+    "NORMAL": "Normal",
+    "URGENT": "Urgent",
+    "EMERGENCY": "Emergency"
+  },
+  "minutes": "{{count}} min",
+  "retry": "Retry",
+  "loading": "Loading…",
+  "save": "Save changes",
+  "cancel": "Cancel",
+  "back": "Back",
+  "next": "Continue",
+  "close": "Close",
+  "search": "Search",
+  "noResults": "No results",
+  "viewAll": "View all",
+  "actions": "Actions",
+  "today": "Today"
+}

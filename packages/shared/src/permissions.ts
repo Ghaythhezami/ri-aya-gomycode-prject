@@ -25,6 +25,15 @@ export const CAPABILITIES = [
   'inviteStaff',
   'suspendMembership',
   'manageSettings',
+  'viewDoctors',
+  'manageDoctors',
+  'viewScheduling',
+  'applySchedule',
+  'manageAppointments',
+  'manageQueue',
+  'readClinicalNotes',
+  'viewAuditLog',
+  'viewChat',
 ] as const;
 
 export type Capability = (typeof CAPABILITIES)[number];
@@ -45,6 +54,15 @@ export const CAPABILITY_ROLES: Record<Capability, readonly UserRole[]> = {
   inviteStaff: ADMIN,
   suspendMembership: ADMIN,
   manageSettings: ADMIN,
+  viewDoctors: ALL,
+  manageDoctors: ADMIN,
+  viewScheduling: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'RECEPTIONIST', 'DOCTOR'],
+  applySchedule: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'RECEPTIONIST'],
+  manageAppointments: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'RECEPTIONIST'],
+  manageQueue: ALL,
+  readClinicalNotes: ['SUPER_ADMIN', 'CLINIC_ADMIN', 'DOCTOR'],
+  viewAuditLog: ADMIN,
+  viewChat: ALL,
 };
 
 /** Deny when the role, the capability, or the entry is unknown. */
