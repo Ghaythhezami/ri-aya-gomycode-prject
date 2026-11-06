@@ -4,6 +4,8 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 
 export default defineConfig({
+  // '/app/' when the backoffice is served under the marketing site (Vercel build).
+  base: process.env.VITE_BASE ?? '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

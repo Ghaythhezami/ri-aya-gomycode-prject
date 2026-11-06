@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, type ReactNode } from 'react';
-import { getErrorMessage, setAccessToken, setOnUnauthorized } from '../lib/api';
+import { getErrorMessage, refreshSession, setAccessToken, setOnUnauthorized } from '../lib/api';
 import type { AuthResponse, AuthUser } from '../lib/types';
 import { useAppDispatch, useAppSelector } from '../store/hooks';
 import {
@@ -8,7 +8,7 @@ import {
   setReady,
   setSessionMessage as setSessionMessageAction,
 } from '../store/authSlice';
-import { apiSlice, useLoginMutation, useLogoutMutation, useRefreshMutation } from '../store/api';
+import { apiSlice, useLoginMutation, useLogoutMutation } from '../store/api';
 
 interface AuthContextValue {
   user: AuthUser | null;
@@ -28,7 +28,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const sessionMessage = useAppSelector((state) => state.auth.sessionMessage);
   const [loginMut] = useLoginMutation();
   const [logoutMut] = useLogoutMutation();
-  const [refreshMut] = useRefreshMutation();
 
   /**
    * The credential payloads report `role` from the retired identity column, which is
@@ -63,9 +62,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     let cancelled = false;
     (async () => {
       try {
-        const data = await refreshMut().unwrap();
+        const data = await refreshSession();
         setAccessToken(data.accessToken);
-        if (!cancelled) dispatch(setCredentials(data));
+        // Always store the token: /auth/me below reads it from the store, and a
+        // StrictMode re-run shares this same request (refreshSession).
+        dispatch(setCredentials(data));
         const authoritative = await resolveAuthoritativeUser(data);
         if (!cancelled) dispatch(setCredentials(authoritative));
       } catch {
@@ -78,7 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => {
       cancelled = true;
     };
-  }, [dispatch, refreshMut, resolveAuthoritativeUser]);
+  }, [dispatch, resolveAuthoritativeUser]);
 
   const value = useMemo<AuthContextValue>(
     () => ({

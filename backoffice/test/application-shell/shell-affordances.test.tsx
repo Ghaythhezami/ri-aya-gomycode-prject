@@ -48,6 +48,16 @@ vi.mock('../../src/auth/WorkspaceContext', () => ({
   }),
 }));
 
+vi.mock('../../src/features/notifications/useUnreadCount', () => ({ useUnreadCount: () => 0 }));
+vi.mock('../../src/features/notifications/NotificationBell', () => ({
+  NotificationBell: () => null,
+}));
+vi.mock('../../src/features/chat/ChatLauncher', () => ({ ChatLauncher: () => null }));
+vi.mock('../../src/features/booking/BookingWizard', () => ({ BookingWizard: () => null }));
+vi.mock('../../src/features/search/GlobalSearch', () => ({
+  GlobalSearch: () => <input role="combobox" aria-label="Search patients and appointments" />,
+}));
+
 import i18n from '../../src/i18n';
 import { AppShell } from '../../src/layouts/AppShell';
 
@@ -71,33 +81,10 @@ beforeEach(async () => {
 afterEach(cleanup);
 
 describe('Shell future affordances', () => {
-  it('AC-007: notification and chat entry points are disabled and explained', () => {
+  it('AC-007/008: the global search is a live combobox and the bell/chat are owned by their features', () => {
     renderShell();
-
-    const comingSoon = i18n.t('shell.comingSoon');
-    const notifications = screen.getByRole('button', { name: 'Notifications' });
-    const chat = screen.getByRole('button', { name: 'Chat' });
-
-    for (const control of [notifications, chat]) {
-      expect(control).toBeDisabled();
-      expect(control).toHaveAttribute('aria-describedby', 'shell-coming-soon');
-      expect(control).toHaveAttribute('title', comingSoon);
-    }
-
-    const note = document.getElementById('shell-coming-soon');
-    expect(note?.textContent).toBe(comingSoon);
-    // A disabled button cannot start a navigation.
-    expect(notifications.closest('a')).toBeNull();
-    expect(chat.closest('a')).toBeNull();
-  });
-
-  it('AC-008: the global search is a disabled placeholder that explains itself', () => {
-    renderShell();
-
-    const search = screen.getByPlaceholderText(i18n.t('shell.search'));
-    expect(search).toBeDisabled();
-    expect(search).toHaveAttribute('aria-describedby', 'shell-coming-soon');
-    expect(search).toHaveAttribute('title', i18n.t('shell.comingSoon'));
-    expect(search).toHaveAttribute('aria-label', i18n.t('shell.search'));
+    const search = screen.getByRole('combobox', { name: 'Search patients and appointments' });
+    expect(search).toBeEnabled();
+    expect(document.getElementById('shell-coming-soon')).toBeNull();
   });
 });

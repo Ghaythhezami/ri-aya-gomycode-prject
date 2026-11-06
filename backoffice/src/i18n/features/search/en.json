@@ -1,0 +1,6 @@
+{
+  "label": "Search patients and appointments",
+  "empty": "No results for “{{query}}”",
+  "error": "Search is unavailable right now. Try again.",
+  "groups": { "patient": "Patients", "appointment": "Appointments" }
+}

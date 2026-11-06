@@ -9,6 +9,8 @@ export const NAV_CAPABILITIES: Record<string, Capability> = {
   appointments: 'viewAppointments',
   calendar: 'viewCalendar',
   patients: 'viewPatients',
+  doctors: 'viewDoctors',
+  scheduling: 'viewScheduling',
   staff: 'manageStaff',
   waiting: 'viewWaitingList',
   analytics: 'viewAnalytics',

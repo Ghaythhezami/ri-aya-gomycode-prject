@@ -1,0 +1,104 @@
+{
+  "eyebrow": "Clinic updates",
+  "title": "Notifications",
+  "subtitle": "Stay on top of reminders, schedule changes, and delivery status.",
+  "markAll": "Mark all as read",
+  "allRead": "All notifications marked as read.",
+  "new": "New",
+  "view": "View",
+  "viewAll": "View all notifications",
+  "markRead": "Mark as read",
+  "loadMore": "Load more",
+  "loadError": "Notifications could not be loaded",
+  "unreadLive": "{{count}} unread notifications",
+  "bell": "Notifications, {{count}} unread",
+  "tabs": {
+    "all": "All",
+    "unread": "Unread",
+    "appointments": "Appointments",
+    "system": "System"
+  },
+  "empty": {
+    "all": {
+      "title": "No notifications yet",
+      "body": "Booking, schedule and reminder updates will appear here."
+    },
+    "unread": {
+      "title": "You're all caught up",
+      "body": "There are no unread notifications."
+    },
+    "appointments": {
+      "title": "No appointment updates",
+      "body": "Confirmations, cancellations, reminders and delays will appear here."
+    },
+    "system": {
+      "title": "No system updates",
+      "body": "Availability changes and system messages will appear here."
+    }
+  },
+  "delivery": {
+    "title": "Reminder delivery",
+    "success": "Successfully delivered",
+    "sms": "SMS reminders",
+    "email": "Email reminders",
+    "pending": "Pending confirmation",
+    "failed": "Failed",
+    "manage": "Manage reminder settings",
+    "note": "Delivery is only marked successful after provider confirmation.",
+    "error": "Delivery statistics could not be loaded."
+  },
+  "templates": {
+    "booked": {
+      "title": "New appointment booked",
+      "body": "{{patient}} is booked with {{doctor}} at {{time}}."
+    },
+    "cancelled": {
+      "title": "Appointment cancelled",
+      "body": "{{patient}}'s appointment with {{doctor}} at {{time}} was cancelled. Reason: {{reason}}"
+    },
+    "rescheduled": {
+      "title": "Appointment rescheduled",
+      "body": "{{patient}}'s appointment with {{doctor}} moved from {{from}} to {{time}}."
+    },
+    "conflict": {
+      "title": "Schedule conflict",
+      "body": "{{patient}} overlaps with {{doctor}}'s updated availability."
+    },
+    "confirmed": {
+      "title": "Appointment confirmed",
+      "body": "{{patient}} confirmed the appointment for {{time}}."
+    },
+    "delay": {
+      "title": "Consultation delayed",
+      "body": "{{patient}} (queue {{number}}) is running approximately {{minutes}} minutes behind."
+    },
+    "newPatient": {
+      "title": "New patient registered",
+      "body": "{{patient}} ({{code}}) completed registration."
+    },
+    "availability": {
+      "title": "Doctor availability changed",
+      "body": "{{doctor}} updated their working hours."
+    },
+    "noShow": {
+      "title": "Patient did not attend",
+      "body": "{{patient}} was marked as a no-show for the {{time}} appointment with {{doctor}}."
+    },
+    "reminder": {
+      "title": "Appointment reminder",
+      "body": "{{patient}} has an appointment with {{doctor}} at {{time}}."
+    },
+    "optimized": {
+      "title": "Schedule optimized",
+      "body": "{{count}} appointments were rearranged for {{date}}."
+    },
+    "scheduleOptimized": {
+      "title": "Schedule optimized",
+      "body": "{{count}} appointments were rearranged for {{date}}."
+    },
+    "scheduleMoved": {
+      "title": "Your schedule changed",
+      "body": "{{count}} of your appointments were moved on {{date}}."
+    }
+  }
+}

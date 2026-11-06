@@ -1,0 +1,183 @@
+{
+  "eyebrow": "Administration",
+  "title": "Settings",
+  "subtitle": "Configure your clinic, operational policies, and team permissions.",
+  "draft": "Draft",
+  "unsaved": "Unsaved changes",
+  "saving": "Saving…",
+  "saved": "Settings saved.",
+  "loadError": "Settings could not be loaded",
+  "leaveConfirm": "You have unsaved changes in settings. Leave without saving?",
+  "sections": {
+    "clinic": "Clinic information",
+    "departments": "Departments",
+    "hours": "Working hours",
+    "appointments": "Appointments",
+    "reminders": "Reminders",
+    "roles": "Roles & permissions",
+    "audit": "Audit log",
+    "appearance": "Appearance",
+    "team": "Team & invitations"
+  },
+  "languages": {
+    "en": "English",
+    "ar": "العربية",
+    "fr": "Français"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "tooLong": "This value is too long.",
+    "email": "Enter a valid email address.",
+    "phone": "Enter a valid phone number, for example +971 4 000 0000.",
+    "timezone": "Choose a valid time zone.",
+    "number": "Enter a number.",
+    "min0": "The value cannot be negative.",
+    "min1": "The value must be at least 1.",
+    "min5": "The value must be at least 5 minutes.",
+    "max72": "The value cannot be more than 72 hours.",
+    "max240": "The value cannot be more than 240 minutes.",
+    "slot": "Choose one of the available slot sizes.",
+    "tooMany": "There are too many entries.",
+    "duplicate": "This name is already used by another department.",
+    "closeAfterOpen": "Closing time must be after opening time.",
+    "offsetMin": "A reminder must be at least 15 minutes (0.25 hours) before the appointment.",
+    "offsetMax": "A reminder can be at most 7 days (168 hours) before the appointment.",
+    "duplicateOffset": "Each reminder time must be different."
+  },
+  "clinic": {
+    "title": "Clinic information",
+    "subtitle": "Update configuration for {{name}}.",
+    "name": "Clinic name",
+    "code": "Clinic ID",
+    "codeHelp": "Assigned by RI'AYA and cannot be changed.",
+    "address": "Address",
+    "email": "Contact email",
+    "phone": "Phone number",
+    "language": "Default language",
+    "timezone": "Time zone",
+    "timezoneSearch": "Search time zones…"
+  },
+  "departments": {
+    "title": "Departments",
+    "subtitle": "Group specialties into departments.",
+    "empty": "No departments yet. Add the first one to organize your specialties.",
+    "name": "Department name",
+    "specialties": "Specialties",
+    "noSpecialties": "No specialties are available yet. Add doctors with a specialty first.",
+    "add": "Add department",
+    "remove": "Remove",
+    "removeTitle": "Remove department {{name}}?",
+    "removeBody": "The department is removed from the list when you save. Doctors and appointments are not affected.",
+    "removeConfirm": "Remove department"
+  },
+  "hours": {
+    "title": "Working hours",
+    "subtitle": "Opening hours of the clinic for each day of the week.",
+    "closed": "Closed",
+    "opens": "{{day}}: opening time",
+    "closes": "{{day}}: closing time"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "subtitle": "Durations, slot size and cancellation policy.",
+    "durations": "Default duration per appointment type",
+    "minutesUnit": "min",
+    "slot": "Slot size",
+    "slotHelp": "The booking grid snaps to this size.",
+    "notice": "Cancellation notice (hours)",
+    "noticeHelp": "Receptionists cannot cancel later than this before the visit.",
+    "targetWait": "Target waiting time (min)",
+    "targetWaitHelp": "Patients waiting longer are highlighted.",
+    "requireReason": "Require a reason to cancel",
+    "requireReasonHelp": "Staff must enter a reason when they cancel an appointment."
+  },
+  "reminders": {
+    "title": "Reminders",
+    "subtitle": "When reminders are sent and through which channels.",
+    "offsets": "Reminder times",
+    "offsetsHelp": "Hours before the appointment. Up to {{max}} reminders.",
+    "none": "No reminders will be sent.",
+    "hoursBefore": "Reminder {{n}}: hours before",
+    "remove": "Remove reminder {{n}}",
+    "add": "Add reminder",
+    "channels": "Channels",
+    "sms": "SMS",
+    "email": "Email",
+    "inApp": "In-app",
+    "inAppHelp": "In-app notifications are always on. SMS and email are marked as sent only after the provider confirms delivery."
+  },
+  "roles": {
+    "title": "Roles & permissions",
+    "subtitle": "What each role can access in this clinic.",
+    "role": "Role",
+    "access": "Access level",
+    "users": "Users",
+    "loadError": "Roles could not be loaded",
+    "empty": "No roles to show.",
+    "names": {
+      "SUPER_ADMIN": "Super admin",
+      "CLINIC_ADMIN": "Clinic admin",
+      "DOCTOR": "Doctor",
+      "RECEPTIONIST": "Receptionist"
+    },
+    "levels": {
+      "FULL": "Full access",
+      "OPERATIONS": "Operations",
+      "CLINICAL": "Clinical",
+      "FRONT_DESK": "Front desk"
+    },
+    "levelHelp": {
+      "FULL": "Everything, including organization-wide data.",
+      "OPERATIONS": "Manage the clinic, staff, settings and schedules.",
+      "CLINICAL": "Own patients, schedule and clinical notes.",
+      "FRONT_DESK": "Bookings, check-in and the waiting list."
+    }
+  },
+  "team": {
+    "title": "Team & invitations",
+    "subtitle": "Invite colleagues and review pending invitations."
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "A read-only record of who changed what. Entries cannot be edited or deleted.",
+    "entity": "Entity",
+    "entityPlaceholder": "e.g. Appointment",
+    "actor": "Changed by",
+    "anyone": "Anyone",
+    "from": "From",
+    "to": "To",
+    "invalidRange": "The start date must be before the end date.",
+    "loadError": "The audit log could not be loaded",
+    "empty": "No audit entries yet",
+    "emptyBody": "Changes to appointments, patients and settings will be recorded here.",
+    "noResults": "No entries match these filters",
+    "noResultsBody": "Try a different entity, person or date range.",
+    "reset": "Reset filters",
+    "system": "System",
+    "details": "Details",
+    "hide": "Hide",
+    "changes": "Changed fields",
+    "noChanges": "No field-level changes were recorded.",
+    "field": "Field",
+    "before": "Before",
+    "after": "After",
+    "actions": {
+      "create": "Created",
+      "update": "Updated",
+      "delete": "Deleted"
+    }
+  },
+  "appearance": {
+    "title": "Appearance",
+    "subtitle": "Display preferences. Changes preview immediately and apply to this clinic after saving.",
+    "density": "Density",
+    "comfortable": "Comfortable",
+    "comfortableHelp": "More space between elements.",
+    "compact": "Compact",
+    "compactHelp": "Smaller text and spacing to fit more on screen.",
+    "contrast": "High contrast",
+    "contrastHelp": "Stronger borders and darker secondary text.",
+    "motion": "Reduce motion",
+    "motionHelp": "Turn off animations and transitions."
+  }
+}

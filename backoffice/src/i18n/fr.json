@@ -53,6 +53,8 @@
     "calendar": "Calendrier",
     "patients": "Patients",
     "staff": "Médecins et personnel",
+    "doctors": "Médecins et personnel",
+    "scheduling": "Planification intelligente",
     "waiting": "Liste d'attente",
     "analytics": "Analyses et rapports",
     "notifications": "Notifications",

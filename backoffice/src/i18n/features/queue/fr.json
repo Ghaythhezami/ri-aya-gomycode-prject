@@ -1,0 +1,88 @@
+{
+  "eyebrow": "Flux de la clinique en direct",
+  "title": "Liste d'attente",
+  "subtitle": "Suivez le flux des patients et gardez chaque visite en mouvement.",
+  "liveTitle": "File d'attente en direct",
+  "updatedNow": "Mis à jour à l'instant",
+  "updatedAgo": "Mis à jour il y a {{seconds}} s",
+  "updatedFailed": "Échec de la mise à jour, dernières données affichées",
+  "overTarget": "Au-delà de l'objectif",
+  "paused": "Mises à jour en direct suspendues — reconnexion en cours",
+  "status": {
+    "WAITING": "En attente",
+    "CALLED": "Appelé",
+    "IN_CONSULTATION": "En consultation",
+    "COMPLETED": "Terminé",
+    "NO_SHOW": "Absent",
+    "RESCHEDULED": "Reprogrammé"
+  },
+  "columns": {
+    "appointment": "Rendez-vous",
+    "checkedIn": "Arrivée",
+    "waiting": "Attente"
+  },
+  "actions": {
+    "start": "Démarrer la consultation",
+    "complete": "Terminer",
+    "notifyDelay": "Signaler un retard",
+    "noShow": "Marquer absent",
+    "setPriority": "Priorité : {{priority}}",
+    "more": "Autres actions pour {{number}}"
+  },
+  "callNext": {
+    "button": "Appeler le patient suivant",
+    "nowCalling": "Appel en cours",
+    "called": "Appel du {{number}} en {{room}}",
+    "calledNoRoom": "Appel du {{number}}",
+    "empty": "Aucun patient en attente."
+  },
+  "summary": {
+    "waiting": "En attente actuellement",
+    "inConsultation": "En consultation : {{count}}",
+    "average": "Temps d'attente moyen",
+    "target": "Objectif : moins de {{count}} min",
+    "longest": "Attente la plus longue",
+    "queueNumber": "File n° {{number}}",
+    "checkedIn": "Arrivés aujourd'hui",
+    "completed": "Terminés : {{count}}"
+  },
+  "checkIn": {
+    "button": "Enregistrer l'arrivée",
+    "title": "Enregistrer l'arrivée d'un patient",
+    "search": "Rechercher par nom ou code du patient",
+    "priority": "Priorité",
+    "action": "Enregistrer",
+    "none": "Plus aucun rendez-vous attendu aujourd'hui.",
+    "noMatch": "Aucun rendez-vous attendu ne correspond à « {{query}} »."
+  },
+  "delay": {
+    "title": "Signaler un retard pour {{number}}",
+    "minutes": "Retard (minutes)",
+    "help": "Le patient est informé du retard prévu.",
+    "send": "Envoyer la notification",
+    "sent": "Notification de retard envoyée."
+  },
+  "toast": {
+    "started": "Consultation démarrée.",
+    "completed": "Consultation terminée.",
+    "noShow": "Marqué comme absent.",
+    "priority": "Priorité mise à jour.",
+    "checkedIn": "Arrivée du patient enregistrée."
+  },
+  "empty": {
+    "title": "Personne dans la file",
+    "body": "Les patients apparaissent ici dès leur arrivée."
+  },
+  "error": {
+    "title": "Impossible de charger la file d'attente",
+    "body": "Vérifiez votre connexion et réessayez.",
+    "stale": "Actualisation impossible. Dernières données affichées."
+  },
+  "self": {
+    "title": "Auto-enregistrement",
+    "body": "Les patients scannent ce code avec leur téléphone pour s'enregistrer avec leur code de rendez-vous.",
+    "qrLabel": "Code QR d'auto-enregistrement des patients",
+    "openDisplay": "Ouvrir l'écran public",
+    "newTab": "(s'ouvre dans un nouvel onglet)"
+  }
+}

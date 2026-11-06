@@ -1,0 +1,26 @@
+{
+  "mainNav": "Navigation principale",
+  "clinic": "Clinique",
+  "switchClinic": "Changer de clinique",
+  "unread": "{{count}} notifications non lues",
+  "crumbDetail": "Détails",
+  "errorTitle": "Un problème est survenu sur cette page",
+  "errorBody": "Le reste de l'application fonctionne toujours. Réessayez, ou rechargez la page si le problème persiste.",
+  "reload": "Recharger la page",
+  "offline": "Vous êtes hors ligne. Les modifications ne seront pas enregistrées tant que la connexion n'est pas rétablie.",
+  "help": {
+    "title": "Aide",
+    "book": {
+      "title": "Réserver un rendez-vous",
+      "body": "Utilisez Nouveau rendez-vous, ou sélectionnez un créneau libre dans le calendrier."
+    },
+    "search": {
+      "title": "Tout retrouver",
+      "body": "Recherchez un nom, un numéro ou un téléphone de patient, ou un numéro de rendez-vous, depuis la barre du haut."
+    },
+    "keyboard": {
+      "title": "Clavier",
+      "body": "Tab passe d'un contrôle à l'autre, Échap ferme menus et fenêtres, les flèches parcourent les listes."
+    }
+  }
+}

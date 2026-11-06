@@ -1,0 +1,130 @@
+{
+  "eyebrow": "Équipe clinique",
+  "title": "Médecins et personnel",
+  "subtitle": "Gérez les disponibilités, les horaires, les congés et la capacité de consultation.",
+  "add": "Ajouter un membre",
+  "edit": "Modifier",
+  "activate": "Activer",
+  "deactivate": "Désactiver",
+  "activateTitle": "Activer ce membre du personnel ?",
+  "activateBody": "{{name}} pourra de nouveau recevoir des rendez-vous.",
+  "deactivateTitle": "Désactiver ce membre du personnel ?",
+  "deactivateBody": "{{name}} ne pourra plus recevoir de rendez-vous. Ses rendez-vous futurs seront signalés pour être reprogrammés.",
+  "backToList": "Retour aux médecins et au personnel",
+  "notFound": "Membre du personnel introuvable",
+  "noHours": "Pas d'horaires",
+  "viewSchedule": "Voir le planning",
+  "utilisation": "Taux d'occupation",
+  "utilisationOf": "Taux d'occupation de {{name}}",
+  "appointmentsCount": "Rendez-vous : {{count}}",
+  "search": {
+    "label": "Rechercher des médecins et du personnel",
+    "placeholder": "Rechercher des médecins et du personnel…"
+  },
+  "filters": {
+    "specialty": "Filtrer par spécialité",
+    "allSpecialties": "Toutes les spécialités",
+    "date": "Jour"
+  },
+  "view": {
+    "label": "Mode d'affichage",
+    "cards": "Cartes",
+    "table": "Tableau"
+  },
+  "availability": {
+    "AVAILABLE": "Disponible",
+    "IN_CONSULTATION": "En consultation",
+    "ON_BREAK": "En pause",
+    "ON_LEAVE": "En congé",
+    "OFF_DUTY": "Hors service",
+    "INACTIVE": "Inactif"
+  },
+  "columns": {
+    "name": "Nom",
+    "specialty": "Spécialité",
+    "availability": "Disponibilité",
+    "hours": "Horaires",
+    "appointments": "Rendez-vous",
+    "utilisation": "Occupation"
+  },
+  "empty": {
+    "title": "Aucun membre du personnel",
+    "body": "Les médecins et le personnel que vous ajoutez apparaîtront ici avec leur disponibilité."
+  },
+  "noResults": {
+    "title": "Aucun membre correspondant",
+    "body": "Aucun résultat pour « {{query}} ».",
+    "reset": "Réinitialiser les filtres"
+  },
+  "error": {
+    "title": "Impossible de charger l'équipe clinique",
+    "body": "Vérifiez votre connexion et réessayez."
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "minutes": "Saisissez un nombre entier entre 5 et 240."
+  },
+  "form": {
+    "addTitle": "Ajouter un membre du personnel",
+    "editTitle": "Modifier le membre du personnel",
+    "create": "Ajouter le membre",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "specialty": "Spécialité",
+    "specialtyHelp": "Choisissez une spécialité de la liste ou saisissez-en une nouvelle.",
+    "minutes": "Durée de consultation (minutes)",
+    "room": "Salle",
+    "noRoom": "Aucune salle",
+    "license": "Numéro de licence (facultatif)"
+  },
+  "toast": {
+    "created": "Membre du personnel ajouté.",
+    "updated": "Membre du personnel mis à jour.",
+    "activated": "Membre du personnel activé.",
+    "deactivated": "Membre du personnel désactivé. Rendez-vous signalés pour reprogrammation : {{count}}."
+  },
+  "schedule": {
+    "title": "Horaires de travail hebdomadaires",
+    "closed": "Fermé",
+    "addInterval": "Ajouter des horaires",
+    "addBreak": "Ajouter une pause",
+    "from": "de",
+    "to": "à",
+    "remove": "Supprimer : {{kind}}, {{day}}",
+    "reset": "Annuler les modifications",
+    "unsaved": "Modifications non enregistrées",
+    "saved": "Horaires enregistrés.",
+    "kind": {
+      "WORK": "Travail",
+      "BREAK": "Pause"
+    },
+    "issue": {
+      "START_AFTER_END": "L'heure de début doit précéder l'heure de fin.",
+      "OVERLAP": "Cet intervalle chevauche un autre intervalle.",
+      "BREAK_OUTSIDE_WORK": "Une pause doit se situer dans les horaires de travail."
+    },
+    "conflictTitle": "Des rendez-vous entrent en conflit avec ces horaires",
+    "conflictBody": "Rendez-vous hors des nouveaux horaires : {{count}}. Vous pouvez enregistrer quand même, ils seront signalés pour reprogrammation.",
+    "saveAnyway": "Enregistrer et les signaler"
+  },
+  "visual": {
+    "title": "La semaine en un coup d'œil"
+  },
+  "leaves": {
+    "title": "Congés",
+    "add": "Ajouter un congé",
+    "empty": "Aucun congé prévu.",
+    "from": "Premier jour",
+    "to": "Dernier jour",
+    "reason": "Motif (facultatif)",
+    "save": "Ajouter le congé",
+    "invalidRange": "Choisissez une date de début et une date de fin qui ne la précède pas.",
+    "added": "Congé ajouté.",
+    "deleted": "Congé supprimé.",
+    "delete": "Supprimer le congé commençant le {{date}}"
+  },
+  "upcoming": {
+    "title": "Rendez-vous à venir",
+    "empty": "Aucun rendez-vous à venir."
+  }
+}

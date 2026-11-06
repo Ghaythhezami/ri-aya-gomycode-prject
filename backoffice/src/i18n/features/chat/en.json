@@ -1,0 +1,27 @@
+{
+  "title": "Team chat",
+  "open": "Open team chat, {{count}} unread",
+  "unreadLive": "{{count}} unread messages",
+  "new": "New",
+  "newConversation": "New conversation",
+  "loadError": "Conversations could not be loaded",
+  "empty": {
+    "title": "No conversations yet",
+    "body": "Start a conversation with a colleague at your clinic."
+  },
+  "untitled": "Conversation",
+  "you": "You",
+  "unreadCount": "{{count}} unread",
+  "noMessages": "No messages yet",
+  "loadEarlier": "Load earlier messages",
+  "read": "Read",
+  "composer": "Write a message",
+  "placeholder": "Write a message…",
+  "send": "Send message",
+  "sendError": "The message could not be sent. Your text is still in the box.",
+  "staffError": "Colleagues could not be loaded",
+  "noStaff": "There are no other staff members to chat with yet.",
+  "pickStaff": "Choose colleagues",
+  "groupTitle": "Group name (optional)",
+  "start": "Start conversation"
+}

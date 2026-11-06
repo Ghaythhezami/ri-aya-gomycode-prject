@@ -1,0 +1,130 @@
+{
+  "eyebrow": "Clinical team",
+  "title": "Doctors & Staff",
+  "subtitle": "Manage availability, working hours, leave and consultation capacity.",
+  "add": "Add staff member",
+  "edit": "Edit",
+  "activate": "Activate",
+  "deactivate": "Deactivate",
+  "activateTitle": "Activate this staff member?",
+  "activateBody": "{{name}} will be available for booking again.",
+  "deactivateTitle": "Deactivate this staff member?",
+  "deactivateBody": "{{name}} will no longer be bookable. Their future appointments will be flagged for rescheduling.",
+  "backToList": "Back to doctors & staff",
+  "notFound": "Staff member not found",
+  "noHours": "No hours",
+  "viewSchedule": "View schedule",
+  "utilisation": "Utilisation",
+  "utilisationOf": "Utilisation of {{name}}",
+  "appointmentsCount": "Appointments: {{count}}",
+  "search": {
+    "label": "Search doctors and staff",
+    "placeholder": "Search doctors and staff…"
+  },
+  "filters": {
+    "specialty": "Filter by specialty",
+    "allSpecialties": "All specialties",
+    "date": "Day"
+  },
+  "view": {
+    "label": "View mode",
+    "cards": "Cards",
+    "table": "Table"
+  },
+  "availability": {
+    "AVAILABLE": "Available",
+    "IN_CONSULTATION": "In consultation",
+    "ON_BREAK": "On break",
+    "ON_LEAVE": "On leave",
+    "OFF_DUTY": "Off duty",
+    "INACTIVE": "Inactive"
+  },
+  "columns": {
+    "name": "Name",
+    "specialty": "Specialty",
+    "availability": "Availability",
+    "hours": "Hours",
+    "appointments": "Appointments",
+    "utilisation": "Utilisation"
+  },
+  "empty": {
+    "title": "No staff members yet",
+    "body": "Doctors and staff you add will appear here with their availability."
+  },
+  "noResults": {
+    "title": "No matching staff",
+    "body": "Nothing found for “{{query}}”.",
+    "reset": "Reset filters"
+  },
+  "error": {
+    "title": "Could not load the clinical team",
+    "body": "Check your connection and try again."
+  },
+  "errors": {
+    "required": "This field is required.",
+    "minutes": "Enter a whole number between 5 and 240."
+  },
+  "form": {
+    "addTitle": "Add staff member",
+    "editTitle": "Edit staff member",
+    "create": "Add staff member",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "specialty": "Specialty",
+    "specialtyHelp": "Pick a listed specialty or type a new one.",
+    "minutes": "Consultation length (minutes)",
+    "room": "Room",
+    "noRoom": "No room",
+    "license": "Licence number (optional)"
+  },
+  "toast": {
+    "created": "Staff member added.",
+    "updated": "Staff member updated.",
+    "activated": "Staff member activated.",
+    "deactivated": "Staff member deactivated. Appointments flagged for rescheduling: {{count}}."
+  },
+  "schedule": {
+    "title": "Weekly working hours",
+    "closed": "Closed",
+    "addInterval": "Add hours",
+    "addBreak": "Add break",
+    "from": "from",
+    "to": "to",
+    "remove": "Remove {{kind}} on {{day}}",
+    "reset": "Discard changes",
+    "unsaved": "Unsaved changes",
+    "saved": "Working hours saved.",
+    "kind": {
+      "WORK": "Work",
+      "BREAK": "Break"
+    },
+    "issue": {
+      "START_AFTER_END": "Start time must be before end time.",
+      "OVERLAP": "This interval overlaps another one.",
+      "BREAK_OUTSIDE_WORK": "A break must fall inside working hours."
+    },
+    "conflictTitle": "Appointments conflict with these hours",
+    "conflictBody": "Appointments outside the new hours: {{count}}. You can save anyway and they will be flagged for rescheduling.",
+    "saveAnyway": "Save anyway and flag them"
+  },
+  "visual": {
+    "title": "Week at a glance"
+  },
+  "leaves": {
+    "title": "Leave",
+    "add": "Add leave",
+    "empty": "No leave planned.",
+    "from": "First day",
+    "to": "Last day",
+    "reason": "Reason (optional)",
+    "save": "Add leave",
+    "invalidRange": "Choose a start date and an end date that is not before it.",
+    "added": "Leave added.",
+    "deleted": "Leave removed.",
+    "delete": "Delete leave starting {{date}}"
+  },
+  "upcoming": {
+    "title": "Upcoming appointments",
+    "empty": "No upcoming appointments."
+  }
+}

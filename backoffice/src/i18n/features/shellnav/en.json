@@ -1,0 +1,26 @@
+{
+  "mainNav": "Main navigation",
+  "clinic": "Clinic",
+  "switchClinic": "Switch clinic",
+  "unread": "{{count}} unread notifications",
+  "crumbDetail": "Details",
+  "errorTitle": "Something went wrong on this page",
+  "errorBody": "The rest of the app still works. Try again, or reload the page if the problem continues.",
+  "reload": "Reload page",
+  "offline": "You are offline. Changes will not be saved until the connection returns.",
+  "help": {
+    "title": "Help",
+    "book": {
+      "title": "Book an appointment",
+      "body": "Use New appointment, or select an empty time in the calendar."
+    },
+    "search": {
+      "title": "Find anything",
+      "body": "Search a patient name, ID or phone, or an appointment number, from the top bar."
+    },
+    "keyboard": {
+      "title": "Keyboard",
+      "body": "Tab moves between controls, Esc closes menus and dialogs, arrow keys move through lists."
+    }
+  }
+}

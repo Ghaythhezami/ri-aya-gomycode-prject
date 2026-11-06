@@ -49,6 +49,16 @@ vi.mock('../../src/auth/WorkspaceContext', () => ({
 }));
 
 import '../../src/i18n';
+vi.mock('../../src/features/notifications/useUnreadCount', () => ({ useUnreadCount: () => 0 }));
+vi.mock('../../src/features/notifications/NotificationBell', () => ({
+  NotificationBell: () => null,
+}));
+vi.mock('../../src/features/chat/ChatLauncher', () => ({ ChatLauncher: () => null }));
+vi.mock('../../src/features/booking/BookingWizard', () => ({ BookingWizard: () => null }));
+vi.mock('../../src/features/search/GlobalSearch', () => ({
+  GlobalSearch: () => <input role="combobox" aria-label="Search patients and appointments" />,
+}));
+
 import { AppShell } from '../../src/layouts/AppShell';
 
 function renderShell(route = '/') {

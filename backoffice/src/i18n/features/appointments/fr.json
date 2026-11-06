@@ -1,0 +1,141 @@
+{
+  "eyebrow": "Opérations de la clinique",
+  "title": "Rendez-vous",
+  "subtitle": "Gérez les plannings, les réservations et les visites des patients.",
+  "create": "Créer un rendez-vous",
+  "searchLabel": "Rechercher des rendez-vous",
+  "searchPlaceholder": "Rechercher patients, rendez-vous, médecins…",
+  "allDoctors": "Tous les médecins",
+  "allSpecialties": "Toutes les spécialités",
+  "errorTitle": "Les rendez-vous n'ont pas pu être chargés",
+  "emptyTitle": "Aucun rendez-vous pour l'instant",
+  "emptyBody": "Les rendez-vous réservés apparaissent ici. Créez le premier pour commencer.",
+  "noResultsTitle": "Aucun rendez-vous ne correspond à vos filtres",
+  "noResultsBody": "Aucun résultat pour : {{filters}}",
+  "resetFilters": "Réinitialiser les filtres",
+  "showing": "Affichage de {{from}}–{{to}} sur {{total}} résultats",
+  "showingNone": "Aucun résultat",
+  "pagination": "Pagination",
+  "prevPage": "Page précédente",
+  "nextPage": "Page suivante",
+  "goToPage": "Page {{page}}",
+  "range": {
+    "label": "Période",
+    "all": "Toutes les dates",
+    "from": "À partir du {{date}}",
+    "to": "Jusqu'au {{date}}",
+    "today": "Aujourd'hui",
+    "week": "Cette semaine",
+    "next7": "7 prochains jours",
+    "fromLabel": "Du",
+    "toLabel": "Au",
+    "clear": "Effacer les dates"
+  },
+  "more": {
+    "title": "Plus de filtres",
+    "active": "filtres actifs",
+    "clear": "Effacer ces filtres"
+  },
+  "view": {
+    "label": "Affichage",
+    "list": "Liste",
+    "day": "Jour",
+    "week": "Semaine"
+  },
+  "fields": {
+    "doctor": "Médecin",
+    "status": "Statut",
+    "type": "Type",
+    "specialty": "Spécialité",
+    "patient": "Patient",
+    "room": "Salle",
+    "when": "Date et heure",
+    "duration": "Durée",
+    "reason": "Motif de la visite"
+  },
+  "columns": {
+    "id": "N°",
+    "patient": "Patient",
+    "doctor": "Médecin et spécialité",
+    "when": "Date et heure",
+    "type": "Type",
+    "status": "Statut"
+  },
+  "actions": {
+    "view": "Voir les détails",
+    "confirm": "Confirmer",
+    "checkIn": "Enregistrer l'arrivée",
+    "start": "Démarrer la consultation",
+    "complete": "Terminer",
+    "noShow": "Marquer comme absent",
+    "reschedule": "Reprogrammer",
+    "cancel": "Annuler le rendez-vous",
+    "for": "Actions pour le rendez-vous {{code}}"
+  },
+  "bulk": {
+    "label": "Actions groupées",
+    "selected": "{{count}} sélectionné(s)",
+    "confirm": "Confirmer la sélection",
+    "cancel": "Annuler la sélection",
+    "clear": "Effacer la sélection",
+    "selectAll": "Sélectionner tous les rendez-vous de cette page",
+    "selectRow": "Sélectionner le rendez-vous {{code}}",
+    "noneEligible": "Aucun des rendez-vous sélectionnés ne peut être confirmé.",
+    "cancelTitle": "Annuler {{count}} rendez-vous",
+    "cancelBody": "Les créneaux sont libérés et les patients sont prévenus. Un motif est obligatoire.",
+    "cancelConfirm": "Annuler les rendez-vous"
+  },
+  "cancel": {
+    "title": "Annuler le rendez-vous {{code}}",
+    "body": "Annuler le rendez-vous de {{patient}} libère le créneau. Un motif est obligatoire.",
+    "reason": "Motif de l'annulation",
+    "reasonRequired": "Saisissez un motif pour annuler.",
+    "keep": "Garder le rendez-vous",
+    "confirm": "Annuler le rendez-vous"
+  },
+  "reschedule": {
+    "title": "Reprogrammer le rendez-vous",
+    "current": "Actuellement le {{when}} avec {{doctor}}.",
+    "date": "Nouvelle date",
+    "pickSlot": "Choisissez un nouveau créneau.",
+    "confirm": "Reprogrammer"
+  },
+  "toast": {
+    "status": "Rendez-vous marqué comme « {{status}} »",
+    "cancelled": "Rendez-vous annulé",
+    "bulk": "{{count}} rendez-vous mis à jour",
+    "bulkPartial": "{{count}} mis à jour, {{failed}} n'ont pas pu être modifiés",
+    "rescheduled": "Rendez-vous reprogrammé"
+  },
+  "detail": {
+    "back": "Retour aux rendez-vous",
+    "eyebrow": "Rendez-vous",
+    "title": "Rendez-vous",
+    "progress": "Avancement du rendez-vous",
+    "summary": "Résumé",
+    "notes": "Notes",
+    "noNotes": "Aucune note.",
+    "notesSaved": "Notes enregistrées",
+    "cancelReason": "Motif de l'annulation",
+    "notFound": "Rendez-vous introuvable",
+    "noRoom": "Aucune salle attribuée",
+    "needsRescheduleTitle": "Ce rendez-vous doit être reprogrammé",
+    "needsRescheduleBody": "Le médecin n'est plus disponible à cette heure. Reprogrammez-le pour prévenir le patient."
+  },
+  "reminders": {
+    "title": "Rappels",
+    "empty": "Aucun rappel pour ce rendez-vous.",
+    "days": "{{count}} j avant",
+    "hours": "{{count}} h avant",
+    "minutes": "{{count}} min avant",
+    "sentAt": "Envoyé {{when}}",
+    "scheduledFor": "Prévu le {{when}}",
+    "retried": "Rappel remis en file d'envoi",
+    "status": {
+      "PENDING": "En attente",
+      "SENT": "Envoyé",
+      "FAILED": "Échec",
+      "CANCELLED": "Annulé"
+    }
+  }
+}

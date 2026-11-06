@@ -1,0 +1,120 @@
+{
+  "eyebrow": "Guided booking",
+  "title": "Create appointment",
+  "stepsLabel": "Booking steps",
+  "steps": {
+    "patient": "Patient",
+    "doctor": "Doctor",
+    "datetime": "Date & time",
+    "details": "Details",
+    "review": "Review"
+  },
+  "stepDone": "Completed:",
+  "stepCurrent": "Current step:",
+  "stepOf": "Step {{current}} of {{total}}",
+  "confirm": "Confirm appointment",
+  "prevMonth": "Previous month",
+  "nextMonth": "Next month",
+  "pickDate": "Choose a date",
+  "periodLabel": "Time of day",
+  "period": { "MORNING": "Morning", "AFTERNOON": "Afternoon", "EVENING": "Evening" },
+  "noSlots": "No times in this part of the day.",
+  "slotsLabel": "Available times",
+  "slotUnavailable": "unavailable (booked, on break or in the past)",
+  "slotsError": "Available times could not be loaded",
+  "errors": {
+    "patient": "Select a patient to continue.",
+    "doctor": "Select a doctor to continue.",
+    "date": "Choose a date.",
+    "slot": "Choose an available time.",
+    "duration": "Enter a duration between 5 and 240 minutes.",
+    "reasonLength": "The reason is too long (500 characters at most).",
+    "notesLength": "The notes are too long (1000 characters at most)."
+  },
+  "patient": {
+    "title": "Select patient",
+    "new": "New patient",
+    "newTitle": "New patient",
+    "searchLabel": "Search patients",
+    "searchPlaceholder": "Search by name, ID, or phone…",
+    "searchError": "Patients could not be loaded.",
+    "noResults": "No patients match “{{query}}”. Create a new patient instead.",
+    "empty": "No patients yet. Create the first patient.",
+    "listLabel": "Patients",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "genderUnset": "Not specified",
+    "female": "Female",
+    "male": "Male",
+    "phone": "Phone",
+    "email": "Email (optional)",
+    "create": "Create patient",
+    "duplicateTitle": "This patient may already exist",
+    "duplicateBody": "Choose an existing patient, or create a new record anyway.",
+    "createAnyway": "Create anyway",
+    "errors": {
+      "firstName": "Enter the first name.",
+      "lastName": "Enter the last name.",
+      "dateOfBirth": "Enter a valid date of birth.",
+      "phone": "Enter a phone number.",
+      "email": "Enter a valid email address."
+    }
+  },
+  "doctor": {
+    "title": "Select doctor",
+    "specialty": "Specialty",
+    "allSpecialties": "All specialties",
+    "error": "Doctors could not be loaded.",
+    "empty": "No doctors available for this specialty.",
+    "listLabel": "Doctors"
+  },
+  "availability": {
+    "AVAILABLE": "Available today",
+    "IN_CONSULTATION": "In consultation",
+    "ON_BREAK": "On break",
+    "ON_LEAVE": "On leave",
+    "OFF_DUTY": "Off duty today",
+    "INACTIVE": "Inactive"
+  },
+  "datetime": {
+    "title": "Select date and time",
+    "with": "With {{doctor}} · {{minutes}} min",
+    "pickDateFirst": "Choose a date to see the available times.",
+    "held": "This time is held for you for a few minutes.",
+    "locked": "This time is being booked by someone else. Please choose another time."
+  },
+  "details": {
+    "title": "Appointment details",
+    "type": "Appointment type",
+    "duration": "Duration",
+    "reason": "Reason for visit",
+    "notes": "Notes",
+    "reminders": "Reminders",
+    "channel": { "SMS": "SMS", "EMAIL": "Email" }
+  },
+  "review": {
+    "title": "Review and confirm",
+    "patient": "Patient",
+    "doctor": "Doctor",
+    "when": "Date & time",
+    "reminders": "Reminders",
+    "noReminders": "No reminders",
+    "reason": "Reason and notes",
+    "privacy": "Only authorised clinic staff can access patient details."
+  },
+  "conflict": {
+    "title": "This time was just taken",
+    "body": "Pick one of the closest available times to continue.",
+    "none": "No nearby times are free. Go back and choose another time.",
+    "sameDoctor": "Same doctor",
+    "sameSpecialty": "Same specialty"
+  },
+  "success": {
+    "title": "Appointment confirmed",
+    "body": "{{code}} for {{patient}} with {{doctor}} on {{when}}.",
+    "view": "View appointment",
+    "another": "Book another"
+  }
+}

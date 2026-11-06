@@ -1,0 +1,71 @@
+{
+  "eyebrow": "Operational intelligence",
+  "title": "Analytics & Reports",
+  "subtitle": "Understand performance, demand, and patient flow across your clinic.",
+  "exportCsv": "Export CSV",
+  "exportPdf": "Export PDF",
+  "exported": "Export downloaded.",
+  "exportError": "The export could not be created. Please try again.",
+  "filters": "Report filters",
+  "range": "Date range",
+  "from": "From",
+  "to": "To",
+  "scope": "Scope",
+  "presets": {
+    "last7": "Last 7 days",
+    "last30": "Last 30 days",
+    "last90": "Last 90 days",
+    "month": "This month",
+    "custom": "Custom range"
+  },
+  "scopes": {
+    "clinic": "Clinic",
+    "organization": "Organization"
+  },
+  "compared": "Compared with previous period",
+  "updated": "Data updated {{time}}",
+  "invalidRange": "Choose a valid range: the start date must be before the end date, and the range can span at most one year.",
+  "loadError": "The analytics could not be loaded",
+  "noData": "No data for this range.",
+  "summary": "{{title}}: {{count}} data points, highest {{label}} with {{value}}.",
+  "viewAsTable": "View as table",
+  "viewAsChart": "View as chart",
+  "date": "Date",
+  "appointments": "Appointments",
+  "minutes": "Waiting (min)",
+  "specialty": "Specialty",
+  "status": "Status",
+  "doctor": "Doctor",
+  "utilisation": "Utilization (%)",
+  "hour": "Hour",
+  "total": "Total",
+  "perDay": "{{value}}/day",
+  "kpi": {
+    "volume": "Appointment volume",
+    "noShow": "No-show rate",
+    "wait": "Average waiting",
+    "throughput": "Patient throughput",
+    "cancellation": "Cancellation rate",
+    "duration": "Average duration"
+  },
+  "change": {
+    "percent": "{{value}}% vs previous period",
+    "points": "{{value}} pts vs previous period",
+    "faster": "{{value}} min faster",
+    "slower": "{{value}} min slower",
+    "same": "No change vs previous period"
+  },
+  "charts": {
+    "volume": "Appointment volume by day",
+    "wait": "Average patient waiting time",
+    "specialty": "Appointments by specialty",
+    "status": "Status distribution",
+    "utilisation": "Doctor utilization",
+    "peak": "Peak booking hours"
+  },
+  "empty": {
+    "title": "No activity in this range",
+    "body": "There are no appointments between {{from}} and {{to}}. Try a longer range.",
+    "action": "Show last 90 days"
+  }
+}

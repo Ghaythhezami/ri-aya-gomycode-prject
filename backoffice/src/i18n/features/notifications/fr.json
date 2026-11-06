@@ -1,0 +1,104 @@
+{
+  "eyebrow": "Actualités de la clinique",
+  "title": "Notifications",
+  "subtitle": "Suivez les rappels, les changements de planning et l'état des envois.",
+  "markAll": "Tout marquer comme lu",
+  "allRead": "Toutes les notifications ont été marquées comme lues.",
+  "new": "Nouveau",
+  "view": "Voir",
+  "viewAll": "Voir toutes les notifications",
+  "markRead": "Marquer comme lu",
+  "loadMore": "Charger plus",
+  "loadError": "Impossible de charger les notifications",
+  "unreadLive": "{{count}} notifications non lues",
+  "bell": "Notifications, {{count}} non lues",
+  "tabs": {
+    "all": "Toutes",
+    "unread": "Non lues",
+    "appointments": "Rendez-vous",
+    "system": "Système"
+  },
+  "empty": {
+    "all": {
+      "title": "Aucune notification pour le moment",
+      "body": "Les réservations, changements de planning et rappels apparaîtront ici."
+    },
+    "unread": {
+      "title": "Vous êtes à jour",
+      "body": "Il n'y a aucune notification non lue."
+    },
+    "appointments": {
+      "title": "Aucune mise à jour de rendez-vous",
+      "body": "Les confirmations, annulations, rappels et retards apparaîtront ici."
+    },
+    "system": {
+      "title": "Aucune mise à jour système",
+      "body": "Les changements de disponibilité et les messages système apparaîtront ici."
+    }
+  },
+  "delivery": {
+    "title": "Envoi des rappels",
+    "success": "Envoyés avec succès",
+    "sms": "Rappels par SMS",
+    "email": "Rappels par e-mail",
+    "pending": "En attente de confirmation",
+    "failed": "Échecs",
+    "manage": "Gérer les paramètres de rappel",
+    "note": "Un envoi n'est marqué comme réussi qu'après confirmation du prestataire.",
+    "error": "Impossible de charger les statistiques d'envoi."
+  },
+  "templates": {
+    "booked": {
+      "title": "Nouveau rendez-vous réservé",
+      "body": "{{patient}} a rendez-vous avec {{doctor}} à {{time}}."
+    },
+    "cancelled": {
+      "title": "Rendez-vous annulé",
+      "body": "Le rendez-vous de {{patient}} avec {{doctor}} à {{time}} a été annulé. Motif : {{reason}}"
+    },
+    "rescheduled": {
+      "title": "Rendez-vous reprogrammé",
+      "body": "Le rendez-vous de {{patient}} avec {{doctor}} est passé de {{from}} à {{time}}."
+    },
+    "conflict": {
+      "title": "Conflit de planning",
+      "body": "{{patient}} chevauche la disponibilité mise à jour de {{doctor}}."
+    },
+    "confirmed": {
+      "title": "Rendez-vous confirmé",
+      "body": "{{patient}} a confirmé son rendez-vous de {{time}}."
+    },
+    "delay": {
+      "title": "Consultation retardée",
+      "body": "{{patient}} (file {{number}}) a environ {{minutes}} minutes de retard."
+    },
+    "newPatient": {
+      "title": "Nouveau patient enregistré",
+      "body": "{{patient}} ({{code}}) a terminé son inscription."
+    },
+    "availability": {
+      "title": "Disponibilité du médecin modifiée",
+      "body": "{{doctor}} a mis à jour ses horaires de travail."
+    },
+    "noShow": {
+      "title": "Patient absent",
+      "body": "{{patient}} a été marqué absent pour le rendez-vous de {{time}} avec {{doctor}}."
+    },
+    "reminder": {
+      "title": "Rappel de rendez-vous",
+      "body": "{{patient}} a rendez-vous avec {{doctor}} à {{time}}."
+    },
+    "optimized": {
+      "title": "Planning optimisé",
+      "body": "{{count}} rendez-vous ont été réorganisés pour le {{date}}."
+    },
+    "scheduleOptimized": {
+      "title": "Planning optimisé",
+      "body": "{{count}} rendez-vous ont été réorganisés pour le {{date}}."
+    },
+    "scheduleMoved": {
+      "title": "Votre planning a changé",
+      "body": "{{count}} de vos rendez-vous ont été déplacés le {{date}}."
+    }
+  }
+}

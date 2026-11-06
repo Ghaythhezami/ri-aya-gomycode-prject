@@ -1,0 +1,141 @@
+{
+  "eyebrow": "Clinic operations",
+  "title": "Appointments",
+  "subtitle": "Manage schedules, bookings, and patient visits.",
+  "create": "Create appointment",
+  "searchLabel": "Search appointments",
+  "searchPlaceholder": "Search patients, appointments, doctors…",
+  "allDoctors": "All doctors",
+  "allSpecialties": "All specialties",
+  "errorTitle": "Appointments could not be loaded",
+  "emptyTitle": "No appointments yet",
+  "emptyBody": "Booked appointments appear here. Create the first one to get started.",
+  "noResultsTitle": "No appointments match your filters",
+  "noResultsBody": "Nothing found for: {{filters}}",
+  "resetFilters": "Reset filters",
+  "showing": "Showing {{from}}–{{to}} of {{total}} results",
+  "showingNone": "No results",
+  "pagination": "Pagination",
+  "prevPage": "Previous page",
+  "nextPage": "Next page",
+  "goToPage": "Page {{page}}",
+  "range": {
+    "label": "Date range",
+    "all": "All dates",
+    "from": "From {{date}}",
+    "to": "Until {{date}}",
+    "today": "Today",
+    "week": "This week",
+    "next7": "Next 7 days",
+    "fromLabel": "From",
+    "toLabel": "To",
+    "clear": "Clear dates"
+  },
+  "more": {
+    "title": "More filters",
+    "active": "active filters",
+    "clear": "Clear these filters"
+  },
+  "view": {
+    "label": "View",
+    "list": "List",
+    "day": "Day",
+    "week": "Week"
+  },
+  "fields": {
+    "doctor": "Doctor",
+    "status": "Status",
+    "type": "Type",
+    "specialty": "Specialty",
+    "patient": "Patient",
+    "room": "Room",
+    "when": "Date & time",
+    "duration": "Duration",
+    "reason": "Reason for visit"
+  },
+  "columns": {
+    "id": "ID",
+    "patient": "Patient",
+    "doctor": "Doctor & specialty",
+    "when": "Date & time",
+    "type": "Type",
+    "status": "Status"
+  },
+  "actions": {
+    "view": "View details",
+    "confirm": "Confirm",
+    "checkIn": "Check in",
+    "start": "Start consultation",
+    "complete": "Complete",
+    "noShow": "Mark as no-show",
+    "reschedule": "Reschedule",
+    "cancel": "Cancel appointment",
+    "for": "Actions for appointment {{code}}"
+  },
+  "bulk": {
+    "label": "Bulk actions",
+    "selected": "{{count}} selected",
+    "confirm": "Confirm selected",
+    "cancel": "Cancel selected",
+    "clear": "Clear selection",
+    "selectAll": "Select all appointments on this page",
+    "selectRow": "Select appointment {{code}}",
+    "noneEligible": "None of the selected appointments can be confirmed.",
+    "cancelTitle": "Cancel {{count}} appointments",
+    "cancelBody": "The slots are released and patients are notified. A reason is required.",
+    "cancelConfirm": "Cancel appointments"
+  },
+  "cancel": {
+    "title": "Cancel appointment {{code}}",
+    "body": "Cancelling the appointment of {{patient}} frees the slot. A reason is required.",
+    "reason": "Reason for cancellation",
+    "reasonRequired": "Enter a reason to cancel.",
+    "keep": "Keep appointment",
+    "confirm": "Cancel appointment"
+  },
+  "reschedule": {
+    "title": "Reschedule appointment",
+    "current": "Currently {{when}} with {{doctor}}.",
+    "date": "New date",
+    "pickSlot": "Pick a new time slot.",
+    "confirm": "Reschedule"
+  },
+  "toast": {
+    "status": "Appointment marked as {{status}}",
+    "cancelled": "Appointment cancelled",
+    "bulk": "{{count}} appointments updated",
+    "bulkPartial": "{{count}} updated, {{failed}} could not be changed",
+    "rescheduled": "Appointment rescheduled"
+  },
+  "detail": {
+    "back": "Back to appointments",
+    "eyebrow": "Appointment",
+    "title": "Appointment",
+    "progress": "Appointment progress",
+    "summary": "Summary",
+    "notes": "Notes",
+    "noNotes": "No notes.",
+    "notesSaved": "Notes saved",
+    "cancelReason": "Cancellation reason",
+    "notFound": "Appointment not found",
+    "noRoom": "No room assigned",
+    "needsRescheduleTitle": "This appointment needs a new time",
+    "needsRescheduleBody": "The doctor is no longer available at this time. Reschedule it so the patient can be informed."
+  },
+  "reminders": {
+    "title": "Reminders",
+    "empty": "No reminders for this appointment.",
+    "days": "{{count}} d before",
+    "hours": "{{count}} h before",
+    "minutes": "{{count}} min before",
+    "sentAt": "Sent {{when}}",
+    "scheduledFor": "Scheduled for {{when}}",
+    "retried": "Reminder queued again",
+    "status": {
+      "PENDING": "Pending",
+      "SENT": "Sent",
+      "FAILED": "Failed",
+      "CANCELLED": "Cancelled"
+    }
+  }
+}

@@ -1,10 +1,10 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { errorMessage, negotiateLocale } from '@riaya/shared';
 import i18n from '../i18n';
-import type { ApiError } from './types';
+import type { ApiError, AuthResponse } from './types';
 
 let accessToken: string | null = null;
-let refreshPromise: Promise<string | null> | null = null;
+let refreshPromise: Promise<AuthResponse> | null = null;
 let onUnauthorized: (() => void) | null = null;
 
 export function setOnUnauthorized(handler: (() => void) | null) {
@@ -33,10 +33,22 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-async function refreshAccessToken() {
-  const { data } = await api.post<{ accessToken: string }>('/api/auth/refresh');
-  accessToken = data.accessToken;
-  return accessToken;
+/**
+ * The ONE way to refresh the session. Refresh tokens rotate and a reused token
+ * revokes its family, so concurrent callers (boot restore, 401 retries from
+ * parallel requests, StrictMode double effects) must share a single request.
+ */
+export function refreshSession(): Promise<AuthResponse> {
+  refreshPromise ??= api
+    .post<AuthResponse>('/api/auth/refresh')
+    .then(({ data }) => {
+      accessToken = data.accessToken;
+      return data;
+    })
+    .finally(() => {
+      refreshPromise = null;
+    });
+  return refreshPromise;
 }
 
 api.interceptors.response.use(
@@ -50,10 +62,7 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && original && !original._retry && !isAuthPath) {
       original._retry = true;
       try {
-        refreshPromise ??= refreshAccessToken().finally(() => {
-          refreshPromise = null;
-        });
-        const token = await refreshPromise;
+        const token = (await refreshSession()).accessToken;
         if (token) {
           original.headers.Authorization = `Bearer ${token}`;
           return api(original);

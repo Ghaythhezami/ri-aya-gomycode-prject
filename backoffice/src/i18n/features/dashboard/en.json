@@ -1,0 +1,45 @@
+{
+  "errorTitle": "The dashboard could not be loaded",
+  "kpis": {
+    "label": "Key figures for today",
+    "today": "Today's appointments",
+    "waiting": "Patients waiting",
+    "doctors": "Available doctors",
+    "avgWait": "Average waiting time",
+    "min": "min",
+    "vsYesterday": "{{pct}}% vs. yesterday",
+    "overTarget": "{{count}} over target",
+    "withinTarget": "All within target",
+    "utilisation": "{{pct}}% utilization",
+    "vsLastWeek": "{{pct}}% vs. last week"
+  },
+  "schedule": {
+    "title": "Today's schedule",
+    "now": "Now",
+    "emptyTitle": "No appointments today",
+    "emptyBody": "Appointments booked for today appear here as a timeline."
+  },
+  "activity": {
+    "title": "Clinic activity",
+    "empty": "No activity yet today.",
+    "CHECK_IN": { "title": "Recent check-ins", "body": "Patients checked in: {{count}}" },
+    "CANCELLATION": { "title": "Cancellations", "body": "Appointments cancelled: {{count}}" },
+    "NEW_PATIENT": { "title": "New patients", "body": "New registrations: {{count}}" },
+    "REMINDER": { "title": "Reminders", "body": "Upcoming reminders: {{count}}" }
+  },
+  "insight": {
+    "title": "Smart insight",
+    "optimize": "Moving appointments could reduce waiting time by {{minutes}} minutes.",
+    "review": "Review"
+  },
+  "charts": {
+    "weekly": "Weekly appointment volume",
+    "thisWeek": "This week",
+    "appointments": "Appointments",
+    "status": "Appointment status",
+    "total": "Total",
+    "utilisation": "Doctor utilization",
+    "waitTrend": "Waiting time trend",
+    "empty": "No data for this period."
+  }
+}

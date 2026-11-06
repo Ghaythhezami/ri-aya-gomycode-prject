@@ -1,0 +1,27 @@
+{
+  "title": "Discussion d'équipe",
+  "open": "Ouvrir la discussion d'équipe, {{count}} non lus",
+  "unreadLive": "{{count}} messages non lus",
+  "new": "Nouveau",
+  "newConversation": "Nouvelle conversation",
+  "loadError": "Impossible de charger les conversations",
+  "empty": {
+    "title": "Aucune conversation pour le moment",
+    "body": "Démarrez une conversation avec un collègue de votre clinique."
+  },
+  "untitled": "Conversation",
+  "you": "Vous",
+  "unreadCount": "{{count}} non lus",
+  "noMessages": "Aucun message pour le moment",
+  "loadEarlier": "Charger les messages précédents",
+  "read": "Lu",
+  "composer": "Écrire un message",
+  "placeholder": "Écrire un message…",
+  "send": "Envoyer le message",
+  "sendError": "Le message n'a pas pu être envoyé. Votre texte est toujours dans la zone de saisie.",
+  "staffError": "Impossible de charger les collègues",
+  "noStaff": "Il n'y a pas encore d'autres membres du personnel avec qui discuter.",
+  "pickStaff": "Choisir des collègues",
+  "groupTitle": "Nom du groupe (facultatif)",
+  "start": "Démarrer la conversation"
+}

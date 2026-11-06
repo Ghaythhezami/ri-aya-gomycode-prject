@@ -1,0 +1,6 @@
+{
+  "label": "Rechercher des patients et des rendez-vous",
+  "empty": "Aucun résultat pour « {{query}} »",
+  "error": "La recherche est indisponible pour le moment. Réessayez.",
+  "groups": { "patient": "Patients", "appointment": "Rendez-vous" }
+}

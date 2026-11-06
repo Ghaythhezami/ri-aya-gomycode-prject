@@ -1,0 +1,35 @@
+{
+  "board": {
+    "nowServing": "Now serving",
+    "waiting": "Waiting",
+    "room": "Room",
+    "nobody": "No one is being served right now.",
+    "noneWaiting": "No one is waiting.",
+    "more": "+{{count}} more",
+    "connectionLost": "Connection lost — retrying. Numbers may be out of date."
+  },
+  "checkIn": {
+    "title": "Self check-in",
+    "intro": "Enter your appointment code and the last 4 digits of your phone number to join the queue.",
+    "code": "Appointment code",
+    "codeHelp": "For example AP-1042. It is in your confirmation message.",
+    "phone": "Last 4 digits of your phone",
+    "phoneHelp": "The phone number you gave the clinic.",
+    "submit": "Check in",
+    "successTitle": "You are checked in",
+    "yourNumber": "Your queue number",
+    "position": "People ahead of you: {{count}}",
+    "watchScreen": "Please watch the waiting-room screen for your number.",
+    "another": "Check in another appointment",
+    "notFound": "We could not find an appointment for today with these details. Check them or ask the reception desk.",
+    "rateLimited": "Too many attempts. Please wait a few minutes or ask the reception desk.",
+    "already": "This appointment is already checked in.",
+    "failed": "Check-in failed. Please try again or ask the reception desk."
+  },
+  "errors": {
+    "codeRequired": "Enter your appointment code.",
+    "codeFormat": "The code looks like AP-1042.",
+    "phoneRequired": "Enter the last 4 digits of your phone.",
+    "phoneFormat": "Enter exactly 4 digits."
+  }
+}

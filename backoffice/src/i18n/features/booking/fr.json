@@ -1,0 +1,120 @@
+{
+  "eyebrow": "Réservation guidée",
+  "title": "Créer un rendez-vous",
+  "stepsLabel": "Étapes de la réservation",
+  "steps": {
+    "patient": "Patient",
+    "doctor": "Médecin",
+    "datetime": "Date et heure",
+    "details": "Détails",
+    "review": "Vérification"
+  },
+  "stepDone": "Terminée :",
+  "stepCurrent": "Étape en cours :",
+  "stepOf": "Étape {{current}} sur {{total}}",
+  "confirm": "Confirmer le rendez-vous",
+  "prevMonth": "Mois précédent",
+  "nextMonth": "Mois suivant",
+  "pickDate": "Choisir une date",
+  "periodLabel": "Moment de la journée",
+  "period": { "MORNING": "Matin", "AFTERNOON": "Après-midi", "EVENING": "Soir" },
+  "noSlots": "Aucun créneau à ce moment de la journée.",
+  "slotsLabel": "Créneaux disponibles",
+  "slotUnavailable": "indisponible (réservé, en pause ou passé)",
+  "slotsError": "Les créneaux disponibles n'ont pas pu être chargés",
+  "errors": {
+    "patient": "Sélectionnez un patient pour continuer.",
+    "doctor": "Sélectionnez un médecin pour continuer.",
+    "date": "Choisissez une date.",
+    "slot": "Choisissez un créneau disponible.",
+    "duration": "Saisissez une durée entre 5 et 240 minutes.",
+    "reasonLength": "Le motif est trop long (500 caractères maximum).",
+    "notesLength": "Les notes sont trop longues (1000 caractères maximum)."
+  },
+  "patient": {
+    "title": "Sélectionner le patient",
+    "new": "Nouveau patient",
+    "newTitle": "Nouveau patient",
+    "searchLabel": "Rechercher des patients",
+    "searchPlaceholder": "Rechercher par nom, numéro ou téléphone…",
+    "searchError": "Les patients n'ont pas pu être chargés.",
+    "noResults": "Aucun patient ne correspond à « {{query}} ». Créez un nouveau patient.",
+    "empty": "Aucun patient pour l'instant. Créez le premier patient.",
+    "listLabel": "Patients",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "dateOfBirth": "Date de naissance",
+    "gender": "Genre",
+    "genderUnset": "Non précisé",
+    "female": "Femme",
+    "male": "Homme",
+    "phone": "Téléphone",
+    "email": "E-mail (facultatif)",
+    "create": "Créer le patient",
+    "duplicateTitle": "Ce patient existe peut-être déjà",
+    "duplicateBody": "Choisissez un patient existant, ou créez tout de même une nouvelle fiche.",
+    "createAnyway": "Créer quand même",
+    "errors": {
+      "firstName": "Saisissez le prénom.",
+      "lastName": "Saisissez le nom.",
+      "dateOfBirth": "Saisissez une date de naissance valide.",
+      "phone": "Saisissez un numéro de téléphone.",
+      "email": "Saisissez une adresse e-mail valide."
+    }
+  },
+  "doctor": {
+    "title": "Sélectionner le médecin",
+    "specialty": "Spécialité",
+    "allSpecialties": "Toutes les spécialités",
+    "error": "Les médecins n'ont pas pu être chargés.",
+    "empty": "Aucun médecin disponible pour cette spécialité.",
+    "listLabel": "Médecins"
+  },
+  "availability": {
+    "AVAILABLE": "Disponible aujourd'hui",
+    "IN_CONSULTATION": "En consultation",
+    "ON_BREAK": "En pause",
+    "ON_LEAVE": "En congé",
+    "OFF_DUTY": "Ne travaille pas aujourd'hui",
+    "INACTIVE": "Inactif"
+  },
+  "datetime": {
+    "title": "Sélectionner la date et l'heure",
+    "with": "Avec {{doctor}} · {{minutes}} min",
+    "pickDateFirst": "Choisissez une date pour voir les créneaux disponibles.",
+    "held": "Ce créneau vous est réservé pendant quelques minutes.",
+    "locked": "Ce créneau est en cours de réservation par quelqu'un d'autre. Choisissez-en un autre."
+  },
+  "details": {
+    "title": "Détails du rendez-vous",
+    "type": "Type de rendez-vous",
+    "duration": "Durée",
+    "reason": "Motif de la visite",
+    "notes": "Notes",
+    "reminders": "Rappels",
+    "channel": { "SMS": "SMS", "EMAIL": "E-mail" }
+  },
+  "review": {
+    "title": "Vérifier et confirmer",
+    "patient": "Patient",
+    "doctor": "Médecin",
+    "when": "Date et heure",
+    "reminders": "Rappels",
+    "noReminders": "Aucun rappel",
+    "reason": "Motif et notes",
+    "privacy": "Seul le personnel autorisé de la clinique peut accéder aux données du patient."
+  },
+  "conflict": {
+    "title": "Ce créneau vient d'être pris",
+    "body": "Choisissez l'un des créneaux disponibles les plus proches pour continuer.",
+    "none": "Aucun créneau proche n'est libre. Revenez en arrière et choisissez un autre horaire.",
+    "sameDoctor": "Même médecin",
+    "sameSpecialty": "Même spécialité"
+  },
+  "success": {
+    "title": "Rendez-vous confirmé",
+    "body": "{{code}} pour {{patient}} avec {{doctor}} le {{when}}.",
+    "view": "Voir le rendez-vous",
+    "another": "Réserver un autre"
+  }
+}

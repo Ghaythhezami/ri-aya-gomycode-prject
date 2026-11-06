@@ -1,0 +1,120 @@
+{
+  "eyebrow": "Patient records",
+  "title": "Patients",
+  "subtitle": "A secure directory for patient administration and visit history.",
+  "privacy": "Confidential data is visible according to your role permissions",
+  "openProfile": "Open profile",
+  "schedule": "Schedule appointment",
+  "add": {
+    "button": "Add patient",
+    "title": "Add patient",
+    "submit": "Create patient"
+  },
+  "search": {
+    "label": "Search patients",
+    "placeholder": "Search by patient name, ID or phone…"
+  },
+  "filters": {
+    "status": "Filter by status",
+    "gender": "Filter by gender",
+    "allGenders": "All genders"
+  },
+  "status": {
+    "ACTIVE": "Active",
+    "ARCHIVED": "Archived"
+  },
+  "gender": {
+    "female": "Female",
+    "male": "Male",
+    "unspecified": "Not specified"
+  },
+  "contact": {
+    "SMS": "SMS",
+    "EMAIL": "Email",
+    "PHONE": "Phone call"
+  },
+  "columns": {
+    "patient": "Patient",
+    "contact": "Contact",
+    "lastVisit": "Last visit",
+    "nextAppointment": "Next appointment",
+    "status": "Status"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "dateOfBirth": "Date of birth",
+    "gender": "Gender",
+    "phone": "Phone",
+    "email": "Email (optional)",
+    "address": "Address (optional)",
+    "contactPreference": "Contact preference",
+    "adminNotes": "Administrative notes"
+  },
+  "errors": {
+    "required": "This field is required.",
+    "dobFuture": "Date of birth cannot be in the future.",
+    "phone": "Enter a valid phone number.",
+    "email": "Enter a valid email address."
+  },
+  "duplicates": {
+    "title": "Possible existing patients: {{count}}",
+    "use": "Use this patient",
+    "createAnyway": "Create anyway"
+  },
+  "preview": {
+    "label": "Patient preview",
+    "emptyTitle": "Select a patient",
+    "emptyBody": "Review administrative details and appointment history.",
+    "upcoming": "Upcoming appointment",
+    "noUpcoming": "No upcoming appointment"
+  },
+  "empty": {
+    "title": "No patients yet",
+    "body": "Patients you register will appear here, with their visits and appointments."
+  },
+  "noResults": {
+    "title": "No matching patients",
+    "query": "Nothing found for “{{query}}”.",
+    "filters": "No patients match the selected filters.",
+    "reset": "Reset filters"
+  },
+  "error": {
+    "title": "Could not load patients",
+    "body": "Check your connection and try again."
+  },
+  "pagination": {
+    "label": "Pagination",
+    "status": "Page {{page}} of {{pages}} · {{total}} patients",
+    "previous": "Previous page",
+    "next": "Next page"
+  },
+  "toast": {
+    "created": "Patient created.",
+    "saved": "Changes saved.",
+    "archived": "Patient archived."
+  },
+  "profile": {
+    "backToList": "Back to patients",
+    "notFound": "Patient not found",
+    "age": "Age: {{count}}",
+    "edit": "Edit",
+    "archive": "Archive",
+    "archiveTitle": "Archive this patient?",
+    "archiveBody": "{{name}} will be hidden from the active patient list. Their history is kept and the record can still be opened.",
+    "archivedBanner": "This patient is archived. Appointments cannot be scheduled.",
+    "tabs": "Patient sections",
+    "personal": "Personal information",
+    "upcoming": "Upcoming appointments",
+    "past": "Past visits",
+    "notes": "Notes",
+    "contactPreferences": "Contact preferences",
+    "noUpcoming": "No upcoming appointments.",
+    "noPast": "No past visits.",
+    "editForm": "Edit patient details",
+    "unsaved": "Unsaved changes",
+    "clinicalNotes": "Clinical notes",
+    "clinicalNotesHint": "Visible to doctors and administrators only.",
+    "registered": "Registered on {{date}}"
+  }
+}

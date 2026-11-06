@@ -53,6 +53,8 @@
     "calendar": "Calendar",
     "patients": "Patients",
     "staff": "Doctors & Staff",
+    "doctors": "Doctors & Staff",
+    "scheduling": "Smart Scheduling",
     "waiting": "Waiting List",
     "analytics": "Analytics & Reports",
     "notifications": "Notifications",

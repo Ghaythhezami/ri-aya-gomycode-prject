@@ -1,0 +1,35 @@
+{
+  "board": {
+    "nowServing": "En cours de service",
+    "waiting": "En attente",
+    "room": "Salle",
+    "nobody": "Personne n'est reçu pour le moment.",
+    "noneWaiting": "Personne n'attend.",
+    "more": "+{{count}} autres",
+    "connectionLost": "Connexion perdue — nouvelle tentative. Les numéros peuvent être obsolètes."
+  },
+  "checkIn": {
+    "title": "Auto-enregistrement",
+    "intro": "Saisissez votre code de rendez-vous et les 4 derniers chiffres de votre téléphone pour rejoindre la file.",
+    "code": "Code de rendez-vous",
+    "codeHelp": "Par exemple AP-1042. Il figure dans votre message de confirmation.",
+    "phone": "4 derniers chiffres de votre téléphone",
+    "phoneHelp": "Le numéro que vous avez communiqué à la clinique.",
+    "submit": "S'enregistrer",
+    "successTitle": "Votre arrivée est enregistrée",
+    "yourNumber": "Votre numéro d'attente",
+    "position": "Personnes devant vous : {{count}}",
+    "watchScreen": "Surveillez l'écran de la salle d'attente pour voir votre numéro.",
+    "another": "Enregistrer un autre rendez-vous",
+    "notFound": "Nous n'avons trouvé aucun rendez-vous aujourd'hui avec ces informations. Vérifiez-les ou adressez-vous à l'accueil.",
+    "rateLimited": "Trop de tentatives. Patientez quelques minutes ou adressez-vous à l'accueil.",
+    "already": "L'arrivée pour ce rendez-vous est déjà enregistrée.",
+    "failed": "L'enregistrement a échoué. Réessayez ou adressez-vous à l'accueil."
+  },
+  "errors": {
+    "codeRequired": "Saisissez votre code de rendez-vous.",
+    "codeFormat": "Le code ressemble à AP-1042.",
+    "phoneRequired": "Saisissez les 4 derniers chiffres de votre téléphone.",
+    "phoneFormat": "Saisissez exactement 4 chiffres."
+  }
+}

@@ -1,0 +1,71 @@
+{
+  "eyebrow": "Intelligence opérationnelle",
+  "title": "Analyses et rapports",
+  "subtitle": "Comprenez les performances, la demande et le flux de patients de votre clinique.",
+  "exportCsv": "Exporter en CSV",
+  "exportPdf": "Exporter en PDF",
+  "exported": "Export téléchargé.",
+  "exportError": "L'export n'a pas pu être créé. Veuillez réessayer.",
+  "filters": "Filtres du rapport",
+  "range": "Période",
+  "from": "Du",
+  "to": "Au",
+  "scope": "Périmètre",
+  "presets": {
+    "last7": "7 derniers jours",
+    "last30": "30 derniers jours",
+    "last90": "90 derniers jours",
+    "month": "Ce mois-ci",
+    "custom": "Période personnalisée"
+  },
+  "scopes": {
+    "clinic": "Clinique",
+    "organization": "Organisation"
+  },
+  "compared": "Comparé à la période précédente",
+  "updated": "Données mises à jour à {{time}}",
+  "invalidRange": "Choisissez une période valide : la date de début doit précéder la date de fin, et la période ne peut pas dépasser un an.",
+  "loadError": "Impossible de charger les analyses",
+  "noData": "Aucune donnée pour cette période.",
+  "summary": "{{title}} : {{count}} points de données, le plus élevé est {{label}} avec {{value}}.",
+  "viewAsTable": "Afficher en tableau",
+  "viewAsChart": "Afficher en graphique",
+  "date": "Date",
+  "appointments": "Rendez-vous",
+  "minutes": "Attente (min)",
+  "specialty": "Spécialité",
+  "status": "Statut",
+  "doctor": "Médecin",
+  "utilisation": "Occupation (%)",
+  "hour": "Heure",
+  "total": "Total",
+  "perDay": "{{value}}/jour",
+  "kpi": {
+    "volume": "Volume de rendez-vous",
+    "noShow": "Taux d'absence",
+    "wait": "Attente moyenne",
+    "throughput": "Patients traités",
+    "cancellation": "Taux d'annulation",
+    "duration": "Durée moyenne"
+  },
+  "change": {
+    "percent": "{{value}} % par rapport à la période précédente",
+    "points": "{{value}} pts par rapport à la période précédente",
+    "faster": "{{value}} min plus rapide",
+    "slower": "{{value}} min plus lent",
+    "same": "Aucun changement par rapport à la période précédente"
+  },
+  "charts": {
+    "volume": "Volume de rendez-vous par jour",
+    "wait": "Temps d'attente moyen des patients",
+    "specialty": "Rendez-vous par spécialité",
+    "status": "Répartition des statuts",
+    "utilisation": "Occupation des médecins",
+    "peak": "Heures de réservation de pointe"
+  },
+  "empty": {
+    "title": "Aucune activité sur cette période",
+    "body": "Aucun rendez-vous entre le {{from}} et le {{to}}. Essayez une période plus longue.",
+    "action": "Afficher les 90 derniers jours"
+  }
+}

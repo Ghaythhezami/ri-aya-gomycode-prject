@@ -1,0 +1,120 @@
+{
+  "eyebrow": "Dossiers patients",
+  "title": "Patients",
+  "subtitle": "Un annuaire sécurisé pour l'administration des patients et l'historique des visites.",
+  "privacy": "Les données confidentielles sont visibles selon les autorisations de votre rôle",
+  "openProfile": "Ouvrir le profil",
+  "schedule": "Planifier un rendez-vous",
+  "add": {
+    "button": "Ajouter un patient",
+    "title": "Ajouter un patient",
+    "submit": "Créer le patient"
+  },
+  "search": {
+    "label": "Rechercher des patients",
+    "placeholder": "Rechercher par nom, identifiant ou téléphone…"
+  },
+  "filters": {
+    "status": "Filtrer par statut",
+    "gender": "Filtrer par genre",
+    "allGenders": "Tous les genres"
+  },
+  "status": {
+    "ACTIVE": "Actif",
+    "ARCHIVED": "Archivé"
+  },
+  "gender": {
+    "female": "Femme",
+    "male": "Homme",
+    "unspecified": "Non précisé"
+  },
+  "contact": {
+    "SMS": "SMS",
+    "EMAIL": "E-mail",
+    "PHONE": "Appel téléphonique"
+  },
+  "columns": {
+    "patient": "Patient",
+    "contact": "Contact",
+    "lastVisit": "Dernière visite",
+    "nextAppointment": "Prochain rendez-vous",
+    "status": "Statut"
+  },
+  "fields": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "dateOfBirth": "Date de naissance",
+    "gender": "Genre",
+    "phone": "Téléphone",
+    "email": "E-mail (facultatif)",
+    "address": "Adresse (facultatif)",
+    "contactPreference": "Préférence de contact",
+    "adminNotes": "Notes administratives"
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "dobFuture": "La date de naissance ne peut pas être dans le futur.",
+    "phone": "Saisissez un numéro de téléphone valide.",
+    "email": "Saisissez une adresse e-mail valide."
+  },
+  "duplicates": {
+    "title": "Patients existants possibles : {{count}}",
+    "use": "Utiliser ce patient",
+    "createAnyway": "Créer quand même"
+  },
+  "preview": {
+    "label": "Aperçu du patient",
+    "emptyTitle": "Sélectionnez un patient",
+    "emptyBody": "Consultez les informations administratives et l'historique des rendez-vous.",
+    "upcoming": "Prochain rendez-vous",
+    "noUpcoming": "Aucun rendez-vous à venir"
+  },
+  "empty": {
+    "title": "Aucun patient pour le moment",
+    "body": "Les patients que vous enregistrez apparaîtront ici, avec leurs visites et rendez-vous."
+  },
+  "noResults": {
+    "title": "Aucun patient correspondant",
+    "query": "Aucun résultat pour « {{query}} ».",
+    "filters": "Aucun patient ne correspond aux filtres sélectionnés.",
+    "reset": "Réinitialiser les filtres"
+  },
+  "error": {
+    "title": "Impossible de charger les patients",
+    "body": "Vérifiez votre connexion et réessayez."
+  },
+  "pagination": {
+    "label": "Pagination",
+    "status": "Page {{page}} sur {{pages}} · {{total}} patients",
+    "previous": "Page précédente",
+    "next": "Page suivante"
+  },
+  "toast": {
+    "created": "Patient créé.",
+    "saved": "Modifications enregistrées.",
+    "archived": "Patient archivé."
+  },
+  "profile": {
+    "backToList": "Retour aux patients",
+    "notFound": "Patient introuvable",
+    "age": "Âge : {{count}}",
+    "edit": "Modifier",
+    "archive": "Archiver",
+    "archiveTitle": "Archiver ce patient ?",
+    "archiveBody": "{{name}} sera masqué de la liste des patients actifs. Son historique est conservé et le dossier reste consultable.",
+    "archivedBanner": "Ce patient est archivé. Aucun rendez-vous ne peut être planifié.",
+    "tabs": "Sections du patient",
+    "personal": "Informations personnelles",
+    "upcoming": "Rendez-vous à venir",
+    "past": "Visites passées",
+    "notes": "Notes",
+    "contactPreferences": "Préférences de contact",
+    "noUpcoming": "Aucun rendez-vous à venir.",
+    "noPast": "Aucune visite passée.",
+    "editForm": "Modifier les informations du patient",
+    "unsaved": "Modifications non enregistrées",
+    "clinicalNotes": "Notes cliniques",
+    "clinicalNotesHint": "Visibles uniquement par les médecins et les administrateurs.",
+    "registered": "Enregistré le {{date}}"
+  }
+}

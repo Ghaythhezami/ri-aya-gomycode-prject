@@ -1,0 +1,88 @@
+{
+  "eyebrow": "Live clinic flow",
+  "title": "Waiting List",
+  "subtitle": "Monitor patient flow and keep every visit moving.",
+  "liveTitle": "Live patient queue",
+  "updatedNow": "Updated just now",
+  "updatedAgo": "Updated {{seconds}} s ago",
+  "updatedFailed": "Update failed, showing last data",
+  "overTarget": "Over target",
+  "paused": "Live updates paused — reconnecting",
+  "status": {
+    "WAITING": "Waiting",
+    "CALLED": "Called",
+    "IN_CONSULTATION": "In consultation",
+    "COMPLETED": "Completed",
+    "NO_SHOW": "No-show",
+    "RESCHEDULED": "Rescheduled"
+  },
+  "columns": {
+    "appointment": "Appointment",
+    "checkedIn": "Checked in",
+    "waiting": "Waiting"
+  },
+  "actions": {
+    "start": "Start consultation",
+    "complete": "Complete",
+    "notifyDelay": "Notify delay",
+    "noShow": "Mark no-show",
+    "setPriority": "Set priority: {{priority}}",
+    "more": "More actions for {{number}}"
+  },
+  "callNext": {
+    "button": "Call next patient",
+    "nowCalling": "Now calling",
+    "called": "Now calling {{number}} to {{room}}",
+    "calledNoRoom": "Now calling {{number}}",
+    "empty": "No patients are waiting."
+  },
+  "summary": {
+    "waiting": "Currently waiting",
+    "inConsultation": "In consultation: {{count}}",
+    "average": "Average waiting time",
+    "target": "Target: under {{count}} min",
+    "longest": "Longest waiting",
+    "queueNumber": "Queue #{{number}}",
+    "checkedIn": "Checked in today",
+    "completed": "Completed: {{count}}"
+  },
+  "checkIn": {
+    "button": "Check in patient",
+    "title": "Check in patient",
+    "search": "Search by patient name or code",
+    "priority": "Priority",
+    "action": "Check in",
+    "none": "No expected appointments left to check in today.",
+    "noMatch": "No expected appointment matches “{{query}}”."
+  },
+  "delay": {
+    "title": "Notify delay for {{number}}",
+    "minutes": "Delay (minutes)",
+    "help": "The patient is notified of the expected delay.",
+    "send": "Send notification",
+    "sent": "Delay notification sent."
+  },
+  "toast": {
+    "started": "Consultation started.",
+    "completed": "Consultation completed.",
+    "noShow": "Marked as no-show.",
+    "priority": "Priority updated.",
+    "checkedIn": "Patient checked in."
+  },
+  "empty": {
+    "title": "Nobody in the queue",
+    "body": "Patients appear here as soon as they check in."
+  },
+  "error": {
+    "title": "Could not load the queue",
+    "body": "Check your connection and try again.",
+    "stale": "Could not refresh. Showing the last data."
+  },
+  "self": {
+    "title": "Self check-in",
+    "body": "Patients scan this code with their phone to check in with their appointment code.",
+    "qrLabel": "QR code for patient self check-in",
+    "openDisplay": "Open public display",
+    "newTab": "(opens in a new tab)"
+  }
+}

@@ -53,6 +53,16 @@ vi.mock('../../src/auth/WorkspaceContext', () => ({
   }),
 }));
 
+vi.mock('../../src/features/notifications/useUnreadCount', () => ({ useUnreadCount: () => 0 }));
+vi.mock('../../src/features/notifications/NotificationBell', () => ({
+  NotificationBell: () => null,
+}));
+vi.mock('../../src/features/chat/ChatLauncher', () => ({ ChatLauncher: () => null }));
+vi.mock('../../src/features/booking/BookingWizard', () => ({ BookingWizard: () => null }));
+vi.mock('../../src/features/search/GlobalSearch', () => ({
+  GlobalSearch: () => <input role="combobox" aria-label="Search patients and appointments" />,
+}));
+
 import i18n from '../../src/i18n';
 import { AppShell } from '../../src/layouts/AppShell';
 
@@ -136,8 +146,6 @@ describe('Shell accessibility and localisation', () => {
 
     const controls: Array<[HTMLElement, RegExp]> = [
       [screen.getByRole('button', { name: /open menu/i }), /size-11/],
-      [screen.getByRole('button', { name: 'Notifications' }), /size-10/],
-      [screen.getByRole('button', { name: 'Chat' }), /size-10/],
       [screen.getByRole('button', { name: /collapse sidebar/i }), /min-h-10/],
       [screen.getByRole('button', { name: /user menu/i }), /min-h-10/],
     ];

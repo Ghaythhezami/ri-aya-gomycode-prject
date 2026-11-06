@@ -1,0 +1,183 @@
+{
+  "eyebrow": "Administration",
+  "title": "Paramètres",
+  "subtitle": "Configurez votre clinique, vos règles de fonctionnement et les autorisations de l'équipe.",
+  "draft": "Brouillon",
+  "unsaved": "Modifications non enregistrées",
+  "saving": "Enregistrement…",
+  "saved": "Paramètres enregistrés.",
+  "loadError": "Impossible de charger les paramètres",
+  "leaveConfirm": "Vous avez des modifications non enregistrées dans les paramètres. Quitter sans enregistrer ?",
+  "sections": {
+    "clinic": "Informations de la clinique",
+    "departments": "Départements",
+    "hours": "Horaires de travail",
+    "appointments": "Rendez-vous",
+    "reminders": "Rappels",
+    "roles": "Rôles et autorisations",
+    "audit": "Journal d'audit",
+    "appearance": "Apparence",
+    "team": "Équipe et invitations"
+  },
+  "languages": {
+    "en": "English",
+    "ar": "العربية",
+    "fr": "Français"
+  },
+  "errors": {
+    "required": "Ce champ est obligatoire.",
+    "tooLong": "Cette valeur est trop longue.",
+    "email": "Saisissez une adresse e-mail valide.",
+    "phone": "Saisissez un numéro de téléphone valide, par exemple +971 4 000 0000.",
+    "timezone": "Choisissez un fuseau horaire valide.",
+    "number": "Saisissez un nombre.",
+    "min0": "La valeur ne peut pas être négative.",
+    "min1": "La valeur doit être d'au moins 1.",
+    "min5": "La valeur doit être d'au moins 5 minutes.",
+    "max72": "La valeur ne peut pas dépasser 72 heures.",
+    "max240": "La valeur ne peut pas dépasser 240 minutes.",
+    "slot": "Choisissez l'une des tailles de créneau disponibles.",
+    "tooMany": "Il y a trop d'éléments.",
+    "duplicate": "Ce nom est déjà utilisé par un autre département.",
+    "closeAfterOpen": "L'heure de fermeture doit être postérieure à l'heure d'ouverture.",
+    "offsetMin": "Un rappel doit précéder le rendez-vous d'au moins 15 minutes (0,25 heure).",
+    "offsetMax": "Un rappel peut précéder le rendez-vous de 7 jours (168 heures) au maximum.",
+    "duplicateOffset": "Chaque horaire de rappel doit être différent."
+  },
+  "clinic": {
+    "title": "Informations de la clinique",
+    "subtitle": "Mettre à jour la configuration de {{name}}.",
+    "name": "Nom de la clinique",
+    "code": "Identifiant de la clinique",
+    "codeHelp": "Attribué par RI'AYA et non modifiable.",
+    "address": "Adresse",
+    "email": "E-mail de contact",
+    "phone": "Numéro de téléphone",
+    "language": "Langue par défaut",
+    "timezone": "Fuseau horaire",
+    "timezoneSearch": "Rechercher un fuseau horaire…"
+  },
+  "departments": {
+    "title": "Départements",
+    "subtitle": "Regroupez les spécialités en départements.",
+    "empty": "Aucun département pour le moment. Ajoutez le premier pour organiser vos spécialités.",
+    "name": "Nom du département",
+    "specialties": "Spécialités",
+    "noSpecialties": "Aucune spécialité disponible pour le moment. Ajoutez d'abord des médecins avec leur spécialité.",
+    "add": "Ajouter un département",
+    "remove": "Supprimer",
+    "removeTitle": "Supprimer le département {{name}} ?",
+    "removeBody": "Le département est retiré de la liste à l'enregistrement. Les médecins et les rendez-vous ne sont pas affectés.",
+    "removeConfirm": "Supprimer le département"
+  },
+  "hours": {
+    "title": "Horaires de travail",
+    "subtitle": "Horaires d'ouverture de la clinique pour chaque jour de la semaine.",
+    "closed": "Fermé",
+    "opens": "{{day}} : heure d'ouverture",
+    "closes": "{{day}} : heure de fermeture"
+  },
+  "appointments": {
+    "title": "Rendez-vous",
+    "subtitle": "Durées, taille des créneaux et politique d'annulation.",
+    "durations": "Durée par défaut selon le type de rendez-vous",
+    "minutesUnit": "min",
+    "slot": "Taille des créneaux",
+    "slotHelp": "La grille de réservation s'aligne sur cette taille.",
+    "notice": "Délai d'annulation (heures)",
+    "noticeHelp": "Les réceptionnistes ne peuvent pas annuler moins de ce délai avant la visite.",
+    "targetWait": "Temps d'attente cible (min)",
+    "targetWaitHelp": "Les patients qui attendent plus longtemps sont mis en évidence.",
+    "requireReason": "Exiger un motif d'annulation",
+    "requireReasonHelp": "Le personnel doit saisir un motif lors de l'annulation d'un rendez-vous."
+  },
+  "reminders": {
+    "title": "Rappels",
+    "subtitle": "Quand les rappels sont envoyés et par quels canaux.",
+    "offsets": "Horaires des rappels",
+    "offsetsHelp": "Nombre d'heures avant le rendez-vous. Jusqu'à {{max}} rappels.",
+    "none": "Aucun rappel ne sera envoyé.",
+    "hoursBefore": "Rappel {{n}} : heures avant",
+    "remove": "Supprimer le rappel {{n}}",
+    "add": "Ajouter un rappel",
+    "channels": "Canaux",
+    "sms": "SMS",
+    "email": "E-mail",
+    "inApp": "Dans l'application",
+    "inAppHelp": "Les notifications dans l'application sont toujours actives. Les SMS et e-mails ne sont marqués comme envoyés qu'après confirmation du prestataire."
+  },
+  "roles": {
+    "title": "Rôles et autorisations",
+    "subtitle": "Ce à quoi chaque rôle a accès dans cette clinique.",
+    "role": "Rôle",
+    "access": "Niveau d'accès",
+    "users": "Utilisateurs",
+    "loadError": "Impossible de charger les rôles",
+    "empty": "Aucun rôle à afficher.",
+    "names": {
+      "SUPER_ADMIN": "Super administrateur",
+      "CLINIC_ADMIN": "Administrateur de clinique",
+      "DOCTOR": "Médecin",
+      "RECEPTIONIST": "Réceptionniste"
+    },
+    "levels": {
+      "FULL": "Accès complet",
+      "OPERATIONS": "Opérations",
+      "CLINICAL": "Clinique",
+      "FRONT_DESK": "Accueil"
+    },
+    "levelHelp": {
+      "FULL": "Tout, y compris les données de l'organisation.",
+      "OPERATIONS": "Gérer la clinique, le personnel, les paramètres et les plannings.",
+      "CLINICAL": "Ses patients, son planning et ses notes cliniques.",
+      "FRONT_DESK": "Réservations, enregistrement et liste d'attente."
+    }
+  },
+  "team": {
+    "title": "Équipe et invitations",
+    "subtitle": "Invitez des collègues et consultez les invitations en attente."
+  },
+  "audit": {
+    "title": "Journal d'audit",
+    "subtitle": "Un historique en lecture seule de qui a modifié quoi. Les entrées ne peuvent être ni modifiées ni supprimées.",
+    "entity": "Entité",
+    "entityPlaceholder": "p. ex. Appointment",
+    "actor": "Modifié par",
+    "anyone": "Tout le monde",
+    "from": "Du",
+    "to": "Au",
+    "invalidRange": "La date de début doit précéder la date de fin.",
+    "loadError": "Impossible de charger le journal d'audit",
+    "empty": "Aucune entrée d'audit pour le moment",
+    "emptyBody": "Les modifications des rendez-vous, patients et paramètres seront enregistrées ici.",
+    "noResults": "Aucune entrée ne correspond à ces filtres",
+    "noResultsBody": "Essayez une autre entité, une autre personne ou une autre période.",
+    "reset": "Réinitialiser les filtres",
+    "system": "Système",
+    "details": "Détails",
+    "hide": "Masquer",
+    "changes": "Champs modifiés",
+    "noChanges": "Aucune modification au niveau des champs n'a été enregistrée.",
+    "field": "Champ",
+    "before": "Avant",
+    "after": "Après",
+    "actions": {
+      "create": "Création",
+      "update": "Modification",
+      "delete": "Suppression"
+    }
+  },
+  "appearance": {
+    "title": "Apparence",
+    "subtitle": "Préférences d'affichage. Les changements sont prévisualisés immédiatement et s'appliquent à cette clinique après l'enregistrement.",
+    "density": "Densité",
+    "comfortable": "Confortable",
+    "comfortableHelp": "Plus d'espace entre les éléments.",
+    "compact": "Compacte",
+    "compactHelp": "Texte et espacements réduits pour afficher plus d'éléments.",
+    "contrast": "Contraste élevé",
+    "contrastHelp": "Bordures plus marquées et texte secondaire plus foncé.",
+    "motion": "Réduire les animations",
+    "motionHelp": "Désactiver les animations et les transitions."
+  }
+}

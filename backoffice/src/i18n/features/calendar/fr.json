@@ -1,0 +1,17 @@
+{
+  "eyebrow": "Vue d'ensemble du planning",
+  "title": "Calendrier",
+  "subtitle": "Consultez rendez-vous, disponibilités, pauses et conflits au même endroit.",
+  "prev": "Précédent",
+  "next": "Suivant",
+  "doctor": "Filtrer par médecin",
+  "list": "Vue liste",
+  "viewLabel": "Affichage du calendrier",
+  "views": { "day": "Jour", "week": "Semaine", "month": "Mois" },
+  "errorTitle": "Le calendrier n'a pas pu être chargé",
+  "gridHint": "Sélectionnez un créneau libre pour réserver, ou un rendez-vous pour l'ouvrir.",
+  "appointmentsCount": "{{count}} rendez-vous",
+  "more": "+{{count}} autres",
+  "emptyDay": "Aucun rendez-vous ce jour-là.",
+  "emptyRange": "Aucun rendez-vous sur cette période. Sélectionnez un créneau dans la grille pour en réserver un."
+}

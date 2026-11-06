@@ -1,0 +1,45 @@
+{
+  "errorTitle": "Le tableau de bord n'a pas pu être chargé",
+  "kpis": {
+    "label": "Chiffres clés du jour",
+    "today": "Rendez-vous du jour",
+    "waiting": "Patients en attente",
+    "doctors": "Médecins disponibles",
+    "avgWait": "Temps d'attente moyen",
+    "min": "min",
+    "vsYesterday": "{{pct}} % par rapport à hier",
+    "overTarget": "{{count}} au-dessus de l'objectif",
+    "withinTarget": "Tous dans l'objectif",
+    "utilisation": "{{pct}} % d'utilisation",
+    "vsLastWeek": "{{pct}} % par rapport à la semaine dernière"
+  },
+  "schedule": {
+    "title": "Planning du jour",
+    "now": "Maintenant",
+    "emptyTitle": "Aucun rendez-vous aujourd'hui",
+    "emptyBody": "Les rendez-vous du jour apparaissent ici sous forme de chronologie."
+  },
+  "activity": {
+    "title": "Activité de la clinique",
+    "empty": "Aucune activité pour le moment aujourd'hui.",
+    "CHECK_IN": { "title": "Arrivées récentes", "body": "Patients enregistrés : {{count}}" },
+    "CANCELLATION": { "title": "Annulations", "body": "Rendez-vous annulés : {{count}}" },
+    "NEW_PATIENT": { "title": "Nouveaux patients", "body": "Nouvelles inscriptions : {{count}}" },
+    "REMINDER": { "title": "Rappels", "body": "Rappels à venir : {{count}}" }
+  },
+  "insight": {
+    "title": "Suggestion intelligente",
+    "optimize": "Déplacer des rendez-vous pourrait réduire l'attente de {{minutes}} minutes.",
+    "review": "Examiner"
+  },
+  "charts": {
+    "weekly": "Volume hebdomadaire de rendez-vous",
+    "thisWeek": "Cette semaine",
+    "appointments": "Rendez-vous",
+    "status": "Statut des rendez-vous",
+    "total": "Total",
+    "utilisation": "Utilisation des médecins",
+    "waitTrend": "Évolution du temps d'attente",
+    "empty": "Aucune donnée pour cette période."
+  }
+}
