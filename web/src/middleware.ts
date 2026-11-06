@@ -4,5 +4,6 @@ import { routing } from './i18n/routing';
 export default createMiddleware(routing);
 
 export const config = {
-  matcher: ['/', '/(ar|en|fr)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)'],
+  // `app` is the backoffice SPA (public/app) and `api` the proxied API: never localise them.
+  matcher: ['/', '/(ar|en|fr)/:path*', '/((?!api|app(?:/|$)|_next|_vercel|.*\\..*).*)'],
 };

@@ -62,7 +62,12 @@
     "body": "RI'AYA met en avant les quelques indicateurs utiles. Les chiffres ci-dessous sont des données d'exemple.",
     "chartTitle": "Temps d'attente moyen",
     "delta": "↓ 18 % ce mois-ci",
-    "sample": "Données d'exemple"
+    "sample": "Données d'exemple",
+    "onTime": "Démarrages à l’heure",
+    "throughput": "Patients reçus",
+    "privacyTitle": "Conçu pour la confidentialité",
+    "privacyBody": "Accès par rôle, journal d’audit visible et exposition minimale des données patients.",
+    "privacyCta": "Voir les contrôles de sécurité"
   },
   "footer": {
     "blurb": "Des opérations cliniques conçues pour rester discrètes.",

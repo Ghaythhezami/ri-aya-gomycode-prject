@@ -62,7 +62,12 @@
     "body": "RI'AYA surfaces the few numbers that matter on a clinic day. Figures below are sample data for illustration.",
     "chartTitle": "Average waiting time",
     "delta": "↓ 18% this month",
-    "sample": "Sample data"
+    "sample": "Sample data",
+    "onTime": "On-time starts",
+    "throughput": "Patient throughput",
+    "privacyTitle": "Designed with privacy in mind",
+    "privacyBody": "Role-based access, audit visibility, and minimal exposure of patient information.",
+    "privacyCta": "View security controls"
   },
   "footer": {
     "blurb": "Clinic operations, designed to stay out of the way.",

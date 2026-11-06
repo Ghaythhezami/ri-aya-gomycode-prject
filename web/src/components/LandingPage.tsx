@@ -114,7 +114,7 @@ export function LandingPage() {
                   <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
                   <p className="mt-2 text-sm leading-6 text-muted">{item.body}</p>
                   <a
-                    href={`${workspace}/ui`}
+                    href={workspace}
                     className="mt-4 inline-flex min-h-10 items-center gap-1 text-sm font-medium text-primary"
                   >
                     {features('learn')}
@@ -147,7 +147,7 @@ export function LandingPage() {
               </div>
               <p className="text-3xl font-semibold text-navy">12 min</p>
               <p className="mt-1 text-xs font-medium text-primary">{dark('delta')}</p>
-              <div className="mt-5 flex h-40 items-end gap-3">
+              <div className="mt-5 flex h-40 items-end gap-3" aria-hidden="true">
                 {bars.map((value, index) => (
                   <div
                     key={index}
@@ -155,6 +155,34 @@ export function LandingPage() {
                     style={{ height: `${value}%` }}
                   />
                 ))}
+              </div>
+              <dl className="mt-5 grid grid-cols-2 gap-3">
+                <div className="rounded-[12px] bg-accent/60 p-3">
+                  <dt className="text-xs text-muted">{dark('onTime')}</dt>
+                  <dd className="mt-1 text-xl font-semibold text-navy">94%</dd>
+                </div>
+                <div className="rounded-[12px] bg-accent/60 p-3">
+                  <dt className="text-xs text-muted">{dark('throughput')}</dt>
+                  <dd className="mt-1 text-xl font-semibold text-navy">+18%</dd>
+                </div>
+              </dl>
+            </div>
+            <div className="rounded-[16px] border border-white/15 bg-white/5 p-5 lg:col-span-2">
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <Shield className="mt-0.5 shrink-0" size={20} />
+                  <div>
+                    <p className="font-semibold">{dark('privacyTitle')}</p>
+                    <p className="mt-1 text-sm text-white/70">{dark('privacyBody')}</p>
+                  </div>
+                </div>
+                <a
+                  href={workspace}
+                  className="inline-flex min-h-11 items-center gap-2 rounded-[12px] border border-white/30 px-4 text-sm font-medium text-white"
+                >
+                  {dark('privacyCta')}
+                  <ArrowRight className="rtl-flip" size={16} />
+                </a>
               </div>
             </div>
           </div>
