@@ -108,7 +108,9 @@ export class DepartmentDto {
   name!: string;
 
   @IsArray()
+  @ArrayMaxSize(50)
   @IsString({ each: true })
+  @MaxLength(100, { each: true })
   specialties!: string[];
 }
 
@@ -134,6 +136,7 @@ export class UpdateSettingsDto {
 
   @IsOptional()
   @IsEmail()
+  @MaxLength(254)
   contactEmail?: string | null;
 
   @IsOptional()
@@ -227,6 +230,7 @@ export class AuditQueryDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(200)
   cursor?: string;
 
   @IsOptional()

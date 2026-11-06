@@ -30,6 +30,7 @@ export class CreateAppointmentDto {
   @IsOptional()
   @IsArray()
   @ArrayUnique()
+  @ArrayMaxSize(2)
   @IsIn(['SMS', 'EMAIL'], { each: true })
   reminderChannels?: ('SMS' | 'EMAIL')[];
   @IsOptional() @IsString() @MaxLength(200) lockToken?: string;
@@ -60,6 +61,7 @@ export class BulkActionDto {
   @ArrayUnique()
   @ArrayMaxSize(100)
   @IsString({ each: true })
+  @MaxLength(64, { each: true })
   ids!: string[];
   @IsIn(['CONFIRM', 'CANCEL']) action!: 'CONFIRM' | 'CANCEL';
   @IsOptional() @IsString() @MaxLength(500) reason?: string;

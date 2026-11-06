@@ -166,6 +166,7 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([actorUserId])
   @@index([clinicId, createdAt])
+  @@index([clinicId, entity, createdAt])
   @@map("audit_logs")
 }
 
@@ -401,6 +402,8 @@ model Appointment {
   @@index([patientId])
   @@index([clinicId, startsAt])
   @@index([clinicId, status])
+  @@index([clinicId, patientId, startsAt])
+  @@index([clinicId, status, startsAt])
   @@map("appointments")
 }
 
@@ -431,6 +434,7 @@ model QueueEntry {
 
   @@index([clinicId, status])
   @@index([clinicId, checkedInAt])
+  @@index([clinicId, status, checkedInAt])
   @@map("queue_entries")
 }
 
@@ -539,6 +543,8 @@ model ChatConversation {
   messages ChatMessage[]
 
   @@index([clinicId])
+  @@index([clinicId, updatedAt])
+  @@index([memberIds], type: Gin)
   @@map("chat_conversations")
 }
 

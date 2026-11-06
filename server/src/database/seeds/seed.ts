@@ -12,14 +12,7 @@
 import { Prisma, PrismaClient } from '@prisma/client';
 import * as argon2 from 'argon2';
 import { config as loadEnv } from 'dotenv';
-import {
-  addDays,
-  formatMinuteOfDay,
-  localMinuteOfDay,
-  localToUtc,
-  todayIn,
-  weekdayOf,
-} from '../../core/clinic-time';
+import { addDays, localMinuteOfDay, localToUtc, todayIn, weekdayOf } from '../../core/clinic-time';
 import { UserRole } from '../../users/user-role.enum';
 
 /** Set by runSeed: the CLI passes its own client, the demo-reset job passes the app's. */
@@ -1089,8 +1082,10 @@ async function seedClinicalData(
   const apptParams = (a: PlannedAppointment, minutes: number): Prisma.InputJsonObject => ({
     patient: patientName.get(a.patientId) ?? '',
     doctor: doctorName.get(a.doctorId) ?? '',
-    time: formatMinuteOfDay(localMinuteOfDay(a.startsAt, central.timezone)),
+    // ISO like the live API: the UI formats it in the clinic time zone and locale.
+    time: a.startsAt.toISOString(),
     room: roomName.get(a.roomId) ?? '',
+    code: a.code,
     minutes,
   });
   const delayed = queueRows.find((q) => q.status === 'WAITING');
@@ -1125,10 +1120,13 @@ async function seedClinicalData(
           ago: 25 * MINUTE,
           entityType: 'queue',
           entityId: delayed.id,
-          params: apptParams(
-            todayCentral.find((a) => a.id === delayed.appointmentId) ?? apptAt(2),
-            15,
-          ),
+          params: {
+            ...apptParams(
+              todayCentral.find((a) => a.id === delayed.appointmentId) ?? apptAt(2),
+              15,
+            ),
+            number: delayed.number,
+          },
         }
       : {
           category: 'DELAY',
@@ -1146,6 +1144,7 @@ async function seedClinicalData(
       entityId: newestPatient.id,
       params: {
         patient: `${newestPatient.firstName} ${newestPatient.lastName}`,
+        code: newestPatient.code,
         doctor: '',
         time: '',
         room: '',

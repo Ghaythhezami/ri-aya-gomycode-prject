@@ -10,6 +10,7 @@ import { LoggerModule } from 'nestjs-pino';
 import {
   customLogLevel,
   genReqId,
+  pathOnly,
   LOG_TRANSPORT_TARGET,
   REDACT_CENSOR,
   REDACT_PATHS,
@@ -81,7 +82,7 @@ if (!IS_TEST && LOG_LEVEL_RESOLUTION.warning) {
 
         // AC-001: the completion record carries these five fields.
         customSuccessMessage: (req, res) =>
-          `${req.method ?? 'HTTP'} ${req.url ?? ''} ${res.statusCode}`,
+          `${req.method ?? 'HTTP'} ${pathOnly(req.url) ?? ''} ${res.statusCode}`,
 
         // Keep the record shape stable for log consumers.
         customAttributeKeys: {
@@ -94,7 +95,7 @@ if (!IS_TEST && LOG_LEVEL_RESOLUTION.warning) {
           req: (req: { id?: string; method?: string; url?: string }) => ({
             id: req.id,
             method: req.method,
-            url: req.url,
+            url: pathOnly(req.url),
           }),
           res: (res: { statusCode?: number }) => ({
             statusCode: res.statusCode,

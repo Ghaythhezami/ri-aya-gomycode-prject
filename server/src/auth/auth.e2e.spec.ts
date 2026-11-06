@@ -307,7 +307,10 @@ describe('Auth (e2e)', () => {
     expect(oldCookie).toBeDefined();
 
     mail.sendPasswordReset.mockClear();
-    await request(app.getHttpServer()).post('/api/auth/forgot-password').send({ email }).expect(201);
+    await request(app.getHttpServer())
+      .post('/api/auth/forgot-password')
+      .send({ email })
+      .expect(201);
     const resetUrl = mail.sendPasswordReset.mock.calls[0][1] as string;
     const token = new URL(resetUrl).searchParams.get('token') ?? '';
 

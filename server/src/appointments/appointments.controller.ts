@@ -14,6 +14,7 @@ import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
+import { RateLimit } from '../common/throttle/rate-limit';
 import { AppointmentsService } from './appointments.service';
 import {
   BulkActionDto,
@@ -46,12 +47,14 @@ export class AppointmentsController {
   }
 
   @Post('bulk')
+  @RateLimit(10)
   @Roles(...CAPABILITY_ROLES.manageAppointments)
   bulk(@Body() dto: BulkActionDto) {
     return this.appointments.bulk(dto);
   }
 
   @Post('locks')
+  @RateLimit(30)
   @Roles(...CAPABILITY_ROLES.manageAppointments)
   lock(@Body() dto: CreateLockDto) {
     return this.appointments.lock(dto);
@@ -70,6 +73,7 @@ export class AppointmentsController {
   }
 
   @Post()
+  @RateLimit(20)
   @Roles(...CAPABILITY_ROLES.manageAppointments)
   create(@Body() dto: CreateAppointmentDto) {
     return this.appointments.create(dto);

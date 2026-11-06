@@ -20,7 +20,18 @@ export function configureApp(app: INestApplication): void {
   const config = app.get(ConfigService);
 
   app.setGlobalPrefix('api');
-  app.use(helmet());
+  // Behind Vercel's edge (or any reverse proxy) `req.ip` is the proxy unless the
+  // first hop is trusted; rate limits and lockouts key on it.
+  if (process.env.VERCEL || config.get<string>('TRUST_PROXY') === 'true') {
+    (app as NestExpressApplication).set('trust proxy', 1);
+  }
+  // JSON API: no CSP needed, but HSTS must be on (also set by helmet's defaults;
+  // pinned here so a helmet upgrade cannot silently drop it).
+  app.use(
+    helmet({
+      hsts: { maxAge: 31_536_000, includeSubDomains: true },
+    }),
+  );
   app.use(cookieParser());
   // QA-2: request size limits.
   // Requires NestFactory.create(..., { bodyParser: false }) so these are the only parsers.
@@ -33,11 +44,15 @@ export function configureApp(app: INestApplication): void {
   )
     .split(',')
     .map((origin) => origin.trim())
-    .filter(Boolean);
+    // A wildcard would defeat the credentialed allow-list, so it is dropped.
+    .filter((origin) => origin !== '' && origin !== '*');
 
   app.enableCors({
     origin: origins,
     credentials: true,
+    methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
+    maxAge: 600,
+    exposedHeaders: ['Retry-After', 'X-Request-Id'],
   });
 
   app.useGlobalPipes(

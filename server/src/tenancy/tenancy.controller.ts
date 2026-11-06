@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
-import { Throttle } from '@nestjs/throttler';
+import { RateLimit } from '../common/throttle/rate-limit';
 import { CAPABILITY_ROLES } from '@riaya/shared';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
 import { RolesGuard } from '../common/guards/roles.guard';
@@ -16,8 +16,6 @@ import type { MailService } from '../mail/mail.service';
 import type { UserRecord } from '../users/user.types';
 import { UserRole } from '../users/user-role.enum';
 
-const throttleLimit = (limit: number) => (process.env.NODE_ENV === 'test' ? 1000 : limit);
-
 @ApiTags('tenancy')
 @Controller()
 export class TenancyController {
@@ -29,7 +27,7 @@ export class TenancyController {
   ) {}
 
   @Post('auth/register')
-  @Throttle({ default: { limit: throttleLimit(5), ttl: 60_000 } })
+  @RateLimit(5)
   @ApiOperation({
     summary: 'Public registration: create an account, an organization and its first clinic',
     description:
@@ -40,7 +38,7 @@ export class TenancyController {
   }
 
   @Post('auth/accept-invite')
-  @Throttle({ default: { limit: throttleLimit(10), ttl: 60_000 } })
+  @RateLimit(10)
   @ApiOperation({ summary: 'Accept a staff invitation and set a password' })
   acceptInvite(@Body() dto: AcceptInvitationDto) {
     return this.onboarding.acceptInvitation(dto);
@@ -60,7 +58,7 @@ export class TenancyController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(...CAPABILITY_ROLES.inviteStaff)
-  @Throttle({ default: { limit: throttleLimit(20), ttl: 60_000 } })
+  @RateLimit(20)
   @ApiOperation({ summary: 'Invite a person to the active clinic with a role' })
   async invite(@CurrentUser() user: UserRecord, @Body() dto: InviteDto) {
     const scope = this.tenant.get();

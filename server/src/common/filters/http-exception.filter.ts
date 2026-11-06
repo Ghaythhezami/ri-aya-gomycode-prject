@@ -8,7 +8,20 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { errorMessage, negotiateLocale } from '@riaya/shared';
-import { REQUEST_ID_HEADER } from '../../logging/logging.config';
+import { pathOnly, REQUEST_ID_HEADER } from '../../logging/logging.config';
+
+/** A Prisma error, matched structurally so the memory driver and the real client behave alike. */
+interface PrismaLikeError {
+  name: string;
+  code?: string;
+  meta?: { target?: unknown };
+}
+
+function asPrismaError(exception: unknown): PrismaLikeError | null {
+  if (!(exception instanceof Error)) return null;
+  if (!exception.name.startsWith('PrismaClient')) return null;
+  return exception as PrismaLikeError;
+}
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
@@ -46,11 +59,30 @@ export class HttpExceptionFilter implements ExceptionFilter {
           details = body.message;
         }
       }
+      if (status === HttpStatus.TOO_MANY_REQUESTS) {
+        code = 'RATE_LIMITED';
+        details = undefined;
+      } else if (status >= 500 && !(payload as { code?: unknown } | null)?.code) {
+        // A framework 5xx without a stable code must not echo its internal message.
+        code = 'INTERNAL_ERROR';
+        message = 'An unexpected error occurred';
+        details = undefined;
+      }
     } else {
-      this.logger.error(
-        `Unhandled error on ${request.method} ${request.url}`,
-        exception instanceof Error ? exception.stack : undefined,
-      );
+      const prismaError = asPrismaError(exception);
+      if (prismaError?.code === 'P2025') {
+        status = HttpStatus.NOT_FOUND;
+        code = 'NOT_FOUND';
+        message = 'Not found';
+      } else if (prismaError?.code === 'P2002' || prismaError?.code === 'P2003') {
+        status = HttpStatus.CONFLICT;
+        code = 'CONFLICT';
+        message = 'The request conflicts with existing data';
+      } else {
+        // Anything else (unknown Prisma error, driver error, bug) is a generic 500:
+        // the body never carries SQL, table names, stack frames or the raw message.
+        this.logUnhandled(request, exception, prismaError);
+      }
     }
 
     // Localize the human-readable message, never the stable code (FR-001,
@@ -67,6 +99,26 @@ export class HttpExceptionFilter implements ExceptionFilter {
       details: details ?? null,
       requestId,
     });
+  }
+
+  /**
+   * Log an unexpected error without personal data. Prisma messages embed the
+   * failing query arguments (patient names, phones), so only the error class and
+   * code are logged for them; other errors keep their stack, which is the
+   * diagnostic the on-call needs. The URL is logged without its query string.
+   */
+  private logUnhandled(request: Request, exception: unknown, prismaError: PrismaLikeError | null) {
+    const where = `${request.method} ${pathOnly(request.url)}`;
+    if (prismaError) {
+      this.logger.error(
+        `Database error on ${where}: ${prismaError.name} ${prismaError.code ?? ''}`.trim(),
+      );
+      return;
+    }
+    this.logger.error(
+      `Unhandled error on ${where}`,
+      exception instanceof Error ? exception.stack : undefined,
+    );
   }
 
   /**

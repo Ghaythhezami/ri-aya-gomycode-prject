@@ -43,6 +43,13 @@ const SENSITIVE_KEYS = [
   'refreshToken',
   'authorization',
   'cookie',
+  // Personal data (NFR): patient and staff identifiers must never reach a log sink.
+  'phone',
+  'email',
+  'dateOfBirth',
+  'clinicalNotes',
+  'adminNotes',
+  'address',
 ] as const;
 
 /**
@@ -76,10 +83,23 @@ export const REDACT_PATHS: string[] = [
   // pino-http serialises these two on every request record.
   'req.headers.authorization',
   'req.headers.cookie',
+  'req.body',
+  'req.query',
+  'res.body',
   // The response header is an array, so it is addressed with bracket syntax.
   'res.headers["set-cookie"]',
   ...SENSITIVE_KEYS.flatMap(redactPathsFor),
 ];
+
+/**
+ * The request path without its query string. Search terms (`?search=Jane%20Doe`,
+ * `?phone=...`) are personal data, so they are never written to a log record.
+ */
+export function pathOnly(url: string | undefined): string | undefined {
+  if (!url) return url;
+  const q = url.indexOf('?');
+  return q === -1 ? url : url.slice(0, q);
+}
 
 /** Result of reading `LOG_LEVEL`, including the warning EC-001 asks for. */
 export interface LogLevelResolution {

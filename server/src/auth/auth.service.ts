@@ -21,6 +21,7 @@ import { TokenBlacklistService } from '../cache/token-blacklist.service';
 import { TenancyService } from '../tenancy/tenancy.service';
 import type { TenantScope } from '../tenancy/tenant-context';
 import type { UserRole } from '../users/user-role.enum';
+import { JWT_ALGORITHM, resolveJwtSecret } from './jwt-secret';
 
 const RESET_TTL_MS = 30 * 60 * 1000;
 export const REFRESH_COOKIE = 'refresh_token';
@@ -78,6 +79,7 @@ export class AuthService {
       throw new UnauthorizedException({
         code: 'ACCOUNT_LOCKED',
         message: `Account temporarily locked. Try again in ${Math.ceil(lockout.remainingSeconds / 60)} minute(s).`,
+        details: { retryAfterSeconds: lockout.remainingSeconds },
       });
     }
 
@@ -331,7 +333,8 @@ export class AuthService {
         role: scope?.role ?? user.role,
       },
       {
-        secret: this.config.get<string>('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-32chars'),
+        secret: resolveJwtSecret(this.config),
+        algorithm: JWT_ALGORITHM,
         expiresIn: this.config.get('JWT_ACCESS_EXPIRES', '15m'),
       },
     );

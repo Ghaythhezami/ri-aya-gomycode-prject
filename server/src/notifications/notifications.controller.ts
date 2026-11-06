@@ -10,8 +10,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { SkipThrottle } from '@nestjs/throttler';
+import { ApiBearerAuth, ApiExcludeController, ApiTags } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { timingSafeEqual } from 'node:crypto';
@@ -108,9 +107,9 @@ function secretMatches(provided: string | undefined, expected: string): boolean 
 }
 
 /** Vercel Cron entry point (GET with a Bearer secret) and manual trigger (POST). */
-@ApiTags('notifications')
+// Secret-protected (CRON_SECRET) infrastructure endpoint, not part of the public API surface.
+@ApiExcludeController()
 @Controller('notifications/reminders')
-@SkipThrottle()
 export class RemindersCronController {
   constructor(private readonly processor: ReminderProcessor) {}
 

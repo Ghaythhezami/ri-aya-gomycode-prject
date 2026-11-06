@@ -2,19 +2,18 @@ import { Controller, Get } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { SkipThrottle } from '@nestjs/throttler';
 import { PrismaService } from '../database/prisma.service';
-import { RedisCacheService } from '../cache/redis-cache.service';
 
 @ApiTags('health')
 @SkipThrottle()
 @Controller('health')
 export class HealthController {
-  constructor(
-    private readonly prisma: PrismaService,
-    private readonly cache: RedisCacheService,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Liveness and dependency status' })
+  @ApiOperation({
+    summary: 'Public liveness probe',
+    description: 'Returns only up/down for the API and its database; no versions, hosts or errors.',
+  })
   async health() {
     let database: 'up' | 'down' = 'down';
     try {
@@ -27,8 +26,6 @@ export class HealthController {
     return {
       status: database === 'up' ? 'ok' : 'degraded',
       database,
-      cache: this.cache.status,
-      timestamp: new Date().toISOString(),
     };
   }
 }

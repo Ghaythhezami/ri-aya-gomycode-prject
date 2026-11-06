@@ -6,6 +6,7 @@ import { UsersService } from '../users/users.service';
 import { TenancyService } from '../tenancy/tenancy.service';
 import { TenantContext } from '../tenancy/tenant-context';
 import { UserRole } from '../users/user-role.enum';
+import { JWT_ALGORITHM, resolveJwtSecret } from './jwt-secret';
 
 /**
  * Access-token claims. `org_id`, `clinic_id` and `role` are the active tenant
@@ -30,7 +31,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: config.get<string>('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-32chars'),
+      secretOrKey: resolveJwtSecret(config),
+      algorithms: [JWT_ALGORITHM],
     });
   }
 

@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { JwtStrategy } from './jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { MailModule } from '../mail/mail.module';
+import { JWT_ALGORITHM, resolveJwtSecret } from './jwt-secret';
 
 @Module({
   imports: [
@@ -17,8 +18,12 @@ import { MailModule } from '../mail/mail.module';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
-        secret: config.get<string>('JWT_ACCESS_SECRET', 'dev-access-secret-change-me-32chars'),
-        signOptions: { expiresIn: config.get('JWT_ACCESS_EXPIRES', '15m') },
+        secret: resolveJwtSecret(config),
+        signOptions: {
+          expiresIn: config.get('JWT_ACCESS_EXPIRES', '15m'),
+          algorithm: JWT_ALGORITHM,
+        },
+        verifyOptions: { algorithms: [JWT_ALGORITHM] },
       }),
     }),
   ],

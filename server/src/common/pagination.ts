@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, Min, MaxLength } from 'class-validator';
 import type { Paginated } from '@riaya/shared';
 
 export const DEFAULT_PAGE_LIMIT = 20;
@@ -12,6 +12,7 @@ export class PaginationQueryDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
+  @Max(100_000)
   page?: number;
 
   @IsOptional()
@@ -23,6 +24,7 @@ export class PaginationQueryDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(50)
   sort?: string;
 }
 
