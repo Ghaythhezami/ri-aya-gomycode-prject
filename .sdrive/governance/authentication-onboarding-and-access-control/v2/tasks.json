@@ -1,0 +1,150 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 2,
+  "phases": [
+    {
+      "phaseId": "P8",
+      "name": "Invitation email delivery (Mailtrap)",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T8.1",
+          "title": "Add the SMTP transport behind MAIL_SERVICE",
+          "description": "Add nodemailer and a SmtpMailService that reads host, port, user and password only from environment variables, and make MailModule select SMTP or console from configuration without changing the MAIL_SERVICE token. Widens the MailService interface so a send reports a delivery outcome; the raw token is never logged (AC-046).",
+          "linkedRequirements": ["FR-039", "NFR-014", "NFR-015", "NFR-016"],
+          "linkedAcceptanceCriteria": ["AC-046", "AC-049"],
+          "completed": false
+        },
+        {
+          "id": "T8.2",
+          "title": "Render localized invitation and reset templates",
+          "description": "Add EN/AR/FR invitation and password-reset templates that interpolate the clinic name, the role and the accept link built from BACKOFFICE_URL, escaping every value with no dangerouslySetInnerHTML (NFR-017), and have SmtpMailService render them.",
+          "linkedRequirements": ["FR-039", "FR-040", "NFR-016", "NFR-017"],
+          "linkedAcceptanceCriteria": ["AC-047"],
+          "completed": false
+        },
+        {
+          "id": "T8.3",
+          "title": "Persist the invitation status and delivery outcome",
+          "description": "Add the InvitationStatus and DeliveryStatus enums and the status, deliveryStatus, deliveryError and updatedAt columns to the Invitation model with the backfill migration; record the send outcome after the invitation transaction commits, derive EXPIRED at read time for an unconsumed expired row, and never present a failed send as delivered (FR-041, FR-042, AC-048, AC-051).",
+          "linkedRequirements": ["FR-041", "FR-042"],
+          "linkedAcceptanceCriteria": ["AC-048", "AC-050", "AC-051"],
+          "completed": false
+        },
+        {
+          "id": "T8.4",
+          "title": "Paginate and widen the invitation list",
+          "description": "Make GET /api/invitations return every status (not just pending) with derived EXPIRED and a bounded page size using the existing indexes, so the directory never loads every invitation for the organization at once (NFR-019).",
+          "linkedRequirements": ["NFR-019", "FR-042"],
+          "linkedAcceptanceCriteria": ["AC-050", "AC-051", "AC-052"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P9",
+      "name": "Cancel, decline and role change",
+      "dependencies": ["P8"],
+      "tasks": [
+        {
+          "id": "T8.5",
+          "title": "Add the invitation cancel endpoint",
+          "description": "Add PATCH /api/invitations/:id/cancel that cancels a PENDING invitation in the caller's clinic, invalidating the token and writing CANCELLED; refuse a non-pending invitation with a stable code; audit the actor, the invitation and the previous/new status in the same transaction (FR-043).",
+          "linkedRequirements": ["FR-043"],
+          "linkedAcceptanceCriteria": ["AC-053", "AC-054", "AC-055"],
+          "completed": false
+        },
+        {
+          "id": "T8.6",
+          "title": "Add the invitation decline endpoint",
+          "description": "Add POST /api/invitations/:token/decline that lets the invitee decline a valid invitation, setting REJECTED and invalidating the token; a declined row stays for the record and the same email and clinic can be invited again (FR-044, EC-020).",
+          "linkedRequirements": ["FR-044"],
+          "linkedAcceptanceCriteria": ["AC-056", "AC-057"],
+          "completed": false
+        },
+        {
+          "id": "T8.7",
+          "title": "Add the membership role-change endpoint",
+          "description": "Add PATCH /api/memberships/:id/role gated by CAPABILITY_ROLES and scoped with clinicWhere, updating the membership role and auditing the before/after role, and refusing any change that would leave the organization with zero SUPER_ADMIN members by reusing the v1 invariant (FR-045).",
+          "linkedRequirements": ["FR-045"],
+          "linkedAcceptanceCriteria": ["AC-058", "AC-059", "AC-060"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P10",
+      "name": "Link-carried scope and fast accept",
+      "dependencies": ["P9"],
+      "tasks": [
+        {
+          "id": "T8.8",
+          "title": "Carry and resolve the link scope with the record as source of truth",
+          "description": "Include the target organization id, clinic id and role in the invitation link and add GET /api/invitations/:token that resolves the scope and the email-known flag without consuming the token; on accept re-derive the join scope from the persisted record so a link whose claims disagree is ignored rather than honoured (FR-046, FR-047).",
+          "linkedRequirements": ["FR-046", "FR-047"],
+          "linkedAcceptanceCriteria": ["AC-061", "AC-062", "AC-063", "AC-064"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P11",
+      "name": "Staff directory lifecycle UI",
+      "dependencies": ["P10"],
+      "tasks": [
+        {
+          "id": "T8.9",
+          "title": "Present the invitation lifecycle on the staff directory",
+          "description": "Extend StaffDirectoryPage with a status column (one of PENDING, ACCEPTED, REJECTED, CANCELLED, EXPIRED), resend and cancel actions, filters, pagination and each member's last login, reading the widened list endpoint (FR-048, NFR-019).",
+          "linkedRequirements": ["FR-048", "NFR-018", "NFR-019"],
+          "linkedAcceptanceCriteria": ["AC-050", "AC-057"],
+          "completed": false
+        },
+        {
+          "id": "T8.10",
+          "title": "Localise the lifecycle strings and add the role-change and decline controls",
+          "description": "Add EN/AR/FR strings for status labels, resend, cancel, decline and role change with RTL-correct layout and no hard-coded user-facing strings, wire the per-member role change on the directory and the decline action on AcceptInvitePage, which asks only for profile and password (NFR-018).",
+          "linkedRequirements": ["NFR-018", "FR-048"],
+          "linkedAcceptanceCriteria": ["AC-050", "AC-057"],
+          "completed": false
+        }
+      ]
+    },
+    {
+      "phaseId": "P12",
+      "name": "Verification",
+      "dependencies": ["P8", "P9", "P10", "P11"],
+      "tasks": [
+        {
+          "id": "T12.1",
+          "title": "Run the server linter and typechecker",
+          "description": "Run pnpm --filter server lint and pnpm --filter server typecheck and resolve every finding without disabling a rule.",
+          "linkedRequirements": ["NFR-014"],
+          "completed": false
+        },
+        {
+          "id": "T12.2",
+          "title": "Run the formatter check and governance validator",
+          "description": "Run pnpm format:check and node .sdrive/scripts/validate-governance.js; both must pass.",
+          "linkedRequirements": ["NFR-015"],
+          "completed": false
+        },
+        {
+          "id": "T12.3",
+          "title": "Run the spec-to-code verification",
+          "description": "Run pnpm sdrive verify authentication-onboarding-and-access-control 2 and account for every reported gap.",
+          "linkedRequirements": ["FR-039"],
+          "completed": false
+        },
+        {
+          "id": "T12.4",
+          "title": "Manually confirm the degraded-provider path",
+          "description": "With the SMTP credentials unset, confirm an invitation is still created as PENDING with a failed delivery outcome and that the directory offers resend without presenting it as sent (AC-049, EC-019).",
+          "linkedRequirements": ["FR-041"],
+          "linkedAcceptanceCriteria": ["AC-048", "AC-049"],
+          "completed": false
+        }
+      ]
+    }
+  ]
+}

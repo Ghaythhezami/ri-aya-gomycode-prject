@@ -1,0 +1,317 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "title": "Authentication, Onboarding & Access Control (v2) — Invitation Delivery, Lifecycle & Role Management",
+  "version": 2,
+  "overview": {
+    "problemStatement": "Invitations are issued and their tokens exist, but the mail transport is a ConsoleMailService stub that only logs the link, so no invited person ever receives an email (BP-047). There is also no way to tell whether an invitation is pending, accepted, rejected, expired or cancelled - listPendingInvitations filters on consumedAt/expiresAt alone and the directory shows only email, role and expiry. A sender cannot cancel a mis-sent invitation, an invitee cannot decline one, and an admin cannot change an existing member's role. The accept page also asks for details the system already knows, because the link carries only a token.",
+    "proposedSolution": "Replace the console stub with an SMTP transport backed by Mailtrap behind the existing MAIL_SERVICE interface, with localized EN/AR/FR invitation templates and a recorded delivery outcome. Add an InvitationStatus enum (PENDING, ACCEPTED, REJECTED, CANCELLED, EXPIRED) with EXPIRED derived from expiresAt for an unconsumed row. Add cancel (sender/admin) and decline (invitee) actions that invalidate the token, a role-change endpoint guarded by the capability matrix and the last-SUPER_ADMIN invariant, and a link that carries the target organization id, clinic id and role so the invitee supplies only profile and login details. Surface all of it on the staff directory page.",
+    "targetAudience": "Clinic Admins and Super Admins who invite and manage staff; invited staff (both brand-new and already-registered identities) who accept or decline; and the platform, which must guarantee that an invitation link can never widen scope beyond what its record allows.",
+    "assumptions": [
+      "The mutually agreed status model: a fresh invitation is PENDING; ACCEPTED on acceptance, EXPIRED when expiresAt passes unconsumed, CANCELLED when a sender/admin cancels it, and REJECTED when the invitee declines (owner decision, 2026-11-06).",
+      "Mailtrap is the transactional provider; its SMTP credentials are supplied by environment variables and are never committed or logged (CON-519).",
+      "The existing MAIL_SERVICE token and MailService interface are the seam; the console implementation stays available for local/test without a provider.",
+      "User.lastLoginAt already exists on the schema and is read, never newly modelled here.",
+      "The organization/clinic/role in the link are a convenience hint only; the persisted invitation row remains the single source of truth (FR-047)."
+    ],
+    "outOfScope": [
+      "Any change to v1's tenancy model, scoped-token issuance, registration wizard or workspace switching.",
+      "Real SMS or WhatsApp delivery of invitation or reset codes.",
+      "Bulk/CSV staff import and scheduled reminders for un-accepted invitations.",
+      "Passwordless / magic-link sign-in; only the invitation-specific decline link is added.",
+      "Ownership transfer between clinics and cross-organization membership moves.",
+      "A deliverability analytics dashboard beyond the single per-invitation delivery outcome."
+    ]
+  },
+  "userStories": [
+    {
+      "id": "US-023",
+      "title": "Receive my invitation email",
+      "role": "invited staff member",
+      "want": "the invitation email to actually arrive in my inbox",
+      "benefit": "I can act on it",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-046",
+          "text": "Given an invitation is issued, when the mail service sends it, then it is delivered through an SMTP transport configured for Mailtrap using credentials read only from environment variables, and the raw invitation token is never written to a log or returned over HTTP."
+        },
+        {
+          "id": "AC-047",
+          "text": "Given an invitation email is rendered, when it is sent, then it uses a localized template (EN/AR/FR) containing the clinic name, the role and the accept link built from BACKOFFICE_URL."
+        },
+        {
+          "id": "AC-048",
+          "text": "Given the provider accepts or rejects the message, when the send completes, then the invitation's delivery outcome is persisted so an admin can tell a sent invitation from a failed one."
+        },
+        {
+          "id": "AC-049",
+          "text": "Given the SMTP transport is unreachable or misconfigured, when an invitation is issued, then the API returns a stable machine-readable code and the invitation is not presented as successfully delivered."
+        }
+      ]
+    },
+    {
+      "id": "US-024",
+      "title": "See the status of every invitation",
+      "role": "clinic admin",
+      "want": "each invitation to show its current status",
+      "benefit": "I know who is waiting, who joined, and who declined",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-050",
+          "text": "Given the invitations for the active clinic, when the directory is rendered, then each row shows exactly one of PENDING, ACCEPTED, REJECTED, CANCELLED or EXPIRED."
+        },
+        {
+          "id": "AC-051",
+          "text": "Given an invitation whose expiresAt has passed and whose token was never consumed, when it is read, then it is reported as EXPIRED without requiring a manual write."
+        },
+        {
+          "id": "AC-052",
+          "text": "Given an invitation that was accepted, when it is read, then it is reported as ACCEPTED and it can no longer be cancelled or declined."
+        }
+      ]
+    },
+    {
+      "id": "US-025",
+      "title": "Cancel an invitation I sent",
+      "role": "clinic admin or the sender",
+      "want": "cancel an invitation",
+      "benefit": "a mis-addressed or no-longer-wanted invitation cannot be used",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-053",
+          "text": "Given a PENDING invitation in my clinic, when the sender or a clinic admin cancels it, then its status becomes CANCELLED and its token can never be used again."
+        },
+        {
+          "id": "AC-054",
+          "text": "Given a successful cancellation, when it completes, then an audit row records the actor, the invitation, and the previous and new status inside the same transaction."
+        },
+        {
+          "id": "AC-055",
+          "text": "Given an invitation that is not PENDING (accepted, expired, cancelled or rejected), when a cancel is attempted, then it is refused with a stable code and no state is changed."
+        }
+      ]
+    },
+    {
+      "id": "US-026",
+      "title": "Decline an invitation I received",
+      "role": "invited person",
+      "want": "decline an invitation I do not want",
+      "benefit": "the clinic is not left waiting on me",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-056",
+          "text": "Given a valid invitation link, when the invitee chooses to decline, then the invitation status becomes REJECTED and its token is invalidated."
+        },
+        {
+          "id": "AC-057",
+          "text": "Given a declined invitation, when the inviter reads the list, then it shows REJECTED, and the admin can issue a new invitation to the same email and clinic."
+        }
+      ]
+    },
+    {
+      "id": "US-027",
+      "title": "Change a staff member's role",
+      "role": "clinic admin",
+      "want": "change a member's role in the active clinic",
+      "benefit": "responsibilities can change without removing and re-inviting the person",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-058",
+          "text": "Given a CLINIC_ADMIN or SUPER_ADMIN, when they change a member's role in their clinic, then the membership role is updated and the change is reflected the next time a token is issued for that clinic."
+        },
+        {
+          "id": "AC-059",
+          "text": "Given a role change that would leave an organization with zero SUPER_ADMIN members, when it is submitted, then it is refused (FR-029) and no change is written."
+        },
+        {
+          "id": "AC-060",
+          "text": "Given a successful role change, when it completes, then an audit row records the target membership and the before/after role."
+        }
+      ]
+    },
+    {
+      "id": "US-028",
+      "title": "Join with only my profile and login details",
+      "role": "invited person",
+      "want": "the link to already know my organization, clinic and role",
+      "benefit": "I only fill in who I am and my password",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-061",
+          "text": "Given an invitation is created, when the link is generated, then it carries the invitation token together with the target organization id, clinic id and role."
+        },
+        {
+          "id": "AC-062",
+          "text": "Given an already-registered identity opens the link, when the accept page loads, then the organization, clinic and role come from the link and the person supplies only their profile details and login password."
+        },
+        {
+          "id": "AC-063",
+          "text": "Given a brand-new invitee opens the link, when the accept page loads, then the organization and clinic come from the link and the person supplies only profile and login details; they cannot select or join any other clinic."
+        },
+        {
+          "id": "AC-064",
+          "text": "Given a link whose organization, clinic or role claims disagree with the stored invitation record, when it is submitted, then the stored record is authoritative, the mismatch is ignored, and the join uses the recorded clinic and role (FR-047)."
+        }
+      ]
+    }
+  ],
+  "functionalRequirements": [
+    {
+      "id": "FR-039",
+      "text": "The system MUST deliver staff invitations through a real transactional email transport (Mailtrap over SMTP) configured exclusively from environment variables, replacing the console stub behind the existing MAIL_SERVICE interface.",
+      "linkedAcceptanceCriteria": ["AC-046", "AC-049"]
+    },
+    {
+      "id": "FR-040",
+      "text": "The system MUST render invitation emails from localized templates in EN, AR and FR, including the clinic name, the role and the accept link.",
+      "linkedAcceptanceCriteria": ["AC-047"]
+    },
+    {
+      "id": "FR-041",
+      "text": "The system MUST persist the delivery outcome of each invitation so the directory can distinguish a sent invitation from one whose delivery failed.",
+      "linkedAcceptanceCriteria": ["AC-048", "AC-049"]
+    },
+    {
+      "id": "FR-042",
+      "text": "The system MUST expose an invitation status of PENDING, ACCEPTED, REJECTED or CANCELLED, and MUST derive EXPIRED for an unconsumed invitation whose expiresAt has passed.",
+      "linkedAcceptanceCriteria": ["AC-050", "AC-051", "AC-052"]
+    },
+    {
+      "id": "FR-043",
+      "text": "The system MUST allow the inviting user or an admin of the clinic to cancel a PENDING invitation, invalidating its token and setting its status to CANCELLED.",
+      "linkedAcceptanceCriteria": ["AC-053", "AC-054", "AC-055"]
+    },
+    {
+      "id": "FR-044",
+      "text": "The system MUST allow the invitee to decline a valid invitation, setting its status to REJECTED and invalidating its token.",
+      "linkedAcceptanceCriteria": ["AC-056", "AC-057"]
+    },
+    {
+      "id": "FR-045",
+      "text": "The system MUST allow a CLINIC_ADMIN or SUPER_ADMIN to change a member's role within their scope, and MUST refuse any change that would leave an organization with zero SUPER_ADMIN members.",
+      "linkedAcceptanceCriteria": ["AC-058", "AC-059", "AC-060"]
+    },
+    {
+      "id": "FR-046",
+      "text": "The system MUST include the target organization id, clinic id and role in the invitation link so the invitee supplies only profile and login details.",
+      "linkedAcceptanceCriteria": ["AC-061", "AC-062", "AC-063"]
+    },
+    {
+      "id": "FR-047",
+      "text": "The system MUST treat the persisted invitation record as the source of truth: a link whose organization, clinic or role claims disagree with the record MUST be rejected rather than honoured.",
+      "linkedAcceptanceCriteria": ["AC-064"]
+    },
+    {
+      "id": "FR-048",
+      "text": "The system MUST present the invitation lifecycle on the staff directory page - status, resend, cancel, decline outcome and per-member role change - alongside each member's last login.",
+      "linkedAcceptanceCriteria": ["AC-050", "AC-057"]
+    }
+  ],
+  "nonFunctionalRequirements": [
+    {
+      "id": "NFR-014",
+      "text": "Invitation and password-reset email MUST be sent over authenticated SMTP (Mailtrap), and provider credentials MUST come only from environment variables and MUST NOT be committed or logged. (CON-519)",
+      "linkedAcceptanceCriteria": ["AC-046"]
+    },
+    {
+      "id": "NFR-015",
+      "text": "Every new mail configuration key MUST be documented in server/.env.example by name only and MUST NOT be committed with real values. (CON-519, NFR-007)",
+      "linkedAcceptanceCriteria": ["AC-046"]
+    },
+    {
+      "id": "NFR-016",
+      "text": "The mail send MUST NOT execute inside the database transaction that creates or updates the invitation, so a slow or failing provider cannot hold a transaction open or roll one back.",
+      "linkedAcceptanceCriteria": ["AC-049"]
+    },
+    {
+      "id": "NFR-017",
+      "text": "Invitation and reset templates MUST escape every interpolated value and MUST NOT use dangerouslySetInnerHTML or unescaped interpolation. (NFR-005, CON-517)",
+      "linkedAcceptanceCriteria": ["AC-047"]
+    },
+    {
+      "id": "NFR-018",
+      "text": "The staff directory MUST render status labels in EN, AR and FR with RTL-correct layout, with no hard-coded user-facing strings. (CON-304, CON-305, NFR-012)",
+      "linkedAcceptanceCriteria": ["AC-050"]
+    },
+    {
+      "id": "NFR-019",
+      "text": "Directory reads MUST remain bounded: the invitation and member list MUST be paginated and MUST NOT load every invitation for an organization in one response.",
+      "linkedAcceptanceCriteria": ["AC-050"]
+    }
+  ],
+  "edgeCases": [
+    {
+      "id": "EC-019",
+      "description": "The invitation email fails to send.",
+      "expectedBehavior": "The invitation still exists as PENDING with a failed delivery outcome; the directory offers resend; nothing is presented as successfully sent."
+    },
+    {
+      "id": "EC-020",
+      "description": "A declined invitee is invited again.",
+      "expectedBehavior": "A new token is issued (FR-031 revokes the previous one) and the earlier row stays REJECTED for the record."
+    },
+    {
+      "id": "EC-021",
+      "description": "A cancel is attempted after the invitee already accepted.",
+      "expectedBehavior": "It is refused with a stable code, because the membership already exists (AC-055)."
+    },
+    {
+      "id": "EC-022",
+      "description": "A role change targets the only SUPER_ADMIN.",
+      "expectedBehavior": "It is refused and no change is written (FR-029, AC-059)."
+    },
+    {
+      "id": "EC-023",
+      "description": "The link names a clinic the inviter no longer belongs to.",
+      "expectedBehavior": "The invitation record is authoritative, the link claim is ignored, and the join uses the recorded clinic (FR-047)."
+    },
+    {
+      "id": "EC-024",
+      "description": "Two invitations are issued for the same email and clinic.",
+      "expectedBehavior": "The earlier token is revoked (FR-031) and only the newest row remains PENDING."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Mailtrap",
+      "type": "external",
+      "notes": "SMTP transactional email provider for invitations and password resets (BP-047). Credentials via environment variables only (NFR-014, NFR-015)."
+    },
+    {
+      "name": "nodemailer",
+      "type": "library",
+      "notes": "SMTP client used by the mail transport behind the existing MAIL_SERVICE interface. Version resolved at implementation (see plan.json dependencies)."
+    },
+    {
+      "name": "mail module",
+      "type": "internal",
+      "notes": "server/src/mail - extended from a console stub into an SMTP transport with EN/AR/FR templates; the MAIL_SERVICE token is reused."
+    },
+    {
+      "name": "tenancy module",
+      "type": "internal",
+      "notes": "server/src/tenancy - invitation lifecycle, cancel, decline and role-change services and DTOs."
+    },
+    {
+      "name": "capability matrix (@riaya/shared)",
+      "type": "internal",
+      "notes": "CAPABILITY_ROLES gates cancel and role change; inviteStaff/manageStaff/suspendMembership reused."
+    }
+  ],
+  "risks": [
+    {
+      "id": "RISK-001",
+      "description": "Changing a member's role is a privilege-escalation path.",
+      "mitigation": "The capability matrix gates the endpoint, changes are tenant-scoped via clinicWhere, and every change is audited (AC-060)."
+    },
+    {
+      "id": "RISK-002",
+      "description": "The invitation link now carries organization and clinic ids, which an attacker could tamper with.",
+      "mitigation": "Link claims are advisory only; the server resolves the persisted invitation record as the source of truth (FR-047, AC-064)."
+    },
+    {
+      "id": "RISK-003",
+      "description": "A synchronous provider call on the request path could slow invitation creation or fail it.",
+      "mitigation": "The send runs outside the invitation transaction (NFR-016) and a failed send is recorded, not thrown (AC-049, EC-019)."
+    }
+  ]
+}

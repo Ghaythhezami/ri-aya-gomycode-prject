@@ -1,0 +1,134 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 2,
+  "rows": [
+    {
+      "requirementId": "FR-039",
+      "acceptanceCriteriaIds": ["AC-046", "AC-049"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1", "T8.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-040",
+      "acceptanceCriteriaIds": ["AC-047"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-041",
+      "acceptanceCriteriaIds": ["AC-048", "AC-049"],
+      "planSection": "Invitation Lifecycle & Status",
+      "taskIds": ["T8.3"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-042",
+      "acceptanceCriteriaIds": ["AC-050", "AC-051", "AC-052"],
+      "planSection": "Invitation Lifecycle & Status",
+      "taskIds": ["T8.3", "T8.4"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-043",
+      "acceptanceCriteriaIds": ["AC-053", "AC-054", "AC-055"],
+      "planSection": "Cancel, Decline & Role Change",
+      "taskIds": ["T8.5"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-044",
+      "acceptanceCriteriaIds": ["AC-056", "AC-057"],
+      "planSection": "Cancel, Decline & Role Change",
+      "taskIds": ["T8.6"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-045",
+      "acceptanceCriteriaIds": ["AC-058", "AC-059", "AC-060"],
+      "planSection": "Cancel, Decline & Role Change",
+      "taskIds": ["T8.7"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-046",
+      "acceptanceCriteriaIds": ["AC-061", "AC-062", "AC-063"],
+      "planSection": "Link-Carried Scope & Fast Accept",
+      "taskIds": ["T8.8"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-047",
+      "acceptanceCriteriaIds": ["AC-064"],
+      "planSection": "Link-Carried Scope & Fast Accept",
+      "taskIds": ["T8.8"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "FR-048",
+      "acceptanceCriteriaIds": ["AC-050", "AC-057"],
+      "planSection": "Staff Directory Lifecycle UI",
+      "taskIds": ["T8.9", "T8.10"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-014",
+      "acceptanceCriteriaIds": ["AC-046"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-015",
+      "acceptanceCriteriaIds": ["AC-046"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-016",
+      "acceptanceCriteriaIds": ["AC-049"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1", "T8.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-017",
+      "acceptanceCriteriaIds": ["AC-047"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.2"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-018",
+      "acceptanceCriteriaIds": ["AC-050"],
+      "planSection": "Staff Directory Lifecycle UI",
+      "taskIds": ["T8.9", "T8.10"],
+      "testIds": [],
+      "status": "not_started"
+    },
+    {
+      "requirementId": "NFR-019",
+      "acceptanceCriteriaIds": ["AC-050"],
+      "planSection": "Staff Directory Lifecycle UI",
+      "taskIds": ["T8.4", "T8.9"],
+      "testIds": [],
+      "status": "not_started"
+    }
+  ]
+}

@@ -956,6 +956,36 @@
       "event": "feature_archived",
       "prevHash": "2700e6eaf2f283badc315c02bbc09b8637705946672979a78a157fe12e827006",
       "hash": "4709cfe4b27a9f0e4325a5470cae0baa335da14d29fd631b50e5bb85a57ebad4"
+    },
+    {
+      "timestamp": "2026-11-06T14:12:50.811Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "event": "version_created",
+      "prevHash": "4709cfe4b27a9f0e4325a5470cae0baa335da14d29fd631b50e5bb85a57ebad4",
+      "hash": "3132af69a4c681501fbc71755dc08562c7adab62b953ddd9b6f99d4556632fc7"
+    },
+    {
+      "timestamp": "2026-11-06T16:31:36.274Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "specification",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "3132af69a4c681501fbc71755dc08562c7adab62b953ddd9b6f99d4556632fc7",
+      "hash": "a2ac14358264c386938f122deea3c4108b3ebef3161933c53e1d707363029535"
+    },
+    {
+      "timestamp": "2026-11-06T16:31:47.119Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "planning",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "a2ac14358264c386938f122deea3c4108b3ebef3161933c53e1d707363029535",
+      "hash": "7ec4ff1d8c6ece1302b7de663856b518256e7477ba2ed0a82b521e6e4e5f5497"
     }
   ]
 }

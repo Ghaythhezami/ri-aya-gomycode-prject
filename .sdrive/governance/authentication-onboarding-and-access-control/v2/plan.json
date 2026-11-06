@@ -1,0 +1,282 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 2,
+  "architecture": {
+    "approach": "Widen the v1 seams rather than add layers. The `mail/` module already resolves its transport through the `MAIL_SERVICE` provider token, so an SMTP transport (nodemailer, configured for Mailtrap from environment variables) is dropped in behind that token while `ConsoleMailService` stays for local and test. Invitation state becomes a first-class column: an `InvitationStatus` enum (PENDING, ACCEPTED, REJECTED, CANCELLED) is persisted on `invitations`, a `DeliveryStatus` (PENDING, SENT, FAILED) plus `deliveryError` records the mail outcome, and `EXPIRED` is derived at read time for an unconsumed row whose `expiresAt` has passed - never written - so no scheduler is needed. Cancel, decline, resend and role change are new tenant-scoped operations in the existing `tenancy` module, gated by the shared `CAPABILITY_ROLES` matrix and audited through the existing transactional `AuditService`. The invitation link gains `organizationId`, `clinicId` and `role` as conveniences, but the persisted invitation row stays the single source of truth: the server always re-derives the join scope from the record and ignores the link claims (FR-047). The mail send runs outside the invitation transaction (NFR-016) and its outcome is recorded, so a provider failure degrades to a resend affordance rather than a lost invitation.",
+    "components": [
+      {
+        "name": "server/src/mail/mail.service.ts",
+        "action": "modify",
+        "description": "Adds SmtpMailService (nodemailer -> Mailtrap) alongside ConsoleMailService and widens the MailService interface so a send returns a delivery outcome instead of void. Raw token is never logged."
+      },
+      {
+        "name": "server/src/mail/templates",
+        "action": "create",
+        "description": "Localized EN/AR/FR invitation and password-reset templates with escaped interpolation and no dangerouslySetInnerHTML (NFR-017)."
+      },
+      {
+        "name": "mail.module.ts",
+        "action": "modify",
+        "description": "Selects the SMTP or console implementation from configuration behind the unchanged MAIL_SERVICE token, so no consumer changes."
+      },
+      {
+        "name": "server/src/tenancy/onboarding.service.ts",
+        "action": "modify",
+        "description": "Invitation create/list gains status and delivery outcome; adds cancel, decline and resend; accept resolves the join scope from the persisted record; the send moves outside the transaction (NFR-016)."
+      },
+      {
+        "name": "server/src/tenancy/tenancy.service.ts",
+        "action": "modify",
+        "description": "Adds membership role change scoped by clinicWhere, reusing the v1 last-SUPER_ADMIN invariant (FR-029) and the transactional audit writer (FR-045)."
+      },
+      {
+        "name": "server/src/tenancy/tenancy.controller.ts",
+        "action": "modify",
+        "description": "Adds the cancel, decline, resend and role-change routes and extends the invitation list response with status, delivery outcome and link scope."
+      },
+      {
+        "name": "server/src/tenancy/dto/invitation.dto.ts",
+        "action": "modify",
+        "description": "Adds cancel, decline and role-change DTOs; the invite and list responses carry the link scope and status."
+      },
+      {
+        "name": "server/prisma/schema.prisma",
+        "action": "modify",
+        "description": "Adds the InvitationStatus and DeliveryStatus enums, the status/deliveryStatus/deliveryError/updatedAt columns on invitations, and the migration that backfills existing rows."
+      },
+      {
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "action": "modify",
+        "description": "Adds invitationStatusSchema and the cancel/role-change input contracts, keeping zod/server parity."
+      },
+      {
+        "name": "packages/shared/src/permissions.ts",
+        "action": "reuse",
+        "description": "inviteStaff, manageStaff and suspendMembership already gate cancel, decline and role change; CAPABILITY_ROLES is unchanged."
+      },
+      {
+        "name": "backoffice/src/pages/StaffDirectoryPage.tsx",
+        "action": "modify",
+        "description": "Status column with derived EXPIRED, resend/cancel actions, per-member role change, last login, filters and pagination."
+      },
+      {
+        "name": "backoffice/src/pages/AcceptInvitePage.tsx",
+        "action": "modify",
+        "description": "Reads organization/clinic/role from the link, offers decline, and asks only for profile and password."
+      },
+      {
+        "name": "backoffice/src/i18n",
+        "action": "modify",
+        "description": "New strings for status labels, cancel/decline/resend and role change, kept in EN/AR/FR parity (CON-304)."
+      },
+      {
+        "name": "server/.env.example",
+        "action": "modify",
+        "description": "Documents the Mailtrap/SMTP keys by name only, with no value that works as a production default (NFR-015)."
+      }
+    ],
+    "referencedRequirementIds": [
+      "FR-039",
+      "FR-040",
+      "FR-041",
+      "FR-042",
+      "FR-043",
+      "FR-044",
+      "FR-045",
+      "FR-046",
+      "FR-047",
+      "FR-048",
+      "NFR-014",
+      "NFR-015",
+      "NFR-016",
+      "NFR-017",
+      "NFR-018",
+      "NFR-019"
+    ]
+  },
+  "dataModel": {
+    "entities": [
+      {
+        "name": "Invitation",
+        "action": "update",
+        "fields": [
+          {
+            "name": "status",
+            "type": "InvitationStatus",
+            "action": "add"
+          },
+          {
+            "name": "deliveryStatus",
+            "type": "DeliveryStatus",
+            "action": "add"
+          },
+          {
+            "name": "deliveryError",
+            "type": "String",
+            "nullable": true,
+            "action": "add"
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "action": "add"
+          }
+        ]
+      },
+      {
+        "name": "UserMembership",
+        "action": "no_change",
+        "fields": [
+          {
+            "name": "role",
+            "type": "UserRole",
+            "action": "no_change"
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "action": "no_change"
+          }
+        ]
+      }
+    ],
+    "flowDescription": "An admin issues an invitation: the row is written inside a transaction as PENDING with a hashed single-use token and a deliveryStatus of PENDING, the transaction commits, and only then is the email sent outside it (NFR-016). The send outcome (SENT, or FAILED with a recorded error) is written back, and a failed send still leaves the invitation PENDING with a resend affordance (EC-019). The link carries the token plus organizationId, clinicId and role as convenience claims. The accept page calls GET /api/invitations/:token, which resolves the email-known flag and the scope from the persisted record without consuming the token. On accept the server re-derives the join scope from the record, ignores any disagreeing link claim (FR-047), consumes the token and writes ACCEPTED. Cancel writes CANCELLED, decline writes REJECTED, and each invalidates the token; every mutation writes an audit row in the same transaction. A PENDING row whose expiresAt has passed is reported as EXPIRED at read time and never written."
+  },
+  "apiContracts": [
+    {
+      "method": "POST",
+      "path": "/api/invitations",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-039", "FR-041", "FR-046"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/invitations",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-042", "FR-048", "NFR-019"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/invitations/:id/cancel",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-043"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/invitations/:id/resend",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-039", "FR-041"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/invitations/:token",
+      "action": "create",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-046", "FR-047"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/invitations/:token/decline",
+      "action": "create",
+      "authenticationRequired": false,
+      "linkedRequirements": ["FR-044"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/memberships/:id/role",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-045"]
+    }
+  ],
+  "securityConsiderations": [
+    {
+      "requirementId": "NFR-014",
+      "description": "SMTP credentials are read only from environment variables, never logged, and the raw invitation token is neither logged nor returned over HTTP (AC-046)."
+    },
+    {
+      "requirementId": "NFR-015",
+      "description": "Every new mail configuration key is documented in server/.env.example by name only, with no value that works as a production default (CON-519, NFR-007)."
+    },
+    {
+      "requirementId": "NFR-016",
+      "description": "The mail send runs outside the database transaction, so a slow or failing provider cannot hold a transaction open or roll back the invitation row."
+    },
+    {
+      "requirementId": "NFR-017",
+      "description": "Invitation and reset templates escape every interpolated value and never use dangerouslySetInnerHTML (NFR-005, CON-517)."
+    },
+    {
+      "requirementId": "NFR-018",
+      "description": "The directory renders status labels in EN, AR and FR with RTL-correct layout and no hard-coded user-facing strings (CON-304, CON-305)."
+    },
+    {
+      "requirementId": "NFR-019",
+      "description": "The invitation and member lists are paginated so a read never loads every invitation for an organization in one response."
+    }
+  ],
+  "performanceConsiderations": [
+    {
+      "requirementId": "NFR-016",
+      "strategy": "The provider call is removed from the request transaction and its outcome recorded, so invitation creation stays a bounded single-transaction write regardless of provider latency."
+    },
+    {
+      "requirementId": "NFR-019",
+      "strategy": "The list endpoints take a bounded page size and use the existing (clinicId, status) and (expiresAt) indexes so a directory read is an index scan, not a full scan."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "nodemailer",
+      "type": "library",
+      "action": "add",
+      "notes": "SMTP client used by SmtpMailService behind the existing MAIL_SERVICE interface; skill: none (a node library, not an AI skill)."
+    },
+    {
+      "name": "Mailtrap",
+      "type": "external",
+      "action": "no_change",
+      "notes": "Transactional SMTP provider for invitations and resets (BP-047); credentials supplied per environment. Not manifest-verifiable."
+    },
+    {
+      "name": "@prisma/client",
+      "type": "library",
+      "action": "update",
+      "notes": "Regenerated after the InvitationStatus/DeliveryStatus enums and the invitation columns and migration are added."
+    },
+    {
+      "name": "class-validator",
+      "type": "library",
+      "action": "no_change",
+      "notes": "Already present; the new cancel, decline, resend and role-change DTOs use it under the global ValidationPipe."
+    },
+    {
+      "name": "@riaya/shared",
+      "type": "internal",
+      "action": "no_change",
+      "notes": "Reused for the capability matrix and extended with invitationStatusSchema and the cancel/role-change contracts, keeping zod/server parity."
+    }
+  ],
+  "risks": [
+    {
+      "description": "Changing a member's role is a privilege-escalation path.",
+      "mitigation": "The endpoint is gated by CAPABILITY_ROLES, changes are tenant-scoped via clinicWhere, and every change is audited (FR-045, AC-060)."
+    },
+    {
+      "description": "The invitation link carries organization and clinic ids an attacker could tamper with.",
+      "mitigation": "The link claims are advisory only; the server resolves the persisted invitation record as the source of truth and ignores a disagreeing claim (FR-047, AC-064)."
+    },
+    {
+      "description": "A synchronous provider call on the request path could slow or fail invitation creation.",
+      "mitigation": "The send runs outside the invitation transaction (NFR-016) and a failed send is recorded, not thrown, so the row is still created and a resend is offered (AC-049, EC-019)."
+    },
+    {
+      "description": "Adding a non-persisted EXPIRED state could drift from the stored status.",
+      "mitigation": "EXPIRED is derived only at read time for a PENDING row whose expiresAt has passed, so there is a single source of truth and no scheduler (FR-042, AC-051)."
+    }
+  ]
+}
