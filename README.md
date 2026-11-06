@@ -34,7 +34,8 @@ at `/api/docs`.
 
 ## Hosted demo
 
-- Landing and workspace (`/app`): see the repository description for the live URL; logins below
+- Landing: https://riaya-xi.vercel.app — workspace: https://riaya-xi.vercel.app/app (logins below)
+- API + Swagger: https://riaya-api.vercel.app/api/docs
 - The demo database is re-seeded daily so "today" always has a live schedule (ADR 0001).
 
 ## Quick start
