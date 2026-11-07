@@ -12,23 +12,6 @@
     "patient": "Comment puis-je vous aider pour vos soins ?"
   },
   "tryAsking": "Essayez de demander :",
-  "suggestions": {
-    "staff": {
-      "waiting": "Qui attend depuis le plus longtemps ?",
-      "slot": "Trouver un créneau de cardiologie cette semaine",
-      "alerts": "Résumer les alertes du jour"
-    },
-    "doctor": {
-      "summarize": "Résumer le dossier de Leila Ben Salah",
-      "thisPatient": "Résumer ce patient",
-      "lastLab": "Que montrait le dernier rapport de laboratoire ?"
-    },
-    "patient": {
-      "book": "Réserver un bilan la semaine prochaine",
-      "next": "Quand est mon prochain rendez-vous ?",
-      "explain": "Expliquer mon dernier résumé"
-    }
-  },
   "history": "Historique",
   "new": "Nouvelle conversation",
   "historyTitle": "Conversations récentes",
@@ -126,5 +109,150 @@
     "note": "Note clinique (texte complet)",
     "clinicianContent": "Synthèse du clinicien",
     "patientContent": "Version destinée au patient"
+  },
+  "templates": {
+    "title": "Modèles de requêtes",
+    "open": "Modèles de requêtes",
+    "back": "Retour au chat",
+    "intro": "Choisissez un modèle pour commencer. Ceux avec des [crochets] vont dans la zone de message pour que vous complétiez le blanc.",
+    "hint": "Entrée pour envoyer · Maj+Entrée pour une nouvelle ligne · Complétez les [blancs] avant d’envoyer",
+    "fill": "À compléter",
+    "ask": "Demander",
+    "categories": {
+      "today": "Aujourd’hui",
+      "booking": "Rendez-vous",
+      "patients": "Patients",
+      "day": "Ma journée",
+      "writing": "Notes et synthèses",
+      "appointments": "Mes rendez-vous",
+      "health": "Ma santé",
+      "clinic": "La clinique"
+    },
+    "staff": {
+      "waiting": {
+        "label": "Attente la plus longue",
+        "prompt": "Qui attend depuis le plus longtemps en ce moment, et avec quel médecin ?"
+      },
+      "queue": {
+        "label": "État de la file",
+        "prompt": "Donne-moi l’état de la file pour chaque médecin : en attente, en consultation, retards."
+      },
+      "schedule": {
+        "label": "Planning du jour",
+        "prompt": "Affiche les rendez-vous du jour par médecin, avec les trous et les chevauchements."
+      },
+      "alerts": {
+        "label": "Résumé des alertes",
+        "prompt": "Résume les alertes du jour en 3 points et dis-moi quoi traiter en premier."
+      },
+      "slot": {
+        "label": "Trouver un créneau",
+        "prompt": "Trouve le prochain créneau libre en [spécialité] cette semaine."
+      },
+      "book": {
+        "label": "Prendre un rendez-vous",
+        "prompt": "Réserve [nom du patient] avec [médecin ou spécialité] le [jour] dans la matinée."
+      },
+      "reschedule": {
+        "label": "Déplacer",
+        "prompt": "Déplace le rendez-vous [code AP] au prochain créneau libre avec le même médecin."
+      },
+      "cancel": {
+        "label": "Annuler",
+        "prompt": "Annule le rendez-vous [code AP]. Motif : [motif]."
+      },
+      "find": {
+        "label": "Trouver un patient",
+        "prompt": "Trouve le patient [nom, code ou téléphone] et affiche son prochain rendez-vous."
+      },
+      "checkIn": {
+        "label": "Enregistrer l’arrivée",
+        "prompt": "Enregistre l’arrivée de [nom du patient] pour son rendez-vous du jour."
+      },
+      "optimize": {
+        "label": "Optimiser la journée",
+        "prompt": "Prévisualise l’optimiseur pour aujourd’hui : que changerait-il et combien d’attente ferait-il gagner ?"
+      }
+    },
+    "doctor": {
+      "thisPatient": {
+        "label": "Synthèse de ce patient",
+        "prompt": "Fais la synthèse de ce patient : problèmes principaux, résultats récents, traitements et points ouverts."
+      },
+      "thisPatientLab": {
+        "label": "Derniers résultats",
+        "prompt": "Que montre le dernier bilan biologique de ce patient ? Liste les valeurs anormales avec leurs normes."
+      },
+      "summarize": {
+        "label": "Synthèse avant consultation",
+        "prompt": "Fais la synthèse de [nom du patient] avant la consultation : problèmes principaux, résultats récents et points ouverts."
+      },
+      "lastLab": {
+        "label": "Dernier bilan",
+        "prompt": "Que montre le dernier bilan de [nom du patient] ? Liste les valeurs anormales."
+      },
+      "medications": {
+        "label": "Traitements",
+        "prompt": "Liste les traitements actuels de [nom du patient] trouvés dans les notes et documents."
+      },
+      "history": {
+        "label": "Historique des visites",
+        "prompt": "Affiche l’historique des rendez-vous de [nom du patient] sur les 6 derniers mois."
+      },
+      "schedule": {
+        "label": "Mon planning du jour",
+        "prompt": "À quoi ressemble mon planning aujourd’hui ? Signale les doublons et les longs trous."
+      },
+      "tomorrow": {
+        "label": "Demain",
+        "prompt": "Qui vois-je demain, et pourquoi ? Une ligne par patient."
+      },
+      "note": {
+        "label": "Rédiger une note clinique",
+        "prompt": "Rédige une note clinique pour [nom du patient] : [constatations et conduite à tenir]."
+      },
+      "patientSummary": {
+        "label": "Synthèse pour le patient",
+        "prompt": "Rédige une synthèse en langage simple pour [nom du patient], que je relirai avant de la publier sur le portail."
+      }
+    },
+    "patient": {
+      "next": {
+        "label": "Mon prochain rendez-vous",
+        "prompt": "Quand est mon prochain rendez-vous, et avec quel médecin ?"
+      },
+      "book": {
+        "label": "Prendre rendez-vous",
+        "prompt": "Réserve un bilan de [médecine générale] la semaine prochaine, le matin."
+      },
+      "reschedule": {
+        "label": "Déplacer un rendez-vous",
+        "prompt": "Déplace mon prochain rendez-vous à un autre jour la semaine prochaine."
+      },
+      "cancel": {
+        "label": "Annuler un rendez-vous",
+        "prompt": "Annule mon prochain rendez-vous."
+      },
+      "explain": {
+        "label": "Expliquer ma synthèse",
+        "prompt": "Explique ma dernière synthèse de santé avec des mots simples."
+      },
+      "documents": {
+        "label": "Mes documents",
+        "prompt": "Que disent mes documents envoyés, avec des mots simples ?"
+      },
+      "prepare": {
+        "label": "Préparer une visite",
+        "prompt": "Comment préparer mon prochain rendez-vous ? Que dois-je apporter ?"
+      },
+      "hours": {
+        "label": "Horaires",
+        "prompt": "Quels sont les horaires d’ouverture de la clinique ?"
+      },
+      "doctors": {
+        "label": "Médecins",
+        "prompt": "Quels médecins puis-je réserver, et quelles sont leurs spécialités ?"
+      }
+    }
   }
 }

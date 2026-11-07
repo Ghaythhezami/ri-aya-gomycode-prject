@@ -6,6 +6,7 @@ import {
   Check,
   CircleAlert,
   History,
+  LayoutList,
   Loader2,
   Plus,
   Send,
@@ -19,6 +20,8 @@ import { EmptyState } from '../../common/States';
 import type { AssistantClient } from './client';
 import { MarkdownText } from './MarkdownText';
 import { ProposalCard } from './ProposalCard';
+import { PromptTemplates } from './PromptTemplates';
+import { firstBlank } from './templateCatalogue';
 import {
   useAssistantChat,
   useConversations,
@@ -136,6 +139,8 @@ export function AssistantPanel({
   const chat = useAssistantChat({ client, persona, context, onChanged });
   const [draft, setDraft] = useState('');
   const [history, setHistory] = useState(false);
+  const [templates, setTemplates] = useState(false);
+  const pendingSelection = useRef<{ start: number; end: number } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const conversations = useConversations(client, history);
   const scroller = useRef<HTMLDivElement>(null);
@@ -154,7 +159,8 @@ export function AssistantPanel({
   // Keep the newest content in view as tokens arrive.
   useEffect(() => {
     const node = scroller.current;
-    if (node) node.scrollTop = node.scrollHeight;
+    // Only a conversation follows its newest message; the template list starts at the top.
+    if (node && chat.messages.length > 0) node.scrollTop = node.scrollHeight;
   }, [chat.messages]);
 
   // Announce each assistant message once, when it completes (not per token).
@@ -183,21 +189,39 @@ export function AssistantPanel({
     }
   };
 
-  const suggestions: string[] =
-    persona === 'patient'
-      ? ['book', 'next', 'explain'].map((k) => t(`assistant.suggestions.patient.${k}`))
-      : persona === 'doctor'
-        ? [
-            context?.patientId
-              ? t('assistant.suggestions.doctor.thisPatient')
-              : t('assistant.suggestions.doctor.summarize'),
-            t('assistant.suggestions.doctor.lastLab'),
-          ]
-        : ['waiting', 'slot', 'alerts'].map((k) => t(`assistant.suggestions.staff.${k}`));
+  const hasPatientContext = Boolean(context?.patientId);
+
+  /** A complete template is sent; one with a [blank] goes to the composer, blank selected. */
+  const pickTemplate = (prompt: string, needsInput: boolean) => {
+    setTemplates(false);
+    setHistory(false);
+    if (!needsInput && !chat.streaming) {
+      void chat.send(prompt);
+      return;
+    }
+    pendingSelection.current = firstBlank(prompt) ?? { start: prompt.length, end: prompt.length };
+    setDraft(prompt);
+  };
+
+  // Grow the composer with its content (up to the max height set in CSS).
+  useEffect(() => {
+    const node = input.current;
+    if (!node) return;
+    node.style.height = 'auto';
+    node.style.height = `${node.scrollHeight}px`;
+    // After a template was picked: focus the composer and select its first [blank].
+    const selection = pendingSelection.current;
+    if (selection) {
+      pendingSelection.current = null;
+      node.focus();
+      node.setSelectionRange(selection.start, selection.end);
+    }
+  }, [draft]);
 
   const startNew = () => {
     chat.reset();
     setHistory(false);
+    setTemplates(false);
     input.current?.focus();
   };
 
@@ -210,7 +234,10 @@ export function AssistantPanel({
           variant="ghost"
           size="sm"
           aria-pressed={history}
-          onClick={() => setHistory((v) => !v)}
+          onClick={() => {
+            setTemplates(false);
+            setHistory((v) => !v);
+          }}
           disabled={Boolean(unavailable)}
         >
           <History size={16} aria-hidden="true" />
@@ -226,7 +253,21 @@ export function AssistantPanel({
         {announce}
       </div>
 
-      {history ? (
+      {templates ? (
+        <div className="min-h-0 flex-1 overflow-y-auto p-3">
+          <div className="mb-3 flex items-center justify-between gap-2">
+            <h3 className="text-sm font-semibold text-text">{t('assistant.templates.title')}</h3>
+            <Button variant="ghost" size="sm" onClick={() => setTemplates(false)}>
+              {t('assistant.templates.back')}
+            </Button>
+          </div>
+          <PromptTemplates
+            persona={persona}
+            hasPatientContext={hasPatientContext}
+            onPick={pickTemplate}
+          />
+        </div>
+      ) : history ? (
         <div className="min-h-0 flex-1 overflow-y-auto p-3">
           <h3 className="mb-2 text-sm font-semibold text-text">{t('assistant.historyTitle')}</h3>
           {conversations.failed ? (
@@ -300,22 +341,14 @@ export function AssistantPanel({
       ) : (
         <div ref={scroller} className="min-h-0 flex-1 overflow-y-auto p-3">
           {chat.messages.length === 0 && !unavailable && !consent && !unverified ? (
-            <div className="py-4">
+            <div className="py-2">
               <p className="text-sm font-medium text-text">{t(`assistant.greeting.${persona}`)}</p>
-              <p className="mt-1 text-sm text-muted">{t('assistant.tryAsking')}</p>
-              <ul className="mt-3 flex flex-wrap gap-2">
-                {suggestions.map((s) => (
-                  <li key={s}>
-                    <button
-                      type="button"
-                      className="min-h-10 rounded-full border border-border-strong bg-surface px-3 text-start text-sm text-text hover:bg-accent"
-                      onClick={() => void chat.send(s)}
-                    >
-                      {s}
-                    </button>
-                  </li>
-                ))}
-              </ul>
+              <p className="mb-4 mt-1 text-sm text-muted">{t('assistant.templates.intro')}</p>
+              <PromptTemplates
+                persona={persona}
+                hasPatientContext={hasPatientContext}
+                onPick={pickTemplate}
+              />
             </div>
           ) : (
             <ol className="space-y-3" aria-label={t('assistant.messages')}>
@@ -376,6 +409,20 @@ export function AssistantPanel({
           )}
           <form onSubmit={submit} className="border-t border-border bg-surface p-3">
             <div className="flex items-end gap-2">
+              <Button
+                type="button"
+                variant="ghost"
+                aria-pressed={templates}
+                aria-label={t('assistant.templates.open')}
+                title={t('assistant.templates.open')}
+                onClick={() => {
+                  setHistory(false);
+                  setTemplates((v) => !v);
+                }}
+                className="shrink-0 px-2.5"
+              >
+                <LayoutList size={18} aria-hidden="true" />
+              </Button>
               <label className="min-w-0 flex-1">
                 <span className="sr-only">{t('assistant.composer')}</span>
                 <textarea
@@ -383,10 +430,11 @@ export function AssistantPanel({
                   value={draft}
                   onChange={(e) => setDraft(e.target.value)}
                   onKeyDown={onKeyDown}
-                  rows={2}
+                  rows={1}
+                  aria-describedby="assistant-composer-hint"
                   maxLength={4000}
                   placeholder={t('assistant.placeholder')}
-                  className="max-h-40 min-h-11 w-full resize-none rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder:text-muted"
+                  className="max-h-40 min-h-11 w-full resize-none overflow-y-auto rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-text placeholder:text-muted"
                 />
               </label>
               {chat.streaming ? (
@@ -401,6 +449,12 @@ export function AssistantPanel({
                 </Button>
               )}
             </div>
+            <p
+              id="assistant-composer-hint"
+              className="mt-1.5 hidden text-[11px] text-muted sm:block"
+            >
+              {t('assistant.templates.hint')}
+            </p>
           </form>
         </>
       )}

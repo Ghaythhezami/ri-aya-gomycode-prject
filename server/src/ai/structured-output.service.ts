@@ -4,8 +4,8 @@ import { z } from 'zod';
 import { AiBudgetExceededException } from './ai-errors';
 import { AiGuardRailsService, estimateTokens } from './ai-guard-rails.service';
 import { AnthropicClientProvider } from './anthropic-client.provider';
-import { EXTRACTION_MAX_TOKENS, FALLBACK_BETA } from './ai.constants';
-import { toStrictJsonSchema } from './json-schema';
+import { budgetTokens, EXTRACTION_MAX_TOKENS, FALLBACK_BETA } from './ai.constants';
+import { stripNulls, toStrictJsonSchema } from './json-schema';
 
 import type * as Beta from '@anthropic-ai/sdk/resources/beta/messages/messages';
 
@@ -98,13 +98,7 @@ export class StructuredOutputService {
       );
     }
 
-    await this.guard.settle(
-      reservation,
-      message.usage.input_tokens +
-        (message.usage.cache_creation_input_tokens ?? 0) +
-        (message.usage.cache_read_input_tokens ?? 0) +
-        message.usage.output_tokens,
-    );
+    await this.guard.settle(reservation, budgetTokens(message.usage));
 
     if (message.stop_reason === 'refusal') throw new StructuredOutputError('AI_REFUSED');
     if (message.stop_reason === 'max_tokens') throw new StructuredOutputError('AI_MAX_TOKENS');
@@ -114,7 +108,7 @@ export class StructuredOutputService {
       .map((b) => b.text)
       .join('');
     try {
-      const parsed = params.schema.safeParse(JSON.parse(text));
+      const parsed = params.schema.safeParse(stripNulls(JSON.parse(text)));
       if (!parsed.success) throw new Error('schema');
       return parsed.data;
     } catch {

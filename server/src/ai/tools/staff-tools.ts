@@ -86,10 +86,11 @@ export function staffTools(deps: ToolDeps): AssistantTool[] {
     defineTool({
       name: 'search_patients',
       description:
-        'Search patients of this clinic by name, code or phone. Returns id, code, name, birth date, masked phone. Never clinical notes.',
+        'Search patients of this clinic by name, code or phone. Returns id, code, name, birth date, masked phone. Never clinical notes. Use it to get the patientId other tools need.',
       schema: z.object({ query: z.string().min(2).max(100) }),
       capability: 'viewPatients',
-      personas: ['staff'],
+      // Doctors need it too: their patient tools take an id, users give a name.
+      personas: ['staff', 'doctor'],
       run: async (input, actor) => {
         const terms = input.query.trim().split(/\s+/).filter(Boolean);
         const rows = await deps.prisma.patient.findMany({
@@ -162,7 +163,8 @@ export function staffTools(deps: ToolDeps): AssistantTool[] {
           orderBy: { startsAt: 'asc' },
           take: 10,
         });
-        let noShowRisk: unknown = null;
+        // Explicit status so the model never mistakes "no risky hours" for an outage.
+        let noShowRisk: unknown = { status: 'unavailable' };
         const insights = deps.insights();
         if (insights && actor.userId && actor.role) {
           try {
@@ -182,6 +184,7 @@ export function staffTools(deps: ToolDeps): AssistantTool[] {
                 .filter((h) => h.count >= 5 && h.rate >= Math.max(0.15, base * 1.5))
                 .map((h) => Number(h.key)),
             );
+            noShowRisk = { status: 'ok', overallRate: base, hotHours: [], appointments: [] };
             if (hot.size) {
               const upcoming = await deps.prisma.appointment.findMany({
                 where: {
@@ -194,6 +197,7 @@ export function staffTools(deps: ToolDeps): AssistantTool[] {
                 take: 100,
               });
               noShowRisk = {
+                status: 'ok',
                 overallRate: base,
                 hotHours: [...hot],
                 appointments: upcoming
@@ -203,7 +207,7 @@ export function staffTools(deps: ToolDeps): AssistantTool[] {
               };
             }
           } catch {
-            noShowRisk = null; // analytics service unavailable: alerts still work
+            noShowRisk = { status: 'unavailable' }; // analytics service down: alerts still work
           }
         }
         return {

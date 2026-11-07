@@ -130,9 +130,15 @@ interface Translator {
   exists: (key: string) => boolean;
 }
 
-/** A param the API did not send must never show as a raw `{{placeholder}}`. */
-function fillMissing(text: string): string {
-  return text.replace(/\{\{\s*\w+\s*\}\}/g, '—');
+/**
+ * A param the API did not send must never show as a raw `{{placeholder}}`: a parenthetical
+ * that only exists for that param is dropped ("Sarah (queue {{number}}) is late" → "Sarah is
+ * late"), any other placeholder becomes a dash.
+ */
+export function fillMissing(text: string): string {
+  return text
+    .replace(/\s*\([^()]*\{\{\s*\w+\s*\}\}[^()]*\)/g, '')
+    .replace(/\{\{\s*\w+\s*\}\}/g, '—');
 }
 
 /** Translate a notification's title and body; unknown templates get a readable fallback. */

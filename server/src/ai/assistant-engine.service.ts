@@ -16,6 +16,7 @@ import { wrapToolData } from './ai-format';
 import { toStrictJsonSchema } from './json-schema';
 import { systemPromptFor, volatileBlock } from './prompts';
 import {
+  budgetTokens,
   CHAT_MAX_TOKENS,
   FALLBACK_BETA,
   MAX_CONVERSATION_MESSAGES,
@@ -231,11 +232,7 @@ export class AssistantEngine {
         try {
           message = await stream.finalMessage();
           jsonRetries = 0;
-          used =
-            message.usage.input_tokens +
-            (message.usage.cache_creation_input_tokens ?? 0) +
-            (message.usage.cache_read_input_tokens ?? 0) +
-            message.usage.output_tokens;
+          used = budgetTokens(message.usage);
           await this.guard.settle(reservation, used);
         } catch (error) {
           await this.guard.settle(reservation, 0);

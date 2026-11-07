@@ -9,8 +9,26 @@ export const MAX_MESSAGE_CHARS = 4000;
 export const MAX_CONVERSATION_MESSAGES = 60;
 export const CHAT_RATE_LIMIT_PER_MINUTE = 20;
 export const DEFAULT_DAILY_TOKEN_BUDGET = 2_000_000;
-/** Per patient account and day; override with AI_PATIENT_DAILY_TOKEN_BUDGET. */
-export const DEFAULT_PATIENT_DAILY_TOKEN_BUDGET = 60_000;
+/** Per patient account and day (about 15 conversations); override with AI_PATIENT_DAILY_TOKEN_BUDGET. */
+export const DEFAULT_PATIENT_DAILY_TOKEN_BUDGET = 250_000;
+
+/**
+ * Budget weight of a usage report: cache reads are billed at a tenth of the input price, so
+ * they count for a tenth; everything else counts in full.
+ */
+export function budgetTokens(usage: {
+  input_tokens: number;
+  output_tokens: number;
+  cache_creation_input_tokens?: number | null;
+  cache_read_input_tokens?: number | null;
+}): number {
+  return (
+    usage.input_tokens +
+    (usage.cache_creation_input_tokens ?? 0) +
+    Math.ceil((usage.cache_read_input_tokens ?? 0) / 10) +
+    usage.output_tokens
+  );
+}
 export const CONVERSATION_LIST_LIMIT = 20;
 export const CONVERSATION_WINDOW_DAYS = 30;
 /** A tool result longer than this is cut (the model is told). */

@@ -1,3 +1,4 @@
+import { budgetTokens } from './ai.constants';
 import { AiGuardRailsService } from './ai-guard-rails.service';
 import { AssistantController } from './assistant.controller';
 import { PortalAssistantController } from './portal-assistant.controller';
@@ -127,17 +128,17 @@ describe('AiGuardRailsService', () => {
     expect(store.get(key)).toBe(1_200);
   });
 
-  it('caps a patient account at AI_PATIENT_DAILY_TOKEN_BUDGET (default 60000) and releases the clinic share', async () => {
+  it('caps a patient account at AI_PATIENT_DAILY_TOKEN_BUDGET (default 250000) and releases the clinic share', async () => {
     const { service, store } = guard();
-    expect(service.patientDailyBudget).toBe(60_000);
-    await service.reserve('clinic-1', 'acc-1', 40_000);
-    await expect(service.reserve('clinic-1', 'acc-1', 40_000)).rejects.toBeInstanceOf(
+    expect(service.patientDailyBudget).toBe(250_000);
+    await service.reserve('clinic-1', 'acc-1', 150_000);
+    await expect(service.reserve('clinic-1', 'acc-1', 150_000)).rejects.toBeInstanceOf(
       AiBudgetExceededException,
     );
     const clinicKey = [...store.keys()].find((k) => k.startsWith('ai:budget:clinic-1:'))!;
-    expect(store.get(clinicKey)).toBe(40_000);
+    expect(store.get(clinicKey)).toBe(150_000);
     const patientKey = [...store.keys()].find((k) => k.startsWith('ai:budget:patient:acc-1:'))!;
-    expect(store.get(patientKey)).toBe(40_000);
+    expect(store.get(patientKey)).toBe(150_000);
   });
 
   it('fails closed with 503 AI_UNAVAILABLE when the security-state store is down', async () => {
@@ -346,5 +347,19 @@ describe('conversations and SSE', () => {
     expect(written).toEqual(['event: text\ndata: {"delta":"hi"}\n\n']);
     expect(aborted).toBe(true);
     expect(res.end).toHaveBeenCalled();
+  });
+});
+
+describe('budgetTokens', () => {
+  it('counts cache reads at a tenth and everything else in full', () => {
+    expect(
+      budgetTokens({
+        input_tokens: 100,
+        cache_creation_input_tokens: 2000,
+        cache_read_input_tokens: 5001,
+        output_tokens: 300,
+      }),
+    ).toBe(100 + 2000 + 501 + 300);
+    expect(budgetTokens({ input_tokens: 10, output_tokens: 5 })).toBe(15);
   });
 });

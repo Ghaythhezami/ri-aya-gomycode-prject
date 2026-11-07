@@ -201,6 +201,18 @@ describe('AssistantEngine', () => {
     expect(names(['manageAppointments'])).not.toContain('my_appointments');
   });
 
+  it('gives doctors patient search (to resolve a name to the id their tools need)', () => {
+    const t = build([]);
+    const doctor = staffActor(['viewPatients', 'readClinicalNotes'], {
+      persona: 'doctor',
+      doctorId: 'd1',
+    });
+    const names = t.tools.forActor(doctor).map((x) => x.name);
+    expect(names).toContain('search_patients');
+    expect(names).toContain('get_patient_overview');
+    expect(names).not.toContain('propose_booking');
+  });
+
   it('emits a proposal with a server id and preview, audits it and writes nothing', async () => {
     const t = build([
       {

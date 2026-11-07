@@ -32,6 +32,7 @@ export function Popover({
   preferredSide = 'bottom',
   preferredAlign = 'start',
   label,
+  panelClassName = 'w-72 p-3',
 }: {
   /** Render function so the trigger can reflect the open state. */
   trigger: (state: {
@@ -43,6 +44,8 @@ export function Popover({
   preferredSide?: Side;
   preferredAlign?: Align;
   label?: string;
+  /** Width and padding of the panel (default `w-72 p-3`). */
+  panelClassName?: string;
 }) {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState<{ top: number; left: number; side: Side }>({
@@ -131,7 +134,7 @@ export function Popover({
           role="dialog"
           aria-label={label}
           style={{ position: 'fixed', top: position.top, left: position.left }}
-          className="z-40 w-72 rounded-md border border-border bg-surface p-3 shadow-(--shadow-overlay)"
+          className={`z-40 rounded-md border border-border bg-surface shadow-(--shadow-overlay) ${panelClassName}`}
           data-side={position.side}
         >
           {children}

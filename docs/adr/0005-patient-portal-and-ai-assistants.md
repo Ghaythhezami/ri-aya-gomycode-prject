@@ -49,7 +49,7 @@ three personas:
 | Persona   | Who                                           | Tools (read)                                                                                                                                                                   | Proposals (need a human click)                                    |
 | --------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------- |
 | `staff`   | receptionist, clinic admin                    | schedule by day/doctor, find slots, search patients (no clinical notes), alerts (unread notifications, conflicts, no-show risk from insights), queue status, optimiser preview | book, reschedule, cancel, check-in                                |
-| `doctor`  | doctors (and admins with `readClinicalNotes`) | own schedule, patient overview incl. clinical notes, documents and their extractions, appointment history                                                                      | save clinical summary, publish patient summary, add clinical note |
+| `doctor`  | doctors (and admins with `readClinicalNotes`) | own schedule, patient search, patient overview incl. clinical notes, documents and their extractions, appointment history                                                      | save clinical summary, publish patient summary, add clinical note |
 | `patient` | portal patients with AI consent               | own appointments, clinic doctors and hours, slots, published summaries, own documents' patient-facing summaries                                                                | book, reschedule, cancel own appointment                          |
 
 - **Tools mirror RBAC:** each tool declares the capability it needs; the tool list sent to
@@ -71,6 +71,10 @@ three personas:
   `done` (usage), `error` (code). Manual streaming tool loop with `eager_input_streaming`,
   zod validation of every tool input, max 8 tool rounds, parallel tool calls answered in one
   user message.
+- **Strict tool schemas:** every property is sent as required, optional ones as `T | null`
+  (`server/src/ai/json-schema.ts`); nulls are stripped before the zod validation. With
+  optional keys the model left `doctorId` / `specialty` out under strict decoding and looped
+  on the slot tools until the round limit.
 - **Prompt caching:** frozen system prompt per persona + deterministic tool list with
   `cache_control`; volatile context (date, clinic name, user name) after the breakpoint.
 - **Conversations** in `ai_conversations` (content blocks replayed append-only), last 30
@@ -78,10 +82,17 @@ three personas:
 - **Safety:** persona prompts forbid diagnosis and prescriptions, direct emergencies to the
   emergency number and the clinic, answer only from tool data, say when unsure; tool and
   document text is wrapped as untrusted data (prompt-injection defence); patients need
-  `aiConsentAt`; clinic switch `aiAssistantsEnabled`; per-user rate limit (Redis) and a daily
-  token budget per clinic; audit rows for every proposal confirmed; logs hold ids and
+  `aiConsentAt`; clinic switch `aiAssistantsEnabled`; per-user rate limit (Redis), a daily
+  token budget per clinic (2 M) and per patient account (250 k), cache reads counted at a tenth; audit rows for every proposal confirmed; logs hold ids and
   counts only. Without `ANTHROPIC_API_KEY` every AI route answers `503 AI_UNAVAILABLE`
   and the UI hides the assistant.
+
+- **Ease of use:** each persona has a prompt-template library (staff: today, booking, patients;
+  doctor: patients, my day, notes and summaries; patient: appointments, health, clinic) on the
+  empty screen and behind the composer's templates button. A template with a `[blank]` goes
+  to the composer with the blank selected; a complete one is sent at once. Doctors on a patient
+  page get "this patient" variants. Catalogue: `backoffice/src/features/assistant/templateCatalogue.ts`,
+  text in the assistant i18n catalogue (en, fr, ar).
 
 ## 3. Clinical documents (OCR / PDF)
 

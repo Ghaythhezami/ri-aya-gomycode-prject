@@ -34,8 +34,8 @@ function BellPanel({ unread }: { unread: number }) {
   const items = (data?.items ?? []).slice(0, BELL_LIMIT);
 
   return (
-    <div className="-m-1 w-[min(20rem,calc(100vw-3rem))]">
-      <div className="flex items-center justify-between gap-2 px-2 pb-2">
+    <div className="flex max-h-[min(32rem,calc(100dvh-6rem))] flex-col">
+      <div className="flex shrink-0 items-center justify-between gap-2 px-3 pb-1 pt-2">
         <h2 className="text-sm font-semibold text-text">{t('notifications.title')}</h2>
         <button
           type="button"
@@ -47,9 +47,9 @@ function BellPanel({ unread }: { unread: number }) {
           {t('notifications.markAll')}
         </button>
       </div>
-      {isLoading && <Skeleton className="h-32" />}
+      {isLoading && <Skeleton className="mx-3 h-32" />}
       {isError && !data && (
-        <p role="alert" className="px-2 py-3 text-sm text-error">
+        <p role="alert" className="px-3 py-3 text-sm text-error">
           {t('notifications.loadError')}{' '}
           <button type="button" className="font-medium underline" onClick={() => void refetch()}>
             {t('clinic.retry')}
@@ -57,12 +57,12 @@ function BellPanel({ unread }: { unread: number }) {
         </p>
       )}
       {data && items.length === 0 && (
-        <p className="px-2 py-6 text-center text-sm text-muted">
+        <p className="px-3 py-6 text-center text-sm text-muted">
           {t('notifications.empty.all.title')}
         </p>
       )}
       {items.length > 0 && (
-        <ul className="max-h-80 overflow-y-auto">
+        <ul className="min-h-0 flex-1 space-y-0.5 overflow-y-auto overscroll-contain px-1.5 [scrollbar-gutter:stable] [scrollbar-width:thin]">
           {items.map((n) => {
             const { Icon, className } = tileFor(n);
             const { title, body } = text.render(n);
@@ -90,27 +90,27 @@ function BellPanel({ unread }: { unread: number }) {
                     )}
                     {title}
                   </span>
-                  {body && <span className="block truncate text-xs text-muted">{body}</span>}
-                  <span className="block text-xs text-muted">
+                  {body && <span className="line-clamp-2 text-xs text-muted">{body}</span>}
+                  <span className="mt-0.5 block text-xs text-muted">
                     {t(`notifications.categories.${n.category}`)} · {text.ago(n.createdAt)}
                   </span>
                 </span>
               </>
             );
             return (
-              <li key={n.id} className="flex items-start gap-1 rounded-md py-1.5 hover:bg-bg">
+              <li key={n.id} className="flex items-start gap-1 rounded-md py-2 hover:bg-bg">
                 {path ? (
                   <Link
                     to={path}
                     onClick={() => {
                       if (!n.read) void markRead(n.id);
                     }}
-                    className="flex min-w-0 flex-1 items-start gap-2 px-1"
+                    className="flex min-w-0 flex-1 items-start gap-2.5 rounded-md px-1.5 focus-visible:outline-2 focus-visible:outline-primary"
                   >
                     {content}
                   </Link>
                 ) : (
-                  <div className="flex min-w-0 flex-1 items-start gap-2 px-1">{content}</div>
+                  <div className="flex min-w-0 flex-1 items-start gap-2.5 px-1.5">{content}</div>
                 )}
                 {!n.read && (
                   <button
@@ -118,7 +118,7 @@ function BellPanel({ unread }: { unread: number }) {
                     aria-label={t('notifications.markRead')}
                     title={t('notifications.markRead')}
                     onClick={() => void markRead(n.id)}
-                    className="grid size-10 shrink-0 place-items-center rounded-md text-muted hover:bg-accent hover:text-primary"
+                    className="-my-1 grid size-9 shrink-0 place-items-center rounded-md text-muted hover:bg-accent hover:text-primary"
                   >
                     <Check size={15} aria-hidden="true" />
                   </button>
@@ -130,7 +130,7 @@ function BellPanel({ unread }: { unread: number }) {
       )}
       <Link
         to="/notifications"
-        className="mt-2 flex min-h-10 items-center justify-center rounded-md border border-border text-sm font-medium text-text hover:bg-bg"
+        className="mx-3 mb-3 mt-2 flex min-h-10 shrink-0 items-center justify-center rounded-md border border-border text-sm font-medium text-text hover:bg-bg"
       >
         {t('notifications.viewAll')}
       </Link>
@@ -205,6 +205,7 @@ export function NotificationBell() {
         key={location.pathname}
         label={t('notifications.title')}
         preferredAlign="end"
+        panelClassName="w-[min(24rem,calc(100vw-1rem))] p-0"
         trigger={({ open, toggle, ref }) => (
           <button
             ref={ref}

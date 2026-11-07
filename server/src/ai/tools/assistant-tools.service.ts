@@ -11,6 +11,7 @@ import { doctorTools } from './doctor-tools';
 import { patientTools } from './patient-tools';
 import { staffTools } from './staff-tools';
 import type { ToolDeps } from './tool-deps';
+import { stripNulls } from '../json-schema';
 import { ToolError, type AssistantTool, type ToolActor, type ToolResult } from './tool-types';
 
 /** True when the tool output holds a non-empty appointment `reason` (written by the patient). */
@@ -78,7 +79,7 @@ export class AssistantToolsService {
   async execute(name: string, rawInput: unknown, actor: ToolActor): Promise<ToolResult> {
     const tool = this.forActor(actor).find((t) => t.name === name);
     if (!tool) throw new ToolError('Unknown tool or not permitted');
-    const parsed = tool.schema.safeParse(rawInput);
+    const parsed = tool.schema.safeParse(stripNulls(rawInput));
     if (!parsed.success) {
       throw new ToolError(
         `Invalid input: ${parsed.error.issues.map((i) => `${i.path.join('.')} ${i.message}`).join('; ')}`,

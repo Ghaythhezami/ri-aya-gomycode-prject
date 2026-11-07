@@ -12,23 +12,6 @@
     "patient": "How can I help with your care?"
   },
   "tryAsking": "Try asking:",
-  "suggestions": {
-    "staff": {
-      "waiting": "Who is waiting longest?",
-      "slot": "Find a cardiology slot this week",
-      "alerts": "Summarize today's alerts"
-    },
-    "doctor": {
-      "summarize": "Summarize Leila Ben Salah",
-      "thisPatient": "Summarize this patient",
-      "lastLab": "What did the last lab report show?"
-    },
-    "patient": {
-      "book": "Book a check-up next week",
-      "next": "When is my next appointment?",
-      "explain": "Explain my last summary"
-    }
-  },
   "history": "History",
   "new": "New chat",
   "historyTitle": "Recent conversations",
@@ -126,5 +109,150 @@
     "note": "Clinical note (full text)",
     "clinicianContent": "Clinician summary",
     "patientContent": "Patient-facing version"
+  },
+  "templates": {
+    "title": "Prompt templates",
+    "open": "Prompt templates",
+    "back": "Back to chat",
+    "intro": "Pick a template to start. Ones with [brackets] go to the message box so you can fill in the blank.",
+    "hint": "Enter to send · Shift+Enter for a new line · Fill the [blanks] before sending",
+    "fill": "Fill in",
+    "ask": "Ask",
+    "categories": {
+      "today": "Today",
+      "booking": "Booking",
+      "patients": "Patients",
+      "day": "My day",
+      "writing": "Notes and summaries",
+      "appointments": "My appointments",
+      "health": "My health",
+      "clinic": "The clinic"
+    },
+    "staff": {
+      "waiting": {
+        "label": "Longest wait",
+        "prompt": "Who is waiting longest right now, and with which doctor?"
+      },
+      "queue": {
+        "label": "Queue status",
+        "prompt": "Give me the queue status for each doctor: waiting, in consultation, delays."
+      },
+      "schedule": {
+        "label": "Today's schedule",
+        "prompt": "Show today's appointments by doctor, with any gaps or overlaps."
+      },
+      "alerts": {
+        "label": "Alerts summary",
+        "prompt": "Summarize today's alerts in 3 bullet points and tell me what to handle first."
+      },
+      "slot": {
+        "label": "Find a free slot",
+        "prompt": "Find the next free [specialty] slot this week."
+      },
+      "book": {
+        "label": "Book an appointment",
+        "prompt": "Book [patient name] with [doctor or specialty] on [day] in the morning."
+      },
+      "reschedule": {
+        "label": "Reschedule",
+        "prompt": "Reschedule appointment [AP-code] to the next free slot with the same doctor."
+      },
+      "cancel": {
+        "label": "Cancel",
+        "prompt": "Cancel appointment [AP-code]. Reason: [reason]."
+      },
+      "find": {
+        "label": "Find a patient",
+        "prompt": "Find the patient [name, code or phone] and show their next appointment."
+      },
+      "checkIn": {
+        "label": "Check in a patient",
+        "prompt": "Check in [patient name] for today's appointment."
+      },
+      "optimize": {
+        "label": "Optimise today",
+        "prompt": "Preview the optimiser for today: what would it change and how much waiting time would it save?"
+      }
+    },
+    "doctor": {
+      "thisPatient": {
+        "label": "Summarize this patient",
+        "prompt": "Summarize this patient: key problems, recent results, medications and open items."
+      },
+      "thisPatientLab": {
+        "label": "Latest results",
+        "prompt": "What did the latest lab report of this patient show? List abnormal values with their reference ranges."
+      },
+      "summarize": {
+        "label": "Pre-visit summary",
+        "prompt": "Summarize [patient name] before the visit: key problems, recent results and open items."
+      },
+      "lastLab": {
+        "label": "Latest lab report",
+        "prompt": "What did [patient name]'s last lab report show? List abnormal values."
+      },
+      "medications": {
+        "label": "Medications",
+        "prompt": "List the current medications of [patient name] found in notes and documents."
+      },
+      "history": {
+        "label": "Visit history",
+        "prompt": "Show the appointment history of [patient name] over the last 6 months."
+      },
+      "schedule": {
+        "label": "My schedule today",
+        "prompt": "What does my schedule look like today? Flag double bookings and long gaps."
+      },
+      "tomorrow": {
+        "label": "Tomorrow",
+        "prompt": "Who am I seeing tomorrow, and why? One line per patient."
+      },
+      "note": {
+        "label": "Draft a clinical note",
+        "prompt": "Draft a clinical note for [patient name]: [findings and plan]."
+      },
+      "patientSummary": {
+        "label": "Summary for the patient",
+        "prompt": "Draft a plain-language summary for [patient name] that I can review and publish to the portal."
+      }
+    },
+    "patient": {
+      "next": {
+        "label": "My next appointment",
+        "prompt": "When is my next appointment, and with which doctor?"
+      },
+      "book": {
+        "label": "Book a visit",
+        "prompt": "Book a [general medicine] check-up next week in the morning."
+      },
+      "reschedule": {
+        "label": "Move an appointment",
+        "prompt": "Move my next appointment to another day next week."
+      },
+      "cancel": {
+        "label": "Cancel an appointment",
+        "prompt": "Cancel my next appointment."
+      },
+      "explain": {
+        "label": "Explain my summary",
+        "prompt": "Explain my latest health summary in simple words."
+      },
+      "documents": {
+        "label": "My documents",
+        "prompt": "What do my uploaded documents say, in simple words?"
+      },
+      "prepare": {
+        "label": "Prepare for a visit",
+        "prompt": "How should I prepare for my next appointment? What should I bring?"
+      },
+      "hours": {
+        "label": "Opening hours",
+        "prompt": "What are the clinic's opening hours?"
+      },
+      "doctors": {
+        "label": "Doctors",
+        "prompt": "Which doctors can I book, and what are their specialties?"
+      }
+    }
   }
 }
