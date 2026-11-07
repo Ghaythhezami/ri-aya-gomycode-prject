@@ -29,6 +29,7 @@ import { Dropdown } from '../common/Dropdown';
 import { ToastProvider } from '../common/Toast';
 import { BookingWizard } from '../features/booking/BookingWizard';
 import { openBooking } from '../features/booking/booking-launcher';
+import { AssistantLauncher } from '../features/assistant/AssistantLauncher';
 import { ChatLauncher } from '../features/chat/ChatLauncher';
 import { NotificationBell } from '../features/notifications/NotificationBell';
 import { useUnreadCount } from '../features/notifications/useUnreadCount';
@@ -437,6 +438,7 @@ export function AppShell() {
 
         <BookingWizard />
         <ChatLauncher />
+        <AssistantLauncher />
       </div>
     </ToastProvider>
   );

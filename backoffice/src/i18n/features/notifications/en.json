@@ -99,6 +99,14 @@
     "scheduleMoved": {
       "title": "Your schedule changed",
       "body": "{{count}} of your appointments were moved on {{date}}."
+    },
+    "portalDuplicate": {
+      "title": "Possible duplicate patient",
+      "body": "{{patient}} registered from the patient portal and may match an existing record. Review and merge if needed."
+    },
+    "portalLinked": {
+      "title": "Portal account linked",
+      "body": "{{patient}} linked their patient portal account."
     }
   },
   "unreadItem": "Unread:",

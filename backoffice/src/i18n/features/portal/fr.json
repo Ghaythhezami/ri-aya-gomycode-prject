@@ -1,0 +1,367 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "appointments": "Rendez-vous",
+    "assistant": "Assistant",
+    "health": "Santé",
+    "profile": "Profil"
+  },
+  "shell": {
+    "brand": "Espace patient",
+    "skip": "Aller au contenu",
+    "nav": "Navigation patient",
+    "account": "Menu du compte",
+    "logout": "Se déconnecter"
+  },
+  "common": {
+    "loading": "Chargement",
+    "retry": "Réessayer",
+    "back": "Retour",
+    "next": "Suivant",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "saving": "Enregistrement...",
+    "saveFailed": "Impossible d’enregistrer vos modifications. Veuillez réessayer.",
+    "required": "obligatoire",
+    "optional": "facultatif"
+  },
+  "fields": {
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "nameHelp": "Renseignez au moins une langue, celle que vous préférez.",
+    "dateOfBirth": "Date de naissance",
+    "phone": "Téléphone mobile",
+    "email": "E-mail",
+    "password": "Mot de passe",
+    "language": "Langue préférée",
+    "reminders": "Comment souhaitez-vous être rappelé(e) ?"
+  },
+  "contact": {
+    "SMS": "SMS",
+    "EMAIL": "E-mail"
+  },
+  "validation": {
+    "nameRequired": "Saisissez votre nom dans au moins une langue",
+    "emailRequired": "Saisissez votre e-mail",
+    "emailInvalid": "Saisissez une adresse e-mail valide",
+    "passwordRequired": "Saisissez votre mot de passe",
+    "passwordPolicy": "Votre mot de passe ne respecte pas toutes les conditions ci-dessous",
+    "phoneInvalid": "Saisissez un numéro valide, par exemple +212 600 000 000",
+    "birthDateRequired": "Saisissez votre date de naissance",
+    "birthDateFuture": "Votre date de naissance ne peut pas être dans le futur",
+    "clinicRequired": "Choisissez votre clinique",
+    "privacyRequired": "Vous devez accepter la notice de confidentialité pour continuer"
+  },
+  "clinic": {
+    "label": "Votre clinique",
+    "search": "Rechercher une clinique par nom ou adresse",
+    "selected": "Sélectionnée",
+    "noResults": "Aucune clinique ne correspond à votre recherche.",
+    "none": "Aucune clinique disponible",
+    "noneHint": "Aucune clinique n’accepte les inscriptions en ligne pour le moment. Demandez un lien d’invitation à votre clinique.",
+    "loadError": "Impossible de charger les cliniques",
+    "loadErrorHint": "Vérifiez votre connexion et réessayez."
+  },
+  "password": {
+    "show": "Afficher le mot de passe",
+    "hide": "Masquer le mot de passe",
+    "met": "condition remplie",
+    "notMet": "condition pas encore remplie",
+    "strength": {
+      "0": "Non saisi",
+      "1": "Faible",
+      "2": "Moyen",
+      "3": "Bon",
+      "4": "Fort"
+    },
+    "rules": {
+      "length": "Au moins 10 caractères",
+      "lower": "Une lettre minuscule",
+      "upper": "Une lettre majuscule",
+      "digit": "Un chiffre",
+      "symbol": "Un symbole, par exemple ! ou #"
+    }
+  },
+  "consent": {
+    "privacyTitle": "J’accepte la notice de confidentialité",
+    "privacyBody": "Ma clinique et RI'AYA traitent mes données personnelles et de santé pour gérer mon suivi, mes rendez-vous et mes rappels. Je peux demander à ma clinique d’accéder à mes données ou de les corriger à tout moment.",
+    "aiTitle": "Autoriser l’assistant IA",
+    "aiBody": "L’assistant répond à vos questions sur vos rendez-vous et vous aide à les réserver. Lorsqu’il est activé, les messages que vous envoyez et les informations de rendez-vous nécessaires sont traités par Claude, un modèle d’IA d’Anthropic. Il ne pose jamais de diagnostic, ne prescrit rien et ne peut rien modifier sans votre confirmation. Vous pouvez le désactiver à tout moment dans votre profil."
+  },
+  "authErrors": {
+    "locked": {
+      "title": "Compte temporairement verrouillé",
+      "body": "Trop de tentatives échouées. Par sécurité, réessayez dans 15 minutes."
+    },
+    "invalid": {
+      "title": "Connexion impossible",
+      "body": "Vérifiez votre clinique, votre e-mail et votre mot de passe, puis réessayez."
+    },
+    "exists": {
+      "title": "Vous avez déjà un compte",
+      "body": "Un compte avec cet e-mail existe déjà dans cette clinique. Connectez-vous plutôt."
+    },
+    "rate": {
+      "title": "Trop de tentatives",
+      "body": "Patientez un instant avant de réessayer."
+    },
+    "validation": {
+      "title": "Certaines informations sont à corriger",
+      "body": "Vérifiez les champs signalés et votre mot de passe, puis réessayez."
+    },
+    "invite": {
+      "title": "Cette invitation n’est pas valide",
+      "body": "Le lien a peut-être expiré ou a déjà été utilisé. Demandez-en un nouveau à votre clinique."
+    },
+    "offline": {
+      "title": "Vous semblez hors ligne",
+      "body": "Vérifiez votre connexion et réessayez."
+    },
+    "generic": {
+      "title": "Une erreur est survenue",
+      "body": "Veuillez réessayer dans un instant."
+    },
+    "lockedRetry": "Trop de tentatives échouées. Par sécurité, réessayez dans {{minutes}} minutes.",
+    "forbidden": {
+      "title": "Indisponible",
+      "body": "Cette clinique n’accepte pas les connexions ou inscriptions de patients en ligne. Veuillez la contacter directement."
+    },
+    "disabled": {
+      "title": "Portail patient indisponible",
+      "body": "Cette clinique a désactivé son portail patient. Veuillez la contacter directement."
+    }
+  },
+  "login": {
+    "title": "Connexion patient",
+    "subtitle": "Connectez-vous pour prendre rendez-vous et consulter vos informations de santé.",
+    "submit": "Se connecter",
+    "submitting": "Connexion...",
+    "noAccount": "Première visite ?",
+    "createAccount": "Créer votre compte patient"
+  },
+  "register": {
+    "title": "Créer votre compte patient",
+    "subtitle": "Prenez rendez-vous en ligne, recevez des rappels et gardez votre résumé de santé au même endroit.",
+    "aboutYou": "À propos de vous",
+    "account": "Votre compte",
+    "consents": "Vos choix",
+    "submit": "Créer mon compte",
+    "submitting": "Création du compte...",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter"
+  },
+  "invite": {
+    "title": "Activer votre compte patient",
+    "subtitle": "Votre clinique vous a invité(e) à l’espace patient. Choisissez un mot de passe pour terminer.",
+    "emailHelp": "Utilisez l’adresse e-mail que votre clinique a enregistrée pour vous.",
+    "submit": "Activer mon compte",
+    "submitting": "Activation...",
+    "haveAccount": "Déjà activé ? Connectez-vous",
+    "missingTitle": "Ce lien d’invitation est incomplet",
+    "missingBody": "Ouvrez le lien complet de votre invitation ou demandez à votre clinique de vous en envoyer un nouveau.",
+    "dobHelp": "Saisissez votre date de naissance telle qu'elle figure dans le dossier de la clinique."
+  },
+  "welcome": {
+    "title": "Bienvenue, {{name}}",
+    "progress": "Progression de la configuration",
+    "stepOf": "Étape {{current}} sur {{total}}",
+    "steps": {
+      "profile": {
+        "title": "Vos informations",
+        "hint": "Vérifiez vos informations pour que votre clinique puisse vous joindre."
+      },
+      "preferences": {
+        "title": "Rappels",
+        "hint": "Choisissez comment vous souhaitez être contacté(e)."
+      },
+      "assistant": {
+        "title": "Assistant IA",
+        "hint": "Décidez si vous souhaitez utiliser l’assistant. Vous pourrez changer d’avis plus tard."
+      },
+      "appointment": {
+        "title": "Premier rendez-vous",
+        "hint": "Réservez votre première consultation maintenant, ou plus tard."
+      }
+    },
+    "remindersHelp": "Nous envoyons un rappel avant chaque rendez-vous.",
+    "bookBody": "Il suffit d’une minute pour choisir un médecin et un horaire.",
+    "bookNow": "Réserver mon premier rendez-vous",
+    "skipBooking": "Passer pour l’instant",
+    "doneTitle": "Tout est prêt",
+    "doneBody": "Votre compte patient est prêt.",
+    "goHome": "Aller à mon espace"
+  },
+  "home": {
+    "greeting": "Bonjour {{name}}",
+    "subtitle": "Voici ce qui vous attend.",
+    "next": "Votre prochain rendez-vous",
+    "noNext": "Aucun rendez-vous à venir",
+    "noNextHint": "Réservez une consultation quand cela vous convient.",
+    "book": "Prendre rendez-vous",
+    "summary": "Votre résumé de santé",
+    "noSummary": "Votre équipe soignante n’a pas encore publié de résumé.",
+    "openHealth": "Ouvrir ma page santé",
+    "documents": "Mes documents",
+    "documentsCount": "Documents enregistrés : {{count}}",
+    "uploadDocument": "Ajouter un document"
+  },
+  "appointments": {
+    "title": "Rendez-vous",
+    "upcoming": "À venir",
+    "past": "Passés",
+    "empty": {
+      "upcoming": "Aucun rendez-vous à venir",
+      "upcomingHint": "Vos prochaines consultations apparaîtront ici.",
+      "past": "Aucun rendez-vous passé",
+      "pastHint": "Vos consultations terminées apparaîtront ici."
+    },
+    "loadError": "Impossible de charger vos rendez-vous",
+    "loadErrorHint": "Vérifiez votre connexion et réessayez.",
+    "reason": "Motif",
+    "reschedule": "Déplacer",
+    "cancel": "Annuler",
+    "tooLate": "Ce rendez-vous est dans le délai de préavis de la clinique et ne peut plus être modifié en ligne. Veuillez appeler la clinique.",
+    "cancelTitle": "Annuler ce rendez-vous ?",
+    "cancelBody": "Votre consultation avec {{doctor}} le {{when}} sera annulée.",
+    "cancelReason": "Motif (facultatif)",
+    "keep": "Garder le rendez-vous",
+    "confirmCancel": "Oui, annuler",
+    "cancelled": "Votre rendez-vous a été annulé.",
+    "cancelFailed": "Impossible d’annuler ce rendez-vous. Réessayez ou appelez la clinique.",
+    "rescheduleTitle": "Choisir un nouvel horaire",
+    "rescheduleBody": "Choisissez un nouveau jour et une nouvelle heure avec {{doctor}}.",
+    "confirmReschedule": "Confirmer le nouvel horaire",
+    "rescheduled": "Votre rendez-vous a été déplacé.",
+    "rescheduleFailed": "Impossible de déplacer ce rendez-vous. Réessayez ou appelez la clinique."
+  },
+  "status": {
+    "SCHEDULED": "Planifié",
+    "CONFIRMED": "Confirmé",
+    "CHECKED_IN": "Arrivé",
+    "IN_PROGRESS": "En cours",
+    "COMPLETED": "Terminé",
+    "CANCELLED": "Annulé",
+    "NO_SHOW": "Manqué"
+  },
+  "slots": {
+    "pickDay": "Choisir un jour",
+    "today": "Aujourd’hui",
+    "otherDate": "Autre date",
+    "partOfDay": "Moment de la journée",
+    "parts": {
+      "morning": "Matin",
+      "afternoon": "Après-midi",
+      "evening": "Soir"
+    },
+    "none": "Aucun horaire libre ce jour-là",
+    "noneHint": "Essayez un autre jour.",
+    "noneInPart": "Aucun horaire libre à ce moment de la journée.",
+    "nextDay": "Voir le jour suivant",
+    "error": "Impossible de charger les horaires disponibles"
+  },
+  "booking": {
+    "title": "Prendre rendez-vous",
+    "subtitle": "Choisissez un médecin et un horaire, puis confirmez. Les heures sont affichées dans le fuseau horaire de votre clinique.",
+    "progress": "Progression de la réservation",
+    "stepOf": "Étape {{current}} sur {{total}}",
+    "steps": {
+      "doctor": "Choisir un médecin",
+      "type": "Type de consultation",
+      "time": "Choisir un jour et une heure",
+      "reason": "Motif de la consultation",
+      "review": "Vérifier et confirmer"
+    },
+    "specialty": "Spécialité",
+    "allSpecialties": "Toutes",
+    "noDoctors": "Aucun médecin disponible",
+    "noDoctorsHint": "La réservation en ligne n’est pas disponible pour le moment. Veuillez appeler votre clinique.",
+    "doctorsError": "Impossible de charger les médecins",
+    "noTypes": "Aucun type de consultation disponible en ligne",
+    "typesError": "Impossible de charger les types de consultation",
+    "minutes": "{{count}} min",
+    "emergencyNote": "La réservation en ligne n’est pas prévue pour les urgences. En cas d’urgence, appelez le numéro d’urgence local ou rendez-vous aux urgences les plus proches.",
+    "reasonLabel": "Motif de la consultation (facultatif)",
+    "reasonHelp": "Une courte note aide le médecin à se préparer. N’indiquez pas de détails sensibles que vous préférez partager en personne.",
+    "doctor": "Médecin",
+    "type": "Type de consultation",
+    "when": "Date et heure",
+    "where": "Clinique",
+    "code": "Référence",
+    "confirm": "Confirmer le rendez-vous",
+    "confirming": "Réservation...",
+    "conflict": "Désolé, cet horaire vient d’être pris par quelqu’un d’autre. Veuillez en choisir un autre.",
+    "alternatives": "Horaires encore disponibles",
+    "pickAnother": "Choisir un autre horaire",
+    "failed": "Impossible de réserver ce rendez-vous. Veuillez réessayer.",
+    "successTitle": "Votre rendez-vous est réservé",
+    "successBody": "Nous vous enverrons un rappel avant votre consultation.",
+    "viewAppointments": "Voir mes rendez-vous",
+    "successBodyUnverified": "Les rappels commenceront dès que la clinique aura vérifié votre identité à l'accueil."
+  },
+  "calendar": {
+    "add": "Ajouter au calendrier",
+    "title": "Rendez-vous avec {{doctor}}"
+  },
+  "health": {
+    "title": "Ma santé",
+    "disclaimer": "Cette page est fournie à titre informatif. Elle ne constitue pas un diagnostic et ne remplace pas l’avis de votre médecin. En cas d’urgence, appelez le numéro d’urgence local.",
+    "summaryTitle": "Résumé de santé",
+    "summaryEmpty": "Pas encore de résumé",
+    "summaryEmptyHint": "Lorsque votre équipe soignante publiera un résumé après une consultation, vous le trouverez ici.",
+    "summaryError": "Impossible de charger votre résumé",
+    "publishedBy": "Publié par {{author}} le {{date}}"
+  },
+  "documents": {
+    "title": "Mes documents",
+    "upload": "Ajouter un document",
+    "hint": "PDF, JPEG ou PNG, jusqu’à 10 Mo. Votre médecin examine ce que vous ajoutez.",
+    "uploading": "Envoi de {{name}} : {{percent}} %",
+    "progress": "Progression de l’envoi",
+    "uploaded": "Document envoyé. Nous le traitons.",
+    "uploadFailed": "L’envoi a échoué. Veuillez réessayer.",
+    "problem": {
+      "type": "Ce type de fichier n’est pas pris en charge. Choisissez un PDF, un JPEG ou un PNG.",
+      "size": "Ce fichier dépasse 10 Mo. Choisissez un fichier plus léger.",
+      "empty": "Ce fichier est vide."
+    },
+    "empty": "Aucun document pour l’instant",
+    "emptyHint": "Ajoutez vos résultats d’analyses, ordonnances ou comptes rendus pour les garder ensemble.",
+    "loadError": "Impossible de charger vos documents",
+    "fromClinic": "Ajouté par votre clinique",
+    "summaryLabel": "Résumé pour vous",
+    "reviewed": "Examiné par votre équipe soignante",
+    "notReviewed": "Pas encore examiné par votre équipe soignante",
+    "failedHint": "Nous n’avons pas pu lire ce fichier. Essayez d’envoyer une copie plus nette.",
+    "status": {
+      "PENDING": "En attente",
+      "PROCESSING": "En cours de traitement",
+      "READY": "Prêt",
+      "FAILED": "Échec"
+    },
+    "categories": {
+      "lab_result": "Résultat d’analyse",
+      "prescription": "Ordonnance",
+      "imaging_report": "Compte rendu d’imagerie",
+      "referral": "Lettre d’orientation",
+      "discharge_summary": "Compte rendu de sortie",
+      "other": "Autre"
+    },
+    "quota": "Vous avez atteint la limite de téléversement pour le moment. Réessayez plus tard.",
+    "locked": "Le téléversement de documents est disponible une fois votre identité vérifiée par la clinique (demandez-le à l'accueil lors de votre prochaine visite)."
+  },
+  "profile": {
+    "title": "Mon profil",
+    "details": "Mes informations",
+    "assistant": "Assistant IA",
+    "aiWithdraw": "La désactivation arrête l’assistant immédiatement. Vos conversations passées restent accessibles.",
+    "saved": "Enregistré"
+  },
+  "unverified": {
+    "title": "Identité non encore vérifiée",
+    "body": "Tant que la clinique n'a pas vérifié votre identité, vous pouvez prendre rendez-vous mais pas téléverser de documents ni utiliser l'assistant. Demandez à l'accueil de vérifier votre identité lors de votre prochaine visite."
+  },
+  "disabled": {
+    "title": "Le portail patient est désactivé",
+    "body": "Cette clinique a désactivé son portail patient ; vous avez été déconnecté. Veuillez contacter directement la clinique."
+  }
+}

@@ -99,6 +99,14 @@
     "scheduleMoved": {
       "title": "Votre planning a changé",
       "body": "{{count}} de vos rendez-vous ont été déplacés le {{date}}."
+    },
+    "portalDuplicate": {
+      "title": "Doublon possible",
+      "body": "{{patient}} s'est inscrit depuis le portail patient et pourrait correspondre à un dossier existant. Vérifiez et fusionnez si besoin."
+    },
+    "portalLinked": {
+      "title": "Compte portail relié",
+      "body": "{{patient}} a relié son compte du portail patient."
     }
   },
   "unreadItem": "Non lue :",

@@ -1,0 +1,117 @@
+{
+  "tab": "Documents",
+  "patientUpload": "Uploaded by patient — review",
+  "reviewed": "Reviewed",
+  "reviewedOn": "Reviewed on {{date}}",
+  "status": {
+    "PENDING": "Pending",
+    "PROCESSING": "Processing",
+    "READY": "Ready",
+    "FAILED": "Failed"
+  },
+  "category": {
+    "lab_result": "Lab result",
+    "prescription": "Prescription",
+    "imaging_report": "Imaging report",
+    "referral": "Referral",
+    "discharge_summary": "Discharge summary",
+    "other": "Other",
+    "unknown": "Not categorised yet"
+  },
+  "upload": {
+    "drop": "Drag a file here or choose one",
+    "hint": "PDF, JPEG or PNG, up to {{max}} MB",
+    "choose": "Choose file",
+    "uploading": "Uploading…",
+    "done": "{{name}} uploaded",
+    "error": {
+      "type": "{{name}}: only PDF, JPEG or PNG files are accepted.",
+      "size": "{{name}}: the file is larger than {{max}} MB.",
+      "empty": "{{name}}: the file is empty."
+    }
+  },
+  "error": {
+    "title": "Could not load this section"
+  },
+  "empty": {
+    "title": "No documents yet",
+    "body": "Upload lab results, prescriptions or reports to extract their key values."
+  },
+  "detail": "Document details",
+  "field": {
+    "category": "Category",
+    "date": "Document date"
+  },
+  "previewError": "The file preview could not be loaded.",
+  "previewAlt": "Preview of {{name}}",
+  "pdfFallback": "This browser cannot show the PDF inline. Use the download link.",
+  "download": "Download file",
+  "processingNote": "The document is being analysed. This page updates by itself.",
+  "failedNote": "Analysis failed. You can try again with Re-process.",
+  "clinicianSummary": "Summary",
+  "values": "Extracted values",
+  "col": {
+    "name": "Name",
+    "value": "Value",
+    "range": "Reference range",
+    "flag": "Flag"
+  },
+  "flag": {
+    "low": "Low",
+    "normal": "Normal",
+    "high": "High",
+    "abnormal": "Abnormal"
+  },
+  "findings": "Findings",
+  "medications": "Medications",
+  "showText": "Show extracted text (OCR)",
+  "hideText": "Hide extracted text",
+  "copy": "Copy text",
+  "copied": "Text copied",
+  "copyFailed": "Could not copy the text",
+  "markReviewed": "Mark reviewed",
+  "reprocess": "Re-process",
+  "delete": "Delete",
+  "deleteTitle": "Delete this document?",
+  "deleteBody": "The file and its extracted data will be removed from the patient record. This cannot be undone.",
+  "toast": {
+    "reprocess": "Re-processing started",
+    "reviewed": "Marked as reviewed",
+    "deleted": "Document deleted"
+  },
+  "summary": {
+    "tab": "AI summary",
+    "intro": "Draft a summary from appointments, notes and documents, edit it, then save or publish it to the patient.",
+    "generate": "Generate draft",
+    "generating": "Generating…",
+    "unavailable": "The AI draft is unavailable right now. You can still write a summary by hand later.",
+    "draftTitle": "Draft summary",
+    "aiNote": "Drafted by AI. Check it against the record before saving.",
+    "clinicianVersion": "Clinical summary",
+    "patientVersion": "Patient-facing version",
+    "patientHelp": "Plain language the patient will read if you publish it.",
+    "sources": "Sources",
+    "source": {
+      "appointment": "Appointment",
+      "document": "Document",
+      "note": "Note"
+    },
+    "save": "Save",
+    "savePublish": "Save & publish to patient",
+    "discard": "Discard draft",
+    "saved": "Summary saved",
+    "published": "Summary published to the patient",
+    "unpublished": "Summary hidden from the patient",
+    "publishedBadge": "Published to patient",
+    "publishedOn": "Published {{date}}",
+    "private": "Not published",
+    "publish": "Publish to patient",
+    "unpublish": "Unpublish",
+    "publishTitle": "Publish to the patient portal?",
+    "publishBody": "The patient-facing version becomes visible to the patient in their portal. You can unpublish it later.",
+    "empty": {
+      "title": "No saved summaries yet",
+      "body": "Generate a draft to create the first one."
+    }
+  }
+}

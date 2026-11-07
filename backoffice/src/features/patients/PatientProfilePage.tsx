@@ -29,6 +29,7 @@ import {
   usePatientQuery,
   useUpdatePatientMutation,
 } from './api';
+import { PortalStatusCard } from './PortalStatusCard';
 import { SecondaryNames } from './SecondaryNames';
 import { canonicalFor, toLocalizedValue, useClinicDefaultLanguage } from './names';
 import { normalizeLocalized } from '@riaya/shared';
@@ -36,6 +37,8 @@ import { PatientFields, type PatientFieldGroup } from './PatientFields';
 import { PatientStatusBadge, ageFromDob } from './PatientStatusBadge';
 import { patientFormSchema, type PatientFormValues } from './schema';
 import { canUser } from '../../auth/permissions';
+import { DocumentsTab } from '../documents/DocumentsTab';
+import { SummaryTab } from '../documents/SummaryTab';
 
 function toFormValues(d: PatientDetail, defaultLanguage?: DataLocale): PatientFormValues {
   return {
@@ -244,6 +247,7 @@ export function PatientProfilePage() {
   const [tab, setTab] = useState('personal');
   const [confirmArchive, setConfirmArchive] = useState(false);
   const canArchive = canUser(user, 'manageAppointments');
+  const canClinical = canUser(user, 'readClinicalNotes');
 
   if (isLoading) {
     return (
@@ -355,6 +359,7 @@ export function PatientProfilePage() {
           )}
         </div>
       </header>
+      {canArchive && <PortalStatusCard patientId={patient.id} />}
       <div className="rounded-lg border border-border bg-surface p-5 shadow-(--shadow-card)">
         <Tabs
           label={t('patients.profile.tabs')}
@@ -383,6 +388,20 @@ export function PatientProfilePage() {
               label: t('patients.profile.notes'),
               content: <NotesTab detail={patient} />,
             },
+            ...(canClinical
+              ? [
+                  {
+                    id: 'documents',
+                    label: t('documents.tab'),
+                    content: <DocumentsTab patientId={patient.id} />,
+                  },
+                  {
+                    id: 'summary',
+                    label: t('documents.summary.tab'),
+                    content: <SummaryTab patientId={patient.id} />,
+                  },
+                ]
+              : []),
             {
               id: 'contact',
               label: t('patients.profile.contactPreferences'),

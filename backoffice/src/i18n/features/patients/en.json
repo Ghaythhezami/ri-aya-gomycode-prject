@@ -117,5 +117,25 @@
     "clinicalNotes": "Clinical notes",
     "clinicalNotesHint": "Visible to doctors and administrators only.",
     "registered": "Registered on {{date}}"
+  },
+  "portal": {
+    "title": "Patient portal",
+    "loadError": "Portal status could not be loaded.",
+    "noAccount": "No portal account yet.",
+    "verifiedBadge": "Identity verified",
+    "unverified": "Not verified",
+    "since": "Since {{date}}",
+    "duplicate": "This account may belong to a duplicate record.",
+    "openDuplicate": "Open the other record",
+    "invite": "Invite to portal",
+    "verify": "Verify identity",
+    "verifyTitle": "Verify this patient's identity?",
+    "verifyBody": "Confirm only after checking the patient's identity in person. Verified patients can upload documents, use the assistant and receive reminders.",
+    "verified": "Identity verified.",
+    "inviteHint": "Share this link or QR code with the patient. They will need their date of birth.",
+    "qrLabel": "QR code of the portal invitation",
+    "copy": "Copy link",
+    "copied": "Link copied.",
+    "expires": "Expires {{date}}"
   }
 }

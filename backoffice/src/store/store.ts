@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import { authReducer, setUser } from './authSlice';
 import { apiSlice } from './api';
 import { clinicApi } from './clinicApi';
+import { portalApi } from '../portal/api';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import i18n from '../i18n';
 import { api } from '../lib/api';
@@ -12,9 +13,10 @@ export const store = configureStore({
     auth: authReducer,
     [apiSlice.reducerPath]: apiSlice.reducer,
     [clinicApi.reducerPath]: clinicApi.reducer,
+    [portalApi.reducerPath]: portalApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(apiSlice.middleware, clinicApi.middleware),
+    getDefaultMiddleware().concat(apiSlice.middleware, clinicApi.middleware, portalApi.middleware),
 });
 
 setupListeners(store.dispatch);

@@ -1,0 +1,130 @@
+{
+  "open": "Open {{persona}}",
+  "close": "Close assistant",
+  "persona": {
+    "staff": "Front-desk assistant",
+    "doctor": "Clinical assistant",
+    "patient": "Care assistant"
+  },
+  "greeting": {
+    "staff": "How can I help at the front desk?",
+    "doctor": "How can I help with your patients?",
+    "patient": "How can I help with your care?"
+  },
+  "tryAsking": "Try asking:",
+  "suggestions": {
+    "staff": {
+      "waiting": "Who is waiting longest?",
+      "slot": "Find a cardiology slot this week",
+      "alerts": "Summarize today's alerts"
+    },
+    "doctor": {
+      "summarize": "Summarize Leila Ben Salah",
+      "thisPatient": "Summarize this patient",
+      "lastLab": "What did the last lab report show?"
+    },
+    "patient": {
+      "book": "Book a check-up next week",
+      "next": "When is my next appointment?",
+      "explain": "Explain my last summary"
+    }
+  },
+  "history": "History",
+  "new": "New chat",
+  "historyTitle": "Recent conversations",
+  "historyError": "Conversations could not be loaded.",
+  "historyEmpty": "No conversations yet",
+  "retry": "Retry",
+  "untitled": "Conversation",
+  "delete": "Delete conversation",
+  "deleteConfirm": "Confirm delete",
+  "messages": "Conversation",
+  "you": "You said",
+  "assistantSays": "Assistant said",
+  "activity": "Assistant activity",
+  "thinking": "The assistant is thinking",
+  "composer": "Message to the assistant",
+  "placeholder": "Ask a question…",
+  "send": "Send",
+  "stop": "Stop",
+  "disclaimer": "AI can make mistakes. Not medical advice. In an emergency call your local emergency number.",
+  "defaultCancelReason": "Cancelled via the assistant",
+  "tool": {
+    "generic": "Working on it",
+    "get_schedule": "Checking the schedule",
+    "find_available_slots": "Looking for open slots",
+    "find_slots": "Looking for open slots",
+    "search_patients": "Searching patients",
+    "get_appointment": "Opening the appointment",
+    "list_alerts": "Checking alerts",
+    "queue_status": "Checking the waiting room",
+    "optimizer_preview": "Running the schedule optimiser",
+    "propose_booking": "Preparing a booking",
+    "propose_reschedule": "Preparing a new time",
+    "propose_cancel": "Preparing a cancellation",
+    "propose_check_in": "Preparing the check-in",
+    "my_schedule": "Checking your schedule",
+    "get_patient_overview": "Reading the patient file",
+    "list_patient_documents": "Listing documents",
+    "get_document": "Reading a document",
+    "propose_save_summary": "Drafting the summary",
+    "propose_clinical_note": "Drafting a clinical note",
+    "my_appointments": "Checking your appointments",
+    "clinic_info": "Looking up the clinic",
+    "my_health_summary": "Reading your health summary"
+  },
+  "toolStatus": {
+    "running": "in progress",
+    "done": "done",
+    "error": "failed"
+  },
+  "action": {
+    "book_appointment": "Book appointment",
+    "reschedule_appointment": "Reschedule appointment",
+    "cancel_appointment": "Cancel appointment",
+    "check_in": "Check in",
+    "save_summary": "Save summary",
+    "add_clinical_note": "Add clinical note"
+  },
+  "proposal": {
+    "title": "Suggested action",
+    "confirm": "Confirm",
+    "dismiss": "Dismiss",
+    "retry": "Try again",
+    "done": "Done",
+    "dismissed": "Dismissed. Nothing was changed.",
+    "conflict": "That time is no longer available.",
+    "failed": "The action could not be completed.",
+    "useAlternative": "Please book {{time}} with {{doctor}} instead.",
+    "askThisTime": "Ask for this time",
+    "patientRequired": "Open a patient record first, then confirm.",
+    "patientContentWarning": "This suggestion was made after reading text supplied by the patient. Check every word before confirming.",
+    "reviewed": "I have reviewed this content",
+    "publish": "Also publish the patient version to the portal"
+  },
+  "error": {
+    "unavailableTitle": "The assistant is unavailable",
+    "unavailableBody": "It is not available right now. Everything else in the app keeps working.",
+    "unavailable": "The assistant is unavailable right now.",
+    "consentTitle": "AI consent needed",
+    "consentBody": "Turn on AI assistance in your profile to use the assistant.",
+    "consentLink": "Go to my profile",
+    "consent": "AI consent is needed to continue.",
+    "budget": "The daily AI limit has been reached. Please try again tomorrow.",
+    "network": "Connection problem. Check your network and try again.",
+    "generic": "Something went wrong. Please try again.",
+    "verificationTitle": "Identity not yet verified",
+    "verificationBody": "The assistant is available once the clinic has verified your identity. Ask at the front desk on your next visit.",
+    "verification": "Your identity must be verified by the clinic first."
+  },
+  "payload": {
+    "doctor": "Doctor",
+    "when": "Date and time",
+    "type": "Type",
+    "reason": "Reason",
+    "appointment": "Appointment",
+    "note": "Clinical note (full text)",
+    "clinicianContent": "Clinician summary",
+    "patientContent": "Patient-facing version"
+  }
+}

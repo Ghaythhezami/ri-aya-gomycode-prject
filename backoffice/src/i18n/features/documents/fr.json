@@ -1,0 +1,117 @@
+{
+  "tab": "Documents",
+  "patientUpload": "Envoyé par le patient — à vérifier",
+  "reviewed": "Vérifié",
+  "reviewedOn": "Vérifié le {{date}}",
+  "status": {
+    "PENDING": "En attente",
+    "PROCESSING": "En cours de traitement",
+    "READY": "Prêt",
+    "FAILED": "Échec"
+  },
+  "category": {
+    "lab_result": "Résultat de laboratoire",
+    "prescription": "Ordonnance",
+    "imaging_report": "Compte rendu d'imagerie",
+    "referral": "Lettre d'orientation",
+    "discharge_summary": "Résumé de sortie",
+    "other": "Autre",
+    "unknown": "Pas encore catégorisé"
+  },
+  "upload": {
+    "drop": "Glissez un fichier ici ou choisissez-en un",
+    "hint": "PDF, JPEG ou PNG, jusqu'à {{max}} Mo",
+    "choose": "Choisir un fichier",
+    "uploading": "Envoi en cours…",
+    "done": "{{name}} envoyé",
+    "error": {
+      "type": "{{name}} : seuls les fichiers PDF, JPEG ou PNG sont acceptés.",
+      "size": "{{name}} : le fichier dépasse {{max}} Mo.",
+      "empty": "{{name}} : le fichier est vide."
+    }
+  },
+  "error": {
+    "title": "Impossible de charger cette section"
+  },
+  "empty": {
+    "title": "Aucun document pour le moment",
+    "body": "Importez des résultats, ordonnances ou rapports pour en extraire les valeurs clés."
+  },
+  "detail": "Détails du document",
+  "field": {
+    "category": "Catégorie",
+    "date": "Date du document"
+  },
+  "previewError": "L'aperçu du fichier n'a pas pu être chargé.",
+  "previewAlt": "Aperçu de {{name}}",
+  "pdfFallback": "Ce navigateur ne peut pas afficher le PDF. Utilisez le lien de téléchargement.",
+  "download": "Télécharger le fichier",
+  "processingNote": "Le document est en cours d'analyse. Cette page se met à jour toute seule.",
+  "failedNote": "L'analyse a échoué. Vous pouvez réessayer avec Relancer l'analyse.",
+  "clinicianSummary": "Résumé",
+  "values": "Valeurs extraites",
+  "col": {
+    "name": "Nom",
+    "value": "Valeur",
+    "range": "Plage de référence",
+    "flag": "Indicateur"
+  },
+  "flag": {
+    "low": "Bas",
+    "normal": "Normal",
+    "high": "Élevé",
+    "abnormal": "Anormal"
+  },
+  "findings": "Constatations",
+  "medications": "Médicaments",
+  "showText": "Afficher le texte extrait (OCR)",
+  "hideText": "Masquer le texte extrait",
+  "copy": "Copier le texte",
+  "copied": "Texte copié",
+  "copyFailed": "Impossible de copier le texte",
+  "markReviewed": "Marquer comme vérifié",
+  "reprocess": "Relancer l'analyse",
+  "delete": "Supprimer",
+  "deleteTitle": "Supprimer ce document ?",
+  "deleteBody": "Le fichier et ses données extraites seront retirés du dossier patient. Cette action est irréversible.",
+  "toast": {
+    "reprocess": "Nouvelle analyse lancée",
+    "reviewed": "Marqué comme vérifié",
+    "deleted": "Document supprimé"
+  },
+  "summary": {
+    "tab": "Résumé IA",
+    "intro": "Rédigez un résumé à partir des rendez-vous, notes et documents, modifiez-le, puis enregistrez-le ou publiez-le pour le patient.",
+    "generate": "Générer un brouillon",
+    "generating": "Génération…",
+    "unavailable": "Le brouillon IA est indisponible pour le moment.",
+    "draftTitle": "Brouillon de résumé",
+    "aiNote": "Rédigé par l'IA. Vérifiez-le avec le dossier avant d'enregistrer.",
+    "clinicianVersion": "Résumé clinique",
+    "patientVersion": "Version pour le patient",
+    "patientHelp": "Langage simple que le patient lira si vous la publiez.",
+    "sources": "Sources",
+    "source": {
+      "appointment": "Rendez-vous",
+      "document": "Document",
+      "note": "Note"
+    },
+    "save": "Enregistrer",
+    "savePublish": "Enregistrer et publier au patient",
+    "discard": "Abandonner le brouillon",
+    "saved": "Résumé enregistré",
+    "published": "Résumé publié au patient",
+    "unpublished": "Résumé masqué pour le patient",
+    "publishedBadge": "Publié au patient",
+    "publishedOn": "Publié le {{date}}",
+    "private": "Non publié",
+    "publish": "Publier au patient",
+    "unpublish": "Dépublier",
+    "publishTitle": "Publier sur le portail patient ?",
+    "publishBody": "La version destinée au patient sera visible dans son portail. Vous pourrez la dépublier plus tard.",
+    "empty": {
+      "title": "Aucun résumé enregistré",
+      "body": "Générez un brouillon pour créer le premier."
+    }
+  }
+}

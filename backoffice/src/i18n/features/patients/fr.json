@@ -117,5 +117,25 @@
     "clinicalNotes": "Notes cliniques",
     "clinicalNotesHint": "Visibles uniquement par les médecins et les administrateurs.",
     "registered": "Enregistré le {{date}}"
+  },
+  "portal": {
+    "title": "Portail patient",
+    "loadError": "Le statut du portail n'a pas pu être chargé.",
+    "noAccount": "Aucun compte portail pour le moment.",
+    "verifiedBadge": "Identité vérifiée",
+    "unverified": "Non vérifié",
+    "since": "Depuis le {{date}}",
+    "duplicate": "Ce compte appartient peut-être à un dossier en double.",
+    "openDuplicate": "Ouvrir l'autre dossier",
+    "invite": "Inviter sur le portail",
+    "verify": "Vérifier l'identité",
+    "verifyTitle": "Vérifier l'identité de ce patient ?",
+    "verifyBody": "Ne confirmez qu'après avoir contrôlé l'identité du patient en personne. Un patient vérifié peut téléverser des documents, utiliser l'assistant et recevoir des rappels.",
+    "verified": "Identité vérifiée.",
+    "inviteHint": "Partagez ce lien ou ce code QR avec le patient. Il aura besoin de sa date de naissance.",
+    "qrLabel": "Code QR de l'invitation au portail",
+    "copy": "Copier le lien",
+    "copied": "Lien copié.",
+    "expires": "Expire le {{date}}"
   }
 }

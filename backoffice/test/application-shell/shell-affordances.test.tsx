@@ -52,6 +52,9 @@ jest.mock('../../src/features/notifications/NotificationBell', () => ({
   NotificationBell: () => null,
 }));
 jest.mock('../../src/features/chat/ChatLauncher', () => ({ ChatLauncher: () => null }));
+jest.mock('../../src/features/assistant/AssistantLauncher', () => ({
+  AssistantLauncher: () => null,
+}));
 jest.mock('../../src/features/booking/BookingWizard', () => ({ BookingWizard: () => null }));
 jest.mock('../../src/features/search/GlobalSearch', () => ({
   GlobalSearch: () => <input role="combobox" aria-label="Search patients and appointments" />,

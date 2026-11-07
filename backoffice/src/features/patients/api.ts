@@ -5,6 +5,8 @@ import type {
   Paginated,
   PatientDetail,
   PatientListItem,
+  PatientPortalStatus,
+  PortalInvite,
   UpdatePatientInput,
 } from '@riaya/shared';
 import { clinicApi } from '../../store/clinicApi';
@@ -59,10 +61,25 @@ export const patientsApi = clinicApi.injectEndpoints({
       query: (id) => ({ url: `/api/patients/${id}/archive`, method: 'POST' }),
       invalidatesTags: (_r, _e, id) => [{ type: 'Patient', id }, 'Patient', 'Dashboard'],
     }),
+    patientPortalStatus: build.query<PatientPortalStatus, string>({
+      query: (id) => ({ url: `/api/patients/${id}/portal-status` }),
+      providesTags: (_r, _e, id) => [{ type: 'Patient', id: `portal-${id}` }],
+    }),
+    invitePatientToPortal: build.mutation<PortalInvite, string>({
+      query: (id) => ({ url: `/api/patients/${id}/portal-invite`, method: 'POST' }),
+      invalidatesTags: (_r, _e, id) => [{ type: 'Patient', id: `portal-${id}` }],
+    }),
+    verifyPatientPortal: build.mutation<PatientPortalStatus, string>({
+      query: (id) => ({ url: `/api/patients/${id}/portal-verify`, method: 'POST' }),
+      invalidatesTags: (_r, _e, id) => [{ type: 'Patient', id: `portal-${id}` }],
+    }),
   }),
 });
 
 export const {
+  usePatientPortalStatusQuery,
+  useInvitePatientToPortalMutation,
+  useVerifyPatientPortalMutation,
   usePatientsQuery,
   usePatientDuplicatesQuery,
   usePatientQuery,

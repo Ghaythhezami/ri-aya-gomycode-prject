@@ -1,0 +1,367 @@
+{
+  "nav": {
+    "home": "Home",
+    "appointments": "Appointments",
+    "assistant": "Assistant",
+    "health": "Health",
+    "profile": "Profile"
+  },
+  "shell": {
+    "brand": "Patient portal",
+    "skip": "Skip to content",
+    "nav": "Patient navigation",
+    "account": "Account menu",
+    "logout": "Sign out"
+  },
+  "common": {
+    "loading": "Loading",
+    "retry": "Try again",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "save": "Save changes",
+    "saving": "Saving...",
+    "saveFailed": "We could not save your changes. Please try again.",
+    "required": "required",
+    "optional": "optional"
+  },
+  "fields": {
+    "firstName": "First name",
+    "lastName": "Last name",
+    "nameHelp": "Fill in at least one language. Use the language you prefer.",
+    "dateOfBirth": "Date of birth",
+    "phone": "Mobile phone",
+    "email": "Email",
+    "password": "Password",
+    "language": "Preferred language",
+    "reminders": "How should we remind you?"
+  },
+  "contact": {
+    "SMS": "Text message (SMS)",
+    "EMAIL": "Email"
+  },
+  "validation": {
+    "nameRequired": "Enter your name in at least one language",
+    "emailRequired": "Enter your email",
+    "emailInvalid": "Enter a valid email address",
+    "passwordRequired": "Enter your password",
+    "passwordPolicy": "Your password does not meet all the requirements below",
+    "phoneInvalid": "Enter a valid phone number, for example +212 600 000 000",
+    "birthDateRequired": "Enter your date of birth",
+    "birthDateFuture": "Your date of birth cannot be in the future",
+    "clinicRequired": "Choose your clinic",
+    "privacyRequired": "You need to accept the privacy notice to continue"
+  },
+  "clinic": {
+    "label": "Your clinic",
+    "search": "Search clinics by name or address",
+    "selected": "Selected",
+    "noResults": "No clinic matches your search.",
+    "none": "No clinics available",
+    "noneHint": "No clinic is accepting online sign-ups right now. Ask your clinic for an invitation link.",
+    "loadError": "We could not load the clinics",
+    "loadErrorHint": "Check your connection and try again."
+  },
+  "password": {
+    "show": "Show password",
+    "hide": "Hide password",
+    "met": "requirement met",
+    "notMet": "requirement not met yet",
+    "strength": {
+      "0": "Not entered",
+      "1": "Weak",
+      "2": "Fair",
+      "3": "Good",
+      "4": "Strong"
+    },
+    "rules": {
+      "length": "At least 10 characters",
+      "lower": "A lowercase letter",
+      "upper": "An uppercase letter",
+      "digit": "A number",
+      "symbol": "A symbol, for example ! or #"
+    }
+  },
+  "consent": {
+    "privacyTitle": "I accept the privacy notice",
+    "privacyBody": "My clinic and RI'AYA process my personal and health data to manage my care, appointments and reminders. I can ask my clinic to access or correct my data at any time.",
+    "aiTitle": "Allow the AI assistant",
+    "aiBody": "The assistant answers questions about your appointments and helps you book them. When it is on, the messages you send and the appointment details it needs are processed by Claude, an AI model from Anthropic. It never gives a diagnosis or prescribes, and it cannot change anything without your confirmation. You can turn it off at any time in your profile."
+  },
+  "authErrors": {
+    "locked": {
+      "title": "Account temporarily locked",
+      "body": "Too many failed attempts. For your security, try again in 15 minutes."
+    },
+    "invalid": {
+      "title": "We could not sign you in",
+      "body": "Check your clinic, email and password, then try again."
+    },
+    "exists": {
+      "title": "You already have an account",
+      "body": "An account with this email already exists at this clinic. Sign in instead."
+    },
+    "rate": {
+      "title": "Too many attempts",
+      "body": "Please wait a moment before trying again."
+    },
+    "validation": {
+      "title": "Some details need attention",
+      "body": "Check the highlighted fields and your password, then try again."
+    },
+    "invite": {
+      "title": "This invitation is not valid",
+      "body": "The link may have expired or already been used. Ask your clinic for a new one."
+    },
+    "offline": {
+      "title": "You seem to be offline",
+      "body": "Check your connection and try again."
+    },
+    "generic": {
+      "title": "Something went wrong",
+      "body": "Please try again in a moment."
+    },
+    "lockedRetry": "Too many failed attempts. For your security, try again in {{minutes}} minutes.",
+    "forbidden": {
+      "title": "Not available",
+      "body": "This clinic is not accepting patient sign-ins or sign-ups online. Please contact the clinic directly."
+    },
+    "disabled": {
+      "title": "Patient portal unavailable",
+      "body": "This clinic has turned off its patient portal. Please contact the clinic directly."
+    }
+  },
+  "login": {
+    "title": "Patient sign in",
+    "subtitle": "Sign in to book visits and see your health information.",
+    "submit": "Sign in",
+    "submitting": "Signing in...",
+    "noAccount": "New here?",
+    "createAccount": "Create your patient account"
+  },
+  "register": {
+    "title": "Create your patient account",
+    "subtitle": "Book appointments online, get reminders and keep your health summary in one place.",
+    "aboutYou": "About you",
+    "account": "Your account",
+    "consents": "Your choices",
+    "submit": "Create my account",
+    "submitting": "Creating your account...",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "invite": {
+    "title": "Activate your patient account",
+    "subtitle": "Your clinic invited you to the patient portal. Choose a password to finish.",
+    "emailHelp": "Use the email address your clinic has on file for you.",
+    "submit": "Activate my account",
+    "submitting": "Activating...",
+    "haveAccount": "Already activated? Sign in",
+    "missingTitle": "This invitation link is incomplete",
+    "missingBody": "Open the full link from your invitation, or ask your clinic to send a new one.",
+    "dobHelp": "Enter your date of birth exactly as the clinic has it on file."
+  },
+  "welcome": {
+    "title": "Welcome, {{name}}",
+    "progress": "Set-up progress",
+    "stepOf": "Step {{current}} of {{total}}",
+    "steps": {
+      "profile": {
+        "title": "Your details",
+        "hint": "Check your details so your clinic can reach you."
+      },
+      "preferences": {
+        "title": "Reminders",
+        "hint": "Choose how you would like to hear from us."
+      },
+      "assistant": {
+        "title": "AI assistant",
+        "hint": "Decide whether to use the assistant. You can change this later."
+      },
+      "appointment": {
+        "title": "First appointment",
+        "hint": "Book your first visit now, or do it later."
+      }
+    },
+    "remindersHelp": "We send a reminder before each appointment.",
+    "bookBody": "It only takes a minute to pick a doctor and a time.",
+    "bookNow": "Book my first appointment",
+    "skipBooking": "Skip for now",
+    "doneTitle": "You are all set",
+    "doneBody": "Your patient account is ready.",
+    "goHome": "Go to my portal"
+  },
+  "home": {
+    "greeting": "Hello, {{name}}",
+    "subtitle": "Here is what is coming up.",
+    "next": "Your next appointment",
+    "noNext": "No upcoming appointments",
+    "noNextHint": "Book a visit whenever it suits you.",
+    "book": "Book an appointment",
+    "summary": "Your health summary",
+    "noSummary": "Your care team has not published a summary yet.",
+    "openHealth": "Open my health page",
+    "documents": "My documents",
+    "documentsCount": "Documents on file: {{count}}",
+    "uploadDocument": "Upload a document"
+  },
+  "appointments": {
+    "title": "Appointments",
+    "upcoming": "Upcoming",
+    "past": "Past",
+    "empty": {
+      "upcoming": "No upcoming appointments",
+      "upcomingHint": "When you book a visit it will appear here.",
+      "past": "No past appointments",
+      "pastHint": "Your completed visits will appear here."
+    },
+    "loadError": "We could not load your appointments",
+    "loadErrorHint": "Check your connection and try again.",
+    "reason": "Reason",
+    "reschedule": "Reschedule",
+    "cancel": "Cancel",
+    "tooLate": "This appointment is within the clinic's notice period and can no longer be changed online. Please call the clinic.",
+    "cancelTitle": "Cancel this appointment?",
+    "cancelBody": "Your visit with {{doctor}} on {{when}} will be cancelled.",
+    "cancelReason": "Reason (optional)",
+    "keep": "Keep appointment",
+    "confirmCancel": "Yes, cancel it",
+    "cancelled": "Your appointment was cancelled.",
+    "cancelFailed": "We could not cancel this appointment. Please try again or call the clinic.",
+    "rescheduleTitle": "Choose a new time",
+    "rescheduleBody": "Pick a new day and time with {{doctor}}.",
+    "confirmReschedule": "Confirm new time",
+    "rescheduled": "Your appointment was moved.",
+    "rescheduleFailed": "We could not move this appointment. Please try again or call the clinic."
+  },
+  "status": {
+    "SCHEDULED": "Scheduled",
+    "CONFIRMED": "Confirmed",
+    "CHECKED_IN": "Checked in",
+    "IN_PROGRESS": "In progress",
+    "COMPLETED": "Completed",
+    "CANCELLED": "Cancelled",
+    "NO_SHOW": "Missed"
+  },
+  "slots": {
+    "pickDay": "Choose a day",
+    "today": "Today",
+    "otherDate": "Another date",
+    "partOfDay": "Time of day",
+    "parts": {
+      "morning": "Morning",
+      "afternoon": "Afternoon",
+      "evening": "Evening"
+    },
+    "none": "No free times on this day",
+    "noneHint": "Try another day.",
+    "noneInPart": "No free times in this part of the day.",
+    "nextDay": "Check the next day",
+    "error": "We could not load the available times"
+  },
+  "booking": {
+    "title": "Book an appointment",
+    "subtitle": "Pick a doctor, a time and confirm. Times are shown in your clinic's time zone.",
+    "progress": "Booking progress",
+    "stepOf": "Step {{current}} of {{total}}",
+    "steps": {
+      "doctor": "Choose a doctor",
+      "type": "Type of visit",
+      "time": "Choose a day and time",
+      "reason": "Reason for your visit",
+      "review": "Review and confirm"
+    },
+    "specialty": "Specialty",
+    "allSpecialties": "All",
+    "noDoctors": "No doctors available",
+    "noDoctorsHint": "Online booking is not available right now. Please call your clinic.",
+    "doctorsError": "We could not load the doctors",
+    "noTypes": "No visit types available for online booking",
+    "typesError": "We could not load the visit types",
+    "minutes": "{{count}} min",
+    "emergencyNote": "Online booking is not for emergencies. In an emergency, call your local emergency number or go to the nearest emergency department.",
+    "reasonLabel": "Reason for your visit (optional)",
+    "reasonHelp": "A short note helps the doctor prepare. Do not include sensitive details you prefer to share in person.",
+    "doctor": "Doctor",
+    "type": "Visit type",
+    "when": "Date and time",
+    "where": "Clinic",
+    "code": "Reference",
+    "confirm": "Confirm appointment",
+    "confirming": "Booking...",
+    "conflict": "Sorry, that time was just taken by someone else. Please choose another time.",
+    "alternatives": "Times that are still free",
+    "pickAnother": "Pick another time",
+    "failed": "We could not book this appointment. Please try again.",
+    "successTitle": "Your appointment is booked",
+    "successBody": "We will remind you before your visit.",
+    "viewAppointments": "View my appointments",
+    "successBodyUnverified": "Reminders start once the clinic has verified your identity at the front desk."
+  },
+  "calendar": {
+    "add": "Add to calendar",
+    "title": "Appointment with {{doctor}}"
+  },
+  "health": {
+    "title": "My health",
+    "disclaimer": "This page is for information only. It is not a diagnosis and does not replace advice from your doctor. In an emergency, call your local emergency number.",
+    "summaryTitle": "Health summary",
+    "summaryEmpty": "No summary yet",
+    "summaryEmptyHint": "When your care team publishes a summary after a visit, you will find it here.",
+    "summaryError": "We could not load your summary",
+    "publishedBy": "Published by {{author}} on {{date}}"
+  },
+  "documents": {
+    "title": "My documents",
+    "upload": "Upload a document",
+    "hint": "PDF, JPEG or PNG, up to 10 MB. Your doctor reviews what you upload.",
+    "uploading": "Uploading {{name}}: {{percent}}%",
+    "progress": "Upload progress",
+    "uploaded": "Document uploaded. We are processing it now.",
+    "uploadFailed": "The upload failed. Please try again.",
+    "problem": {
+      "type": "This file type is not supported. Choose a PDF, JPEG or PNG.",
+      "size": "This file is larger than 10 MB. Choose a smaller file.",
+      "empty": "This file is empty."
+    },
+    "empty": "No documents yet",
+    "emptyHint": "Upload lab results, prescriptions or reports to keep them together.",
+    "loadError": "We could not load your documents",
+    "fromClinic": "Added by your clinic",
+    "summaryLabel": "Summary for you",
+    "reviewed": "Reviewed by your care team",
+    "notReviewed": "Not yet reviewed by your care team",
+    "failedHint": "We could not read this file. Try uploading a clearer copy.",
+    "status": {
+      "PENDING": "Waiting",
+      "PROCESSING": "Processing",
+      "READY": "Ready",
+      "FAILED": "Failed"
+    },
+    "categories": {
+      "lab_result": "Lab result",
+      "prescription": "Prescription",
+      "imaging_report": "Imaging report",
+      "referral": "Referral",
+      "discharge_summary": "Discharge summary",
+      "other": "Other"
+    },
+    "quota": "You have reached the upload limit for now. Try again later.",
+    "locked": "Uploading documents is available once the clinic verifies your identity (ask the front desk on your next visit)."
+  },
+  "profile": {
+    "title": "My profile",
+    "details": "My details",
+    "assistant": "AI assistant",
+    "aiWithdraw": "Turning this off stops the assistant immediately. Your past conversations stay available to you.",
+    "saved": "Saved"
+  },
+  "unverified": {
+    "title": "Identity not yet verified",
+    "body": "Until the clinic verifies your identity, you can book appointments but cannot upload documents or use the assistant. Ask the front desk to verify you on your next visit."
+  },
+  "disabled": {
+    "title": "The patient portal is switched off",
+    "body": "This clinic has turned off its patient portal, so you were signed out. Please contact the clinic directly."
+  }
+}

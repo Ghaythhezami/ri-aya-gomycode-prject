@@ -1,0 +1,130 @@
+{
+  "open": "Ouvrir : {{persona}}",
+  "close": "Fermer l'assistant",
+  "persona": {
+    "staff": "Assistant d'accueil",
+    "doctor": "Assistant clinique",
+    "patient": "Assistant de soins"
+  },
+  "greeting": {
+    "staff": "Comment puis-je aider à l'accueil ?",
+    "doctor": "Comment puis-je vous aider avec vos patients ?",
+    "patient": "Comment puis-je vous aider pour vos soins ?"
+  },
+  "tryAsking": "Essayez de demander :",
+  "suggestions": {
+    "staff": {
+      "waiting": "Qui attend depuis le plus longtemps ?",
+      "slot": "Trouver un créneau de cardiologie cette semaine",
+      "alerts": "Résumer les alertes du jour"
+    },
+    "doctor": {
+      "summarize": "Résumer le dossier de Leila Ben Salah",
+      "thisPatient": "Résumer ce patient",
+      "lastLab": "Que montrait le dernier rapport de laboratoire ?"
+    },
+    "patient": {
+      "book": "Réserver un bilan la semaine prochaine",
+      "next": "Quand est mon prochain rendez-vous ?",
+      "explain": "Expliquer mon dernier résumé"
+    }
+  },
+  "history": "Historique",
+  "new": "Nouvelle conversation",
+  "historyTitle": "Conversations récentes",
+  "historyError": "Impossible de charger les conversations.",
+  "historyEmpty": "Aucune conversation pour le moment",
+  "retry": "Réessayer",
+  "untitled": "Conversation",
+  "delete": "Supprimer la conversation",
+  "deleteConfirm": "Confirmer la suppression",
+  "messages": "Conversation",
+  "you": "Vous avez dit",
+  "assistantSays": "L'assistant a dit",
+  "activity": "Activité de l'assistant",
+  "thinking": "L'assistant réfléchit",
+  "composer": "Message à l'assistant",
+  "placeholder": "Posez une question…",
+  "send": "Envoyer",
+  "stop": "Arrêter",
+  "disclaimer": "L'IA peut se tromper. Ce n'est pas un avis médical. En cas d'urgence, appelez votre numéro d'urgence local.",
+  "defaultCancelReason": "Annulé via l'assistant",
+  "tool": {
+    "generic": "Traitement en cours",
+    "get_schedule": "Consultation du planning",
+    "find_available_slots": "Recherche de créneaux libres",
+    "find_slots": "Recherche de créneaux libres",
+    "search_patients": "Recherche de patients",
+    "get_appointment": "Ouverture du rendez-vous",
+    "list_alerts": "Vérification des alertes",
+    "queue_status": "Vérification de la salle d'attente",
+    "optimizer_preview": "Lancement de l'optimiseur",
+    "propose_booking": "Préparation d'une réservation",
+    "propose_reschedule": "Préparation d'un nouvel horaire",
+    "propose_cancel": "Préparation d'une annulation",
+    "propose_check_in": "Préparation de l'enregistrement",
+    "my_schedule": "Consultation de votre planning",
+    "get_patient_overview": "Lecture du dossier patient",
+    "list_patient_documents": "Liste des documents",
+    "get_document": "Lecture d'un document",
+    "propose_save_summary": "Rédaction de la synthèse",
+    "propose_clinical_note": "Rédaction d'une note clinique",
+    "my_appointments": "Consultation de vos rendez-vous",
+    "clinic_info": "Recherche des infos de la clinique",
+    "my_health_summary": "Lecture de votre synthèse de santé"
+  },
+  "toolStatus": {
+    "running": "en cours",
+    "done": "terminé",
+    "error": "échec"
+  },
+  "action": {
+    "book_appointment": "Réserver un rendez-vous",
+    "reschedule_appointment": "Reprogrammer un rendez-vous",
+    "cancel_appointment": "Annuler un rendez-vous",
+    "check_in": "Enregistrer l'arrivée",
+    "save_summary": "Enregistrer le résumé",
+    "add_clinical_note": "Ajouter une note clinique"
+  },
+  "proposal": {
+    "title": "Action suggérée",
+    "confirm": "Confirmer",
+    "dismiss": "Ignorer",
+    "retry": "Réessayer",
+    "done": "Effectué",
+    "dismissed": "Ignoré. Rien n'a été modifié.",
+    "conflict": "Ce créneau n'est plus disponible.",
+    "failed": "L'action n'a pas pu être effectuée.",
+    "useAlternative": "Veuillez réserver {{time}} avec {{doctor}} à la place.",
+    "askThisTime": "Demander ce créneau",
+    "patientRequired": "Ouvrez d'abord un dossier patient, puis confirmez.",
+    "patientContentWarning": "Cette suggestion a été faite après lecture d'un texte fourni par le patient. Vérifiez chaque mot avant de confirmer.",
+    "reviewed": "J'ai relu ce contenu",
+    "publish": "Publier aussi la version patient sur le portail"
+  },
+  "error": {
+    "unavailableTitle": "L'assistant est indisponible",
+    "unavailableBody": "Il n'est pas disponible pour le moment. Le reste de l'application fonctionne normalement.",
+    "unavailable": "L'assistant est indisponible pour le moment.",
+    "consentTitle": "Consentement IA requis",
+    "consentBody": "Activez l'assistance IA dans votre profil pour utiliser l'assistant.",
+    "consentLink": "Aller à mon profil",
+    "consent": "Le consentement IA est requis pour continuer.",
+    "budget": "La limite quotidienne d'IA est atteinte. Réessayez demain.",
+    "network": "Problème de connexion. Vérifiez votre réseau et réessayez.",
+    "generic": "Un problème est survenu. Veuillez réessayer.",
+    "verificationTitle": "Identité non encore vérifiée",
+    "verificationBody": "L'assistant est disponible une fois votre identité vérifiée par la clinique. Demandez-le à l'accueil lors de votre prochaine visite.",
+    "verification": "Votre identité doit d'abord être vérifiée par la clinique."
+  },
+  "payload": {
+    "doctor": "Médecin",
+    "when": "Date et heure",
+    "type": "Type",
+    "reason": "Motif",
+    "appointment": "Rendez-vous",
+    "note": "Note clinique (texte complet)",
+    "clinicianContent": "Synthèse du clinicien",
+    "patientContent": "Version destinée au patient"
+  }
+}

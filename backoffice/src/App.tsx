@@ -43,6 +43,41 @@ const SmartSchedulingPage = lazy(() =>
 const AnalyticsPage = lazy(() =>
   import('./features/analytics/AnalyticsPage').then((m) => ({ default: m.AnalyticsPage })),
 );
+// Patient portal (ADR 0005): its own session, shell and API client, outside the staff routes.
+const PortalRoutes = {
+  Root: lazy(() => import('./portal/PortalRoot').then((m) => ({ default: m.PortalRoot }))),
+  Guard: lazy(() => import('./portal/PortalRoot').then((m) => ({ default: m.PortalGuard }))),
+  PublicOnly: lazy(() =>
+    import('./portal/PortalRoot').then((m) => ({ default: m.PortalPublicOnly })),
+  ),
+  Shell: lazy(() => import('./portal/PortalShell').then((m) => ({ default: m.PortalShell }))),
+  Login: lazy(() =>
+    import('./portal/pages/LoginPage').then((m) => ({ default: m.PortalLoginPage })),
+  ),
+  Register: lazy(() =>
+    import('./portal/pages/RegisterPage').then((m) => ({ default: m.PortalRegisterPage })),
+  ),
+  Invite: lazy(() =>
+    import('./portal/pages/InvitePage').then((m) => ({ default: m.PortalInvitePage })),
+  ),
+  Welcome: lazy(() =>
+    import('./portal/pages/WelcomePage').then((m) => ({ default: m.PortalWelcomePage })),
+  ),
+  Home: lazy(() => import('./portal/pages/HomePage').then((m) => ({ default: m.PortalHomePage }))),
+  Book: lazy(() => import('./portal/pages/BookPage').then((m) => ({ default: m.PortalBookPage }))),
+  Appointments: lazy(() =>
+    import('./portal/pages/AppointmentsPage').then((m) => ({ default: m.PortalAppointmentsPage })),
+  ),
+  Health: lazy(() =>
+    import('./portal/pages/HealthPage').then((m) => ({ default: m.PortalHealthPage })),
+  ),
+  Profile: lazy(() =>
+    import('./portal/pages/ProfilePage').then((m) => ({ default: m.PortalProfilePage })),
+  ),
+  Assistant: lazy(() =>
+    import('./portal/PortalAssistantRoute').then((m) => ({ default: m.PortalAssistantRoute })),
+  ),
+};
 const PublicUiPage = lazy(() =>
   import('./pages/PublicUiPage').then((m) => ({ default: m.PublicUiPage })),
 );
@@ -83,6 +118,25 @@ export default function App() {
               {/* QUE-2: public screens, no authentication and no personal data. */}
               <Route path="/display/:clinicId" element={<PublicDisplayPage />} />
               <Route path="/check-in/:clinicId" element={<SelfCheckInPage />} />
+              <Route path="/portal" element={<PortalRoutes.Root />}>
+                <Route element={<PortalRoutes.PublicOnly />}>
+                  <Route path="login" element={<PortalRoutes.Login />} />
+                  <Route path="register" element={<PortalRoutes.Register />} />
+                  <Route path="invite" element={<PortalRoutes.Invite />} />
+                </Route>
+                <Route element={<PortalRoutes.Guard />}>
+                  <Route path="welcome" element={<PortalRoutes.Welcome />} />
+                  <Route element={<PortalRoutes.Shell />}>
+                    <Route index element={<PortalRoutes.Home />} />
+                    <Route path="book" element={<PortalRoutes.Book />} />
+                    <Route path="appointments" element={<PortalRoutes.Appointments />} />
+                    <Route path="assistant" element={<PortalRoutes.Assistant />} />
+                    <Route path="health" element={<PortalRoutes.Health />} />
+                    <Route path="profile" element={<PortalRoutes.Profile />} />
+                  </Route>
+                </Route>
+                <Route path="*" element={<Navigate to="/portal" replace />} />
+              </Route>
               <Route
                 element={
                   <ProtectedRoute>
