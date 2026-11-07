@@ -60,7 +60,7 @@ three personas:
   `proposal` (action, parameters, human-readable preview); the UI shows a confirmation card
   and the **normal REST endpoint** performs the change with the user's own token
   (`source = ASSISTANT`), so booking safety, audit and RBAC are exactly the same.
-- **Model:** `claude-opus-5-5` (env `ANTHROPIC_MODEL`), adaptive thinking (default on this
+- **Model:** `claude-sonnet-5-5` (env `ANTHROPIC_MODEL`), adaptive thinking (default on this
   model), `output_config.effort` per route (`low` for chat personas, `medium` for document
   extraction and clinical summaries), server-side refusal fallback
   (`fallbacks: "default"`, beta `server-side-fallback-2026-07-01`), `stop_reason` checked

@@ -1380,6 +1380,36 @@ export interface SeedOptions {
   quiet?: boolean;
 }
 
+/** Fictional demo patient for the portal (ADR 0005): verified, AI consent given, onboarded. */
+export const DEMO_PATIENT = { email: 'patient@riaya.local', password: 'RiayaPatient123!' };
+
+async function seedDemoPatientAccount(clinicId: string): Promise<void> {
+  const patient = await prisma.patient.findFirst({
+    where: { clinicId, status: 'ACTIVE' },
+    orderBy: { code: 'asc' },
+    select: { id: true },
+  });
+  if (!patient) return;
+  const now = new Date();
+  const existing = await prisma.patientAccount.findFirst({
+    where: { clinicId, email: DEMO_PATIENT.email },
+  });
+  if (existing) await prisma.patientAccount.delete({ where: { id: existing.id } });
+  await prisma.patientAccount.create({
+    data: {
+      clinicId,
+      patientId: patient.id,
+      email: DEMO_PATIENT.email,
+      passwordHash: await argon2.hash(DEMO_PATIENT.password),
+      preferredLocale: 'en',
+      emailVerifiedAt: now,
+      aiConsentAt: now,
+      privacyAcceptedAt: now,
+      onboardingCompletedAt: now,
+    },
+  });
+}
+
 export async function runSeed(client: PrismaClient, options: SeedOptions = {}): Promise<void> {
   prisma = client;
   assertLocalEnvironment(options);
@@ -1476,11 +1506,14 @@ export async function runSeed(client: PrismaClient, options: SeedOptions = {}): 
 
   // Clinical fixtures: deleted and recreated for the three demo clinics.
   await seedClinicalData(organization.id, userIds);
+  // Recreated after the clinical data because portal accounts cascade with patients.
+  await seedDemoPatientAccount(primaryClinicId);
 
   log('\nDev accounts (local only):');
   for (const item of DEV_USERS) {
     log(`  ${item.role.padEnd(14)} ${item.email} / ${item.password}`);
   }
+  log(`  ${'PATIENT'.padEnd(14)} ${DEMO_PATIENT.email} / ${DEMO_PATIENT.password} (portal)`);
   const [clinicCount, doctorCount, patientCount, appointmentCount, queueCount] = await Promise.all([
     prisma.clinic.count(),
     prisma.doctor.count(),

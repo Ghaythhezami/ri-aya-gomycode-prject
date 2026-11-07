@@ -1,5 +1,5 @@
 /** Defaults and limits of the AI assistants (ADR 0005 section 2). */
-export const DEFAULT_ANTHROPIC_MODEL = 'claude-opus-5-5';
+export const DEFAULT_ANTHROPIC_MODEL = 'claude-sonnet-5-5';
 export const CHAT_MAX_TOKENS = 16000;
 export const EXTRACTION_MAX_TOKENS = 16000;
 /** Beta header of the `fallbacks: "default"` scalar form (server-side refusal fallback). */

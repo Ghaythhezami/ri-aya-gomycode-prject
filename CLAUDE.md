@@ -49,9 +49,10 @@ Windows / Git Bash: prefix `MSYS_NO_PATHCONV=1` when passing `/app/`-style value
 
 ## Demo accounts (fictional, local and hosted demo)
 
-| Role         | Email                    | Password           |
-| ------------ | ------------------------ | ------------------ |
-| Super admin  | admin@riaya.local        | RiayaAdmin123!     |
-| Clinic admin | clinic.admin@riaya.local | RiayaClinic123!    |
-| Doctor       | doctor@riaya.local       | RiayaDoctor123!    |
-| Receptionist | receptionist@riaya.local | RiayaReception123! |
+| Role                       | Email                    | Password           |
+| -------------------------- | ------------------------ | ------------------ |
+| Super admin                | admin@riaya.local        | RiayaAdmin123!     |
+| Clinic admin               | clinic.admin@riaya.local | RiayaClinic123!    |
+| Doctor                     | doctor@riaya.local       | RiayaDoctor123!    |
+| Receptionist               | receptionist@riaya.local | RiayaReception123! |
+| Patient (portal `/portal`) | patient@riaya.local      | RiayaPatient123!   |
