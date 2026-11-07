@@ -5,7 +5,20 @@ argument-hint: Specify the scope (e.g., "Document the API routes", "Update the R
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools: ['read', 'search', 'edit', 'create', 'execute', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'context7']
+tools:
+  [
+    'read',
+    'search',
+    'edit',
+    'create',
+    'execute',
+    'web',
+    'todo',
+    'vscode/askQuestions',
+    'exa:search',
+    'exa:fetch',
+    'context7',
+  ]
 agents: []
 ---
 
@@ -109,7 +122,7 @@ Place documentation in the following standard locations:
    - Provide a summary of what was documented.
    - Highlight any areas that were too ambiguous to document and require human clarification (Spec/Code drift).
    - Run validators if feature-scoped. Report any failures honestly.
-</workflow>
+   </workflow>
 
 <all-mode>
 When invoked as `/sdrive:docs --all`, document every ongoing feature sequentially.
@@ -131,7 +144,7 @@ When invoked as `/sdrive:docs --all`, document every ongoing feature sequentiall
 
 4. **Report**
    - Summarize the run and recommend next steps for any feature with unresolved drift.
-</all-mode>
+   </all-mode>
 
 <coverage-report-template>
 Use this exact structure for `.sdrive/docs/coverage-report.md`:
@@ -139,6 +152,7 @@ Use this exact structure for `.sdrive/docs/coverage-report.md`:
 # Documentation Coverage Report
 
 ## 1. Executive Summary
+
 - **Date:** [DATE]
 - **Scope:** [e.g., Auth Module, Entire API, README]
 - **Feature Version:** [e.g., v2, or N/A]
@@ -147,17 +161,20 @@ Use this exact structure for `.sdrive/docs/coverage-report.md`:
   - If counting is not feasible, report "coverage not automatically measured."
 
 ## 2. Documented Items
-| File/Module | Item Type | Spec ID Linked | Status |
-|-------------|-----------|----------------|--------|
-| `src/auth.ts` | Function: `login()` | FR-001, AC-002 | ✅ Complete |
-| `docs/api.md` | Endpoint: `POST /login` | FR-001 | ✅ Complete |
+
+| File/Module   | Item Type               | Spec ID Linked | Status      |
+| ------------- | ----------------------- | -------------- | ----------- |
+| `src/auth.ts` | Function: `login()`     | FR-001, AC-002 | ✅ Complete |
+| `docs/api.md` | Endpoint: `POST /login` | FR-001         | ✅ Complete |
 
 ## 3. Spec/Code Drift Flags
-| Location | Issue Description | Action Required |
-|----------|-------------------|-----------------|
+
+| Location         | Issue Description                                 | Action Required                 |
+| ---------------- | ------------------------------------------------- | ------------------------------- |
 | `src/payment.ts` | Code implements Stripe, but spec mentions PayPal. | ⚠️ Requires human clarification |
 
 ## 4. Remaining Gaps
+
 - [List any private functions or complex logic that still lack "WHY" comments]
 - [List any outdated sections in README that need human review]
 </coverage-report-template>
@@ -196,7 +213,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-   Use the prefix `specdrive(<command>):`.
+     Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 
@@ -204,3 +221,20 @@ If this command already committed and pushed its own work (for example `/sdrive:
 
 Never force-push. Never amend a commit you did not create in this run. Never commit work whose required human approval has not been granted. If Git is unavailable or the repository has no remote, report that and leave the working tree intact.
 </git-commit-and-push>
+
+<!-- specdrive-next-action -->
+<next-action>
+End every reply with the next action, as the last lines of the response:
+
+```
+Next Action: <command>
+where: on the <chat|terminal>
+```
+
+- `/sdrive:*` runs on the **chat**. The user sends it; no agent can start another command (CON-715).
+- `sdrive ...` runs on the **terminal**. An agent with a shell runs it itself and reports the result — do not tell the user to type a command you could have run.
+- `sdrive approve ...` runs on the terminal, but only the user gives it: it is the governance sign-off.
+- Record the same step on disk with `sdrive next <feature> --write` before ending a session.
+
+Name the one action that comes next. Do not list a menu of possibilities.
+</next-action>

@@ -1,21 +1,16 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "version": "v2",
-  "recordedAt": "2026-11-06T19:43:41.533Z",
+  "recordedAt": "2026-11-07T14:28:54.774Z",
   "by": null,
   "steps": [
     {
-      "command": "sdrive verify authentication-onboarding-and-access-control",
-      "kind": "cli",
-      "why": "Verify compares plan.json to the code before any gate reads it."
-    },
-    {
       "command": "sdrive test authentication-onboarding-and-access-control",
       "kind": "cli",
-      "why": "The implementation gate needs a recorded passing run."
+      "why": "Review needs passing test evidence; run the tests first."
     },
     {
-      "command": "sdrive approve authentication-onboarding-and-access-control implementation",
+      "command": "sdrive approve authentication-onboarding-and-access-control review",
       "kind": "human",
       "why": "Approving is a sign-off, so it stays with you."
     }

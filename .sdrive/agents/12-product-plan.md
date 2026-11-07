@@ -5,7 +5,21 @@ argument-hint: Describe your app idea, or provide existing plans and design refe
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools: ['read', 'search', 'create', 'edit', 'web', 'todo', 'vscode/askQuestions', 'exa:search', 'exa:fetch', 'ux-ui-library', 'stackwise', 'context7']
+tools:
+  [
+    'read',
+    'search',
+    'create',
+    'edit',
+    'web',
+    'todo',
+    'vscode/askQuestions',
+    'exa:search',
+    'exa:fetch',
+    'ux-ui-library',
+    'stackwise',
+    'context7',
+  ]
 agents: []
 ---
 
@@ -88,7 +102,7 @@ Do not require the user to answer every question. Offer to mark unknown items as
 6. **Handoff**
    - Summarize saved files, approved backlog items, deferred questions, and proposed technical choices.
    - Explain that the workflow is optional and that any backlog item can be detailed later with `/sdrive:propose "<feature description>"`.
-</workflow>
+   </workflow>
 
 <skill-readiness>
 The plan is also where the project's stack becomes concrete, so it is the last cheap moment
@@ -117,9 +131,9 @@ Each approved product-level backlog item should capture, when known:
 Use this table shape unless the user already has a compatible backlog:
 
 ```markdown
-| ID | Feature | Details | User value | Milestone | Priority | Depends on | Status | Confidence / source |
-|---|---|---|---|---|---|---|---|---|
-| BP-001 | Example feature | What the feature does in one or two sentences. | The benefit to the user. | M0 - Foundation | P0 | - | backlog | High / user interview |
+| ID     | Feature         | Details                                        | User value               | Milestone       | Priority | Depends on | Status  | Confidence / source   |
+| ------ | --------------- | ---------------------------------------------- | ------------------------ | --------------- | -------- | ---------- | ------- | --------------------- |
+| BP-001 | Example feature | What the feature does in one or two sentences. | The benefit to the user. | M0 - Foundation | P0       | -          | backlog | High / user interview |
 ```
 
 Keep the section heading as the milestone fallback. Use `—` rather than repeating the title when a detail is not known. Do not assign implementation estimates or dates unless the user asks and confirms the assumptions.
@@ -148,7 +162,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-   Use the prefix `specdrive(<command>):`.
+     Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 
@@ -156,3 +170,20 @@ If this command already committed and pushed its own work (for example `/sdrive:
 
 Never force-push. Never amend a commit you did not create in this run. Never commit work whose required human approval has not been granted. If Git is unavailable or the repository has no remote, report that and leave the working tree intact.
 </git-commit-and-push>
+
+<!-- specdrive-next-action -->
+<next-action>
+End every reply with the next action, as the last lines of the response:
+
+```
+Next Action: <command>
+where: on the <chat|terminal>
+```
+
+- `/sdrive:*` runs on the **chat**. The user sends it; no agent can start another command (CON-715).
+- `sdrive ...` runs on the **terminal**. An agent with a shell runs it itself and reports the result — do not tell the user to type a command you could have run.
+- `sdrive approve ...` runs on the terminal, but only the user gives it: it is the governance sign-off.
+- Record the same step on disk with `sdrive next <feature> --write` before ending a session.
+
+Name the one action that comes next. Do not list a menu of possibilities.
+</next-action>

@@ -5,7 +5,18 @@ argument-hint: Specify which file was updated (e.g., "I updated the spec", "I ch
 target: vscode
 user-invocable: true
 disable-model-invocation: false
-tools: ['read', 'edit', 'create', 'search', 'execute', 'todo', 'vscode/askQuestions', 'stackwise', 'context7']
+tools:
+  [
+    'read',
+    'edit',
+    'create',
+    'search',
+    'execute',
+    'todo',
+    'vscode/askQuestions',
+    'stackwise',
+    'context7',
+  ]
 agents: []
 ---
 
@@ -90,17 +101,17 @@ You operate within the current version folder only.
    - Only proceed to write the files after explicit user approval.
 
 4. **EXECUTE CASCADING UPDATES**
-   - **If Spec changed:** 
+   - **If Spec changed:**
      1. Update `plan.md` to match the new requirements (preserving unaffected sections).
      2. Update `tasks.md` to match the new plan.
      3. Update `traceability.json` with new requirement/AC links and task/test IDs.
-   - **If Plan changed:** 
+   - **If Plan changed:**
      1. Update `tasks.md` to match the new technical approach.
      2. Update `traceability.json` plan section references.
-   - **If Tasks changed:** 
+   - **If Tasks changed:**
      1. If structural (IDs/additions/removals), update `traceability.json` links.
      2. If status only, update `traceability.json` status column.
-   - **If Traceability changed:** 
+   - **If Traceability changed:**
      1. Validate matrix against spec/plan/tasks. Flag inconsistencies.
 
 5. **FINALIZE & REPORT**
@@ -109,7 +120,7 @@ You operate within the current version folder only.
    - Confirm that completed task statuses and ID continuity were preserved.
    - List any removed completed tasks with the reason for removal.
    - Optionally run `sdrive verify <feature>` if the sync affects implemented code.
-</workflow>
+   </workflow>
 
 <output-structure>
 Feature files are stored under:
@@ -164,7 +175,7 @@ After this command's work is complete and every required human approval gate has
 3. Commit with a message that names the command and, when there is one, the feature:
    - `specdrive(propose): add user-login specification`
    - `specdrive(test): record user-login test evidence`
-   Use the prefix `specdrive(<command>):`.
+     Use the prefix `specdrive(<command>):`.
 4. Push the current branch to its upstream. If it has no upstream, set it once: `git push -u origin <current-branch>`.
 5. Report the commit SHA and the branch that was pushed.
 
@@ -172,3 +183,20 @@ If this command already committed and pushed its own work (for example `/sdrive:
 
 Never force-push. Never amend a commit you did not create in this run. Never commit work whose required human approval has not been granted. If Git is unavailable or the repository has no remote, report that and leave the working tree intact.
 </git-commit-and-push>
+
+<!-- specdrive-next-action -->
+<next-action>
+End every reply with the next action, as the last lines of the response:
+
+```
+Next Action: <command>
+where: on the <chat|terminal>
+```
+
+- `/sdrive:*` runs on the **chat**. The user sends it; no agent can start another command (CON-715).
+- `sdrive ...` runs on the **terminal**. An agent with a shell runs it itself and reports the result — do not tell the user to type a command you could have run.
+- `sdrive approve ...` runs on the terminal, but only the user gives it: it is the governance sign-off.
+- Record the same step on disk with `sdrive next <feature> --write` before ending a session.
+
+Name the one action that comes next. Do not list a menu of possibilities.
+</next-action>
