@@ -682,6 +682,7 @@ model PatientAccount {
   updatedAt             DateTime  @updatedAt
 
   refreshTokens PatientRefreshToken[]
+  resetTokens   PatientPasswordResetToken[]
 
   @@unique([clinicId, email])
   @@index([clinicId])
@@ -701,6 +702,20 @@ model PatientRefreshToken {
   @@index([accountId])
   @@index([familyId])
   @@map("patient_refresh_tokens")
+}
+
+/// One-time password reset link for a patient portal account (30 minutes, stored as sha256).
+model PatientPasswordResetToken {
+  id        String         @id @default(uuid())
+  accountId String
+  account   PatientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tokenHash String         @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime       @default(now())
+
+  @@index([accountId])
+  @@map("patient_password_reset_tokens")
 }
 
 /// One-time link (shown as QR code at the desk) that attaches a portal account to an

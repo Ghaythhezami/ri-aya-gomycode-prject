@@ -60,6 +60,16 @@ const PortalRoutes = {
   Invite: lazy(() =>
     import('./portal/pages/InvitePage').then((m) => ({ default: m.PortalInvitePage })),
   ),
+  ForgotPassword: lazy(() =>
+    import('./portal/pages/ForgotPasswordPage').then((m) => ({
+      default: m.PortalForgotPasswordPage,
+    })),
+  ),
+  ResetPassword: lazy(() =>
+    import('./portal/pages/ResetPasswordPage').then((m) => ({
+      default: m.PortalResetPasswordPage,
+    })),
+  ),
   Welcome: lazy(() =>
     import('./portal/pages/WelcomePage').then((m) => ({ default: m.PortalWelcomePage })),
   ),
@@ -124,6 +134,9 @@ export default function App() {
                   <Route path="register" element={<PortalRoutes.Register />} />
                   <Route path="invite" element={<PortalRoutes.Invite />} />
                 </Route>
+                {/* Outside PublicOnly: a signed-in patient opening a reset link must keep the fragment. */}
+                <Route path="forgot-password" element={<PortalRoutes.ForgotPassword />} />
+                <Route path="reset-password" element={<PortalRoutes.ResetPassword />} />
                 <Route element={<PortalRoutes.Guard />}>
                   <Route path="welcome" element={<PortalRoutes.Welcome />} />
                   <Route element={<PortalRoutes.Shell />}>

@@ -114,6 +114,11 @@ export function PortalLoginPage() {
             />
           )}
         />
+        <p className="text-sm">
+          <Link className="font-medium text-primary underline" to="/portal/forgot-password">
+            {t('portal.login.forgot')}
+          </Link>
+        </p>
         <Button type="submit" size="lg" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? t('portal.login.submitting') : t('portal.login.submit')}
         </Button>

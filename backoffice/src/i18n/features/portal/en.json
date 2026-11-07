@@ -50,7 +50,9 @@
     "birthDateRequired": "Enter your date of birth",
     "birthDateFuture": "Your date of birth cannot be in the future",
     "clinicRequired": "Choose your clinic",
-    "privacyRequired": "You need to accept the privacy notice to continue"
+    "privacyRequired": "You need to accept the privacy notice to continue",
+    "confirmRequired": "Confirm your new password",
+    "passwordMismatch": "The two passwords do not match"
   },
   "clinic": {
     "label": "Your clinic",
@@ -137,7 +139,8 @@
     "submit": "Sign in",
     "submitting": "Signing in...",
     "noAccount": "New here?",
-    "createAccount": "Create your patient account"
+    "createAccount": "Create your patient account",
+    "forgot": "Forgot your password?"
   },
   "register": {
     "title": "Create your patient account",
@@ -363,5 +366,29 @@
   "disabled": {
     "title": "The patient portal is switched off",
     "body": "This clinic has turned off its patient portal, so you were signed out. Please contact the clinic directly."
+  },
+  "forgot": {
+    "title": "Reset your password",
+    "subtitle": "Choose your clinic and enter your email. We will send you a link to choose a new password.",
+    "submit": "Send reset link",
+    "submitting": "Sending...",
+    "backToLogin": "Back to sign in",
+    "sentTitle": "Check your email",
+    "sentBody": "If an account exists for this email at this clinic, we sent a link to reset your password. The link works for 30 minutes."
+  },
+  "reset": {
+    "title": "Choose a new password",
+    "subtitle": "Pick a strong password you do not use anywhere else.",
+    "newPassword": "New password",
+    "confirmPassword": "Confirm new password",
+    "submit": "Save new password",
+    "submitting": "Saving...",
+    "doneTitle": "Your password was changed",
+    "doneBody": "For your security you were signed out on every device. Sign in with your new password.",
+    "invalidTitle": "This reset link is not valid",
+    "invalidBody": "The link may have expired or already been used. Request a new one.",
+    "missingTitle": "This reset link is incomplete",
+    "missingBody": "Open the full link from your email, or request a new one.",
+    "requestNew": "Request a new link"
   }
 }

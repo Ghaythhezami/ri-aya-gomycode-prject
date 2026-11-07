@@ -1,9 +1,10 @@
-import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, Optional } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { DomainEventsService } from '../events/domain-events.service';
 import type { DomainEvent } from '../events/domain-events';
 import { ClinicSettingsReader } from '../core/clinic-settings.reader';
 import { doctorName } from '../common/mappers';
+import { AppointmentMailer } from './appointment-mailer.service';
 import { NotificationsService } from './notifications.service';
 import { notificationDedupeKey, planReminders } from './reminder-schedule';
 
@@ -25,6 +26,8 @@ export class NotificationConsumers implements OnModuleInit {
     private readonly prisma: PrismaService,
     private readonly notifications: NotificationsService,
     private readonly settings: ClinicSettingsReader,
+    /** Patient e-mails (confirmation, cancellation, reschedule); absent in unit tests. */
+    @Optional() private readonly mailer?: AppointmentMailer,
   ) {}
 
   onModuleInit(): void {
@@ -78,6 +81,7 @@ export class NotificationConsumers implements OnModuleInit {
       dedupeKey: notificationDedupeKey('appointment.created', appointmentId),
     });
     await this.createReminders(e.clinicId, loaded.appointment);
+    await this.mailer?.notify(appointmentId, 'confirmation');
   }
 
   private async createReminders(
@@ -133,6 +137,7 @@ export class NotificationConsumers implements OnModuleInit {
       entityId: appointmentId,
       dedupeKey: notificationDedupeKey('appointment.cancelled', appointmentId),
     });
+    await this.mailer?.notify(appointmentId, 'cancelled');
   }
 
   private async cancelPending(appointmentId: string): Promise<void> {
@@ -177,6 +182,7 @@ export class NotificationConsumers implements OnModuleInit {
         new Date(str(e.payload.toStartsAt)).getTime() || e.occurredAt.getTime(),
       ),
     });
+    await this.mailer?.notify(appointmentId, 'rescheduled');
   }
 
   private async onStatusChanged(e: DomainEvent): Promise<void> {

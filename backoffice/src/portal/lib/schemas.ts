@@ -74,6 +74,23 @@ export const loginSchema = z.object({
 });
 export type LoginForm = z.infer<typeof loginSchema>;
 
+export const forgotSchema = z.object({
+  clinicId: z.string().min(1, 'portal.validation.clinicRequired'),
+  email,
+});
+export type ForgotForm = z.infer<typeof forgotSchema>;
+
+export const resetSchema = z
+  .object({
+    password,
+    confirm: z.string().min(1, 'portal.validation.confirmRequired'),
+  })
+  .refine((v) => v.password === v.confirm, {
+    path: ['confirm'],
+    message: 'portal.validation.passwordMismatch',
+  });
+export type ResetForm = z.infer<typeof resetSchema>;
+
 const birthDate = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/, 'portal.validation.birthDateRequired')

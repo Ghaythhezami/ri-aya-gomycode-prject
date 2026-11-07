@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Post, Req, Res } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -12,7 +13,13 @@ import type { Request, Response } from 'express';
 import { RateLimit } from '../common/throttle/rate-limit';
 import { PortalAuthService } from './auth/portal-auth.service';
 import { PORTAL_REFRESH_COOKIE } from './portal.constants';
-import { PortalAcceptInviteDto, PortalLoginDto, PortalRegisterDto } from './dto/portal-auth.dto';
+import {
+  PortalAcceptInviteDto,
+  PortalForgotPasswordDto,
+  PortalLoginDto,
+  PortalRegisterDto,
+  PortalResetPasswordDto,
+} from './dto/portal-auth.dto';
 
 @ApiTags('portal')
 @Controller('portal/auth')
@@ -55,6 +62,31 @@ export class PortalAuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     return this.auth.login(dto, res, req.ip);
+  }
+
+  @Post('forgot-password')
+  @HttpCode(200)
+  @RateLimit(5)
+  @ApiOperation({
+    summary: 'Request a patient password reset link (always answers success, no enumeration)',
+    description:
+      'Sends a one-time link valid for 30 minutes when the account exists. The response is identical whether or not it does.',
+  })
+  @ApiOkResponse({ description: '{ success: true }' })
+  forgotPassword(@Body() dto: PortalForgotPasswordDto) {
+    return this.auth.forgotPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(200)
+  @RateLimit(10)
+  @ApiOperation({
+    summary: 'Set a new patient password with a reset token and revoke all portal sessions',
+  })
+  @ApiOkResponse({ description: '{ success: true }' })
+  @ApiBadRequestResponse({ description: 'INVALID_TOKEN or WEAK_PASSWORD' })
+  resetPassword(@Body() dto: PortalResetPasswordDto) {
+    return this.auth.resetPassword(dto);
   }
 
   @Post('refresh')

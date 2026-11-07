@@ -118,6 +118,10 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return (this.inner as PrismaClient).patientRefreshToken;
   }
 
+  get patientPasswordResetToken() {
+    return (this.inner as PrismaClient).patientPasswordResetToken;
+  }
+
   get patientInvite() {
     return (this.inner as PrismaClient).patientInvite;
   }

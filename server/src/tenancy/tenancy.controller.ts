@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Inject, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Inject,
+  Logger,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RateLimit } from '../common/throttle/rate-limit';
 import { JwtAuthGuard } from '../common/guards/jwt-auth.guard';
@@ -19,6 +29,8 @@ import { UserRole } from '../users/user-role.enum';
 @ApiTags('tenancy')
 @Controller()
 export class TenancyController {
+  private readonly logger = new Logger(TenancyController.name);
+
   constructor(
     private readonly onboarding: OnboardingService,
     private readonly tenancy: TenancyService,
@@ -77,16 +89,27 @@ export class TenancyController {
 
     const backoffice = process.env.BACKOFFICE_URL ?? 'http://localhost:5174';
     const acceptUrl = `${backoffice}/accept-invite?token=${result.token}`;
-    await this.mail.sendInvitation({
-      email: dto.email,
-      acceptUrl,
-      clinicName: result.clinicName,
-      role: result.role,
-      locale: user.preferredLocale,
-    });
+    let emailSent = true;
+    try {
+      await this.mail.sendInvitation({
+        email: dto.email,
+        acceptUrl,
+        clinicName: result.clinicName,
+        role: result.role,
+        locale: user.preferredLocale,
+      });
+    } catch (error) {
+      // The invitation stays valid; the admin can resend it.
+      emailSent = false;
+      this.logger.warn(`invitation mail not sent: ${(error as Error).name}`);
+    }
 
     // The raw token is never returned over HTTP; it is delivered by email only.
-    return { invitationId: result.invitation.id, expiresAt: result.invitation.expiresAt };
+    return {
+      invitationId: result.invitation.id,
+      expiresAt: result.invitation.expiresAt,
+      emailSent,
+    };
   }
 
   @Get('invitations')

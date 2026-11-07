@@ -60,3 +60,15 @@ export class PortalLoginDto {
   @ApiProperty() @IsEmail() @Transform(lowerTrim) @MaxLength(254) email!: string;
   @ApiProperty() @IsString() @MinLength(1) @MaxLength(128) password!: string;
 }
+
+/** Body of `POST /portal/auth/forgot-password`. */
+export class PortalForgotPasswordDto {
+  @ApiProperty() @IsUUID() clinicId!: string;
+  @ApiProperty() @IsEmail() @Transform(lowerTrim) @MaxLength(254) email!: string;
+}
+
+/** Body of `POST /portal/auth/reset-password`. The password policy is checked in the service. */
+export class PortalResetPasswordDto {
+  @ApiProperty() @IsString() @MinLength(16) @MaxLength(256) token!: string;
+  @ApiProperty() @IsString() @MinLength(10) @MaxLength(128) password!: string;
+}

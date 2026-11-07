@@ -50,7 +50,9 @@
     "birthDateRequired": "Saisissez votre date de naissance",
     "birthDateFuture": "Votre date de naissance ne peut pas être dans le futur",
     "clinicRequired": "Choisissez votre clinique",
-    "privacyRequired": "Vous devez accepter la notice de confidentialité pour continuer"
+    "privacyRequired": "Vous devez accepter la notice de confidentialité pour continuer",
+    "confirmRequired": "Confirmez votre nouveau mot de passe",
+    "passwordMismatch": "Les deux mots de passe ne correspondent pas"
   },
   "clinic": {
     "label": "Votre clinique",
@@ -137,7 +139,8 @@
     "submit": "Se connecter",
     "submitting": "Connexion...",
     "noAccount": "Première visite ?",
-    "createAccount": "Créer votre compte patient"
+    "createAccount": "Créer votre compte patient",
+    "forgot": "Mot de passe oublié ?"
   },
   "register": {
     "title": "Créer votre compte patient",
@@ -363,5 +366,29 @@
   "disabled": {
     "title": "Le portail patient est désactivé",
     "body": "Cette clinique a désactivé son portail patient ; vous avez été déconnecté. Veuillez contacter directement la clinique."
+  },
+  "forgot": {
+    "title": "Réinitialiser votre mot de passe",
+    "subtitle": "Choisissez votre clinique et saisissez votre e-mail. Nous vous enverrons un lien pour choisir un nouveau mot de passe.",
+    "submit": "Envoyer le lien",
+    "submitting": "Envoi...",
+    "backToLogin": "Retour à la connexion",
+    "sentTitle": "Vérifiez votre messagerie",
+    "sentBody": "Si un compte existe pour cet e-mail dans cette clinique, nous avons envoyé un lien pour réinitialiser votre mot de passe. Le lien est valable 30 minutes."
+  },
+  "reset": {
+    "title": "Choisir un nouveau mot de passe",
+    "subtitle": "Choisissez un mot de passe robuste que vous n'utilisez nulle part ailleurs.",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le nouveau mot de passe",
+    "submit": "Enregistrer le mot de passe",
+    "submitting": "Enregistrement...",
+    "doneTitle": "Votre mot de passe a été modifié",
+    "doneBody": "Par sécurité, vous avez été déconnecté sur tous vos appareils. Connectez-vous avec votre nouveau mot de passe.",
+    "invalidTitle": "Ce lien de réinitialisation n'est pas valide",
+    "invalidBody": "Le lien a peut-être expiré ou déjà été utilisé. Demandez-en un nouveau.",
+    "missingTitle": "Ce lien de réinitialisation est incomplet",
+    "missingBody": "Ouvrez le lien complet reçu par e-mail, ou demandez-en un nouveau.",
+    "requestNew": "Demander un nouveau lien"
   }
 }

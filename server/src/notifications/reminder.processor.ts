@@ -75,6 +75,7 @@ export class ReminderProcessor implements OnModuleInit, OnModuleDestroy {
         try {
           await this.provider.send({
             deliveryId: delivery.id,
+            appointmentId: delivery.appointmentId,
             channel: delivery.channel === 'EMAIL' ? 'EMAIL' : 'SMS',
             to:
               delivery.channel === 'EMAIL' ? appointment.patient.email : appointment.patient.phone,

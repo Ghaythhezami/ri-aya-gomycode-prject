@@ -3,7 +3,8 @@ import { NotificationsController, RemindersCronController } from './notification
 import { NotificationsService } from './notifications.service';
 import { NotificationConsumers } from './notification.consumers';
 import { ReminderProcessor } from './reminder.processor';
-import { MockReminderProvider, REMINDER_PROVIDER } from './reminder.provider';
+import { AppointmentMailer } from './appointment-mailer.service';
+import { MailReminderProvider, REMINDER_PROVIDER } from './reminder.provider';
 
 @Module({
   controllers: [NotificationsController, RemindersCronController],
@@ -11,7 +12,8 @@ import { MockReminderProvider, REMINDER_PROVIDER } from './reminder.provider';
     NotificationsService,
     NotificationConsumers,
     ReminderProcessor,
-    { provide: REMINDER_PROVIDER, useClass: MockReminderProvider },
+    AppointmentMailer,
+    { provide: REMINDER_PROVIDER, useClass: MailReminderProvider },
   ],
   exports: [NotificationsService, ReminderProcessor],
 })

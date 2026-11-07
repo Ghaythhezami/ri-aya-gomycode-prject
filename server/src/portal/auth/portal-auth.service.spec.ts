@@ -26,6 +26,7 @@ function makeDb(opts: { settings?: Row | null; existingPatients?: Row[] } = {}) 
     refresh: [] as Row[],
     invites: [] as Row[],
     audits: [] as Row[],
+    resets: [] as Row[],
   };
   let seq = 0;
   const id = (p: string) => `${p}-${++seq}`;
@@ -89,7 +90,31 @@ function makeDb(opts: { settings?: Row | null; existingPatients?: Row[] } = {}) 
       updateMany: jest.fn(async ({ where, data }: Row) => {
         const hits = db.refresh.filter(
           (r) =>
-            (where.id ? r.id === where.id : r.familyId === where.familyId) && r.revokedAt === null,
+            (where.id
+              ? r.id === where.id
+              : where.accountId
+                ? r.accountId === where.accountId
+                : r.familyId === where.familyId) && r.revokedAt === null,
+        );
+        hits.forEach((r) => Object.assign(r, data));
+        return { count: hits.length };
+      }),
+    },
+    patientPasswordResetToken: {
+      create: jest.fn(async ({ data }: Row) => {
+        const row = { id: id('prt'), usedAt: null, createdAt: new Date(), ...data };
+        db.resets.push(row);
+        return row;
+      }),
+      findUnique: jest.fn(async ({ where }: Row) =>
+        db.resets.find((r) => r.tokenHash === where.tokenHash),
+      ),
+      updateMany: jest.fn(async ({ where, data }: Row) => {
+        const hits = db.resets.filter(
+          (r) =>
+            (where.id ? r.id === where.id : r.accountId === where.accountId) &&
+            r.usedAt === null &&
+            (!where.expiresAt || r.expiresAt.getTime() > where.expiresAt.gt.getTime()),
         );
         hits.forEach((r) => Object.assign(r, data));
         return { count: hits.length };
@@ -131,6 +156,8 @@ function makeDb(opts: { settings?: Row | null; existingPatients?: Row[] } = {}) 
             return row;
           }),
         },
+        patientPasswordResetToken: prisma.patientPasswordResetToken,
+        patientRefreshToken: prisma.patientRefreshToken,
         patientInvite: {
           updateMany: jest.fn(async ({ where, data }: Row) => {
             const hit = db.invites.find(
@@ -176,6 +203,9 @@ function setup(opts: Parameters<typeof makeDb>[0] = {}) {
     record: jest.fn(async (_tx: unknown, e: Row) => void db.audits.push(e)),
   };
   const notifications = { create: jest.fn(async () => undefined) };
+  const mail = {
+    sendPortalPasswordReset: jest.fn(async (_params: Row) => undefined),
+  };
   const tokens = new PortalTokenService(new JwtService({}), config, prisma as never);
   const service = new PortalAuthService(
     prisma as never,
@@ -183,9 +213,11 @@ function setup(opts: Parameters<typeof makeDb>[0] = {}) {
     redis as never,
     audit as never,
     notifications as never,
+    mail as never,
+    new ConfigService({ BACKOFFICE_URL: 'https://app.example' }),
   );
   const res = { cookie: jest.fn(), clearCookie: jest.fn() };
-  return { db, prisma, redis, notifications, tokens, service, res: res as any };
+  return { db, prisma, redis, notifications, tokens, service, mail, res: res as any };
 }
 
 const registerDto = (over: Row = {}) =>
@@ -542,5 +574,129 @@ describe('PortalAuthService.login, refresh and logout', () => {
   it('argon2 hashes are verifiable (sanity)', async () => {
     const h = await argon2.hash(PASSWORD);
     expect(await argon2.verify(h, PASSWORD)).toBe(true);
+  });
+});
+
+describe('PortalAuthService.forgotPassword and resetPassword', () => {
+  const NEW_PASSWORD = 'An0ther!Passw0rd';
+  const forgot = (email = 'sara@example.com') => ({ clinicId: CLINIC, email }) as never;
+  const sha = (v: string) => createHash('sha256').update(v).digest('hex');
+
+  async function registered() {
+    const ctx = setup();
+    await ctx.service.register(registerDto({ preferredLocale: 'fr' }), ctx.res);
+    return ctx;
+  }
+  /** Requests a reset and returns the raw token from the mailed fragment link. */
+  async function requestToken(ctx: Awaited<ReturnType<typeof registered>>) {
+    await ctx.service.forgotPassword(forgot());
+    const url = ctx.mail.sendPortalPasswordReset.mock.calls.at(-1)![0].resetUrl as string;
+    return url.split('#token=')[1]!;
+  }
+
+  it('answers the same for an existing and an unknown account', async () => {
+    const ctx = await registered();
+    const known = await ctx.service.forgotPassword(forgot());
+    const unknown = await ctx.service.forgotPassword(forgot('nobody@example.com'));
+    expect(known).toEqual({ success: true });
+    expect(unknown).toEqual(known);
+    expect(ctx.mail.sendPortalPasswordReset).toHaveBeenCalledTimes(1);
+  });
+
+  it('mails a fragment link with the clinic name and account locale; stores only the hash', async () => {
+    const ctx = await registered();
+    const raw = await requestToken(ctx);
+    expect(raw).toMatch(/^[0-9a-f]{64}$/);
+    expect(ctx.mail.sendPortalPasswordReset).toHaveBeenCalledWith({
+      email: 'sara@example.com',
+      resetUrl: `https://app.example/portal/reset-password#token=${raw}`,
+      clinicName: 'Clinic',
+      locale: 'fr',
+    });
+    expect(ctx.db.resets).toHaveLength(1);
+    expect(ctx.db.resets[0]!.tokenHash).toBe(sha(raw));
+    expect(JSON.stringify(ctx.db.resets)).not.toContain(raw);
+    const ttl = ctx.db.resets[0]!.expiresAt.getTime() - Date.now();
+    expect(ttl).toBeGreaterThan(29 * 60_000);
+    expect(ttl).toBeLessThanOrEqual(30 * 60_000);
+  });
+
+  it('invalidates earlier unused tokens', async () => {
+    const ctx = await registered();
+    const first = await requestToken(ctx);
+    await requestToken(ctx);
+    await expect(
+      ctx.service.resetPassword({ token: first, password: NEW_PASSWORD } as never),
+    ).rejects.toMatchObject({ response: { code: 'INVALID_TOKEN' } });
+  });
+
+  it('still succeeds when the mail transport fails', async () => {
+    const ctx = await registered();
+    ctx.mail.sendPortalPasswordReset.mockRejectedValueOnce(new Error('provider down'));
+    await expect(ctx.service.forgotPassword(forgot())).resolves.toEqual({ success: true });
+  });
+
+  it('rejects an expired token', async () => {
+    const ctx = await registered();
+    const raw = await requestToken(ctx);
+    ctx.db.resets[0]!.expiresAt = new Date(Date.now() - 1000);
+    await expect(
+      ctx.service.resetPassword({ token: raw, password: NEW_PASSWORD } as never),
+    ).rejects.toMatchObject({ status: 400, response: { code: 'INVALID_TOKEN' } });
+  });
+
+  it('rejects an unknown token', async () => {
+    const ctx = await registered();
+    await expect(
+      ctx.service.resetPassword({ token: 'z'.repeat(64), password: NEW_PASSWORD } as never),
+    ).rejects.toMatchObject({ response: { code: 'INVALID_TOKEN' } });
+  });
+
+  it('rejects a weak password without consuming the token', async () => {
+    const ctx = await registered();
+    const raw = await requestToken(ctx);
+    await expect(
+      ctx.service.resetPassword({ token: raw, password: 'weakpassword1' } as never),
+    ).rejects.toMatchObject({ response: { code: 'WEAK_PASSWORD' } });
+    expect(ctx.db.resets[0]!.usedAt).toBeNull();
+  });
+
+  it('sets the new password, is single use, revokes refresh tokens, clears lockout and audits', async () => {
+    const ctx = await registered();
+    await ctx.service.login(
+      { clinicId: CLINIC, email: 'sara@example.com', password: PASSWORD } as never,
+      ctx.res,
+    );
+    const session = ctx.res.cookie.mock.calls.at(-1)![1] as string;
+    const emailKey = `${CLINIC}:sara@example.com`;
+    ctx.redis.store.set(`portal:lock-email:${emailKey}`, 1);
+    ctx.redis.store.set(`portal:fail-email:${emailKey}`, 3);
+
+    const raw = await requestToken(ctx);
+    await expect(
+      ctx.service.resetPassword({ token: raw, password: NEW_PASSWORD } as never),
+    ).resolves.toEqual({ success: true });
+
+    expect(await argon2.verify(ctx.db.accounts[0]!.passwordHash, NEW_PASSWORD)).toBe(true);
+    expect(ctx.db.resets[0]!.usedAt).toBeInstanceOf(Date);
+    expect(ctx.db.refresh.every((r) => r.revokedAt instanceof Date)).toBe(true);
+    await expect(ctx.service.refresh(session, ctx.res)).rejects.toMatchObject({ status: 401 });
+    expect(ctx.redis.store.has(`portal:lock-email:${emailKey}`)).toBe(false);
+    expect(ctx.redis.store.has(`portal:fail-email:${emailKey}`)).toBe(false);
+    expect(ctx.db.audits.at(-1)).toMatchObject({
+      entity: 'patient_account',
+      action: 'update',
+      after: { event: 'password_reset' },
+    });
+
+    await expect(
+      ctx.service.resetPassword({ token: raw, password: NEW_PASSWORD } as never),
+    ).rejects.toMatchObject({ response: { code: 'INVALID_TOKEN' } });
+    await expect(
+      ctx.service.login(
+        { clinicId: CLINIC, email: 'sara@example.com', password: NEW_PASSWORD } as never,
+        ctx.res,
+      ),
+    ).resolves.toBeDefined();
   });
 });

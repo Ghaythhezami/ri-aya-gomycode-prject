@@ -2,12 +2,15 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  Inject,
   Injectable,
+  Logger,
   UnauthorizedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { Prisma } from '@prisma/client';
 import * as argon2 from 'argon2';
-import { createHash, randomUUID, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import type { Response } from 'express';
 import type { PortalAuthResponse, PortalMe } from '@riaya/shared';
 import { normalizeLocalized, pickLocalized } from '@riaya/shared';
@@ -20,9 +23,17 @@ import {
   PASSWORD_POLICY_MESSAGE,
 } from '../../common/validators/password-strength';
 import { PrismaService } from '../../database/prisma.service';
+import { MAIL_SERVICE } from '../../mail/mail.module';
+import type { MailService } from '../../mail/mail.service';
 import { normalisePhone } from '../../patients/patients.service';
 import { NotificationsService } from '../../notifications/notifications.service';
-import { PortalAcceptInviteDto, PortalLoginDto, PortalRegisterDto } from '../dto/portal-auth.dto';
+import {
+  PortalAcceptInviteDto,
+  PortalForgotPasswordDto,
+  PortalLoginDto,
+  PortalRegisterDto,
+  PortalResetPasswordDto,
+} from '../dto/portal-auth.dto';
 import { toPortalMe, type AccountWithPatient } from '../portal-me.mapper';
 import { PortalTokenService } from './portal-token.service';
 
@@ -39,6 +50,9 @@ const EMAIL_LOCK_PREFIX = 'portal:lock-email:';
 export const INVITE_MAX_ATTEMPTS = 5;
 const INVITE_FAIL_PREFIX = 'portal:invite-fail:';
 const INVITE_FAIL_WINDOW_SECONDS = 7 * 24 * 3600;
+
+/** A portal password reset link is valid for 30 minutes. */
+export const PORTAL_RESET_TTL_MS = 30 * 60 * 1000;
 
 const ACCOUNT_INCLUDE = { patient: true } satisfies Prisma.PatientAccountInclude;
 
@@ -61,6 +75,13 @@ function invalidInvite(): BadRequestException {
   return new BadRequestException({
     code: 'INVALID_TOKEN',
     message: 'This invitation is invalid or has expired',
+  });
+}
+
+function invalidReset(): BadRequestException {
+  return new BadRequestException({
+    code: 'INVALID_TOKEN',
+    message: 'This reset link is invalid or has expired',
   });
 }
 
@@ -98,6 +119,7 @@ function localeOf(value: string | null | undefined): 'en' | 'fr' | 'ar' {
 @Injectable()
 export class PortalAuthService {
   private dummyHash: Promise<string> | null = null;
+  private readonly logger = new Logger(PortalAuthService.name);
 
   constructor(
     private readonly prisma: PrismaService,
@@ -105,6 +127,8 @@ export class PortalAuthService {
     private readonly redis: RedisCacheService,
     private readonly audit: AuditService,
     private readonly notifications: NotificationsService,
+    @Inject(MAIL_SERVICE) private readonly mail: MailService,
+    private readonly config: ConfigService,
   ) {}
 
   // ------------------------------------------------------------------ shared
@@ -401,6 +425,108 @@ export class PortalAuthService {
       })
       .catch(() => undefined);
     return this.respond(account, randomUUID(), res);
+  }
+
+  // ------------------------------------------------------------------ forgot / reset password
+
+  /**
+   * Always resolves `{ success: true }`: an unknown account, an inactive account and a mail failure
+   * are indistinguishable to the caller (no account enumeration).
+   */
+  async forgotPassword(dto: PortalForgotPasswordDto): Promise<{ success: true }> {
+    try {
+      const account = await this.prisma.patientAccount.findUnique({
+        where: { clinicId_email: { clinicId: dto.clinicId, email: dto.email } },
+        include: ACCOUNT_INCLUDE,
+      });
+      if (!account || !account.isActive || account.patient.status !== 'ACTIVE') {
+        return { success: true };
+      }
+
+      const raw = randomBytes(32).toString('hex');
+      const now = new Date();
+      // Invalidate earlier unused links, then store only the hash of the new one.
+      await this.prisma.patientPasswordResetToken.updateMany({
+        where: { accountId: account.id, usedAt: null },
+        data: { usedAt: now },
+      });
+      await this.prisma.patientPasswordResetToken.create({
+        data: {
+          accountId: account.id,
+          tokenHash: createHash('sha256').update(raw).digest('hex'),
+          expiresAt: new Date(now.getTime() + PORTAL_RESET_TTL_MS),
+        },
+      });
+
+      const backoffice = this.config.get<string>('BACKOFFICE_URL') ?? 'http://localhost:5174';
+      // Fragment, so the token never reaches server or proxy logs.
+      const resetUrl = `${backoffice}/portal/reset-password#token=${raw}`;
+      const clinic = await this.clinicInfo(account.clinicId);
+      await this.mail.sendPortalPasswordReset({
+        email: account.email,
+        resetUrl,
+        clinicName: clinic.name,
+        locale: localeOf(account.preferredLocale),
+      });
+    } catch (error) {
+      // Never log the address or the link, only the error class.
+      this.logger.warn(
+        `Portal password reset request failed: ${(error as Error)?.name ?? 'Error'}`,
+      );
+    }
+    return { success: true };
+  }
+
+  async resetPassword(dto: PortalResetPasswordDto): Promise<{ success: true }> {
+    if (!isStrongPassword(dto.password)) throw weakPassword();
+    const tokenHash = createHash('sha256').update(dto.token).digest('hex');
+    const record = await this.prisma.patientPasswordResetToken.findUnique({ where: { tokenHash } });
+    if (!record || record.usedAt || record.expiresAt.getTime() <= Date.now()) {
+      throw invalidReset();
+    }
+    const account = await this.prisma.patientAccount.findUnique({
+      where: { id: record.accountId },
+    });
+    if (!account || !account.isActive) throw invalidReset();
+
+    const passwordHash = await argon2.hash(dto.password);
+    const clinic = await this.prisma.clinic.findUnique({
+      where: { id: account.clinicId },
+      select: { organizationId: true },
+    });
+    const now = new Date();
+    await this.prisma.$transactionWith(async (tx) => {
+      // Atomic one-time claim: of two concurrent requests exactly one gets count === 1.
+      const claim = await tx.patientPasswordResetToken.updateMany({
+        where: { id: record.id, usedAt: null, expiresAt: { gt: now } },
+        data: { usedAt: now },
+      });
+      if (claim.count !== 1) throw invalidReset();
+      await tx.patientAccount.update({
+        where: { id: account.id },
+        data: { passwordHash, failedLoginCount: 0, lockedUntil: null },
+      });
+      await tx.patientRefreshToken.updateMany({
+        where: { accountId: account.id, revokedAt: null },
+        data: { revokedAt: now },
+      });
+      if (clinic) {
+        await this.audit.record(tx, {
+          action: 'update',
+          entity: 'patient_account',
+          entityId: account.id,
+          organizationId: clinic.organizationId,
+          clinicId: account.clinicId,
+          after: { event: 'password_reset' },
+        });
+      }
+    });
+
+    // Clear the e-mail-wide lockout; per-IP keys expire on their own (the IP hash is not known).
+    const key = `${account.clinicId}:${account.email.toLowerCase()}`;
+    await this.redis.delStrict(`${EMAIL_FAIL_PREFIX}${key}`).catch(() => undefined);
+    await this.redis.delStrict(`${EMAIL_LOCK_PREFIX}${key}`).catch(() => undefined);
+    return { success: true };
   }
 
   // ------------------------------------------------------------------ login / refresh / logout

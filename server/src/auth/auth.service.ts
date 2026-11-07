@@ -5,6 +5,7 @@ import {
   Inject,
   Injectable,
   UnauthorizedException,
+  Logger,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
@@ -31,6 +32,8 @@ export const REFRESH_COOKIE = 'refresh_token';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly users: UsersService,
     private readonly prisma: PrismaService,
@@ -255,7 +258,12 @@ export class AuthService {
 
     const backoffice = this.config.get<string>('BACKOFFICE_URL', 'http://localhost:5174');
     const resetUrl = `${backoffice}/reset-password?token=${raw}`;
-    await this.mail.sendPasswordReset(user.email, resetUrl);
+    try {
+      await this.mail.sendPasswordReset(user.email, resetUrl, user.preferredLocale);
+    } catch (error) {
+      // Same answer whether or not sending worked: the response never reveals an account.
+      this.logger.warn(`password reset mail not sent: ${(error as Error).name}`);
+    }
     return generic;
   }
 
