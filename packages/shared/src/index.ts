@@ -16,3 +16,4 @@ export * from './schemas/membership';
 export * from './schemas/realtime';
 export * from './schemas/clinic';
 export * from './schemas/platform';
+export * from './schemas/portal';

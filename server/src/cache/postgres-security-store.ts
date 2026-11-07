@@ -57,6 +57,27 @@ export class PostgresSecurityStore {
     return Number(rows[0]?.value ?? 1);
   }
 
+  /** Atomic `INCRBY` (delta may be negative); same TTL semantics as `increment`. */
+  async incrementBy(key: string, delta: number, ttlSeconds: number): Promise<number> {
+    const ttl = Math.max(1, Math.ceil(ttlSeconds));
+    const by = Math.trunc(delta);
+    const rows = await this.db.$queryRaw<{ value: string }[]>`
+      INSERT INTO "security_state" ("key", "value", "expiresAt")
+      VALUES (${key}, ${String(by)}, now() + make_interval(secs => ${ttl}))
+      ON CONFLICT ("key") DO UPDATE SET
+        "value" = CASE
+          WHEN "security_state"."expiresAt" <= now() THEN ${String(by)}
+          ELSE (("security_state"."value")::bigint + ${by}::bigint)::text
+        END,
+        "expiresAt" = CASE
+          WHEN "security_state"."expiresAt" <= now() THEN now() + make_interval(secs => ${ttl})
+          ELSE "security_state"."expiresAt"
+        END
+      RETURNING "value"`;
+    await this.maybeSweep();
+    return Number(rows[0]?.value ?? by);
+  }
+
   async ttl(key: string): Promise<number> {
     const rows = await this.db.$queryRaw<{ seconds: number | null }[]>`
       SELECT CEIL(EXTRACT(EPOCH FROM ("expiresAt" - now())))::int AS "seconds"

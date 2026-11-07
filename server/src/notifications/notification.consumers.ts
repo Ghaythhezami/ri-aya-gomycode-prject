@@ -40,7 +40,14 @@ export class NotificationConsumers implements OnModuleInit {
     const a = await this.prisma.appointment.findFirst({
       where: { id: appointmentId, clinicId },
       include: {
-        patient: { select: { firstName: true, lastName: true } },
+        patient: {
+          select: {
+            firstName: true,
+            lastName: true,
+            source: true,
+            portalAccount: { select: { emailVerifiedAt: true } },
+          },
+        },
         doctor: { select: { firstName: true, lastName: true } },
       },
     });
@@ -75,9 +82,22 @@ export class NotificationConsumers implements OnModuleInit {
 
   private async createReminders(
     clinicId: string,
-    appointment: { id: string; startsAt: Date; reminderChannels: string[]; status: string },
+    appointment: {
+      id: string;
+      startsAt: Date;
+      reminderChannels: string[];
+      status: string;
+      patient?: {
+        source?: string;
+        portalAccount?: { emailVerifiedAt: Date | null } | null;
+      };
+    },
   ): Promise<void> {
     if (['CANCELLED', 'NO_SHOW', 'COMPLETED'].includes(appointment.status)) return;
+    // Contact data of a self-registered patient the clinic has not verified is unchecked: no
+    // reminders (staff-entered patients are unaffected). `emailVerifiedAt` = verified by the clinic.
+    const p = appointment.patient;
+    if (p?.source === 'PORTAL' && p.portalAccount && !p.portalAccount.emailVerifiedAt) return;
     const settings = await this.settings.get(clinicId);
     const planned = planReminders(
       appointment.startsAt,

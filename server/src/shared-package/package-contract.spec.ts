@@ -93,13 +93,14 @@ describe('@riaya/shared as a server dependency', () => {
 
   // TEST-006 → AC-001
   it('AC-001: zod is declared exactly once, where it is used', () => {
-    // The server and the web app consume zod only through `@riaya/shared`, so the
-    // major is pinned in one place per consumer that needs it directly.
+    // The web app consumes zod only through `@riaya/shared`. The server declares it
+    // directly since the AI assistants validate model tool inputs with zod (ADR 0005);
+    // every declaration resolves to the same major through the root override.
     const declaring = ['web', 'server', 'backoffice', 'packages/shared']
       .filter((dir) => declaredDeps(dir).includes('zod'))
       .sort();
 
-    expect(declaring).toEqual(['backoffice', 'packages/shared']);
+    expect(declaring).toEqual(['backoffice', 'packages/shared', 'server']);
     expect(declaredDeps('server')).toContain('@riaya/shared');
   });
 

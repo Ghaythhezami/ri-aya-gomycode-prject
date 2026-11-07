@@ -110,6 +110,30 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return (this.inner as PrismaClient).appointmentTypeDef;
   }
 
+  get patientAccount() {
+    return (this.inner as PrismaClient).patientAccount;
+  }
+
+  get patientRefreshToken() {
+    return (this.inner as PrismaClient).patientRefreshToken;
+  }
+
+  get patientInvite() {
+    return (this.inner as PrismaClient).patientInvite;
+  }
+
+  get patientDocument() {
+    return (this.inner as PrismaClient).patientDocument;
+  }
+
+  get patientSummary() {
+    return (this.inner as PrismaClient).patientSummary;
+  }
+
+  get aiConversation() {
+    return (this.inner as PrismaClient).aiConversation;
+  }
+
   /** Tagged-template raw query (parameterised; used by analytics aggregations). */
   get $queryRaw() {
     return (this.inner as PrismaClient).$queryRaw.bind(this.inner as PrismaClient);

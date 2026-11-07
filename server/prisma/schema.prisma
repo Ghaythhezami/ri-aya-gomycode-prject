@@ -295,8 +295,16 @@ model Patient {
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
-  appointments Appointment[]
-  queueEntries QueueEntry[]
+  appointments          Appointment[]
+  queueEntries          QueueEntry[]
+  /// STAFF (created at the desk) or PORTAL (self-registered from the patient portal).
+  source                String            @default("STAFF")
+  /// Set on portal self-registrations that match an existing record (phone + birth date);
+  /// staff review and merge — never linked automatically.
+  possibleDuplicateOfId String?
+  portalAccount         PatientAccount?
+  documents             PatientDocument[]
+  summaries             PatientSummary[]
 
   @@unique([clinicId, code])
   @@index([clinicId, lastName])
@@ -411,6 +419,8 @@ model Appointment {
   /// Set when the doctor is deactivated: staff must reschedule (DOC-1).
   needsReschedule  Boolean           @default(false)
   reminderChannels String[]          @default(["SMS", "EMAIL"])
+  /// STAFF, PORTAL (booked by the patient) or ASSISTANT (confirmed from an AI proposal).
+  source           String            @default("STAFF")
   createdById      String?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
@@ -483,6 +493,12 @@ model ClinicSettings {
   departments             Json
   /// { density, highContrast, reduceMotion }
   appearance              Json
+  /// Patient portal: patients can sign in, book and manage their own appointments.
+  patientPortalEnabled    Boolean  @default(true)
+  /// Patients may create an account from the landing page (otherwise invite-only).
+  patientSelfRegistration Boolean  @default(true)
+  /// AI assistants (Claude API) for this clinic's staff and patients.
+  aiAssistantsEnabled     Boolean  @default(true)
   updatedAt               DateTime @updatedAt
 
   @@map("clinic_settings")
@@ -641,4 +657,142 @@ model AppointmentTypeDef {
   @@unique([clinicId, code])
   @@index([clinicId, isActive])
   @@map("appointment_types")
+}
+
+/// Patient portal identity, separate from staff users (own JWT audience `riaya-portal`).
+model PatientAccount {
+  id                    String    @id @default(uuid())
+  clinicId              String
+  patientId             String    @unique
+  patient               Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  /// Lower-cased; unique per clinic (the same person may use several clinics).
+  email                 String
+  passwordHash          String
+  preferredLocale       String    @default("en")
+  emailVerifiedAt       DateTime?
+  /// Consent to process the patient's data with the AI assistant (Claude API).
+  aiConsentAt           DateTime?
+  privacyAcceptedAt     DateTime
+  onboardingCompletedAt DateTime?
+  lastLoginAt           DateTime?
+  failedLoginCount      Int       @default(0)
+  lockedUntil           DateTime?
+  isActive              Boolean   @default(true)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  refreshTokens PatientRefreshToken[]
+
+  @@unique([clinicId, email])
+  @@index([clinicId])
+  @@map("patient_accounts")
+}
+
+model PatientRefreshToken {
+  id        String         @id @default(uuid())
+  accountId String
+  account   PatientAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  tokenHash String         @unique
+  familyId  String
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime       @default(now())
+
+  @@index([accountId])
+  @@index([familyId])
+  @@map("patient_refresh_tokens")
+}
+
+/// One-time link (shown as QR code at the desk) that attaches a portal account to an
+/// existing patient record.
+model PatientInvite {
+  id          String    @id @default(uuid())
+  clinicId    String
+  patientId   String
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  consumedAt  DateTime?
+  createdById String?
+  createdAt   DateTime  @default(now())
+
+  @@index([patientId])
+  @@map("patient_invites")
+}
+
+/// Uploaded clinical document (PDF or image) with AI text extraction and summary.
+model PatientDocument {
+  id            String    @id @default(uuid())
+  clinicId      String
+  patientId     String
+  patient       Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  /// STAFF or PATIENT (uploaded from the portal, pending review).
+  uploadedBy    String    @default("STAFF")
+  uploaderId    String?
+  fileName      String
+  mimeType      String
+  sizeBytes     Int
+  /// SHA-256 of the bytes: duplicate detection and re-processing skips.
+  sha256        String
+  content       Bytes
+  /// PENDING, PROCESSING, READY, FAILED
+  status        String    @default("PENDING")
+  /// lab_result, prescription, imaging_report, referral, discharge_summary, other
+  category      String?
+  documentDate  DateTime?
+  extractedText String?
+  /// Structured extraction (title, findings, values, medications) as JSON.
+  extraction    Json?
+  summary       String?
+  errorCode     String?
+  reviewedAt    DateTime?
+  reviewedById  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([patientId, sha256])
+  @@index([clinicId, patientId, createdAt])
+  @@map("patient_documents")
+}
+
+/// Doctor-reviewed patient summary (AI draft edited by a clinician); optionally shared
+/// with the patient in the portal.
+model PatientSummary {
+  id               String    @id @default(uuid())
+  clinicId         String
+  patientId        String
+  patient          Patient   @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  authorId         String
+  /// Markdown, clinician-approved.
+  content          String
+  /// Plain-language version for the patient (shared only when visibleToPatient).
+  patientContent   String?
+  sources          Json      @default("[]")
+  visibleToPatient Boolean   @default(false)
+  publishedAt      DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([clinicId, patientId, createdAt])
+  @@map("patient_summaries")
+}
+
+/// Assistant conversation (staff, doctor or patient persona); messages kept as the Claude
+/// API content blocks so the history replays exactly.
+model AiConversation {
+  id           String   @id @default(uuid())
+  clinicId     String
+  /// STAFF_USER or PATIENT_ACCOUNT
+  actorType    String
+  actorId      String
+  /// staff, doctor or patient
+  persona      String
+  title        String?
+  messages     Json     @default("[]")
+  inputTokens  Int      @default(0)
+  outputTokens Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([clinicId, actorType, actorId, updatedAt])
+  @@map("ai_conversations")
 }

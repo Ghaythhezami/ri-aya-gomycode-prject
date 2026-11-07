@@ -9,7 +9,16 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnprocessableEntityResponse,
+} from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -74,29 +83,66 @@ export class ChatController {
   ) {}
 
   @Get('staff')
+  @ApiOperation({
+    summary: 'List staff available to chat',
+    description: 'Colleagues of the clinic who can be messaged. Requires the viewChat capability.',
+  })
+  @ApiOkResponse({ description: 'PersonRef[]' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
   staff() {
     return this.chat.staff(this.tenant.get().clinicId);
   }
 
   @Get('conversations')
+  @ApiOperation({
+    summary: 'List my conversations',
+    description:
+      'Conversations of the signed-in user with unread counts. Requires the viewChat capability.',
+  })
+  @ApiOkResponse({ description: 'ConversationDto[]' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
   list() {
     const { clinicId, userId } = this.tenant.get();
     return this.chat.list(clinicId, userId);
   }
 
   @Post('conversations')
+  @ApiOperation({
+    summary: 'Start or open a conversation',
+    description:
+      'Creates a conversation, or returns the existing direct one. Requires the viewChat capability.',
+  })
+  @ApiCreatedResponse({ description: 'ConversationDto' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
+  @ApiUnprocessableEntityResponse({ description: 'Validation failed' })
   create(@Body() dto: CreateConversationDto) {
     const { clinicId, userId } = this.tenant.get();
     return this.chat.create(clinicId, userId, dto);
   }
 
   @Get('conversations/:id/messages')
+  @ApiOperation({
+    summary: 'List messages of a conversation',
+    description:
+      'Cursor-paginated messages of a conversation the user belongs to. Requires the viewChat capability.',
+  })
+  @ApiOkResponse({ description: 'Page of ChatMessageDto' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
+  @ApiNotFoundResponse({ description: 'Not found in this clinic' })
   messages(@Param('id', ParseUUIDPipe) id: string, @Query() query: MessagesQueryDto) {
     const { clinicId, userId } = this.tenant.get();
     return this.chat.messages(clinicId, userId, id, query);
   }
 
   @Post('conversations/:id/messages')
+  @ApiOperation({
+    summary: 'Send a message',
+    description:
+      'Posts a message to a conversation the user belongs to. Requires the viewChat capability.',
+  })
+  @ApiCreatedResponse({ description: 'ChatMessageDto' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
+  @ApiNotFoundResponse({ description: 'Not found in this clinic' })
   post(@Param('id', ParseUUIDPipe) id: string, @Body() dto: SendMessageDto) {
     const { clinicId, userId } = this.tenant.get();
     return this.chat.post(clinicId, userId, id, dto.body);
@@ -104,6 +150,14 @@ export class ChatController {
 
   @Post('conversations/:id/read')
   @HttpCode(200)
+  @ApiOperation({
+    summary: 'Mark a conversation as read',
+    description:
+      'Resets the unread counter for the signed-in user. Requires the viewChat capability.',
+  })
+  @ApiOkResponse({ description: 'ConversationDto' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
+  @ApiNotFoundResponse({ description: 'Not found in this clinic' })
   read(@Param('id', ParseUUIDPipe) id: string) {
     const { clinicId, userId } = this.tenant.get();
     return this.chat.markRead(clinicId, userId, id);

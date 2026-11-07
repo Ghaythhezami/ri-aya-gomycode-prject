@@ -60,7 +60,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
         }
       }
       if (status === HttpStatus.TOO_MANY_REQUESTS) {
-        code = 'RATE_LIMITED';
+        // Keep deliberate 429 codes (AI budget); throttler 429s become RATE_LIMITED.
+        if (code !== 'AI_BUDGET_EXCEEDED' && code !== 'QUOTA_EXCEEDED') code = 'RATE_LIMITED';
+        details = undefined;
+      } else if (status === HttpStatus.PAYLOAD_TOO_LARGE) {
+        // Multer's file-size limit: same contract as a rejected document type.
+        status = HttpStatus.UNPROCESSABLE_ENTITY;
+        code = 'DOCUMENT_INVALID';
+        message = 'Upload a PDF, JPEG or PNG file of up to 10 MB';
         details = undefined;
       } else if (status >= 500 && !(payload as { code?: unknown } | null)?.code) {
         // A framework 5xx without a stable code must not echo its internal message.

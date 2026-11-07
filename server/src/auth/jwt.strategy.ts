@@ -18,7 +18,11 @@ export interface JwtPayload {
   org_id?: string;
   clinic_id?: string;
   role?: string;
+  aud?: string | string[];
 }
+
+/** Audience of patient (portal) tokens; they never authenticate a staff route. */
+const PORTAL_AUDIENCE = 'riaya-portal';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -37,6 +41,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
+    const audiences = Array.isArray(payload.aud) ? payload.aud : [payload.aud];
+    if (audiences.includes(PORTAL_AUDIENCE)) {
+      throw new UnauthorizedException({ code: 'UNAUTHENTICATED', message: 'Session expired' });
+    }
     const user = await this.users.findById(payload.sub);
     if (!user || !user.isActive) {
       throw new UnauthorizedException({

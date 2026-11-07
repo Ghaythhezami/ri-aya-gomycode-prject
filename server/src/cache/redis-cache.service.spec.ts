@@ -13,4 +13,13 @@ describe('RedisCacheService', () => {
     await expect(cache.get('greeting')).resolves.toBeNull();
     expect(cache.status).toBe('memory');
   });
+
+  it('incrementByStrict adds positive and negative deltas and keeps the counter', async () => {
+    const cache = new RedisCacheService({
+      get: () => undefined,
+    } as unknown as ConfigService);
+    await expect(cache.incrementByStrict('ai:budget:t', 20_000, 60)).resolves.toBe(20_000);
+    await expect(cache.incrementByStrict('ai:budget:t', 5_000, 60)).resolves.toBe(25_000);
+    await expect(cache.incrementByStrict('ai:budget:t', -15_000, 60)).resolves.toBe(10_000);
+  });
 });

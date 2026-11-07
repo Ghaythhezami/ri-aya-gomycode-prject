@@ -139,6 +139,14 @@ function snapshot(row: {
   };
 }
 
+/**
+ * Audit actor column references `users`; a portal request carries a synthetic `portal:<accountId>`
+ * user id (no user row), so it is stored as no actor. The portal service records its own audit row.
+ */
+function auditActor(scope: TenantScope): string | null {
+  return scope.userId.startsWith('portal:') ? null : scope.userId;
+}
+
 function errorCode(error: unknown): ClinicErrorCode {
   if (error instanceof HttpException) {
     const body = error.getResponse();
@@ -531,7 +539,10 @@ export class AppointmentsService {
 
   // ------------------------------------------------------------------ create
 
-  async create(dto: CreateAppointmentDto): Promise<AppointmentDetail> {
+  async create(
+    dto: CreateAppointmentDto,
+    opts: { source?: 'STAFF' | 'PORTAL' | 'ASSISTANT' } = {},
+  ): Promise<AppointmentDetail> {
     const scope = this.tenant.get();
     const settings = await this.settings.get(scope.clinicId);
     const timeZone = settings.clinic.timezone;
@@ -602,12 +613,13 @@ export class AppointmentsService {
             reason: dto.reason ?? null,
             notes: dto.notes ?? null,
             reminderChannels: dto.reminderChannels ?? settings.reminderChannels,
+            source: opts.source ?? 'STAFF',
             createdById: scope.userId,
           },
           include: DETAIL_INCLUDE,
         });
         await this.audit.record(tx, {
-          actorUserId: scope.userId,
+          actorUserId: auditActor(scope),
           action: 'create',
           entity: 'appointment',
           entityId: row.id,
@@ -737,7 +749,7 @@ export class AppointmentsService {
           include: DETAIL_INCLUDE,
         });
         await this.audit.record(tx, {
-          actorUserId: scope.userId,
+          actorUserId: auditActor(scope),
           action: 'update',
           entity: 'appointment',
           entityId: id,
@@ -852,7 +864,7 @@ export class AppointmentsService {
       });
       if (result.count === 0) throw illegalTransition(existing.status, to);
       await this.audit.record(tx, {
-        actorUserId: scope.userId,
+        actorUserId: auditActor(scope),
         action: 'update',
         entity: 'appointment',
         entityId: id,
@@ -900,7 +912,7 @@ export class AppointmentsService {
         data: { status: 'CANCELLED' },
       });
       await this.audit.record(tx, {
-        actorUserId: scope.userId,
+        actorUserId: auditActor(scope),
         action: 'update',
         entity: 'appointment',
         entityId: id,

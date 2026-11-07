@@ -22,7 +22,11 @@ import { ClinicalModule } from './clinical.module';
 import { AppointmentTypesModule } from './appointment-types/appointment-types.module';
 import { OperationsModule } from './operations.module';
 import { RequestLocaleMiddleware } from './common/locale/request-locale.middleware';
+import { PortalAuthModule } from './portal/portal-auth.module';
+import { PortalModule } from './portal/portal.module';
 import { RealtimeTicketModule } from './realtime-ticket/realtime-ticket.module';
+import { AiModule } from './ai/ai.module';
+import { DocumentsModule } from './documents/documents.module';
 
 @Module({
   imports: [
@@ -61,6 +65,10 @@ import { RealtimeTicketModule } from './realtime-ticket/realtime-ticket.module';
     AppointmentTypesModule,
     OperationsModule,
     RealtimeTicketModule,
+    AiModule,
+    DocumentsModule,
+    PortalAuthModule,
+    PortalModule,
     DemoModule,
   ],
   providers: [

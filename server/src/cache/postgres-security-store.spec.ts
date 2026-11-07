@@ -22,6 +22,15 @@ function fakeDb(clock: { now: number }) {
 
   const queryRaw = async (strings: TemplateStringsArray, ...values: unknown[]) => {
     const text = sql(strings);
+    if (text.includes('RETURNING') && text.includes('bigint')) {
+      const [key, , ttl, , by] = values as [string, string, number, string, number];
+      const row = live(key);
+      const next = row
+        ? { value: String(Number(row.value) + by), expiresAt: row.expiresAt }
+        : { value: String(by), expiresAt: clock.now + ttl * 1000 };
+      rows.set(key, next);
+      return [{ value: next.value }];
+    }
     if (text.includes('RETURNING')) {
       const [key, ttl] = values as [string, number];
       const row = live(key);
@@ -100,6 +109,15 @@ describe('PostgresSecurityStore', () => {
     await expect(store.ttl('fail')).resolves.toBe(50);
     clock.now += 61_000;
     await expect(store.increment('fail', 60)).resolves.toBe(1);
+  });
+
+  it('incrementBy adds signed deltas and keeps the first TTL', async () => {
+    const { db } = fakeDb(clock);
+    const store = new PostgresSecurityStore(db as never);
+    await expect(store.incrementBy('budget', 20_000, 60)).resolves.toBe(20_000);
+    clock.now += 10_000;
+    await expect(store.incrementBy('budget', -5_000, 60)).resolves.toBe(15_000);
+    await expect(store.ttl('budget')).resolves.toBe(50);
   });
 
   it('sweeps rows expired for more than an hour, at most every ten minutes', async () => {

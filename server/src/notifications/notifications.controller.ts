@@ -10,7 +10,15 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import { ApiBearerAuth, ApiExcludeController, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiExcludeController,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsIn, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
 import { timingSafeEqual } from 'node:crypto';
@@ -57,6 +65,13 @@ export class NotificationsController {
   ) {}
 
   @Get()
+  @ApiOperation({
+    summary: 'List notifications',
+    description:
+      'Cursor-paginated notifications of the signed-in user, filterable by category and unread. Requires the viewNotifications capability.',
+  })
+  @ApiOkResponse({ description: 'Page of NotificationDto' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
   list(@Query() query: ListNotificationsDto) {
     const { clinicId, userId } = this.tenant.get();
     return this.notifications.list(clinicId, userId, {
@@ -68,12 +83,25 @@ export class NotificationsController {
   }
 
   @Get('unread-count')
+  @ApiOperation({
+    summary: 'Count unread notifications',
+    description: 'Unread total for the signed-in user. Requires the viewNotifications capability.',
+  })
+  @ApiOkResponse({ description: 'Object with count' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
   async unreadCount() {
     const { clinicId, userId } = this.tenant.get();
     return { count: await this.notifications.unreadCount(clinicId, userId) };
   }
 
   @Get('delivery-stats')
+  @ApiOperation({
+    summary: 'Get reminder delivery statistics',
+    description:
+      'Delivery outcomes of reminders for the clinic; processes due reminders first. Requires the viewNotifications capability.',
+  })
+  @ApiOkResponse({ description: 'DeliveryStats' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
   async deliveryStats() {
     const { clinicId } = this.tenant.get();
     await this.processor.processDue(new Date(), 50).catch(() => undefined);
@@ -82,6 +110,13 @@ export class NotificationsController {
 
   @Post('read-all')
   @HttpCode(200)
+  @ApiOperation({
+    summary: 'Mark all notifications as read',
+    description:
+      'Marks every notification of the signed-in user as read. Requires the viewNotifications capability.',
+  })
+  @ApiOkResponse({ description: 'Updated count' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
   readAll() {
     const { clinicId, userId } = this.tenant.get();
     return this.notifications.markAllRead(clinicId, userId);
@@ -89,6 +124,13 @@ export class NotificationsController {
 
   @Post(':id/read')
   @HttpCode(200)
+  @ApiOperation({
+    summary: 'Mark a notification as read',
+    description: 'Marks one notification as read. Requires the viewNotifications capability.',
+  })
+  @ApiOkResponse({ description: 'NotificationDto' })
+  @ApiForbiddenResponse({ description: 'Missing the required capability' })
+  @ApiNotFoundResponse({ description: 'Not found in this clinic' })
   read(@Param('id') id: string) {
     const { clinicId, userId } = this.tenant.get();
     return this.notifications.markRead(clinicId, userId, id);

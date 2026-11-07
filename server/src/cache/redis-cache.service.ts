@@ -172,6 +172,23 @@ export class RedisCacheService implements OnModuleDestroy {
     return value;
   }
 
+  /**
+   * Atomically add `delta` (may be negative) to a counter; the TTL is applied when the key is
+   * created and kept afterwards. Used for the AI token-budget reservations. Returns the new value.
+   */
+  async incrementByStrict(key: string, delta: number, ttlSeconds: number): Promise<number> {
+    const by = Math.trunc(delta);
+    if (this.useStrictMemory) return this.memoryIncrement(key, ttlSeconds, by);
+    const pg = this.postgresStore;
+    if (pg) return pg.incrementBy(key, by, ttlSeconds);
+    const client = await this.readyClient();
+    const value = await client.incrby(key, by);
+    if ((await client.ttl(key)) < 0) {
+      await client.expire(key, Math.max(1, Math.ceil(ttlSeconds)));
+    }
+    return value;
+  }
+
   /** Remaining TTL in seconds. Returns -2 when the key does not exist. */
   async ttlStrict(key: string): Promise<number> {
     if (this.useStrictMemory) return this.memoryTtl(key);
@@ -205,10 +222,10 @@ export class RedisCacheService implements OnModuleDestroy {
    * seam. The TTL is set when the key is created and preserved on later
    * increments, matching Redis semantics.
    */
-  private memoryIncrement(key: string, ttlSeconds: number): number {
+  private memoryIncrement(key: string, ttlSeconds: number, by = 1): number {
     const hit = this.memory.get(key);
     const live = hit && hit.expiresAt > Date.now() ? hit : undefined;
-    const value = (live ? Number(JSON.parse(live.value)) : 0) + 1;
+    const value = (live ? Number(JSON.parse(live.value)) : 0) + by;
     this.memory.set(key, {
       value: JSON.stringify(value),
       expiresAt: live ? live.expiresAt : Date.now() + Math.max(1, Math.ceil(ttlSeconds)) * 1000,
