@@ -16,6 +16,11 @@ import { PublicUiPage } from './pages/PublicUiPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { AcceptInvitePage } from './pages/AcceptInvitePage';
 import { StaffDirectoryPage } from './pages/StaffDirectoryPage';
+import { SettingsPage } from './pages/SettingsPage';
+import { ClinicInformationSection } from './pages/settings/ClinicInformationSection';
+import { WorkingHoursSection } from './pages/settings/WorkingHoursSection';
+import { RolesPermissionsSection } from './pages/settings/RolesPermissionsSection';
+import { PlaceholderSection } from './pages/settings/PlaceholderSection';
 
 export default function App() {
   return (
@@ -72,10 +77,37 @@ export default function App() {
                 path="/settings"
                 element={
                   <RoleRoute capability="manageSettings">
-                    <PlaceholderPage titleKey="nav.settings" />
+                    <SettingsPage />
                   </RoleRoute>
                 }
-              />
+              >
+                <Route index element={<Navigate to="clinic-information" replace />} />
+                <Route path="clinic-information" element={<ClinicInformationSection />} />
+                <Route
+                  path="departments"
+                  element={<PlaceholderSection titleKey="settings.departments" />}
+                />
+                <Route path="working-hours" element={<WorkingHoursSection />} />
+                <Route
+                  path="appointments"
+                  element={
+                    <PlaceholderSection titleKey="settings.appointments" to="/appointments" />
+                  }
+                />
+                <Route
+                  path="reminders"
+                  element={<PlaceholderSection titleKey="settings.reminders" to="/notifications" />}
+                />
+                <Route path="roles-permissions" element={<RolesPermissionsSection />} />
+                <Route
+                  path="audit-log"
+                  element={<PlaceholderSection titleKey="settings.auditLog" />}
+                />
+                <Route
+                  path="appearance"
+                  element={<PlaceholderSection titleKey="settings.appearance" />}
+                />
+              </Route>
               <Route path="/design-system" element={<DesignSystemPage />} />
             </Route>
             <Route path="*" element={<Navigate to="/" replace />} />

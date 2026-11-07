@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { can, formatDate, negotiateLocale } from '@riaya/shared';
+import { useAuth } from '../auth/AuthContext';
 import { useWorkspace } from '../auth/WorkspaceContext';
 import { api } from '../lib/api';
 import { Button } from '../common/Button';
@@ -43,6 +44,7 @@ const ASSIGNABLE_ROLES = ['CLINIC_ADMIN', 'DOCTOR', 'RECEPTIONIST'] as const;
  */
 export function StaffDirectoryPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
   const { active } = useWorkspace();
   const canManage = can(active?.role, 'manageStaff');
   const [members, setMembers] = useState<Member[]>([]);
@@ -52,6 +54,7 @@ export function StaffDirectoryPage() {
   const [role, setRole] = useState('RECEPTIONIST');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -78,19 +81,40 @@ export function StaffDirectoryPage() {
     event.preventDefault();
     setError(null);
     setMessage(null);
+    setSending(true);
     try {
-      const memberships = await api.get<Array<{ clinicId: string }>>('/api/auth/memberships');
-      const clinicId = memberships.data[0]?.clinicId;
+      // Invite into the clinic the admin is currently working in, not their first
+      // membership: the link the server emails carries this exact clinic.
+      const clinicId = active?.clinicId;
       if (!clinicId) {
         setError(t('staff.noClinic'));
         return;
       }
-      await api.post('/api/invitations', { email, clinicId, role });
+      const { data } = await api.post<{ deliveryStatus: 'SENT' | 'FAILED' }>('/api/invitations', {
+        email,
+        clinicId,
+        role,
+      });
       setEmail('');
-      setMessage(t('staff.invited'));
+      // The row is created even when the provider fails (NFR-016), so report
+      // the delivery outcome instead of a blind "sent".
+      if (data.deliveryStatus === 'FAILED') {
+        setError(t('staff.inviteDeliveryFailed'));
+      } else {
+        setMessage(t('staff.invited'));
+      }
       await load();
-    } catch {
-      setError(t('staff.inviteError'));
+    } catch (err) {
+      const code = (err as { response?: { data?: { code?: string } } }).response?.data?.code;
+      setError(
+        code === 'INVITATION_ALREADY_PENDING'
+          ? t('staff.inviteAlreadyPending')
+          : code === 'ALREADY_A_MEMBER'
+            ? t('staff.alreadyMember')
+            : t('staff.inviteError'),
+      );
+    } finally {
+      setSending(false);
     }
   }
 
@@ -123,7 +147,13 @@ export function StaffDirectoryPage() {
       await load();
     } catch (err) {
       const code = (err as { response?: { data?: { code?: string } } }).response?.data?.code;
-      setError(code === 'LAST_SUPER_ADMIN' ? t('staff.lastSuperAdmin') : t('staff.roleError'));
+      setError(
+        code === 'LAST_SUPER_ADMIN'
+          ? t('staff.lastSuperAdmin')
+          : code === 'SELF_ROLE_CHANGE'
+            ? t('staff.selfRoleError')
+            : t('staff.roleError'),
+      );
     }
   }
 
@@ -132,8 +162,14 @@ export function StaffDirectoryPage() {
     setError(null);
     setMessage(null);
     try {
-      await api.post(`/api/invitations/${id}/resend`);
-      setMessage(t('staff.resent'));
+      const { data } = await api.post<{ deliveryStatus: 'SENT' | 'FAILED' }>(
+        `/api/invitations/${id}/resend`,
+      );
+      if (data.deliveryStatus === 'FAILED') {
+        setError(t('staff.resendDeliveryFailed'));
+      } else {
+        setMessage(t('staff.resent'));
+      }
       await load();
     } catch {
       setError(t('staff.actionError'));
@@ -169,12 +205,21 @@ export function StaffDirectoryPage() {
             </select>
           </Field>
         </div>
-        <Button type="submit" disabled={!email.includes('@')}>
-          {t('staff.invite')}
+        <Button type="submit" disabled={sending || !email.includes('@')}>
+          {sending ? t('staff.sending') : t('staff.invite')}
         </Button>
       </form>
 
-      {message && <p className="text-sm text-success">{message}</p>}
+      {sending ? (
+        <p role="status" className="text-sm text-muted">
+          {t('staff.sendingMessage')}
+        </p>
+      ) : null}
+      {message && (
+        <p role="status" className="text-sm text-success">
+          {message}
+        </p>
+      )}
       {error && (
         <p role="alert" className="text-sm text-error">
           {error}
@@ -204,51 +249,59 @@ export function StaffDirectoryPage() {
               </tr>
             </thead>
             <tbody>
-              {members.map((member) => (
-                <tr key={member.membershipId} className="border-t border-border">
-                  <td className="px-4 py-2 text-text">
-                    <div>
-                      {member.firstName} {member.lastName}
-                    </div>
-                    <div className="text-xs text-muted">{member.email}</div>
-                  </td>
-                  <td className="px-4 py-2">
-                    {canManage ? (
-                      <select
-                        aria-label={t('staff.role')}
-                        value={member.role}
-                        onChange={(e) => void changeRole(member.membershipId, e.target.value)}
-                        className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
-                      >
-                        {[
-                          ...(member.role === 'SUPER_ADMIN' ? ['SUPER_ADMIN'] : []),
-                          ...ASSIGNABLE_ROLES,
-                        ].map((option) => (
-                          <option key={option} value={option}>
-                            {t(`roles.${option}`)}
-                          </option>
-                        ))}
-                      </select>
-                    ) : (
-                      <span className="text-muted">{t(`roles.${member.role}`)}</span>
-                    )}
-                  </td>
-                  <td className="px-4 py-2 text-muted">
-                    {member.lastLoginAt
-                      ? formatDate(
-                          new Date(member.lastLoginAt),
-                          negotiateLocale(i18n.resolvedLanguage),
-                          active?.clinicTimezone,
-                        )
-                      : t('staff.never')}
-                  </td>
-                  <td className="px-4 py-2">
-                    <span className="rounded bg-bg px-2 py-0.5 text-xs text-muted">
-                      {t(`staff.memberStatus.${member.status}`)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {members.map((member) => {
+                const isSelf = member.userId === user?.id;
+                return (
+                  <tr key={member.membershipId} className="border-t border-border">
+                    <td className="px-4 py-2 text-text">
+                      <div>
+                        {member.firstName} {member.lastName}
+                      </div>
+                      <div className="text-xs text-muted">{member.email}</div>
+                    </td>
+                    <td className="px-4 py-2">
+                      {canManage && !isSelf ? (
+                        <select
+                          aria-label={t('staff.role')}
+                          value={member.role}
+                          onChange={(e) => void changeRole(member.membershipId, e.target.value)}
+                          className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
+                        >
+                          {[
+                            ...(member.role === 'SUPER_ADMIN' ? ['SUPER_ADMIN'] : []),
+                            ...ASSIGNABLE_ROLES,
+                          ].map((option) => (
+                            <option key={option} value={option}>
+                              {t(`roles.${option}`)}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <span className="text-muted">
+                          {t(`roles.${member.role}`)}
+                          {isSelf ? (
+                            <span className="block text-xs text-muted">{t('staff.ownRole')}</span>
+                          ) : null}
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-muted">
+                      {member.lastLoginAt
+                        ? formatDate(
+                            new Date(member.lastLoginAt),
+                            negotiateLocale(i18n.resolvedLanguage),
+                            active?.clinicTimezone,
+                          )
+                        : t('staff.never')}
+                    </td>
+                    <td className="px-4 py-2">
+                      <span className="rounded bg-bg px-2 py-0.5 text-xs text-muted">
+                        {t(`staff.memberStatus.${member.status}`)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         )}

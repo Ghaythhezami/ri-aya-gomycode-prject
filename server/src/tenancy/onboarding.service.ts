@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -203,12 +204,53 @@ export class OnboardingService {
       throw new NotFoundException({ code: 'CLINIC_NOT_FOUND', message: 'Clinic not found' });
     }
 
+    // Only a SUPER_ADMIN may grant the organization-wide role. Without this an
+    // admin of one clinic could invite a new (or their own) account as
+    // SUPER_ADMIN and escalate past their clinic scope.
+    if (params.role === UserRole.SUPER_ADMIN && params.scope.role !== UserRole.SUPER_ADMIN) {
+      throw new ForbiddenException({
+        code: 'INSUFFICIENT_ROLE',
+        message: 'Only a super admin can grant the super admin role',
+      });
+    }
+
     const email = params.email.toLowerCase();
+
+    // Never create a second invitation for the same address in this clinic while
+    // one is still live. The admin can use Resend on the existing row instead.
+    const pending = await this.prisma.invitation.findFirst({
+      where: {
+        email,
+        clinicId: params.clinicId,
+        status: 'PENDING',
+        expiresAt: { gt: new Date() },
+      },
+    });
+    if (pending) {
+      throw new ConflictException({
+        code: 'INVITATION_ALREADY_PENDING',
+        message: 'An invitation is already pending for this email',
+      });
+    }
+
+    // An existing active member does not need an invitation.
+    const existingUser = await this.prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      const membership = await this.prisma.userMembership.findFirst({
+        where: { userId: existingUser.id, clinicId: params.clinicId, status: 'ACTIVE' },
+      });
+      if (membership) {
+        throw new ConflictException({
+          code: 'ALREADY_A_MEMBER',
+          message: 'This person is already a member of this clinic',
+        });
+      }
+    }
+
     const raw = randomBytes(32).toString('hex');
 
-    // Issuing a new invitation revokes every earlier unfinalised one for the same
-    // email + clinic, so only the newest token works (FR-031, EC-024). The rows
-    // stay for the record, so they move to CANCELLED rather than being deleted.
+    // Any expired/cancelled leftovers for this email + clinic are closed so the
+    // directory shows one current state; live invitations were rejected above.
     await this.prisma.invitation.updateMany({
       where: { email, clinicId: params.clinicId, status: 'PENDING' },
       data: { status: 'CANCELLED' },
@@ -248,9 +290,66 @@ export class OnboardingService {
     });
   }
 
+  /** Resolve a usable invitation from its raw link token, or throw a stable code. */
+  private async pendingInvitation(token: string) {
+    const tokenHash = this.hashToken(token);
+    const invitation = await this.prisma.invitation.findUnique({ where: { tokenHash } });
+
+    if (
+      !invitation ||
+      invitation.status !== 'PENDING' ||
+      invitation.expiresAt.getTime() < Date.now()
+    ) {
+      throw new BadRequestException({
+        code: 'INVALID_INVITATION',
+        message: 'This invitation is invalid or has expired',
+      });
+    }
+    return invitation;
+  }
+
+  /** Grant the invitation's membership and consume its single-use token. */
+  private async grantInvitation(
+    tx: Parameters<Parameters<PrismaService['$transaction']>[0]>[0],
+    invitation: { id: string; organizationId: string; clinicId: string; role: UserRole },
+    userId: string,
+  ) {
+    // Grant exactly the invited membership (FR-030).
+    await tx.userMembership.upsert({
+      where: { userId_clinicId: { userId, clinicId: invitation.clinicId } },
+      update: { role: invitation.role, status: 'ACTIVE' },
+      create: {
+        userId,
+        organizationId: invitation.organizationId,
+        clinicId: invitation.clinicId,
+        role: invitation.role,
+        status: 'ACTIVE',
+      },
+    });
+
+    await tx.invitation.update({
+      where: { id: invitation.id },
+      data: { consumedAt: new Date(), status: 'ACCEPTED' },
+    });
+
+    await this.audit.record(tx, {
+      actorUserId: userId,
+      action: 'create',
+      entity: 'user_membership',
+      entityId: `${userId}:${invitation.clinicId}`,
+      after: { role: invitation.role, via: 'invitation' },
+      organizationId: invitation.organizationId,
+      clinicId: invitation.clinicId,
+    });
+  }
+
   /**
-   * Consume an invitation and set the invitee's password (FR-008, AC-016).
-   * The token is single-use: a second attempt is rejected (AC-017).
+   * Consume an invitation by creating a brand-new identity (FR-008, AC-016).
+   *
+   * This path is only for an email that has no account yet: an existing account
+   * must prove ownership by signing in and then use
+   * `acceptInvitationForUser`, so a leaked link can never reset someone's
+   * password. The token is single-use: a second attempt is rejected (AC-017).
    */
   async acceptInvitation(params: {
     token: string;
@@ -265,69 +364,68 @@ export class OnboardingService {
       });
     }
 
-    const tokenHash = this.hashToken(params.token);
-    const invitation = await this.prisma.invitation.findUnique({ where: { tokenHash } });
+    const invitation = await this.pendingInvitation(params.token);
 
-    if (
-      !invitation ||
-      invitation.status !== 'PENDING' ||
-      invitation.expiresAt.getTime() < Date.now()
-    ) {
-      throw new BadRequestException({
-        code: 'INVALID_INVITATION',
-        message: 'This invitation is invalid or has expired',
+    const existing = await this.prisma.user.findUnique({ where: { email: invitation.email } });
+    if (existing) {
+      throw new ConflictException({
+        code: 'ACCOUNT_EXISTS',
+        message: 'An account already exists for this email. Sign in to accept the invitation.',
       });
     }
 
     const passwordHash = await argon2.hash(params.password);
 
     return this.prisma.$transaction(async (tx) => {
-      const existing = await tx.user.findUnique({ where: { email: invitation.email } });
-      const user =
-        existing ??
-        (await tx.user.create({
-          data: {
-            email: invitation.email,
-            passwordHash,
-            firstName: params.firstName ?? '',
-            lastName: params.lastName ?? '',
-            isActive: true,
-          },
-        }));
-
-      if (existing) {
-        await tx.user.update({ where: { id: existing.id }, data: { passwordHash } });
-      }
-
-      // Grant exactly the invited membership (FR-030).
-      await tx.userMembership.upsert({
-        where: { userId_clinicId: { userId: user.id, clinicId: invitation.clinicId } },
-        update: { role: invitation.role, status: 'ACTIVE' },
-        create: {
-          userId: user.id,
-          organizationId: invitation.organizationId,
-          clinicId: invitation.clinicId,
-          role: invitation.role,
-          status: 'ACTIVE',
+      const user = await tx.user.create({
+        data: {
+          email: invitation.email,
+          passwordHash,
+          firstName: params.firstName ?? '',
+          lastName: params.lastName ?? '',
+          isActive: true,
         },
       });
 
-      await tx.invitation.update({
-        where: { id: invitation.id },
-        data: { consumedAt: new Date(), status: 'ACCEPTED' },
-      });
+      await this.grantInvitation(tx, invitation, user.id);
 
-      await this.audit.record(tx, {
-        actorUserId: user.id,
-        action: 'create',
-        entity: 'user_membership',
-        entityId: `${user.id}:${invitation.clinicId}`,
-        after: { role: invitation.role, via: 'invitation' },
+      return {
+        userId: user.id,
+        email: user.email,
         organizationId: invitation.organizationId,
         clinicId: invitation.clinicId,
-      });
+        role: invitation.role,
+      };
+    });
+  }
 
-      return { userId: user.id, clinicId: invitation.clinicId, role: invitation.role };
+  /**
+   * Consume an invitation for an identity that already exists.
+   *
+   * The caller is authenticated, so the only check left is that the invitation
+   * was addressed to that identity: a signed-in user cannot accept someone
+   * else's invitation by pasting its link.
+   */
+  async acceptInvitationForUser(params: { token: string; userId: string }) {
+    const invitation = await this.pendingInvitation(params.token);
+    const user = await this.prisma.user.findUnique({ where: { id: params.userId } });
+
+    if (!user || user.email.toLowerCase() !== invitation.email.toLowerCase()) {
+      throw new ForbiddenException({
+        code: 'INVITATION_EMAIL_MISMATCH',
+        message: 'This invitation belongs to a different email address',
+      });
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      await this.grantInvitation(tx, invitation, user.id);
+      return {
+        userId: user.id,
+        email: user.email,
+        organizationId: invitation.organizationId,
+        clinicId: invitation.clinicId,
+        role: invitation.role,
+      };
     });
   }
 

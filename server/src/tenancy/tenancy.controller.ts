@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Inject,
   Param,
@@ -22,6 +23,9 @@ import { TenantContext } from './tenant-context';
 import { OnboardingService } from './onboarding.service';
 import { TenancyService } from './tenancy.service';
 import { RegisterDto } from './dto/register.dto';
+import { CreateClinicDto } from './dto/clinic.dto';
+import { UpdateClinicSettingsDto } from './dto/clinic-settings.dto';
+import { CreateRoleDto, UpdateRoleDto } from './dto/role.dto';
 import {
   AcceptInvitationDto,
   ChangeRoleDto,
@@ -64,6 +68,14 @@ export class TenancyController {
     return this.onboarding.acceptInvitation(dto);
   }
 
+  @Post('invitations/:token/accept')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Accept an invitation as an existing, signed-in account' })
+  acceptInviteAsUser(@CurrentUser() user: UserRecord, @Param('token') token: string) {
+    return this.onboarding.acceptInvitationForUser({ token, userId: user.id });
+  }
+
   @Post('organizations')
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
@@ -72,6 +84,78 @@ export class TenancyController {
   })
   createOrganization(@CurrentUser() user: UserRecord, @Body() dto: CreateOrganizationDto) {
     return this.onboarding.createOrganizationForUser(user.id, dto);
+  }
+
+  @Post('clinics')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: "Create another clinic inside the caller's organization" })
+  createClinic(@CurrentUser() user: UserRecord, @Body() dto: CreateClinicDto) {
+    return this.tenancy.createClinic(this.tenant.get(), dto, user.id);
+  }
+
+  @Get('clinics/settings')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: "Read the active clinic's settings" })
+  clinicSettings() {
+    return this.tenancy.getClinicSettings(this.tenant.get());
+  }
+
+  @Patch('clinics/settings')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: "Update the active clinic's settings" })
+  updateClinicSettings(@CurrentUser() user: UserRecord, @Body() dto: UpdateClinicSettingsDto) {
+    return this.tenancy.updateClinicSettings(this.tenant.get(), dto, user.id);
+  }
+
+  @Get('roles')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: 'List built-in and custom roles for the active clinic' })
+  listRoles() {
+    return this.tenancy.listRoles(this.tenant.get());
+  }
+
+  @Post('roles')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: 'Create a custom role in the active clinic' })
+  createRole(@CurrentUser() user: UserRecord, @Body() dto: CreateRoleDto) {
+    return this.tenancy.createRole(this.tenant.get(), dto, user.id);
+  }
+
+  @Patch('roles/:id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: 'Edit a custom role in the active clinic' })
+  updateRole(@CurrentUser() user: UserRecord, @Param('id') id: string, @Body() dto: UpdateRoleDto) {
+    return this.tenancy.updateRole(this.tenant.get(), id, dto, user.id);
+  }
+
+  @Delete('roles/:id')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(...CAPABILITY_ROLES.manageSettings)
+  @ApiOperation({ summary: 'Delete a custom role in the active clinic' })
+  async deleteRole(@CurrentUser() user: UserRecord, @Param('id') id: string) {
+    await this.tenancy.deleteRole(this.tenant.get(), id, user.id);
+    return { success: true };
+  }
+
+  @Get('organizations/overview')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'Organization-wide counts for the overview page' })
+  organizationOverview() {
+    return this.tenancy.organizationOverview(this.tenant.get());
   }
 
   @Post('invitations')

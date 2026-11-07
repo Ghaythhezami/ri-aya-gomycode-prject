@@ -40,6 +40,10 @@ interface ClinicRecord {
   timezone: string;
   currency: string;
   address: string | null;
+  contactEmail: string | null;
+  phone: string | null;
+  defaultLanguage: PreferredLocale;
+  workingHours: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -86,6 +90,17 @@ interface AuditLogRecord {
   organizationId: string | null;
   clinicId: string | null;
   createdAt: Date;
+}
+
+interface RoleRecord {
+  id: string;
+  organizationId: string;
+  clinicId: string;
+  name: string;
+  baseRole: UserRole;
+  permissions: string[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 type AppointmentStatusValue =
@@ -151,6 +166,7 @@ interface MemorySnapshot {
   clinics: Map<string, ClinicRecord>;
   memberships: Map<string, MembershipRecord>;
   invitations: Map<string, InvitationRecord>;
+  roles: Map<string, RoleRecord>;
   auditLogs: Map<string, AuditLogRecord>;
   patients: Map<string, PatientRecord>;
   doctors: Map<string, DoctorRecord>;
@@ -165,6 +181,7 @@ export class MemoryPrisma {
   private clinics = new Map<string, ClinicRecord>();
   private memberships = new Map<string, MembershipRecord>();
   private invitations = new Map<string, InvitationRecord>();
+  private roles = new Map<string, RoleRecord>();
   private auditLogs = new Map<string, AuditLogRecord>();
   private patients = new Map<string, PatientRecord>();
   private doctors = new Map<string, DoctorRecord>();
@@ -334,6 +351,10 @@ export class MemoryPrisma {
         timezone?: string;
         currency?: string;
         address?: string | null;
+        contactEmail?: string | null;
+        phone?: string | null;
+        defaultLanguage?: PreferredLocale;
+        workingHours?: Record<string, unknown> | null;
       };
     }) => {
       const now = new Date();
@@ -344,6 +365,10 @@ export class MemoryPrisma {
         timezone: data.timezone ?? 'UTC',
         currency: data.currency ?? 'USD',
         address: data.address ?? null,
+        contactEmail: data.contactEmail ?? null,
+        phone: data.phone ?? null,
+        defaultLanguage: data.defaultLanguage ?? 'en',
+        workingHours: data.workingHours ?? null,
         createdAt: now,
         updatedAt: now,
       };
@@ -351,6 +376,47 @@ export class MemoryPrisma {
       return row;
     },
     findUnique: async ({ where }: { where: { id: string } }) => this.clinics.get(where.id) ?? null,
+    update: async ({
+      where,
+      data,
+    }: {
+      where: { id: string };
+      data: Partial<
+        Pick<
+          ClinicRecord,
+          | 'name'
+          | 'timezone'
+          | 'currency'
+          | 'address'
+          | 'contactEmail'
+          | 'phone'
+          | 'defaultLanguage'
+          | 'workingHours'
+        >
+      >;
+    }) => {
+      const current = this.clinics.get(where.id);
+      if (!current) throw new Error('Clinic not found');
+      const next = { ...current, ...data, updatedAt: new Date() };
+      this.clinics.set(next.id, next);
+      return next;
+    },
+    findMany: async ({
+      where,
+      orderBy,
+    }: {
+      where?: { organizationId?: string };
+      orderBy?: { createdAt: 'asc' | 'desc' };
+    } = {}) => {
+      const matches = [...this.clinics.values()].filter(
+        (item) => !where?.organizationId || item.organizationId === where.organizationId,
+      );
+      const direction = orderBy?.createdAt === 'desc' ? -1 : 1;
+      return matches.sort((left, right) => {
+        const delta = left.createdAt.getTime() - right.createdAt.getTime();
+        return delta === 0 ? 0 : delta * direction;
+      });
+    },
     findFirst: async ({ where }: { where: { id?: string; organizationId?: string } }) => {
       return (
         [...this.clinics.values()].find(
@@ -489,6 +555,89 @@ export class MemoryPrisma {
     count: async ({ where }: { where: MembershipWhere }) => {
       return [...this.memberships.values()].filter((item) => this.membershipMatches(item, where))
         .length;
+    },
+  };
+
+  readonly role = {
+    create: async ({
+      data,
+    }: {
+      data: {
+        organizationId: string;
+        clinicId: string;
+        name: string;
+        baseRole: UserRole;
+        permissions: string[];
+      };
+    }) => {
+      const now = new Date();
+      const row: RoleRecord = {
+        id: randomUUID(),
+        organizationId: data.organizationId,
+        clinicId: data.clinicId,
+        name: data.name,
+        baseRole: data.baseRole,
+        permissions: [...data.permissions],
+        createdAt: now,
+        updatedAt: now,
+      };
+      this.roles.set(row.id, row);
+      return row;
+    },
+    findMany: async ({
+      where,
+      orderBy,
+    }: {
+      where?: { organizationId?: string; clinicId?: string };
+      orderBy?: { createdAt?: 'asc' | 'desc' };
+    } = {}) => {
+      const matches = [...this.roles.values()].filter(
+        (item) =>
+          (!where?.organizationId || item.organizationId === where.organizationId) &&
+          (!where?.clinicId || item.clinicId === where.clinicId),
+      );
+      const direction = orderBy?.createdAt === 'desc' ? -1 : 1;
+      return matches.sort(
+        (left, right) => (left.createdAt.getTime() - right.createdAt.getTime()) * direction,
+      );
+    },
+    findFirst: async ({
+      where,
+    }: {
+      where: { id?: string; organizationId?: string; clinicId?: string };
+    }) => {
+      return (
+        [...this.roles.values()].find(
+          (item) =>
+            (!where.id || item.id === where.id) &&
+            (!where.organizationId || item.organizationId === where.organizationId) &&
+            (!where.clinicId || item.clinicId === where.clinicId),
+        ) ?? null
+      );
+    },
+    update: async ({
+      where,
+      data,
+    }: {
+      where: { id: string };
+      data: { name?: string; baseRole?: UserRole; permissions?: string[] };
+    }) => {
+      const current = this.roles.get(where.id);
+      if (!current) throw new Error('Role not found');
+      const next: RoleRecord = {
+        ...current,
+        ...data,
+        permissions: data.permissions ? [...data.permissions] : current.permissions,
+        updatedAt: new Date(),
+      };
+      this.roles.set(next.id, next);
+      return next;
+    },
+    delete: async ({ where }: { where: { id: string } }) => {
+      const current = this.roles.get(where.id);
+      if (!current) throw new Error('Role not found');
+      this.roles.delete(where.id);
+      return current;
     },
   };
 
@@ -975,7 +1124,9 @@ export class MemoryPrisma {
         clinicId?: string;
         patientId?: string;
         doctorId?: string;
-        status?: AppointmentStatusValue;
+        status?:
+          AppointmentStatusValue | { not?: AppointmentStatusValue; in?: AppointmentStatusValue[] };
+        startsAt?: { gte?: Date; lt?: Date; lte?: Date };
       };
     } = {}) => {
       return [...this.appointments.values()].filter((row) => this.appointmentMatches(row, where))
@@ -1075,7 +1226,8 @@ export class MemoryPrisma {
       clinicId?: string;
       patientId?: string;
       doctorId?: string;
-      status?: AppointmentStatusValue;
+      status?:
+        AppointmentStatusValue | { not?: AppointmentStatusValue; in?: AppointmentStatusValue[] };
       startsAt?: Date | { gte?: Date; lt?: Date; lte?: Date };
     },
   ): boolean {
@@ -1083,7 +1235,14 @@ export class MemoryPrisma {
     if (where.clinicId && row.clinicId !== where.clinicId) return false;
     if (where.patientId && row.patientId !== where.patientId) return false;
     if (where.doctorId && row.doctorId !== where.doctorId) return false;
-    if (where.status && row.status !== where.status) return false;
+    if (where.status) {
+      if (typeof where.status === 'string') {
+        if (row.status !== where.status) return false;
+      } else {
+        if (where.status.not && row.status === where.status.not) return false;
+        if (where.status.in && !where.status.in.includes(row.status)) return false;
+      }
+    }
     if (where.startsAt instanceof Date) {
       if (row.startsAt.getTime() !== where.startsAt.getTime()) return false;
     } else if (where.startsAt) {
@@ -1136,6 +1295,12 @@ export class MemoryPrisma {
       clinics: copy(this.clinics),
       memberships: copy(this.memberships),
       invitations: copy(this.invitations),
+      roles: new Map(
+        [...this.roles].map(([key, value]) => [
+          key,
+          { ...value, permissions: [...value.permissions] },
+        ]),
+      ),
       auditLogs: copy(this.auditLogs),
       patients: copy(this.patients),
       doctors: copy(this.doctors),
@@ -1151,6 +1316,7 @@ export class MemoryPrisma {
     this.clinics = snapshot.clinics;
     this.memberships = snapshot.memberships;
     this.invitations = snapshot.invitations;
+    this.roles = snapshot.roles;
     this.auditLogs = snapshot.auditLogs;
     this.patients = snapshot.patients;
     this.doctors = snapshot.doctors;
