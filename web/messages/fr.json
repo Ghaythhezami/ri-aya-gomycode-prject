@@ -11,7 +11,9 @@
     "openWorkspace": "Ouvrir l'espace",
     "menu": "Ouvrir le menu",
     "close": "Fermer le menu",
-    "skip": "Aller au contenu"
+    "skip": "Aller au contenu",
+    "bookAppointment": "Prendre rendez-vous",
+    "patients": "Patients"
   },
   "hero": {
     "badge": "Opérations cliniques intelligentes",
@@ -78,5 +80,21 @@
     "privacy": "Confidentialité",
     "terms": "Conditions",
     "rights": "© 2026 RI'AYA. Tous droits réservés."
+  },
+  "patients": {
+    "kicker": "Pour les patients",
+    "title": "Votre suivi, réuni au même endroit",
+    "subtitle": "Créez gratuitement votre compte patient auprès de votre clinique pour prendre rendez-vous, recevoir des rappels et garder vos informations de santé à portée de main.",
+    "b1Title": "Réservez en ligne, 24 h/24",
+    "b1Body": "Choisissez le médecin et l’horaire qui vous conviennent, puis déplacez ou annulez sans appeler.",
+    "b2Title": "Des rappels utiles",
+    "b2Body": "Recevez un SMS ou un e-mail avant chaque consultation pour ne plus rien manquer.",
+    "b3Title": "Votre résumé de santé",
+    "b3Body": "Consultez les résumés publiés par votre équipe soignante et regroupez vos documents.",
+    "b4Title": "Assistant IA",
+    "b4Body": "Posez vos questions sur vos rendez-vous. Il ne fonctionne que si vous l’autorisez et ne pose jamais de diagnostic.",
+    "primary": "Créer votre compte patient",
+    "secondary": "Connexion patient",
+    "note": "Votre clinique doit avoir activé l’inscription des patients. En cas d’urgence, appelez le numéro d’urgence local."
   }
 }

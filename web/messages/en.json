@@ -11,7 +11,9 @@
     "openWorkspace": "Open workspace",
     "menu": "Open menu",
     "close": "Close menu",
-    "skip": "Skip to content"
+    "skip": "Skip to content",
+    "bookAppointment": "Book an appointment",
+    "patients": "For patients"
   },
   "hero": {
     "badge": "Intelligent clinic operations",
@@ -78,5 +80,21 @@
     "privacy": "Privacy",
     "terms": "Terms",
     "rights": "© 2026 RI'AYA. All rights reserved."
+  },
+  "patients": {
+    "kicker": "For patients",
+    "title": "Your care, organised in one place",
+    "subtitle": "Create a free patient account with your clinic to book visits, get reminders and keep your health information close.",
+    "b1Title": "Book online, 24/7",
+    "b1Body": "Pick a doctor and a time that suits you, and reschedule or cancel without calling.",
+    "b2Title": "Reminders that help",
+    "b2Body": "Get an SMS or email before each visit so you never miss an appointment.",
+    "b3Title": "Your health summary",
+    "b3Body": "Read the summaries your care team publishes and keep your documents together.",
+    "b4Title": "AI assistant",
+    "b4Body": "Ask questions about your appointments. It only runs if you opt in, and it never gives a diagnosis.",
+    "primary": "Create your patient account",
+    "secondary": "Patient sign in",
+    "note": "Your clinic must have patient sign-up enabled. In an emergency, call your local emergency number."
   }
 }

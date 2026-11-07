@@ -1,8 +1,11 @@
 import { useTranslations } from 'next-intl';
 import {
   ArrowRight,
+  Bell,
+  Bot,
   CalendarDays,
   Check,
+  FileText,
   LineChart,
   Palette,
   Shield,
@@ -12,7 +15,7 @@ import {
 import { Header } from './Header';
 import { DashboardPreview } from './DashboardPreview';
 import { BrandLogo } from './BrandLogo';
-import { APP_URL } from '@/lib/site';
+import { APP_URL, portalUrl } from '@/lib/site';
 
 const workspace = APP_URL;
 
@@ -23,6 +26,7 @@ export function LandingPage() {
   const dark = useTranslations('dark');
   const footer = useTranslations('footer');
   const nav = useTranslations('nav');
+  const patients = useTranslations('patients');
 
   const checks = [hero('check1'), hero('check2'), hero('check3')];
   const featureItems = [
@@ -30,6 +34,12 @@ export function LandingPage() {
     { icon: Users, title: features('s2Title'), body: features('s2Body') },
     { icon: Sparkles, title: features('s3Title'), body: features('s3Body') },
     { icon: LineChart, title: features('s4Title'), body: features('s4Body') },
+  ];
+  const patientItems = [
+    { icon: CalendarDays, title: patients('b1Title'), body: patients('b1Body') },
+    { icon: Bell, title: patients('b2Title'), body: patients('b2Body') },
+    { icon: FileText, title: patients('b3Title'), body: patients('b3Body') },
+    { icon: Bot, title: patients('b4Title'), body: patients('b4Body') },
   ];
   const bars = [42, 58, 47, 66, 51, 38, 28];
 
@@ -124,6 +134,51 @@ export function LandingPage() {
                 </article>
               );
             })}
+          </div>
+        </section>
+
+        <section id="patients" className="border-y border-border bg-white/80 py-20">
+          <div className="mx-auto max-w-6xl px-4 lg:px-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">
+              {patients('kicker')}
+            </p>
+            <h2 className="mt-3 max-w-xl text-3xl font-semibold tracking-tight text-navy">
+              {patients('title')}
+            </h2>
+            <p className="mt-3 max-w-2xl text-base leading-7 text-muted">{patients('subtitle')}</p>
+            <ul className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              {patientItems.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li
+                    key={item.title}
+                    className="rounded-[16px] border border-border bg-white p-6 shadow-[0_8px_24px_rgba(21,40,63,0.04)]"
+                  >
+                    <span className="grid size-11 place-items-center rounded-[12px] bg-accent text-primary">
+                      <Icon size={20} />
+                    </span>
+                    <h3 className="mt-4 text-lg font-semibold">{item.title}</h3>
+                    <p className="mt-2 text-sm leading-6 text-muted">{item.body}</p>
+                  </li>
+                );
+              })}
+            </ul>
+            <div className="mt-8 flex flex-wrap gap-3">
+              <a
+                href={portalUrl('register')}
+                className="inline-flex min-h-12 items-center gap-2 rounded-[12px] bg-primary px-5 text-sm font-medium text-white shadow-sm"
+              >
+                {patients('primary')}
+                <ArrowRight className="rtl-flip" size={16} />
+              </a>
+              <a
+                href={portalUrl('login')}
+                className="inline-flex min-h-12 items-center rounded-[12px] border border-primary/20 bg-white px-5 text-sm font-medium text-primary"
+              >
+                {patients('secondary')}
+              </a>
+            </div>
+            <p className="mt-4 max-w-2xl text-xs text-muted">{patients('note')}</p>
           </div>
         </section>
 

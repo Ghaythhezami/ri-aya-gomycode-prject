@@ -6,7 +6,7 @@ import { Menu, X } from 'lucide-react';
 import { Link, usePathname } from '@/i18n/navigation';
 import { routing } from '@/i18n/routing';
 import { BrandLogo } from './BrandLogo';
-import { APP_URL } from '@/lib/site';
+import { APP_URL, portalUrl } from '@/lib/site';
 
 const workspace = APP_URL;
 
@@ -63,6 +63,12 @@ export function Header() {
               {t('signIn')}
             </a>
             <a
+              href={portalUrl('register')}
+              className="inline-flex min-h-11 items-center rounded-[12px] border border-primary/30 px-4 text-sm font-medium text-primary"
+            >
+              {t('bookAppointment')}
+            </a>
+            <a
               href={workspace}
               className="inline-flex min-h-11 items-center rounded-[12px] bg-primary px-4 text-sm font-medium text-white shadow-sm"
             >
@@ -109,6 +115,12 @@ export function Header() {
             </div>
             <a className="block min-h-11 py-2" href={`${workspace}/login`}>
               {t('signIn')}
+            </a>
+            <a
+              className="block min-h-11 py-2 font-medium text-primary"
+              href={portalUrl('register')}
+            >
+              {t('bookAppointment')}
             </a>
             <a
               className="inline-flex min-h-11 items-center rounded-[12px] bg-primary px-4 text-white"
