@@ -12,8 +12,12 @@ export const membershipViewSchema = z.object({
   membershipId: z.string(),
   organizationId: z.string(),
   organizationName: z.string(),
+  /** The organization name per language (en, fr, ar), when entered. */
+  organizationNameI18n: z.record(z.string(), z.string()).optional(),
   clinicId: z.string(),
   clinicName: z.string(),
+  /** The clinic name per language (en, fr, ar), when entered. */
+  clinicNameI18n: z.record(z.string(), z.string()).optional(),
   role: userRoleSchema,
 });
 

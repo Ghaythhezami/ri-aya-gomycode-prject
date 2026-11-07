@@ -18,6 +18,7 @@ export function useNotificationText() {
         n,
         { t: (k, o) => i18n.t(k, o) as string, exists: (k) => i18n.exists(k) },
         formatters,
+        (i18n.resolvedLanguage ?? i18n.language ?? 'en').slice(0, 2),
       ),
     ago: (iso: string) =>
       relativeTime(iso, Date.now(), fmt.locale === 'ar' ? 'ar-u-nu-latn' : fmt.locale),

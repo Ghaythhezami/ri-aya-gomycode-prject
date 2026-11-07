@@ -13,8 +13,12 @@ export interface Membership {
   membershipId: string;
   organizationId: string;
   organizationName: string;
+  /** Organization name per language, when entered (pick with `pickLocalized`). */
+  organizationNameI18n?: Partial<Record<'en' | 'fr' | 'ar', string>>;
   clinicId: string;
   clinicName: string;
+  /** Clinic name per language, when entered (pick with `pickLocalized`). */
+  clinicNameI18n?: Partial<Record<'en' | 'fr' | 'ar', string>>;
   clinicTimezone: string;
   role: string;
 }

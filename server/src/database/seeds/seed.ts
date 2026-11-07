@@ -16,6 +16,7 @@ import { addDays, localMinuteOfDay, localToUtc, todayIn, weekdayOf } from '../..
 import { UserRole } from '../../users/user-role.enum';
 import { buildSearchText } from '../../common/locale/localized-input';
 import { clinicNameI18n, nameI18n, roomNameI18n } from './seed-names';
+import { seedClinicalDocuments } from './clinical-documents';
 
 /** Set by runSeed: the CLI passes its own client, the demo-reset job passes the app's. */
 let prisma: PrismaClient;
@@ -486,6 +487,12 @@ const CANCEL_REASONS = [
 
 // ------------------------------------------------------------------ dev users
 
+const ORGANIZATION_NAME_I18N = {
+  en: "RI'AYA Demo Organization",
+  fr: "Organisation démo RI'AYA",
+  ar: 'منظمة رعاية التجريبية',
+};
+
 const DEV_USERS: Array<{
   email: string;
   password: string;
@@ -505,7 +512,8 @@ const DEV_USERS: Array<{
     password: 'RiayaClinic123!',
     firstName: 'Omar',
     lastName: 'Farouk',
-    role: UserRole.CLINIC_ADMIN,
+    // Super admin so the main demo login can try every feature (all capabilities, org scope).
+    role: UserRole.SUPER_ADMIN,
   },
   {
     email: 'doctor@riaya.local',
@@ -1098,20 +1106,60 @@ async function seedClinicalData(
   }
 
   // ---- notifications (Central)
-  const patientName = new Map(patientRows.map((p) => [p.id, `${p.firstName} ${p.lastName}`]));
-  const doctorName = new Map(DOCTORS.map((d) => [d.id, `Dr. ${d.firstName} ${d.lastName}`]));
+  // Names in every language so notifications follow the UI language (`patient__ar` …).
+  const LOCALES = ['en', 'fr', 'ar'] as const;
+  type Loc = (typeof LOCALES)[number];
+  const DR: Record<Loc, string> = { en: 'Dr.', fr: 'Dr', ar: 'د.' };
+  const pickName = (i18n: unknown, l: Loc, fallback: string): string => {
+    const v = (i18n as Partial<Record<Loc, string>> | null)?.[l];
+    return v && v.trim() ? v : fallback;
+  };
+  const perLocale = (render: (l: Loc) => string): Record<Loc, string> =>
+    Object.fromEntries(LOCALES.map((l) => [l, render(l)])) as Record<Loc, string>;
+  const patientNames = new Map(
+    patientRows.map((p) => [
+      p.id,
+      perLocale(
+        (l) =>
+          `${pickName(p.firstNameI18n, l, p.firstName)} ${pickName(p.lastNameI18n, l, p.lastName)}`,
+      ),
+    ]),
+  );
+  const doctorNames = new Map(
+    DOCTORS.map((d) => [
+      d.id,
+      perLocale(
+        (l) =>
+          `${DR[l]} ${pickName(nameI18n(d.firstName), l, d.firstName)} ${pickName(nameI18n(d.lastName), l, d.lastName)}`,
+      ),
+    ]),
+  );
+  const named = (key: string, names: Record<Loc, string> | undefined): Record<string, string> =>
+    names
+      ? {
+          [key]: names.en,
+          ...Object.fromEntries(LOCALES.map((l) => [`${key}__${l}`, names[l]])),
+        }
+      : { [key]: '' };
   const roomName = new Map(roomRows.map((r) => [r.id, r.name]));
   const centralAppts = planned.filter((a) => a.clinic === 0);
   const todayAppts = centralAppts.filter((a) => a.dayOffset === 0);
+  // Today's appointments, else the nearest upcoming ones (a closed day must not surface
+  // months-old history in the demo alerts).
+  const upcoming = centralAppts
+    .filter((a) => a.startsAt.getTime() >= now.getTime())
+    .sort((a, b) => a.startsAt.getTime() - b.startsAt.getTime())
+    .slice(0, 40);
   const apptAt = (i: number): PlannedAppointment => {
-    const source = todayAppts.length > 0 ? todayAppts : centralAppts;
+    const source =
+      todayAppts.length > 0 ? todayAppts : upcoming.length > 0 ? upcoming : centralAppts;
     return source[(i * 7) % source.length]!;
   };
   const cancelled = centralAppts.find((a) => a.status === 'CANCELLED') ?? apptAt(5);
   const newestPatient = patientsByClinic[0]![patientsByClinic[0]!.length - 1]!;
   const apptParams = (a: PlannedAppointment, minutes: number): Prisma.InputJsonObject => ({
-    patient: patientName.get(a.patientId) ?? '',
-    doctor: doctorName.get(a.doctorId) ?? '',
+    ...named('patient', patientNames.get(a.patientId)),
+    ...named('doctor', doctorNames.get(a.doctorId)),
     // ISO like the live API: the UI formats it in the clinic time zone and locale.
     time: a.startsAt.toISOString(),
     room: roomName.get(a.roomId) ?? '',
@@ -1137,7 +1185,7 @@ async function seedClinicalData(
     },
     {
       category: 'CONFIRMATION',
-      key: 'confirmation',
+      key: 'confirmed',
       ago: 12 * MINUTE,
       entityType: 'appointment',
       entityId: apptAt(1).id,
@@ -1173,7 +1221,7 @@ async function seedClinicalData(
       entityType: 'patient',
       entityId: newestPatient.id,
       params: {
-        patient: `${newestPatient.firstName} ${newestPatient.lastName}`,
+        ...named('patient', patientNames.get(newestPatient.id)),
         code: newestPatient.code,
         doctor: '',
         time: '',
@@ -1189,7 +1237,7 @@ async function seedClinicalData(
       entityId: DOCTORS[1]!.id,
       params: {
         patient: '',
-        doctor: doctorName.get(DOCTORS[1]!.id) ?? '',
+        ...named('doctor', doctorNames.get(DOCTORS[1]!.id)),
         time: '',
         room: roomName.get(roomIdByName.get('0:Room 2')!) ?? '',
         minutes: 0,
@@ -1205,15 +1253,18 @@ async function seedClinicalData(
     },
     {
       category: 'CANCELLATION',
-      key: 'cancellation',
+      key: 'cancelled',
       ago: 5 * HOUR,
       entityType: 'appointment',
       entityId: cancelled.id,
-      params: apptParams(cancelled, 0),
+      params: {
+        ...apptParams(cancelled, 0),
+        ...named('reason', { en: 'Patient request', fr: 'Demande du patient', ar: 'طلب المريض' }),
+      },
     },
     {
       category: 'CONFIRMATION',
-      key: 'confirmation',
+      key: 'confirmed',
       ago: 26 * HOUR,
       entityType: 'appointment',
       entityId: apptAt(4).id,
@@ -1428,8 +1479,12 @@ export async function runSeed(client: PrismaClient, options: SeedOptions = {}): 
   // the existing logins keep working. Idempotent: re-running reuses the rows.
   const organization = await prisma.organization.upsert({
     where: { slug: 'riaya-demo' },
-    update: {},
-    create: { name: "RI'AYA Demo Organization", slug: 'riaya-demo' },
+    update: { nameI18n: ORGANIZATION_NAME_I18N },
+    create: {
+      name: "RI'AYA Demo Organization",
+      nameI18n: ORGANIZATION_NAME_I18N,
+      slug: 'riaya-demo',
+    },
   });
 
   for (const clinic of CLINICS) {
@@ -1508,6 +1563,7 @@ export async function runSeed(client: PrismaClient, options: SeedOptions = {}): 
   await seedClinicalData(organization.id, userIds);
   // Recreated after the clinical data because portal accounts cascade with patients.
   await seedDemoPatientAccount(primaryClinicId);
+  await seedClinicalDocuments(prisma, primaryClinicId, new Date());
 
   log('\nDev accounts (local only):');
   for (const item of DEV_USERS) {

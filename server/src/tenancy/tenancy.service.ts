@@ -1,3 +1,4 @@
+import { normalizeLocalized, type LocalizedText } from '@riaya/shared';
 import { Injectable, NotFoundException, Optional } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import { DomainEventsService } from '../events/domain-events.service';
@@ -16,8 +17,12 @@ export interface MembershipView {
   membershipId: string;
   organizationId: string;
   organizationName: string;
+  /** Every language the organization name was entered in (UI picks its language). */
+  organizationNameI18n: LocalizedText;
   clinicId: string;
   clinicName: string;
+  /** Every language the clinic name was entered in (UI picks its language). */
+  clinicNameI18n: LocalizedText;
   /** IANA zone the UI formats this clinic's timestamps in (BP-013). */
   clinicTimezone: string;
   role: UserRole;
@@ -58,8 +63,10 @@ export class TenancyService {
       membershipId: row.id,
       organizationId: row.organizationId,
       organizationName: row.organization.name,
+      organizationNameI18n: normalizeLocalized(row.organization.nameI18n),
       clinicId: row.clinicId,
       clinicName: row.clinic.name,
+      clinicNameI18n: normalizeLocalized(row.clinic.nameI18n),
       clinicTimezone: row.clinic.timezone,
       role: row.role as UserRole,
     }));

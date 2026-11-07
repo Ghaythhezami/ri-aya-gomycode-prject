@@ -82,6 +82,7 @@ export function AppointmentTypeModal({
           name="name"
           render={({ field }) => (
             <LocalizedInput
+              mode="languages"
               label={t('settings.types.name')}
               value={field.value}
               onChange={field.onChange}

@@ -1,3 +1,5 @@
+import { LocalizedTextDto } from '../common/locale/localized-text.dto';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMaxSize,
@@ -41,6 +43,16 @@ export class ClinicPartDto {
   @IsNotEmpty()
   @MaxLength(120)
   name?: string;
+
+  @ApiPropertyOptional({
+    type: LocalizedTextDto,
+    description:
+      'Clinic name per language {en?, fr?, ar?}; the canonical name follows it when absent.',
+  })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => LocalizedTextDto)
+  nameI18n?: LocalizedTextDto;
 
   @IsOptional()
   @IsString()

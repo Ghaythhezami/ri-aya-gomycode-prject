@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Check, ChevronRight } from 'lucide-react';
-import { ONBOARDING_STEPS, type OnboardingStep } from '@riaya/shared';
+import { ONBOARDING_STEPS, pickLocalized, type OnboardingStep } from '@riaya/shared';
 import { useAuth } from '../../auth/AuthContext';
 import { useWorkspace } from '../../auth/WorkspaceContext';
 import { canUser } from '../../auth/permissions';
@@ -34,7 +34,8 @@ const LINK_STEPS: Partial<Record<OnboardingStep, { to: string; action: string }>
 };
 
 function ClinicStep({ onDone }: { onDone: () => void }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? i18n.language ?? 'en').slice(0, 2);
   const toast = useToast();
   const settings = useSettingsQuery();
   const [update, state] = useUpdateSettingsMutation();
@@ -71,7 +72,9 @@ function ClinicStep({ onDone }: { onDone: () => void }) {
   return (
     <form onSubmit={save} className="space-y-4">
       <p className="text-sm text-muted">
-        {t('onboarding.clinic.nameHelp', { name: data.clinic.name })}{' '}
+        {t('onboarding.clinic.nameHelp', {
+          name: pickLocalized(data.clinic.nameI18n, lang, data.clinic.name),
+        })}{' '}
         <Link className="font-medium text-primary underline" to="/settings/clinic">
           {t('onboarding.clinic.openSettings')}
         </Link>

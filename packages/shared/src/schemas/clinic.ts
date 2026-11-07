@@ -720,6 +720,8 @@ export interface ClinicSettingsDto {
   clinic: {
     id: string;
     name: string;
+    /** The clinic name per language (en, fr, ar); `name` is the canonical value. */
+    nameI18n: LocalizedText;
     code: string;
     address: string | null;
     timezone: string;
@@ -744,7 +746,7 @@ export interface ClinicSettingsDto {
 export type UpdateSettingsInput = Partial<
   Omit<ClinicSettingsDto, 'clinic' | 'updatedAt'> & {
     clinic: Partial<
-      Pick<ClinicSettingsDto['clinic'], 'name' | 'address' | 'timezone' | 'currency'>
+      Pick<ClinicSettingsDto['clinic'], 'name' | 'nameI18n' | 'address' | 'timezone' | 'currency'>
     >;
   }
 >;

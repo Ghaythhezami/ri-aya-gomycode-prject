@@ -94,6 +94,7 @@ export function RoleFormModal({
           </p>
         )}
         <LocalizedInput
+          mode="languages"
           label={t('settings.roles.name')}
           value={name}
           onChange={setName}
@@ -102,6 +103,7 @@ export function RoleFormModal({
           name="name"
         />
         <LocalizedInput
+          mode="languages"
           label={t('settings.roles.description')}
           value={description}
           onChange={setDescription}

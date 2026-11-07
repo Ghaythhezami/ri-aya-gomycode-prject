@@ -107,13 +107,21 @@ export interface ParamFormatters {
   date: (value: string) => string;
 }
 
-/** Format ISO instants and dates in template params in the clinic zone and UI locale. */
+/**
+ * Format ISO instants and dates in template params in the clinic zone and UI locale, and use
+ * the UI-language copy of a name when the API stored one (`patient__ar` for `patient`).
+ */
 export function prepareParams(
   params: Record<string, string | number> | null | undefined,
   f: ParamFormatters,
+  locale?: string,
 ): Record<string, string | number> {
   const out: Record<string, string | number> = {};
-  for (const [key, value] of Object.entries(params ?? {})) {
+  const all = params ?? {};
+  for (const [key, raw] of Object.entries(all)) {
+    if (key.includes('__')) continue;
+    const localized = locale ? all[`${key}__${locale}`] : undefined;
+    const value = typeof localized === 'string' && localized.trim() ? localized : raw;
     if (typeof value === 'string' && ISO_INSTANT.test(value)) {
       out[key] = TIME_PARAMS.has(key) ? f.time(value) : f.dateTime(value);
     } else if (typeof value === 'string' && ISO_DATE.test(value)) {
@@ -146,8 +154,9 @@ export function renderNotification(
   n: Pick<NotificationDto, 'titleKey' | 'bodyKey' | 'params'>,
   i18n: Translator,
   f: ParamFormatters,
+  locale?: string,
 ): { title: string; body: string } {
-  const params = prepareParams(n.params, f);
+  const params = prepareParams(n.params, f, locale);
   const title = i18n.exists(n.titleKey)
     ? i18n.t(n.titleKey, params)
     : humanize(templateName(n.titleKey));

@@ -1,3 +1,4 @@
+import { resolveNameInput } from '../common/locale/localized-input';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomUUID } from 'node:crypto';
@@ -78,7 +79,16 @@ export class SettingsService {
       data.appearance = { ...before.appearance, ...stripUndefined(dto.appearance) };
 
     const clinicData: Prisma.ClinicUpdateInput = {};
-    if (dto.clinic?.name !== undefined) clinicData.name = dto.clinic.name.trim();
+    if (dto.clinic?.nameI18n !== undefined) {
+      const resolved = resolveNameInput(
+        'clinic.name',
+        dto.clinic.name,
+        dto.clinic.nameI18n,
+        dto.defaultLanguage ?? before.defaultLanguage,
+      );
+      clinicData.name = resolved.canonical;
+      clinicData.nameI18n = resolved.i18n;
+    } else if (dto.clinic?.name !== undefined) clinicData.name = dto.clinic.name.trim();
     if (dto.clinic?.address !== undefined) clinicData.address = dto.clinic.address;
     if (dto.clinic?.timezone !== undefined) clinicData.timezone = dto.clinic.timezone;
     if (dto.clinic?.currency !== undefined) clinicData.currency = dto.clinic.currency;

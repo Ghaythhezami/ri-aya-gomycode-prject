@@ -28,8 +28,17 @@ const PHONE = /^\+?[0-9\s().-]{6,}$/;
 
 // ----------------------------------------------------------------- clinic information
 
+const localizedName = z
+  .object({
+    en: z.string().max(120, tooLong).optional(),
+    fr: z.string().max(120, tooLong).optional(),
+    ar: z.string().max(120, tooLong).optional(),
+  })
+  .refine((v) => Object.values(v).some((x) => x?.trim()), required);
+
 export const clinicSchema = z.object({
-  name: z.string().trim().min(1, required).max(120, tooLong),
+  /** Clinic name per language (en, fr, ar); the API derives the canonical name. */
+  nameI18n: localizedName,
   address: z.string().trim().max(255, tooLong),
   contactEmail: z
     .string()
@@ -48,7 +57,11 @@ export type ClinicValues = z.infer<typeof clinicSchema>;
 
 export function clinicDefaults(s: ClinicSettingsDto): ClinicValues {
   return {
-    name: s.clinic.name,
+    nameI18n: {
+      en: s.clinic.nameI18n?.en ?? (s.defaultLanguage === 'en' ? s.clinic.name : ''),
+      fr: s.clinic.nameI18n?.fr ?? (s.defaultLanguage === 'fr' ? s.clinic.name : ''),
+      ar: s.clinic.nameI18n?.ar ?? (s.defaultLanguage === 'ar' ? s.clinic.name : ''),
+    },
     address: s.clinic.address ?? '',
     contactEmail: s.contactEmail ?? '',
     phone: s.phone ?? '',
@@ -61,7 +74,11 @@ export function clinicDefaults(s: ClinicSettingsDto): ClinicValues {
 export function clinicPayload(v: ClinicValues, saved: ClinicValues): UpdateSettingsInput {
   const out: UpdateSettingsInput = {};
   const clinic: NonNullable<UpdateSettingsInput['clinic']> = {};
-  if (v.name !== saved.name) clinic.name = v.name;
+  if (JSON.stringify(v.nameI18n) !== JSON.stringify(saved.nameI18n)) {
+    clinic.nameI18n = Object.fromEntries(
+      Object.entries(v.nameI18n).map(([k, x]) => [k, (x ?? '').trim()]),
+    );
+  }
   if (v.address !== saved.address) clinic.address = v.address || (null as unknown as string);
   if (v.timezone !== saved.timezone) clinic.timezone = v.timezone;
   if (Object.keys(clinic).length > 0) out.clinic = clinic;

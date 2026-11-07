@@ -3,7 +3,7 @@ import { PrismaService } from '../database/prisma.service';
 import { DomainEventsService } from '../events/domain-events.service';
 import type { DomainEvent } from '../events/domain-events';
 import { ClinicSettingsReader } from '../core/clinic-settings.reader';
-import { doctorName } from '../common/mappers';
+import { doctorName, localizedParams, personName } from '../common/mappers';
 import { AppointmentMailer } from './appointment-mailer.service';
 import { NotificationsService } from './notifications.service';
 import { notificationDedupeKey, planReminders } from './reminder-schedule';
@@ -47,19 +47,25 @@ export class NotificationConsumers implements OnModuleInit {
           select: {
             firstName: true,
             lastName: true,
+            firstNameI18n: true,
+            lastNameI18n: true,
             source: true,
             portalAccount: { select: { emailVerifiedAt: true } },
           },
         },
-        doctor: { select: { firstName: true, lastName: true } },
+        doctor: {
+          select: { firstName: true, lastName: true, firstNameI18n: true, lastNameI18n: true },
+        },
       },
     });
     if (!a) return null;
     return {
       appointment: a,
       params: {
-        patient: `${a.patient.firstName} ${a.patient.lastName}`.trim(),
-        doctor: doctorName(a.doctor),
+        ...localizedParams({
+          patient: () => personName(a.patient),
+          doctor: () => doctorName(a.doctor),
+        }),
         time: a.startsAt.toISOString(),
         code: a.code,
       },
@@ -209,7 +215,13 @@ export class NotificationConsumers implements OnModuleInit {
     const patientId = str(e.payload.patientId);
     const patient = await this.prisma.patient.findFirst({
       where: { id: patientId, clinicId: e.clinicId },
-      select: { firstName: true, lastName: true, code: true },
+      select: {
+        firstName: true,
+        lastName: true,
+        firstNameI18n: true,
+        lastNameI18n: true,
+        code: true,
+      },
     });
     if (!patient) return;
     await this.notifications.create({
@@ -217,7 +229,7 @@ export class NotificationConsumers implements OnModuleInit {
       category: 'SYSTEM',
       titleKey: 'notifications.templates.newPatient.title',
       bodyKey: 'notifications.templates.newPatient.body',
-      params: { patient: `${patient.firstName} ${patient.lastName}`.trim(), code: patient.code },
+      params: { ...localizedParams({ patient: () => personName(patient) }), code: patient.code },
       entityType: 'patient',
       entityId: patientId,
       dedupeKey: notificationDedupeKey('patient.created', patientId),
@@ -228,7 +240,7 @@ export class NotificationConsumers implements OnModuleInit {
     const doctorId = str(e.payload.doctorId);
     const doctor = await this.prisma.doctor.findFirst({
       where: { id: doctorId, clinicId: e.clinicId },
-      select: { firstName: true, lastName: true },
+      select: { firstName: true, lastName: true, firstNameI18n: true, lastNameI18n: true },
     });
     if (!doctor) return;
     await this.notifications.create({
@@ -236,7 +248,7 @@ export class NotificationConsumers implements OnModuleInit {
       category: 'AVAILABILITY',
       titleKey: 'notifications.templates.availability.title',
       bodyKey: 'notifications.templates.availability.body',
-      params: { doctor: doctorName(doctor) },
+      params: localizedParams({ doctor: () => doctorName(doctor) }),
       entityType: 'doctor',
       entityId: doctorId,
       dedupeKey: notificationDedupeKey(

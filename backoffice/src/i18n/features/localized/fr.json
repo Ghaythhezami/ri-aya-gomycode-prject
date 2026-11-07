@@ -1,6 +1,15 @@
 {
-  "languages": { "en": "English", "fr": "Français", "ar": "العربية" },
+  "languages": {
+    "en": "English",
+    "fr": "Français",
+    "ar": "العربية"
+  },
   "current": "Affichée",
   "required": "Renseignez au moins une langue",
-  "help": "Remplissez les langues utiles ; les autres reprennent la valeur saisie."
+  "help": "Remplissez les langues utiles ; les autres reprennent la valeur saisie.",
+  "scripts": {
+    "latin": "Lettres latines (anglais, français)",
+    "arabic": "Lettres arabes"
+  },
+  "scriptHelp": "Saisissez le nom en lettres latines, en arabe, ou les deux ; l’autre reprend ce que vous avez saisi."
 }

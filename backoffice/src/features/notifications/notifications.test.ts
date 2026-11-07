@@ -63,3 +63,24 @@ describe('notification templates', () => {
     ).toEqual(['a', 'b', 'c']);
   });
 });
+
+describe('localized params and missing placeholders', () => {
+  it('prefers the UI-language copy of a name and hides the per-language keys', () => {
+    const params = {
+      patient: 'Amira Khan',
+      patient__ar: 'أميرة خان',
+      patient__fr: 'Amira Khan',
+      n: 2,
+    };
+    expect(prepareParams(params, f, 'ar')).toEqual({ patient: 'أميرة خان', n: 2 });
+    expect(prepareParams(params, f, 'en')).toEqual({ patient: 'Amira Khan', n: 2 });
+    // Old notifications without copies keep the stored value.
+    expect(prepareParams({ patient: 'Amira Khan' }, f, 'ar')).toEqual({ patient: 'Amira Khan' });
+  });
+
+  it('drops a parenthetical whose placeholder is missing', async () => {
+    const { fillMissing } = await import('./templates');
+    expect(fillMissing('Sarah (queue {{number}}) is late')).toBe('Sarah is late');
+    expect(fillMissing('At {{time}}')).toBe('At —');
+  });
+});

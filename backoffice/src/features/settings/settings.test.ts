@@ -10,7 +10,7 @@ import {
 import { jsonDiff } from './auditDiff';
 
 const ok = {
-  name: 'C',
+  nameI18n: { en: 'C', fr: '', ar: '' },
   address: '',
   contactEmail: '',
   phone: '',
@@ -24,13 +24,13 @@ describe('settings validation', () => {
   it('gives field-level message keys', () => {
     const r = clinicSchema.safeParse({
       ...ok,
-      name: ' ',
+      nameI18n: { en: ' ', fr: '', ar: '' },
       contactEmail: 'x',
       phone: 'abc',
       timezone: 'Nope/Zone',
     });
     expect(msgs(r)).toEqual({
-      name: 'settings.errors.required',
+      nameI18n: 'settings.errors.required',
       contactEmail: 'settings.errors.email',
       phone: 'settings.errors.phone',
       timezone: 'settings.errors.timezone',
@@ -69,8 +69,13 @@ describe('settings validation', () => {
     expect(msgs(r)['offsets.1.hours']).toBe('settings.errors.duplicateOffset');
   });
   it('sends only changed fields', () => {
-    expect(clinicPayload({ ...ok, name: 'New', phone: '+971 4 000' }, ok)).toEqual({
-      clinic: { name: 'New' },
+    expect(
+      clinicPayload(
+        { ...ok, nameI18n: { en: 'New', fr: '', ar: 'جديد' }, phone: '+971 4 000' },
+        ok,
+      ),
+    ).toEqual({
+      clinic: { nameI18n: { en: 'New', fr: '', ar: 'جديد' } },
       phone: '+971 4 000',
     });
     const base = { offsets: [{ hours: 24 }], sms: true, email: true };

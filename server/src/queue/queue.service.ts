@@ -15,6 +15,8 @@ import { PrismaService } from '../database/prisma.service';
 import { DomainEventsService } from '../events/domain-events.service';
 import {
   APPOINTMENT_LIST_INCLUDE,
+  localizedParams,
+  personName,
   toAppointmentListItem,
   toDoctorRef,
   toPersonRef,
@@ -576,7 +578,7 @@ export class QueueService implements OnModuleInit {
       bodyKey: 'notifications.templates.delay.body',
       params: {
         number: entry.number,
-        patient: `${entry.patient.firstName} ${entry.patient.lastName}`.trim(),
+        ...localizedParams({ patient: () => personName(entry.patient) }),
         minutes,
         code: entry.appointment.code,
       },

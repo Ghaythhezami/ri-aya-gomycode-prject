@@ -1,3 +1,4 @@
+import { normalizeLocalized } from '@riaya/shared';
 import { Injectable } from '@nestjs/common';
 import {
   DEFAULT_DURATIONS,
@@ -74,6 +75,7 @@ export class ClinicSettingsReader {
       clinic: {
         id: clinic.id,
         name: clinic.name,
+        nameI18n: normalizeLocalized(clinic.nameI18n),
         code: `CL-${clinic.id.replace(/-/g, '').slice(0, 6).toUpperCase()}`,
         address: clinic.address,
         timezone: clinic.timezone,

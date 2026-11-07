@@ -1,11 +1,12 @@
 import type {
   AppointmentListItem,
+  DataLocale,
   AppointmentStatus,
   AppointmentType,
   DoctorRef,
   PersonRef,
 } from '@riaya/shared';
-import { normalizeLocalized, pickLocalized } from '@riaya/shared';
+import { DATA_LOCALES, normalizeLocalized, pickLocalized } from '@riaya/shared';
 import { RequestLocale } from './locale/request-locale';
 
 const MINUTE = 60_000;
@@ -189,4 +190,22 @@ export function toAppointmentListItem(row: AppointmentRow): AppointmentListItem 
     needsReschedule: row.needsReschedule,
     locked: row.locked,
   };
+}
+
+/**
+ * Per-language copies of display names for stored templates (notifications): `{ patient,
+ * patient__en, patient__fr, patient__ar, doctor, … }`. The plain key keeps the request-language
+ * (or English) value for old clients; the UI prefers `<key>__<ui language>`.
+ */
+export function localizedParams(
+  names: Record<string, (locale: DataLocale) => string>,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, render] of Object.entries(names)) {
+    for (const locale of DATA_LOCALES) {
+      out[`${key}__${locale}`] = RequestLocale.run(locale, () => render(locale));
+    }
+    out[key] = out[`${key}__${RequestLocale.get() ?? 'en'}`] ?? out[`${key}__en`]!;
+  }
+  return out;
 }

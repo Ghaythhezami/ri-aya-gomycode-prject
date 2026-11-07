@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import { Controller } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
-import type { ClinicSettingsDto } from '@riaya/shared';
+import { pickLocalized, type ClinicSettingsDto } from '@riaya/shared';
+import { LocalizedInput } from '../../common/LocalizedInput';
 import { Field, Input, Select } from '../../common/Input';
 import { SearchableSelect } from '../../common/SearchableSelect';
 import { clinicDefaults, clinicPayload, clinicSchema, type ClinicValues } from './forms';
@@ -32,7 +33,8 @@ export function timeZoneOptions(current: string): { value: string; label: string
 
 /** SET-1 section 1: clinic information. */
 export function ClinicSection({ settings }: { settings: ClinicSettingsDto }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage ?? i18n.language ?? 'en').slice(0, 2);
   const defaults = useMemo(() => clinicDefaults(settings), [settings]);
   const zones = useMemo(
     () => timeZoneOptions(settings.clinic.timezone),
@@ -42,7 +44,7 @@ export function ClinicSection({ settings }: { settings: ClinicSettingsDto }) {
     schema: clinicSchema,
     defaults,
     build: (values) => clinicPayload(values, defaults),
-    fields: ['name', 'address', 'contactEmail', 'phone', 'defaultLanguage', 'timezone'],
+    fields: ['nameI18n', 'address', 'contactEmail', 'phone', 'defaultLanguage', 'timezone'],
   });
   const { register, control, formState } = form;
   const errors = formState.errors;
@@ -50,7 +52,9 @@ export function ClinicSection({ settings }: { settings: ClinicSettingsDto }) {
   return (
     <SectionCard
       title={t('settings.clinic.title')}
-      subtitle={t('settings.clinic.subtitle', { name: settings.clinic.name })}
+      subtitle={t('settings.clinic.subtitle', {
+        name: pickLocalized(settings.clinic.nameI18n, lang, settings.clinic.name),
+      })}
       dirty={dirty}
       saving={saving}
       general={general}
@@ -58,9 +62,24 @@ export function ClinicSection({ settings }: { settings: ClinicSettingsDto }) {
       onCancel={cancel}
     >
       <div className="grid gap-5 sm:grid-cols-2">
-        <Field label={t('settings.clinic.name')} error={errors.name?.message}>
-          <Input autoComplete="organization" {...register('name')} />
-        </Field>
+        <div className="sm:col-span-2">
+          <Controller
+            control={control}
+            name="nameI18n"
+            render={({ field }) => (
+              <LocalizedInput
+                mode="languages"
+                label={t('settings.clinic.name')}
+                required
+                autoComplete="organization"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                error={errors.nameI18n?.message ?? errors.nameI18n?.root?.message}
+              />
+            )}
+          />
+        </div>
         <Field label={t('settings.clinic.code')} help={t('settings.clinic.codeHelp')}>
           <Input value={settings.clinic.code} readOnly dir="ltr" className="bg-bg" />
         </Field>
