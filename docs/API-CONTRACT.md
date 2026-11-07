@@ -153,9 +153,69 @@ earliest check-in. Concurrent callers are serialised (Redis lock or `SELECT … 
 | POST   | `/chat/conversations/:id/read`                     | members | `{ success: true }`                              |
 | GET    | `/chat/staff`                                      | all     | `PersonRef[]` (members of the active clinic)     |
 
+## AI assistants, documents and summaries (ADR 0005)
+
+Without `ANTHROPIC_API_KEY` every route below except the two `status` routes answers `503 AI_UNAVAILABLE`.
+Chat streams `text/event-stream`: `conversation`, `text` `{delta}`, `tool` `{name,status}`, `proposal`, `done` `{stopReason,inputTokens,outputTokens}`, `error` `{code,message}`.
+Limits: 20 chat requests/min per user (`429 RATE_LIMITED`), daily token budget per clinic (`429 AI_BUDGET_EXCEEDED`), message at most 4000 characters, conversation at most 60 messages (`422 CONVERSATION_TOO_LONG`).
+
+| Method | Path                                                                              | Roles / capability   | Response                                                                              |
+| ------ | --------------------------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------- |
+| GET    | `/assistant/status`                                                               | `viewOverview`       | `AssistantStatus`                                                                     |
+| POST   | `/assistant/chat` `AssistantChatInput`                                            | `viewOverview`       | SSE `AssistantStreamEvent`                                                            |
+| GET    | `/assistant/conversations`                                                        | `viewOverview`       | `AssistantConversationSummary[]` (last 20, 30 days)                                   |
+| GET    | `/assistant/conversations/:id`                                                    | `viewOverview`       | `{ id, persona, title, updatedAt, messages: { role, text, proposals[] }[] }`          |
+| DELETE | `/assistant/conversations/:id`                                                    | `viewOverview`       | `{ success: true }`                                                                   |
+| GET    | `/portal/assistant/status`                                                        | patient              | `AssistantStatus` (`CONSENT_REQUIRED` without AI consent)                             |
+| POST   | `/portal/assistant/chat` `{ message, conversationId? }`                           | patient (AI consent) | SSE `AssistantStreamEvent` (`403 CONSENT_REQUIRED` before the stream)                 |
+| GET    | `/portal/assistant/conversations[/:id]`                                           | patient              | as the staff routes                                                                   |
+| DELETE | `/portal/assistant/conversations/:id`                                             | patient              | `{ success: true }`                                                                   |
+| POST   | `/patients/:id/documents` (multipart `file`)                                      | `readClinicalNotes`  | `PatientDocumentDto`; `422 DOCUMENT_INVALID`, `409 DUPLICATE_DOCUMENT` `{documentId}` |
+| GET    | `/patients/:id/documents`                                                         | `readClinicalNotes`  | `PatientDocumentDto[]`                                                                |
+| GET    | `/patients/:id/documents/:docId`                                                  | `readClinicalNotes`  | `PatientDocumentDetail`                                                               |
+| GET    | `/patients/:id/documents/:docId/file`                                             | `readClinicalNotes`  | file bytes (`Content-Disposition: attachment`, `nosniff`)                             |
+| DELETE | `/patients/:id/documents/:docId`                                                  | `readClinicalNotes`  | `{ success: true }`                                                                   |
+| POST   | `/patients/:id/documents/:docId/review`                                           | `readClinicalNotes`  | `PatientDocumentDetail` (sets `reviewedAt`)                                           |
+| POST   | `/patients/:id/documents/:docId/process`                                          | `readClinicalNotes`  | `PatientDocumentDetail` (extraction runs again)                                       |
+| POST   | `/portal/documents` (multipart `file`)                                            | patient              | `PatientDocumentDto` (`uploadedBy: PATIENT`, no summary yet)                          |
+| GET    | `/portal/documents`                                                               | patient              | `PatientDocumentDto[]` own uploads and reviewed documents; no `extractedText`         |
+| POST   | `/patients/:id/summary/draft`                                                     | `readClinicalNotes`  | `SummaryDraft`                                                                        |
+| POST   | `/patients/:id/summaries` `SaveSummaryInput`                                      | `readClinicalNotes`  | `PatientSummaryDto` (`visibleToPatient` sets `publishedAt`; needs `patientContent`)   |
+| GET    | `/patients/:id/summaries`                                                         | `readClinicalNotes`  | `PatientSummaryDto[]`                                                                 |
+| PATCH  | `/patients/:id/summaries/:sid` `{ visibleToPatient?, content?, patientContent? }` | `readClinicalNotes`  | `PatientSummaryDto` (publish / unpublish)                                             |
+
 ## Domain events
 
 After a successful commit the API publishes to Redis channel `riaya:events` (contract in
 `packages/shared/src/schemas/realtime.ts`): `appointment.created`, `.cancelled`, `.rescheduled`,
 `queue.updated`. The realtime service relays them to the clinic room. When Redis or the realtime
 service is absent (hosted demo), the backoffice falls back to polling.
+
+## Patient portal (ADR 0005)
+
+Patient tokens (`aud: riaya-portal`) only; every route is scoped to the token's patient.
+
+| Method      | Path                                                 | Auth                           | Response                                                                                                                        |
+| ----------- | ---------------------------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- |
+| GET         | `/portal/clinics`                                    | public                         | `PortalClinic[]` (portal-enabled clinics)                                                                                       |
+| POST        | `/portal/auth/register`                              | public, 5/min/IP               | `PortalAuthResponse` + `portal_refresh` cookie; new record `source=PORTAL`, unverified; 409 `ACCOUNT_EXISTS`                    |
+| POST        | `/portal/auth/accept-invite`                         | public                         | `PortalAuthResponse`; needs token (URL fragment) + matching `dateOfBirth`; account verified                                     |
+| POST        | `/portal/auth/login`                                 | public, 10/min/IP              | `PortalAuthResponse`; 401 `INVALID_CREDENTIALS` / `ACCOUNT_LOCKED`                                                              |
+| POST        | `/portal/auth/refresh`, `/portal/auth/logout`        | cookie                         | rotation with family revocation                                                                                                 |
+| GET / PATCH | `/portal/me`                                         | patient                        | `PortalMe` (`verified`, `clinicTimezone`) / `PortalProfileInput`                                                                |
+| GET         | `/portal/doctors`, `/portal/appointment-types`       | patient                        | `PortalDoctor[]`, `PortalAppointmentType[]` (non-emergency)                                                                     |
+| GET         | `/portal/slots?doctorId&date&durationMinutes`        | patient                        | `PortalSlot[]` (future, free)                                                                                                   |
+| GET         | `/portal/appointments?scope=upcoming\|past`          | patient                        | `PortalAppointment[]`                                                                                                           |
+| POST        | `/portal/appointments`                               | patient                        | booking through the staff transaction, `source=PORTAL`; max 3 upcoming (1 if unverified); 409 `SLOT_CONFLICT` with alternatives |
+| POST        | `/portal/appointments/:id/cancel`, `/:id/reschedule` | patient                        | within the clinic cancellation notice                                                                                           |
+| GET         | `/portal/summary`                                    | patient                        | `PortalSummary \| null` (published patient version only)                                                                        |
+| GET / POST  | `/portal/documents`                                  | patient, verified              | own documents (patient-facing fields) / upload (5/min, 20 docs, 50 MB per 24 h)                                                 |
+| GET / POST  | `/portal/assistant/status`, `/portal/assistant/chat` | patient, verified + AI consent | `AssistantStatus` / SSE stream                                                                                                  |
+
+Staff routes for the portal:
+
+| Method | Path                          | Capability         | Response                                                                 |
+| ------ | ----------------------------- | ------------------ | ------------------------------------------------------------------------ |
+| POST   | `/patients/:id/portal-invite` | manageAppointments | `PortalInvite` (7-day one-time link, `#token=`; earlier invites revoked) |
+| GET    | `/patients/:id/portal-status` | manageAppointments | `PatientPortalStatus`                                                    |
+| POST   | `/patients/:id/portal-verify` | manageAppointments | marks the identity verified at the desk                                  |
