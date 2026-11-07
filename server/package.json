@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "start": "nest start",
-    "start:dev": "nest start --watch",
+    "start": "pnpm --filter @riaya/shared build && nest start",
+    "start:dev": "pnpm --filter @riaya/shared build && nest start --watch",
     "start:prod": "node dist/main",
-    "build": "nest build",
+    "build": "pnpm --filter @riaya/shared build && nest build",
     "lint": "eslint \"{src,test}/**/*.ts\" --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "jest --coverage --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
+    "seed": "pnpm --filter @riaya/shared build && ts-node -r tsconfig-paths/register src/database/seeds/seed.ts",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
@@ -72,6 +72,6 @@
     "typescript-eslint": "^8.34.1"
   },
   "prisma": {
-    "seed": "ts-node -r tsconfig-paths/register src/database/seeds/seed.ts"
+    "seed": "pnpm --filter @riaya/shared build && ts-node -r tsconfig-paths/register src/database/seeds/seed.ts"
   }
 }

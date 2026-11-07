@@ -25,7 +25,9 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY packages/shared/package.json ./packages/shared/
 COPY realtime/package.json ./realtime/
-RUN pnpm install --frozen-lockfile --prod --filter realtime...
+
+# THE FIX IS HERE: Added --ignore-scripts to prevent the husky prepare script from failing
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts --filter realtime...
 
 COPY --from=build /app/realtime/dist ./realtime/dist
 
