@@ -91,7 +91,7 @@
           "phase": "ongoing",
           "currentStep": "specification",
           "gates": {
-            "specification": "pending",
+            "specification": "approved",
             "planning": "approved",
             "implementation": "approved",
             "review": "pending"
@@ -139,6 +139,13 @@
               "by": "update-proposal-agent",
               "timestamp": "2026-11-08T09:26:57.326Z",
               "summary": "Extended v2 with settings/custom roles (US-029, FR-049-FR-052, NFR-020-NFR-022), organization overview (US-030, FR-053-FR-054, NFR-023) and workspace switching/clinic creation (US-031, FR-055-FR-058, NFR-024-NFR-025); added AC-065-AC-075 and EC-025-EC-032. The specification gate is reset to pending."
+            },
+            {
+              "event": "specification_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-08T09:35:33.555Z"
             }
           ]
         }
