@@ -74,13 +74,13 @@ describe('Settings screen', () => {
     mocks.get.mockResolvedValue({ data: SETTINGS });
   });
 
-  it('renders the numbered section navigation and routes between panels', async () => {
+  it('AC-069: renders the eight settings sections and routes between panels', async () => {
     render(
       <MemoryRouter initialEntries={['/settings']}>
         <Routes>
           <Route path="/settings" element={<SettingsPage />}>
             <Route index element={<div>clinic panel</div>} />
-            <Route path="working-hours" element={<div>hours panel</div>} />
+            <Route path="*" element={<div>section panel</div>} />
           </Route>
         </Routes>
       </MemoryRouter>,
@@ -91,8 +91,18 @@ describe('Settings screen', () => {
     expect(screen.getByText('Roles & permissions')).toBeInTheDocument();
     expect(screen.getByText('clinic panel')).toBeInTheDocument();
 
-    await userEvent.click(screen.getByRole('link', { name: /working hours/i }));
-    expect(screen.getByText('hours panel')).toBeInTheDocument();
+    for (const label of [
+      'Departments',
+      'Working hours',
+      'Appointments',
+      'Reminders',
+      'Roles & permissions',
+      'Audit log',
+      'Appearance',
+    ]) {
+      await userEvent.click(screen.getByRole('link', { name: new RegExp(label, 'i') }));
+      expect(screen.getByText('section panel')).toBeInTheDocument();
+    }
   });
 
   it('loads clinic information and saves the edited values', async () => {

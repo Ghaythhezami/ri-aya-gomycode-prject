@@ -80,7 +80,7 @@ describe('Custom roles (e2e)', () => {
     expect(doctor.permissions).not.toContain('manageSettings');
   });
 
-  it('creates, edits and deletes a custom role inside its base role', async () => {
+  it('AC-068: creates, edits and deletes a custom role inside its base role', async () => {
     const created = await request(app.getHttpServer())
       .post('/api/roles')
       .set('Authorization', `Bearer ${token}`)

@@ -67,7 +67,7 @@ describe('Organization overview and clinic creation (e2e)', () => {
     await app.close();
   });
 
-  it('creates another clinic in the active organization and switches to it', async () => {
+  it('AC-074: creates another clinic in the active organization and switches to it', async () => {
     const created = await request(app.getHttpServer())
       .post('/api/clinics')
       .set('Authorization', `Bearer ${ownerToken}`)
@@ -77,6 +77,15 @@ describe('Organization overview and clinic creation (e2e)', () => {
     expect(created.body.organizationId).toBe(organizationId);
     expect(created.body.clinicId).not.toBe(clinicId);
     expect(created.body.role).toBe('SUPER_ADMIN');
+
+    const prisma = app.get(PrismaService);
+    const newClinic = await prisma.clinic.findUnique({ where: { id: created.body.clinicId } });
+    expect(newClinic?.timezone).toBe('UTC');
+    expect(newClinic?.currency).toBe('USD');
+    const audit = await prisma.auditLog.findMany({
+      where: { entity: 'clinic', entityId: created.body.clinicId, action: 'create' },
+    });
+    expect(audit.length).toBeGreaterThan(0);
 
     // A SUPER_ADMIN sees every clinic of the organization, including the new one.
     const memberships = await request(app.getHttpServer())
@@ -105,7 +114,7 @@ describe('Organization overview and clinic creation (e2e)', () => {
       .expect(400);
   });
 
-  it('aggregates every clinic of the organization, not only the active one', async () => {
+  it('AC-070: aggregates every clinic of the organization, not only the active one', async () => {
     const prisma = app.get(PrismaService);
 
     // Make the fixture independent of the creation test above.
@@ -207,5 +216,34 @@ describe('Organization overview and clinic creation (e2e)', () => {
       doctors: 1,
       todayAppointments: 0,
     });
+  });
+
+  it("AC-071: isolates the overview to the caller's organization", async () => {
+    const other = await request(app.getHttpServer())
+      .post('/api/auth/register')
+      .send({
+        email: 'overview.other@riaya.local',
+        password: OWNER_PASSWORD,
+        firstName: 'Other',
+        lastName: 'Owner',
+        organizationName: 'Other Overview Org',
+        clinicName: 'Other Overview Clinic',
+      })
+      .expect(201);
+    const otherClinicId = other.body.clinic.id as string;
+
+    const response = await request(app.getHttpServer())
+      .get('/api/organizations/overview')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .expect(200);
+
+    expect(response.body.organization.id).toBe(organizationId);
+    expect(
+      response.body.clinics.some((clinic: { id: string }) => clinic.id === otherClinicId),
+    ).toBe(false);
+
+    const prisma = app.get(PrismaService);
+    const expectedClinics = (await prisma.clinic.findMany({ where: { organizationId } })).length;
+    expect(response.body.totals.clinics).toBe(expectedClinics);
   });
 });

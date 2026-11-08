@@ -135,7 +135,7 @@
       "acceptanceCriteriaIds": ["AC-065"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.1"],
-      "testIds": [],
+      "testIds": ["TEST-065"],
       "status": "complete"
     },
     {
@@ -143,7 +143,7 @@
       "acceptanceCriteriaIds": ["AC-066", "AC-067"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.2"],
-      "testIds": [],
+      "testIds": ["TEST-066", "TEST-067"],
       "status": "complete"
     },
     {
@@ -151,7 +151,7 @@
       "acceptanceCriteriaIds": ["AC-068"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.3"],
-      "testIds": [],
+      "testIds": ["TEST-068"],
       "status": "complete"
     },
     {
@@ -159,7 +159,7 @@
       "acceptanceCriteriaIds": ["AC-069"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.4"],
-      "testIds": [],
+      "testIds": ["TEST-069"],
       "status": "complete"
     },
     {
@@ -167,7 +167,7 @@
       "acceptanceCriteriaIds": ["AC-070"],
       "planSection": "Organization Overview",
       "taskIds": ["T15.1"],
-      "testIds": [],
+      "testIds": ["TEST-070"],
       "status": "complete"
     },
     {
@@ -175,7 +175,7 @@
       "acceptanceCriteriaIds": ["AC-071"],
       "planSection": "Organization Overview",
       "taskIds": ["T15.1"],
-      "testIds": [],
+      "testIds": ["TEST-071"],
       "status": "complete"
     },
     {
@@ -183,7 +183,7 @@
       "acceptanceCriteriaIds": ["AC-072"],
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.1"],
-      "testIds": [],
+      "testIds": ["TEST-072"],
       "status": "complete"
     },
     {
@@ -191,7 +191,7 @@
       "acceptanceCriteriaIds": ["AC-073"],
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.2"],
-      "testIds": [],
+      "testIds": ["TEST-073"],
       "status": "complete"
     },
     {
@@ -199,7 +199,7 @@
       "acceptanceCriteriaIds": ["AC-074"],
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.3"],
-      "testIds": [],
+      "testIds": ["TEST-074"],
       "status": "complete"
     },
     {
@@ -207,7 +207,7 @@
       "acceptanceCriteriaIds": ["AC-072", "AC-075"],
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.4"],
-      "testIds": [],
+      "testIds": ["TEST-072", "TEST-075"],
       "status": "complete"
     },
     {
@@ -215,7 +215,7 @@
       "acceptanceCriteriaIds": ["AC-065", "AC-068"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.1", "T14.3"],
-      "testIds": [],
+      "testIds": ["TEST-065", "TEST-068"],
       "status": "complete"
     },
     {
@@ -223,7 +223,7 @@
       "acceptanceCriteriaIds": ["AC-068"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.3"],
-      "testIds": [],
+      "testIds": ["TEST-068"],
       "status": "complete"
     },
     {
@@ -231,7 +231,7 @@
       "acceptanceCriteriaIds": ["AC-069", "AC-075"],
       "planSection": "Clinic Settings",
       "taskIds": ["T14.5"],
-      "testIds": [],
+      "testIds": ["TEST-069", "TEST-075"],
       "status": "complete"
     },
     {
@@ -239,7 +239,7 @@
       "acceptanceCriteriaIds": ["AC-070", "AC-071"],
       "planSection": "Organization Overview",
       "taskIds": ["T15.1"],
-      "testIds": [],
+      "testIds": ["TEST-070", "TEST-071"],
       "status": "complete"
     },
     {
@@ -247,7 +247,7 @@
       "acceptanceCriteriaIds": ["AC-073"],
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.2"],
-      "testIds": [],
+      "testIds": ["TEST-073"],
       "status": "complete"
     },
     {
@@ -255,7 +255,7 @@
       "acceptanceCriteriaIds": ["AC-074"],
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.3"],
-      "testIds": [],
+      "testIds": ["TEST-074"],
       "status": "complete"
     }
   ]

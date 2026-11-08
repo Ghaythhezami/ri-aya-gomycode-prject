@@ -74,7 +74,7 @@ describe('Clinic settings (e2e)', () => {
     await app.close();
   });
 
-  it('returns the active clinic with the default week', async () => {
+  it('AC-065: returns the active clinic settings with the default week', async () => {
     const res = await request(app.getHttpServer())
       .get('/api/clinics/settings')
       .set('Authorization', `Bearer ${ownerToken}`)
@@ -146,7 +146,7 @@ describe('Clinic settings (e2e)', () => {
     expect(res.body.code).toBe('INVALID_TIMEZONE');
   });
 
-  it('rejects a working day whose end is before its start', async () => {
+  it('AC-066: rejects a working day whose end is before its start', async () => {
     const res = await request(app.getHttpServer())
       .patch('/api/clinics/settings')
       .set('Authorization', `Bearer ${ownerToken}`)
@@ -160,7 +160,7 @@ describe('Clinic settings (e2e)', () => {
     expect(res.body.code).toBe('INVALID_WORKING_HOURS');
   });
 
-  it('rejects duplicate or overlapping breaks on the same day', async () => {
+  it('AC-067: rejects duplicate or overlapping breaks on the same day', async () => {
     const duplicate = await request(app.getHttpServer())
       .patch('/api/clinics/settings')
       .set('Authorization', `Bearer ${ownerToken}`)
