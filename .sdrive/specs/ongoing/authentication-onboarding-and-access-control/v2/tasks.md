@@ -71,7 +71,7 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 | ID    | Task                                                                              | Requirements | ACs | Done |
 | ----- | --------------------------------------------------------------------------------- | ------------ | --- | ---- |
 | T13.1 | Resolve the out-of-scope settings/custom-role, overview and workspace-shell work  | —            | —   | [x]  |
-| T13.2 | Run the repository formatter and make `pnpm format:check` pass                    | —            | —   | [ ]  |
+| T13.2 | Run the repository formatter and make `pnpm format:check` pass                    | —            | —   | [x]  |
 | T13.3 | Document the invitation lifecycle and settings changes in README                  | —            | —   | [ ]  |
 | T13.4 | Upgrade or formally accept the dev-only critical advisories in the test toolchain | —            | —   | [ ]  |
 
@@ -114,6 +114,6 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 | ID    | Task                                           | Requirements | ACs                    | Done |
 | ----- | ---------------------------------------------- | ------------ | ---------------------- | ---- |
 | T17.1 | Run the server linter and typechecker          | NFR-020      | —                      | [x]  |
-| T17.2 | Run the formatter and governance validator     | NFR-022      | —                      | [ ]  |
+| T17.2 | Run the formatter and governance validator     | NFR-022      | —                      | [x]  |
 | T17.3 | Run the spec-to-code verification              | NFR-023      | —                      | [x]  |
 | T17.4 | Manually confirm placeholders and empty states | NFR-024      | AC-069, AC-071, AC-073 | [x]  |

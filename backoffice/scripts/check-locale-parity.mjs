@@ -37,7 +37,9 @@ for (const locale of REQUIRED) {
 for (const name of readdirSync(localesDir)) {
   const locale = name.replace(/\.json$/, '');
   if (name.endsWith('.json') && !REQUIRED.includes(locale)) {
-    console.error(`\n✖ ${locale}.json exists but ${locale} is not in REQUIRED — add it to this script.\n`);
+    console.error(
+      `\n✖ ${locale}.json exists but ${locale} is not in REQUIRED — add it to this script.\n`,
+    );
     process.exit(1);
   }
 }
@@ -49,9 +51,11 @@ const errors = [];
 for (const [locale, keys] of catalogues) {
   const missing = [...union].filter((key) => !keys.has(key));
   if (missing.length > 0) {
-    errors.push(`${locale}.json is missing ${missing.length} key(s): ${missing.slice(0, 10).join(', ')}${
-      missing.length > 10 ? ` … +${missing.length - 10} more` : ''
-    }`);
+    errors.push(
+      `${locale}.json is missing ${missing.length} key(s): ${missing.slice(0, 10).join(', ')}${
+        missing.length > 10 ? ` … +${missing.length - 10} more` : ''
+      }`,
+    );
   }
 }
 
