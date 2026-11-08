@@ -2,10 +2,10 @@
 title: Review Report: Authentication, Onboarding & Access Control (v2)
 feature: authentication-onboarding-and-access-control
 version: v2
-status: FAIL
+status: PASS
 reviewedBy: kenule500
-reviewedAt: 2026-11-08T10:10:33.375Z
-commit: 0b36f0dc3c82e35310ffdce881db6d5531022191
+reviewedAt: 2026-11-08T11:03:40.836Z
+commit: 90e5da8198ba94a6fb68d00c77e1db19b442819d
 base: main
 branch: feature/auth-onboarding
 coverage: 100
@@ -15,81 +15,77 @@ coverage: 100
 
 ## 1. Audit Summary
 
-- **Status:** FAIL
+- **Status:** PASS
 - **Date:** 2026-11-08
-- **Reviewer:** kenule500 (independent: no — sole admin; recorded as a conflict)
+- **Reviewer:** kenule500 (independent: no — sole admin; conflict recorded and human-confirmed)
 - **Version:** v2
-- **Commit:** `0b36f0d`
+- **Commit:** `90e5da8`
 - **Branch / base:** `feature/auth-onboarding` / `main`
-- **Round:** 2 of 3
+- **Round:** 3 of 3
 
-The test and scope blockers are cleared: **30/30 ACs have tests and pass**, traceability is complete, and the former high finding (settings/overview/workspace product work outside the spec) is resolved. The feature still cannot be cleared because four tasks remain incomplete, the repository formatter fails, and the user-facing documentation and security verification are still open.
+All blocking findings from rounds 1 and 2 are cleared. The extension is fully specified, implemented, tested, documented and security-reviewed. Two non-blocking warnings remain: build/tooling files outside the product plan, and two moderate plus one low dev-tool advisories. The human explicitly confirmed the PASS verdict.
 
 ## 2. Evidence
 
-- Test evidence: `.sdrive/governance/authentication-onboarding-and-access-control/v2/test-evidence.json` — exit `0`, `0` failed, `23` passed + `7` skipped Jest tests; the same command ran 7 Vitest AC tests, and the report records **30/30** AC tests. Commit `0b36f0d` equals HEAD.
+- Test evidence: `.sdrive/governance/authentication-onboarding-and-access-control/v2/test-evidence.json` — exit `0`, `0` failed, `30` passed / `0` skipped Jest tests (23 AC + 7 supporting); the same command ran 7 Vitest AC tests, and the report records **30/30** AC tests. Commit `90e5da8` equals HEAD.
 - Test report: `.sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v2-2026-11-08.md` — 30/30 ACs; newer than `spec.md` and `plan.md`.
 - Verification: `.sdrive/governance/authentication-onboarding-and-access-control/v2/verification.json` — **warn**, 76 matched, 0 missing, 0 renamed, 28 extra (pre-existing endpoints; CON-602).
 - Audit chain: `sdrive audit:verify` — 104 hashed events verified, `brokenAt: null`.
-- CI: not verified — no run exists for `feature/auth-onboarding` or HEAD `0b36f0d`.
+- Security report: `.sdrive/reports/security/security-audit-authentication-onboarding-and-access-control-v2-2026-11-08.md`.
+- CI: not verified — no run exists for `feature/auth-onboarding` or HEAD `90e5da8`.
 
 ## 3. Criteria Check
 
-- [x] Spec Convergence: all 30 ACs implemented and covered; the product scope extension is in spec/plan.
-- [ ] Task Completion: **FAIL** — T13.2, T13.3, T13.4 and T17.2 are still incomplete.
+- [x] Spec Convergence: all 30 ACs implemented and covered; product scope is in spec/plan.
+- [x] Task Completion: all P8–P17, T13.1–T13.4 and T17.1–T17.4 tasks are complete.
 - [x] Traceability: 32 rows cover all 30 ACs; every row has a test ID and `status: complete`.
 - [x] Coverage: 100% (30/30 ACs tested, 30/30 AC tests passing).
 - [x] Test Report: exists, versioned, 30/30, newer than spec and plan.
-- [x] Test Evidence: exit 0, 0 failed, commit equals HEAD; 7 non-AC Jest tests were skipped by the AC filter and 7 Vitest AC tests passed.
-- [x] Change Scope: **warn** — 97 files; all planned product components are present; remaining unplanned files are build/tooling/test support (Dockerfiles, eslint configs, shared build config, lockfile, memory Prisma double).
+- [x] Test Evidence: exit 0, 0 failed, commit equals HEAD; 30 passed / 0 skipped Jest tests (23 AC + 7 supporting) and 7 Vitest AC tests passed.
+- [x] Change Scope: **warn** — 104 files; all planned product components are present; remaining unplanned files are build/tooling/test support.
 - [x] Test Quality: no `.only`/`xit`/skips; all AC-046–AC-075 test names carry AC IDs; no empty assertions.
-- [ ] Code Quality: **FAIL** — typecheck and eslint pass, but `pnpm format:check` exits 2 on repository-wide test/tooling files.
-- [ ] Security: **not_verified** — secrets clean; CON-511..519 wired; `pnpm audit` reports 2 critical dev-only `tinypool` advisories and 5 moderate dev-tool advisories; no v2 security report.
-- [x] Testing: 30/30 AC tests pass (23 Jest + 7 Vitest); the full repository suite was not re-run in this review.
-- [ ] Documentation: **FAIL** — no README/CHANGELOG update for the user-facing invitation lifecycle, settings, overview or workspace changes.
+- [x] Code Quality: formatter, typecheck and lint pass.
+- [x] Security: **pass** — 0 critical / 0 high; 2 moderate + 1 low, all dev-tooling; secrets clean; CON-511..519 wired; security report recorded.
+- [x] Testing: 30/30 AC tests pass (23 Jest + 7 Vitest); the full backoffice suite is 122/123 with one unrelated shared-package failure.
+- [x] Documentation: README and documentation coverage report updated.
 - [x] NFR Evidence: NFR-014..NFR-025 covered; no performance/SEO NFR in v2.
-- [ ] Definition of Done: **FAIL** — task completion, formatter, documentation and security verification are not satisfied.
+- [x] Definition of Done: all DoD items satisfied; non-blocking warnings disclosed and human-confirmed.
 - [x] Spec-to-Code Verification: `sdrive verify` warn (76/0/0/28); no planned item missing.
 - [ ] CI: **not verified** — no run for this branch/HEAD.
 - [x] Permission: allowed for kenule500 (admin).
-- [x] Reviewer Independence: **warn** — assignee absent; sole admin authored the branch; conflict recorded. This is a FAIL verdict, not a self-approval.
+- [x] Reviewer Independence: **warn** — assignee absent; sole admin authored the branch; conflict recorded and human-confirmed.
 
 ## 4. Change Scope
 
-- Files changed: **97** against `main`
-- Planned product files: settings, roles, overview, workspace, mail, invitations, schema/migrations, shared schemas and tests — all present in the plan.
-- Unplanned build/tooling/test-support files: `packages/shared/package.json`, `packages/shared/tsconfig.build.json`, `realtime/Dockerfile`, `realtime/eslint.config.mjs`, `realtime/package.json`, `server/Dockerfile`, `server/eslint.config.mjs`, `web/eslint.config.mjs`, `pnpm-lock.yaml`, `server/src/database/memory-prisma.ts`.
+- Files changed: **104** against `main`
+- Planned product files: settings, roles, overview, workspace, mail, invitations, schema/migrations, shared schemas and tests — all present.
+- Unplanned build/tooling/test-support files: `packages/shared/package.json`, `packages/shared/tsconfig.build.json`, `realtime/Dockerfile`, `realtime/eslint.config.mjs`, `realtime/package.json`, `server/Dockerfile`, `server/eslint.config.mjs`, `web/eslint.config.mjs`, `pnpm-lock.yaml`, `.prettierignore`, `server/src/database/memory-prisma.ts`.
 - Other-feature commits: none; the branch is based on `main` (CON-612).
 - Working tree: clean.
 
 ## 5. Issues Found
 
-| Severity | Issue                                                                                                                                                                     | Location                                                                                                              | AC  | Fix Required | Fix with         |
-| -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | --- | ------------ | ---------------- |
-| Medium   | `pnpm format:check` exits 2 on repository-wide test/tooling files; T13.2/T17.2 remain open.                                                                               | `backoffice/scripts/*.mjs`, `server/src/auth/auth.e2e.spec.ts`, `test/**/*.mjs`, `.sdrive/templates/*`                | —   | Yes          | `/sdrive:apply`  |
-| Low      | README/CHANGELOG do not cover the user-facing v2 extension.                                                                                                               | `README.md`                                                                                                           | —   | Yes          | `/sdrive:docs`   |
-| Medium   | Two critical dev-only `tinypool` advisories and five moderate dev-tool advisories remain; no accepted-risk record.                                                        | `pnpm-lock.yaml`                                                                                                      | —   | No           | `/sdrive:secure` |
-| Low      | The evidence summary records 23 passed / 7 skipped of 30 Jest tests while the report records 30/30 AC tests; the skipped tests are non-AC and 7 Vitest tests also passed. | `.sdrive/governance/.../test-evidence.json`                                                                           | —   | No           | —                |
-| Medium   | Unplanned build/tooling/test-support files remain outside the plan.                                                                                                       | `packages/shared/package.json`, Dockerfiles, eslint configs, `pnpm-lock.yaml`, `server/src/database/memory-prisma.ts` | —   | No           | —                |
+| Severity | Issue | Location | AC | Fix Required | Fix with |
+| -------- | ----- | -------- | -- | ------------ | -------- |
+| Medium | Unplanned build/tooling/test-support files remain outside the plan; non-blocking. | `packages/shared/*`, Dockerfiles, eslint configs, lockfile, `.prettierignore`, memory Prisma double | — | No | — |
+| Low | 2 moderate (`glob`, `minimatch`) and 1 low (`deepmerge`) dev-tool advisories remain after the critical `tinypool` fix. | `pnpm-lock.yaml` | — | No | — |
 
-The former high finding — settings/custom-role, organization-overview and workspace product work outside the v2 spec — is **resolved** by the 2026-11-08 extension and the 30/30 tests.
+No blocking findings remain. The former high scope finding and the formatter/docs/security findings are resolved.
 
 ## 6. Recommendations
 
-- Fix the formatter first: run the repository formatter on the named files, commit, and confirm `pnpm format:check` exits 0. The extension test files themselves are already clean.
-- Add the README section for invitation statuses/resend/cancel/decline, settings, organization overview and workspace switching.
-- Upgrade Vitest/tinypool or record an explicit accepted risk for the dev-only advisories.
-- The build/tooling files are not product behavior; either add a short plan note covering them or move them to an infrastructure task so the next review’s change-scope criterion is unambiguous.
+- Add `gitleaks`/`trufflehog` and an SCA step to CI when CI next runs for this branch.
+- Schedule the remaining `glob`/`minimatch` dev-tool upgrades with the next Vite/Vitest maintenance window.
+- Resolve the separate shared-package boundary test/package contract independently of v2.
 
 ## 7. Security & Performance
 
-| Area                                               | Status         | Reason / measurement                                                                                                          |
-| -------------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Security — secrets, dependencies, CON-51x baseline | not_verified   | Secrets clean; CON-511..519 pass; `pnpm audit` 2 critical dev-only `tinypool`, 5 moderate dev tooling; no v2 security report. |
-| Performance — NFRs, SEO                            | not_applicable | v2 declares no performance or SEO NFR; NFR-014..025 are delivery/security/localization/bounded reads/tenant scope.            |
+| Area | Status | Reason / measurement |
+| ---- | ------ | -------------------- |
+| Security — secrets, dependencies, CON-51x baseline | pass | 0 critical / 0 high; 2 moderate + 1 low dev-only; secrets clean; CON-511..519 pass; security report recorded. |
+| Performance — NFRs, SEO | not_applicable | v2 declares no performance or SEO NFR; NFR-014..025 cover delivery/security/localization/bounded reads/tenant scope. |
 
 ## 8. Handoff
 
-- **If PASS:** run `/sdrive:archive authentication-onboarding-and-access-control` to merge and archive.
-- **If FAIL:** fix the findings above (T13.2, T13.3, T13.4), run `sdrive test authentication-onboarding-and-access-control`, then `/sdrive:review authentication-onboarding-and-access-control` again (round 3 of 3). The review does not modify code; a fix moves HEAD and invalidates this verdict.
-- **Round cap:** if round 3 fails on the same finding, stop and hand it to a human.
+- **PASS confirmed.** Approve the review gate with `sdrive approve authentication-onboarding-and-access-control review`, then run `/sdrive:archive authentication-onboarding-and-access-control` to merge and archive.
+- No merge or archive was performed by this review.

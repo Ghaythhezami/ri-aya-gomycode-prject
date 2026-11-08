@@ -1,38 +1,18 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "version": "v2",
-  "recordedAt": "2026-11-08T10:18:02.405Z",
+  "recordedAt": "2026-11-08T11:01:30.684Z",
   "by": null,
   "steps": [
     {
-      "command": "/sdrive:apply",
-      "kind": "slash",
-      "why": "medium severity, round 2 of 3: pnpm format:check exits 2 on repository-wide test/tooling files, and T13.2/T17.2 remain open."
-    },
-    {
-      "command": "/sdrive:docs",
-      "kind": "slash",
-      "why": "low severity, round 2 of 3: README/CHANGELOG have no update for the user-facing v2 extension."
-    },
-    {
-      "command": "/sdrive:secure",
-      "kind": "slash",
-      "why": "medium severity, round 2 of 3: Two critical dev-only tinypool advisories and five moderate dev-tool advisories remain."
-    },
-    {
       "command": "sdrive test authentication-onboarding-and-access-control",
       "kind": "cli",
-      "why": "A fix moves HEAD, so the test record must be re-stamped before review can read it."
+      "why": "Review needs passing test evidence; run the tests first."
     },
     {
-      "command": "sdrive approve authentication-onboarding-and-access-control implementation",
+      "command": "sdrive approve authentication-onboarding-and-access-control review",
       "kind": "human",
-      "why": "New fix tasks leave the implementation sign-off unsatisfied until it is given again."
-    },
-    {
-      "command": "/sdrive:review authentication-onboarding-and-access-control",
-      "kind": "slash",
-      "why": "Review re-audits the new commit and clears the verdict."
+      "why": "Approving is a sign-off, so it stays with you."
     }
   ]
 }
