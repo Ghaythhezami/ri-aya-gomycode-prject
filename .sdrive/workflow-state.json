@@ -4,7 +4,15 @@
       "name": "authentication-onboarding-and-access-control",
       "branch": "feature/auth-onboarding",
       "base": "main",
-      "productItems": ["BP-004", "BP-008", "BP-009", "BP-012", "BP-014", "BP-046", "BP-047"],
+      "productItems": [
+        "BP-004",
+        "BP-008",
+        "BP-009",
+        "BP-012",
+        "BP-014",
+        "BP-046",
+        "BP-047"
+      ],
       "currentVersion": "v2",
       "versions": [
         {
@@ -94,7 +102,7 @@
             "specification": "approved",
             "planning": "approved",
             "implementation": "approved",
-            "review": "pending"
+            "review": "approved"
           },
           "history": [
             {
@@ -152,6 +160,13 @@
               "by": "implementation-agent",
               "timestamp": "2026-11-08T09:41:18.446Z",
               "summary": "Aligned the existing settings, custom-role, organization-overview and workspace implementation with the 2026-11-08 v2 extension. Completed P14-P16 and T17.1/T17.3/T17.4; the formatter task T17.2 and review remediation T13.2-T13.4 remain open."
+            },
+            {
+              "event": "review_approved",
+              "by": "kenule500",
+              "actor": "kenule500",
+              "previousValue": "pending",
+              "timestamp": "2026-11-08T11:15:02.167Z"
             }
           ]
         }
@@ -161,7 +176,9 @@
       "name": "monorepo-and-local-environment",
       "branch": "feature/BP-001",
       "base": "main",
-      "productItems": ["BP-001"],
+      "productItems": [
+        "BP-001"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -244,7 +261,9 @@
       "name": "database-schema-and-migrations",
       "branch": "feature/bp-002-bp-003-bp-006-bp-031",
       "base": "main",
-      "productItems": ["BP-002"],
+      "productItems": [
+        "BP-002"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -324,7 +343,9 @@
       "name": "api-skeleton-and-ci",
       "branch": "feature/bp-002-bp-003-bp-006-bp-031",
       "base": "main",
-      "productItems": ["BP-003"],
+      "productItems": [
+        "BP-003"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -411,7 +432,9 @@
       "name": "shared-package",
       "branch": "feature/bp-045",
       "base": "main",
-      "productItems": ["BP-045"],
+      "productItems": [
+        "BP-045"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -475,7 +498,9 @@
       "name": "design-tokens-and-component-library",
       "branch": "feature/BP-006",
       "base": "main",
-      "productItems": ["BP-006"],
+      "productItems": [
+        "BP-006"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -562,7 +587,9 @@
       "name": "realtime-service",
       "branch": "feature/realtime-service",
       "base": "main",
-      "productItems": ["BP-031"],
+      "productItems": [
+        "BP-031"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -657,7 +684,9 @@
       "name": "application-shell",
       "branch": "feature/bp-007-bp-010-bp-011-bp-013",
       "base": "main",
-      "productItems": ["BP-007"],
+      "productItems": [
+        "BP-007"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -750,7 +779,9 @@
       "name": "strict-tenant-isolation",
       "branch": "feature/bp-007-bp-010-bp-011-bp-013",
       "base": "main",
-      "productItems": ["BP-010"],
+      "productItems": [
+        "BP-010"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -843,7 +874,9 @@
       "name": "role-based-access-control-and-clinic-scoping",
       "branch": "feature/bp-007-bp-010-bp-011-bp-013",
       "base": "main",
-      "productItems": ["BP-011"],
+      "productItems": [
+        "BP-011"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
@@ -936,7 +969,9 @@
       "name": "localised-data-and-api-messages",
       "branch": "feature/bp-007-bp-010-bp-011-bp-013",
       "base": "main",
-      "productItems": ["BP-013"],
+      "productItems": [
+        "BP-013"
+      ],
       "currentVersion": "v1",
       "versions": [
         {
