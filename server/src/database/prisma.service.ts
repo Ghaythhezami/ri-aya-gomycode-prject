@@ -46,8 +46,24 @@ export class PrismaService implements OnModuleInit, OnModuleDestroy {
     return (this.inner as PrismaClient).invitation;
   }
 
+  get role() {
+    return (this.inner as PrismaClient).role;
+  }
+
   get auditLog() {
     return (this.inner as PrismaClient).auditLog;
+  }
+
+  get patient() {
+    return (this.inner as PrismaClient).patient;
+  }
+
+  get doctor() {
+    return (this.inner as PrismaClient).doctor;
+  }
+
+  get appointment() {
+    return (this.inner as PrismaClient).appointment;
   }
 
   /** Run several operations in one transaction (used by registration and audit). */

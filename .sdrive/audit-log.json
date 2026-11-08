@@ -956,6 +956,190 @@
       "event": "feature_archived",
       "prevHash": "2700e6eaf2f283badc315c02bbc09b8637705946672979a78a157fe12e827006",
       "hash": "4709cfe4b27a9f0e4325a5470cae0baa335da14d29fd631b50e5bb85a57ebad4"
+    },
+    {
+      "timestamp": "2026-11-06T14:12:50.811Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "event": "version_created",
+      "prevHash": "4709cfe4b27a9f0e4325a5470cae0baa335da14d29fd631b50e5bb85a57ebad4",
+      "hash": "3132af69a4c681501fbc71755dc08562c7adab62b953ddd9b6f99d4556632fc7"
+    },
+    {
+      "timestamp": "2026-11-06T16:31:36.274Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "specification",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "3132af69a4c681501fbc71755dc08562c7adab62b953ddd9b6f99d4556632fc7",
+      "hash": "a2ac14358264c386938f122deea3c4108b3ebef3161933c53e1d707363029535"
+    },
+    {
+      "timestamp": "2026-11-06T16:31:47.119Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "planning",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "a2ac14358264c386938f122deea3c4108b3ebef3161933c53e1d707363029535",
+      "hash": "7ec4ff1d8c6ece1302b7de663856b518256e7477ba2ed0a82b521e6e4e5f5497"
+    },
+    {
+      "timestamp": "2026-11-06T19:18:59.722Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "7ec4ff1d8c6ece1302b7de663856b518256e7477ba2ed0a82b521e6e4e5f5497",
+      "hash": "555265a4cc6a6c4504749eed167b6fc57849ad15178bf79c7f92cbcd83c75050"
+    },
+    {
+      "timestamp": "2026-11-06T19:19:14.725Z",
+      "actor": "KENULE-NWINEE",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 124,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "555265a4cc6a6c4504749eed167b6fc57849ad15178bf79c7f92cbcd83c75050",
+      "hash": "4f6aa1c25357997ea060bcef0f8a3e5e073fa787a9237ab190f7d5b4361b9d57"
+    },
+    {
+      "timestamp": "2026-11-06T19:30:40.280Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 1,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "4f6aa1c25357997ea060bcef0f8a3e5e073fa787a9237ab190f7d5b4361b9d57",
+      "hash": "3b4b2c8c6407c05743b4a16a96f6c10956a8b674fc41dab11a204b76a23466f8"
+    },
+    {
+      "timestamp": "2026-11-06T19:37:25.822Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 116,
+      "durationMs": 191318,
+      "event": "test_passed",
+      "prevHash": "3b4b2c8c6407c05743b4a16a96f6c10956a8b674fc41dab11a204b76a23466f8",
+      "hash": "adf3ff115ea7bfcf2bf833ef81df45bd5123556167fcb27ad60317a2b46963c6"
+    },
+    {
+      "timestamp": "2026-11-06T19:51:59.416Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 116,
+      "durationMs": 202555,
+      "event": "test_passed",
+      "prevHash": "adf3ff115ea7bfcf2bf833ef81df45bd5123556167fcb27ad60317a2b46963c6",
+      "hash": "307af9e2d71bd72f1dfad0ae295ee5bd2f284be2b6da13f780045a3af90c8181"
+    },
+    {
+      "timestamp": "2026-11-06T19:58:21.696Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 116,
+      "durationMs": 139713,
+      "event": "test_passed",
+      "prevHash": "307af9e2d71bd72f1dfad0ae295ee5bd2f284be2b6da13f780045a3af90c8181",
+      "hash": "6855ccd3df7720d92a718b725f50821ba4186e38d68894853a9281a653ca0a98"
+    },
+    {
+      "timestamp": "2026-11-06T21:19:51.236Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "implementation",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "6855ccd3df7720d92a718b725f50821ba4186e38d68894853a9281a653ca0a98",
+      "hash": "2cb6be04114e475031ec77c58bb2e96e55b1bb907e3912ce991d028af8267861"
+    },
+    {
+      "timestamp": "2026-11-07T14:49:40.654Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 19,
+      "durationMs": 131368,
+      "event": "test_passed",
+      "prevHash": "2cb6be04114e475031ec77c58bb2e96e55b1bb907e3912ce991d028af8267861",
+      "hash": "347d7f63fba0b709a241d0f9420edc0963c496ad0b280e0e16d49a4582189918"
+    },
+    {
+      "timestamp": "2026-11-07T16:02:30.383Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "exitCode": 255,
+      "failed": 0,
+      "event": "test_failed",
+      "prevHash": "347d7f63fba0b709a241d0f9420edc0963c496ad0b280e0e16d49a4582189918",
+      "hash": "5b27a834143e0fce997af718b5c865cf6d5ee26e7d4e0341fb2ce2d7fb9a1339"
+    },
+    {
+      "timestamp": "2026-11-07T16:03:28.404Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 16,
+      "durationMs": 43377,
+      "event": "test_passed",
+      "prevHash": "5b27a834143e0fce997af718b5c865cf6d5ee26e7d4e0341fb2ce2d7fb9a1339",
+      "hash": "73068fcc60f9bc23c0e86c6842cb220ff643905f14b077417bf1823885b9010d"
+    },
+    {
+      "timestamp": "2026-11-07T16:17:52.231Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 16,
+      "durationMs": 40107,
+      "event": "test_passed",
+      "prevHash": "73068fcc60f9bc23c0e86c6842cb220ff643905f14b077417bf1823885b9010d",
+      "hash": "806ed1721ad797dcdf19bf92a52b4a39e5d5948c70c6a10d582561172c996313"
+    },
+    {
+      "timestamp": "2026-11-08T08:43:13.989Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "total": 16,
+      "durationMs": 70613,
+      "event": "test_passed",
+      "prevHash": "806ed1721ad797dcdf19bf92a52b4a39e5d5948c70c6a10d582561172c996313",
+      "hash": "adad488f00f815d8220cb361c69b3824f0525b270cf48975846676cf90b259b6"
+    },
+    {
+      "timestamp": "2026-11-08T09:35:34.182Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "specification",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "adad488f00f815d8220cb361c69b3824f0525b270cf48975846676cf90b259b6",
+      "hash": "109fe37323025f3ced097f5d5a9c8e3f03be90a41bbd36278155fa5099dcbfd7"
+    },
+    {
+      "timestamp": "2026-11-08T11:15:02.647Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "gate": "review",
+      "previousValue": "pending",
+      "event": "gate_approved",
+      "prevHash": "109fe37323025f3ced097f5d5a9c8e3f03be90a41bbd36278155fa5099dcbfd7",
+      "hash": "4a13b4a7605c7ed43ad9deb279b0cd4ac9dfd2b8af7e8d901fc37a5b6ae817af"
     }
   ]
 }

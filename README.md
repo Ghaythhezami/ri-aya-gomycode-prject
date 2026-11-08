@@ -1,15 +1,15 @@
 # RI'AYA (رعاية)
 
-Multilingual clinic and appointment platform starter: public landing page, NestJS authentication API, and staff backoffice.
+Multilingual clinic and appointment platform: public marketing site, NestJS/Prisma authentication and tenancy API, and a staff backoffice for invitations, clinic settings, organization overview and workspace switching.
 
-This repository currently ships **monorepo tooling**, **authentication**, and the **marketing site**. Appointments, patients, and scheduling modules are intentionally out of scope.
+This repository currently ships **monorepo tooling**, **authentication**, the **marketing site**, and the **staff workspace controls** described below. Booking, patient and scheduling screens remain intentionally out of scope; the organization overview reads their aggregate counts.
 
 ## Apps
 
 | App          | Stack                                 | Port          |
 | ------------ | ------------------------------------- | ------------- |
 | `web`        | Next.js 15, next-intl, Tailwind CSS 4 | 3000          |
-| `server`     | NestJS 11, TypeORM, PostgreSQL        | 4000 (`/api`) |
+| `server`     | NestJS 11, Prisma, PostgreSQL         | 4000 (`/api`) |
 | `backoffice` | React 19, Vite, i18next               | 5174          |
 
 Languages: English, Arabic (RTL), French.
@@ -89,6 +89,14 @@ Then open:
   in the same transaction as the change it describes.
 
 The seeded accounts above are for local development only; they sign in at `/login`.
+
+## Invitations, settings, overview and workspace controls
+
+- **Invitation lifecycle.** The staff directory shows every invitation with a single lifecycle label — `PENDING`, `ACCEPTED`, `REJECTED`, `CANCELLED` or derived `EXPIRED` — plus the delivery outcome. A sender/admin can resend or cancel a pending invitation, and an invitee can decline from the accept page. Cancel/decline invalidate the token; the row is kept for the record.
+- **Email delivery.** Invitations and password resets go through the `MAIL_SERVICE` transport. Production uses authenticated Mailtrap SMTP; the console transport remains for local/test. The SMTP keys are documented by name in `server/.env.example` and are never committed. A failed send leaves the invitation `PENDING` with a failed delivery outcome and a resend action — it is never presented as sent.
+- **Clinic settings.** `/settings` has eight routed panels. Clinic information, working hours and roles/permissions are functional. Departments, appointments, reminders, audit log and appearance are clearly labelled placeholders and make no settings mutation. Working hours support per-day opening and breaks; invalid times and duplicate/overlapping breaks are rejected. Custom roles are editable definitions with a base role and a permission subset; assigning a custom role to a member is not part of v2, and built-in roles remain immutable.
+- **Organization overview.** The overview page reads `GET /api/organizations/overview` and shows totals for every clinic in the caller's organization — clinics, staff, patients, today's appointments and upcoming appointments — plus one row per clinic. It never reads another organization's data.
+- **Workspace switching.** The sidebar switcher lists the caller's memberships, marks the active clinic and offers a create-clinic dialog. Creating a clinic adds it to the active organization and switches to it. A switch validates the membership, issues a scoped access token and rotates the refresh cookie; the client proves the refresh before reloading, so a failed switch shows an error instead of sending the user to signup. The page header no longer repeats the active clinic name.
 
 ## Scripts
 

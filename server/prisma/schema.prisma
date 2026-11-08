@@ -26,21 +26,39 @@ enum MembershipStatus {
   SUSPENDED
 }
 
+/// Lifecycle of an invitation (FR-042). `EXPIRED` is NOT stored: it is derived at
+/// read time for a PENDING row whose `expiresAt` has passed, so no scheduler is
+/// needed and the persisted status stays a single source of truth.
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
+}
+
+/// Recorded outcome of the invitation email send (FR-041). A failed send leaves
+/// the invitation PENDING with a resend affordance (AC-049, EC-019).
+enum DeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
 model User {
-  id          String          @id @default(uuid())
-  email       String          @unique
-  passwordHash String
-  firstName   String
-  lastName    String
-  isActive    Boolean         @default(true)
+  id              String          @id @default(uuid())
+  email           String          @unique
+  passwordHash    String
+  firstName       String
+  lastName        String
+  isActive        Boolean         @default(true)
   preferredLocale PreferredLocale @default(en)
-  lastLoginAt DateTime?
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
+  lastLoginAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   /// @deprecated Clinic-scoped role now lives on UserMembership.role.
   /// Retained only while existing call sites are migrated (see tasks T3.3).
-  role        UserRole?
+  role UserRole?
 
   /// @deprecated Lockout state moved to Redis (LoginAttemptService, FR-014).
   /// Retained so historical rows keep their values; no longer read by the API.
@@ -48,12 +66,12 @@ model User {
   failedLoginWindowStart DateTime?
   lockedUntil            DateTime?
 
-  refreshTokens          RefreshToken[]
-  passwordResetTokens    PasswordResetToken[]
-  memberships            UserMembership[]
-  sentInvitations        Invitation[]        @relation("InvitationInviter")
-  auditLogs              AuditLog[]
-  doctorProfiles         Doctor[]
+  refreshTokens       RefreshToken[]
+  passwordResetTokens PasswordResetToken[]
+  memberships         UserMembership[]
+  sentInvitations     Invitation[]         @relation("InvitationInviter")
+  auditLogs           AuditLog[]
+  doctorProfiles      Doctor[]
 
   @@map("users")
 }
@@ -70,25 +88,33 @@ model Organization {
   memberships UserMembership[]
   invitations Invitation[]
   auditLogs   AuditLog[]
+  roles       Role[]
 
   @@map("organizations")
 }
 
 /// The working workspace. All clinical data is scoped to a clinic.
 model Clinic {
-  id             String   @id @default(uuid())
-  organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  name           String
-  timezone       String   @default("UTC")
-  currency       String   @default("USD")
-  address        String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id              String          @id @default(uuid())
+  organizationId  String
+  organization    Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  name            String
+  timezone        String          @default("UTC")
+  currency        String          @default("USD")
+  address         String?
+  /// Clinic settings (BP-035): contact details shown on the settings screen.
+  contactEmail    String?
+  phone           String?
+  defaultLanguage PreferredLocale @default(en)
+  /// Weekly operating hours as a JSON object keyed by weekday (BP-035).
+  workingHours    Json?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
-  memberships UserMembership[]
-  invitations Invitation[]
-  auditLogs   AuditLog[]
+  memberships  UserMembership[]
+  invitations  Invitation[]
+  auditLogs    AuditLog[]
+  roles        Role[]
   patients     Patient[]
   doctors      Doctor[]
   appointments Appointment[]
@@ -100,17 +126,17 @@ model Clinic {
 /// Links one global identity to one clinic with one role. This is what makes a
 /// user able to hold a different role per clinic (FR-001, FR-028).
 model UserMembership {
-  id             String   @id @default(uuid())
+  id             String           @id @default(uuid())
   userId         String
-  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user           User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   organizationId String
-  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
   clinicId       String
-  clinic         Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  clinic         Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
   role           UserRole
   status         MembershipStatus @default(ACTIVE)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@unique([userId, clinicId])
   @@index([userId, status])
@@ -120,30 +146,60 @@ model UserMembership {
 
 /// Single-use, expiring invitation to join one clinic with one role (FR-007).
 model Invitation {
-  id          String   @id @default(uuid())
-  email       String
+  id             String           @id @default(uuid())
+  email          String
   organizationId String
-  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
-  clinicId    String
-  clinic      Clinic   @relation(fields: [clinicId], references: [id], onDelete: Cascade)
-  role        UserRole
-  tokenHash   String   @unique
-  expiresAt   DateTime
-  consumedAt  DateTime?
-  invitedById String?
-  invitedBy   User?    @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
+  organization   Organization     @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clinicId       String
+  clinic         Clinic           @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  role           UserRole
+  tokenHash      String           @unique
+  expiresAt      DateTime
+  consumedAt     DateTime?
+  /// Persisted lifecycle status (FR-042). `EXPIRED` is derived, never stored.
+  status         InvitationStatus @default(PENDING)
+  /// Recorded outcome of the invitation email send (FR-041, AC-048).
+  deliveryStatus DeliveryStatus   @default(PENDING)
+  /// Provider error captured when a send fails, so a resend can be offered (EC-019).
+  deliveryError  String?
+  invitedById    String?
+  invitedBy      User?            @relation("InvitationInviter", fields: [invitedById], references: [id], onDelete: SetNull)
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
 
   @@index([email, clinicId])
   @@index([expiresAt])
+  @@index([clinicId, status])
   @@map("invitations")
+}
+
+/// A clinic-scoped custom role (BP-035). The four built-in roles stay in the
+/// UserRole enum; this table holds additional role definitions and the
+/// capabilities they grant.
+model Role {
+  id             String       @id @default(uuid())
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  clinicId       String
+  clinic         Clinic       @relation(fields: [clinicId], references: [id], onDelete: Cascade)
+  name           String
+  /// Base built-in role whose capability ceiling this custom role cannot exceed.
+  baseRole       UserRole
+  /// JSON array of capability keys from @riaya/shared.
+  permissions    Json
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([clinicId, name])
+  @@index([organizationId])
+  @@map("roles")
 }
 
 /// Append-only record of every mutation (FR-016, NFR-013).
 model AuditLog {
-  id             String   @id @default(uuid())
+  id             String        @id @default(uuid())
   actorUserId    String?
-  actor          User?    @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
+  actor          User?         @relation(fields: [actorUserId], references: [id], onDelete: SetNull)
   action         String
   entity         String
   entityId       String
@@ -152,8 +208,8 @@ model AuditLog {
   organizationId String?
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: SetNull)
   clinicId       String?
-  clinic         Clinic?  @relation(fields: [clinicId], references: [id], onDelete: SetNull)
-  createdAt      DateTime @default(now())
+  clinic         Clinic?       @relation(fields: [clinicId], references: [id], onDelete: SetNull)
+  createdAt      DateTime      @default(now())
 
   @@index([entity, entityId])
   @@index([actorUserId])

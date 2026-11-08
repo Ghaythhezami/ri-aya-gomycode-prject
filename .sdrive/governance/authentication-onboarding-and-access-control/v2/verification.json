@@ -1,0 +1,786 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "status": "warn",
+  "checkedAt": "2026-11-08T09:59:54.667Z",
+  "summary": {
+    "matched": 76,
+    "missing": 0,
+    "renamed": 0,
+    "extra": 28,
+    "withdrawn": 0
+  },
+  "items": {
+    "matched": [
+      {
+        "type": "component",
+        "name": "server/src/mail/mail.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/mail/mail.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/mail/templates.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/mail/templates.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/mail/mail.module.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/mail/mail.module.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/mail/smtp-mail.service.ts",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/mail/smtp-mail.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/onboarding.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/onboarding.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/tenancy.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/tenancy.controller.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/invitation.dto.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/invitation.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/prisma/schema.prisma",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/schemas/tenancy.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "packages/shared/src/schemas/tenancy.ts"
+      },
+      {
+        "type": "component",
+        "name": "packages/shared/src/permissions.ts",
+        "action": "reuse",
+        "resolution": null,
+        "file": "packages/shared/src/permissions.ts"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/StaffDirectoryPage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/StaffDirectoryPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/AcceptInvitePage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/AcceptInvitePage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/i18n",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/i18n/ar.json",
+        "note": "directory matched by contained file"
+      },
+      {
+        "type": "component",
+        "name": "server/.env.example",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/.env.example"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/SettingsPage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/SettingsPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/settings/ClinicInformationSection.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/settings/ClinicInformationSection.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/settings/WorkingHoursSection.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/settings/WorkingHoursSection.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/settings/RolesPermissionsSection.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/settings/RolesPermissionsSection.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/settings/PlaceholderSection.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/settings/PlaceholderSection.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/settings/SettingsCard.tsx",
+        "action": "reuse",
+        "resolution": null,
+        "file": "backoffice/src/pages/settings/SettingsCard.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/settings/types.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/settings/types.ts"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/pages/OverviewPage.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/pages/OverviewPage.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/auth/WorkspaceContext.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/auth/WorkspaceContext.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/layouts/WorkspaceSwitcher.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/layouts/WorkspaceSwitcher.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/layouts/AppShell.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/layouts/AppShell.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/layouts/Breadcrumbs.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/layouts/Breadcrumbs.tsx"
+      },
+      {
+        "type": "component",
+        "name": "backoffice/src/App.tsx",
+        "action": "modify",
+        "resolution": null,
+        "file": "backoffice/src/App.tsx"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/clinic-settings.dto.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/clinic-settings.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/role.dto.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/role.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/tenancy/dto/clinic.dto.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/dto/clinic.dto.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/auth/auth.controller.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/auth/auth.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/auth/auth.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/src/database/prisma.service.ts",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/database/prisma.service.ts"
+      },
+      {
+        "type": "component",
+        "name": "server/prisma/migrations/20261107110000_clinic_settings/migration.sql",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/prisma/migrations/20261107110000_clinic_settings/migration.sql"
+      },
+      {
+        "type": "component",
+        "name": "server/prisma/migrations/20261107130000_custom_roles/migration.sql",
+        "action": "reuse",
+        "resolution": null,
+        "file": "server/prisma/migrations/20261107130000_custom_roles/migration.sql"
+      },
+      {
+        "type": "endpoint",
+        "name": "GET /api/clinics/settings",
+        "method": "GET",
+        "path": "/api/clinics/settings",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "PATCH /api/clinics/settings",
+        "method": "PATCH",
+        "path": "/api/clinics/settings",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "GET /api/roles",
+        "method": "GET",
+        "path": "/api/roles",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "POST /api/roles",
+        "method": "POST",
+        "path": "/api/roles",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "PATCH /api/roles/:id",
+        "method": "PATCH",
+        "path": "/api/roles/:id",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "DELETE /api/roles/:id",
+        "method": "DELETE",
+        "path": "/api/roles/:id",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "GET /api/organizations/overview",
+        "method": "GET",
+        "path": "/api/organizations/overview",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "GET /api/memberships",
+        "method": "GET",
+        "path": "/api/memberships",
+        "action": "modify",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "POST /api/clinics",
+        "method": "POST",
+        "path": "/api/clinics",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "name": "POST /api/auth/switch-workspace",
+        "method": "POST",
+        "path": "/api/auth/switch-workspace",
+        "action": "create",
+        "resolution": null,
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "entity",
+        "name": "Invitation",
+        "action": "update",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "status",
+        "fieldType": "InvitationStatus",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "deliveryStatus",
+        "fieldType": "DeliveryStatus",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "deliveryError",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Invitation",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "entity",
+        "name": "UserMembership",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "role",
+        "fieldType": "UserRole",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "UserMembership",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "entity",
+        "name": "Clinic",
+        "action": "update",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "name",
+        "fieldType": "String",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "address",
+        "fieldType": "String",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "contactEmail",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "phone",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "defaultLanguage",
+        "fieldType": "PreferredLocale",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "workingHours",
+        "fieldType": "Json",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Clinic",
+        "name": "timezone",
+        "fieldType": "String",
+        "action": "no_change",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "entity",
+        "name": "Role",
+        "action": "create",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "id",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "organizationId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "clinicId",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "name",
+        "fieldType": "String",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "baseRole",
+        "fieldType": "UserRole",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "permissions",
+        "fieldType": "Json",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "createdAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "field",
+        "entity": "Role",
+        "name": "updatedAt",
+        "fieldType": "DateTime",
+        "action": "add",
+        "resolution": null,
+        "file": "server/prisma/schema.prisma"
+      },
+      {
+        "type": "dependency",
+        "name": "nodemailer",
+        "action": "add",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "Mailtrap",
+        "action": "no_change",
+        "depType": "external",
+        "resolution": null,
+        "note": "external dependency; not manifest-verifiable"
+      },
+      {
+        "type": "dependency",
+        "name": "@prisma/client",
+        "action": "update",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "class-validator",
+        "action": "no_change",
+        "depType": "library",
+        "resolution": null
+      },
+      {
+        "type": "dependency",
+        "name": "@riaya/shared",
+        "action": "no_change",
+        "depType": "internal",
+        "resolution": null,
+        "note": "internal dependency; not manifest-verifiable"
+      }
+    ],
+    "missing": [],
+    "renamed": [],
+    "extra": [
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/signup",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/login",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/refresh",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/logout",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/auth/me",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/auth/memberships",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/change-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/forgot-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/reset-password",
+        "file": "server/src/auth/auth.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/probe/validated",
+        "file": "server/src/common/filters/http-exception-filter.spec.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/probe/ok",
+        "file": "server/src/logging/logging.module.spec.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/probe/thrown",
+        "file": "server/src/logging/logging.module.spec.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/probe/boom",
+        "file": "server/src/logging/logging.module.spec.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/probe/sensitive",
+        "file": "server/src/logging/logging.module.spec.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/register",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/auth/accept-invite",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/invitations/:token/accept",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/organizations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/invitations",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/invitations/:token",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/invitations/:id/cancel",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/invitations/:id/resend",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "POST",
+        "path": "/api/invitations/:token/decline",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id/role",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "PATCH",
+        "path": "/api/memberships/:id/suspend",
+        "file": "server/src/tenancy/tenancy.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/health/live",
+        "file": "realtime/src/health/health.controller.ts"
+      },
+      {
+        "type": "endpoint",
+        "method": "GET",
+        "path": "/api/health/ready",
+        "file": "realtime/src/health/health.controller.ts"
+      }
+    ],
+    "withdrawn": []
+  }
+}

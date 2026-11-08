@@ -134,8 +134,8 @@ describe('Staff invitations (e2e)', () => {
     expect(second.body.code).toBe('INVALID_INVITATION');
   });
 
-  // TEST-013 → AC-017 (FR-031)
-  it('AC-017: revokes the earlier token when a newer invitation is issued for the same email', async () => {
+  // TEST-013 → AC-017 (FR-031, updated: no duplicate pending invites)
+  it('refuses a second pending invitation for the same email and keeps the first token valid', async () => {
     const email = 'invited.reissued@riaya.local';
 
     mail.sendInvitation.mockClear();
@@ -147,25 +147,29 @@ describe('Staff invitations (e2e)', () => {
     const first = tokenFrom(mail.sendInvitation.mock.calls[0][0].acceptUrl as string);
 
     mail.sendInvitation.mockClear();
-    await request(app.getHttpServer())
+    const duplicate = await request(app.getHttpServer())
       .post('/api/invitations')
       .set('Authorization', `Bearer ${ownerToken}`)
       .send({ email, clinicId, role: 'CLINIC_ADMIN' })
-      .expect(201);
-    const second = tokenFrom(mail.sendInvitation.mock.calls[0][0].acceptUrl as string);
+      .expect(409);
+    expect(duplicate.body.code).toBe('INVITATION_ALREADY_PENDING');
+    expect(mail.sendInvitation).not.toHaveBeenCalled();
 
-    await request(app.getHttpServer())
-      .post('/api/auth/accept-invite')
-      .send({ token: first, password: INVITEE_PASSWORD })
-      .expect(400);
-
+    // The original invitation is still the live one.
     const accepted = await request(app.getHttpServer())
       .post('/api/auth/accept-invite')
-      .send({ token: second, password: INVITEE_PASSWORD })
+      .send({ token: first, password: INVITEE_PASSWORD })
       .expect(201);
+    expect(accepted.body.role).toBe('DOCTOR');
+  });
 
-    // The newest invitation wins, including its role.
-    expect(accepted.body.role).toBe('CLINIC_ADMIN');
+  it('refuses an invitation to an existing active member', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/invitations')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ email: 'invite.owner@riaya.local', clinicId, role: 'DOCTOR' })
+      .expect(409);
+    expect(res.body.code).toBe('ALREADY_A_MEMBER');
   });
 
   // TEST-052 → AC-026
@@ -214,5 +218,87 @@ describe('Staff invitations (e2e)', () => {
     const memberships = await prisma.userMembership.findMany({ where: { userId: invitee.id } });
     expect(memberships).toHaveLength(1);
     expect(memberships[0].role).toBe('DOCTOR');
+  });
+
+  // Role governance: a super admin may change other members' roles but never
+  // their own (FR-045, AC-058).
+  it('refuses a super admin changing their own role, but allows changing another member', async () => {
+    const prisma = app.get(PrismaService);
+    const owner = await prisma.user.findUnique({ where: { email: 'invite.owner@riaya.local' } });
+    if (!owner) throw new Error('owner identity is missing');
+    const ownerMembership = await prisma.userMembership.findFirst({
+      where: { userId: owner.id, clinicId },
+    });
+    if (!ownerMembership) throw new Error('owner membership is missing');
+
+    const self = await request(app.getHttpServer())
+      .patch(`/api/memberships/${ownerMembership.id}/role`)
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ role: 'CLINIC_ADMIN' })
+      .expect(403);
+    expect(self.body.code).toBe('SELF_ROLE_CHANGE');
+
+    const email = 'invited.role.target@riaya.local';
+    mail.sendInvitation.mockClear();
+    await request(app.getHttpServer())
+      .post('/api/invitations')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ email, clinicId, role: 'DOCTOR' })
+      .expect(201);
+    const token = tokenFrom(mail.sendInvitation.mock.calls[0][0].acceptUrl as string);
+    await request(app.getHttpServer())
+      .post('/api/auth/accept-invite')
+      .send({ token, password: INVITEE_PASSWORD, firstName: 'Role', lastName: 'Target' })
+      .expect(201);
+
+    const target = await prisma.user.findUnique({ where: { email } });
+    if (!target) throw new Error('invited member identity is missing');
+    const targetMembership = await prisma.userMembership.findFirst({
+      where: { userId: target.id, clinicId },
+    });
+    if (!targetMembership) throw new Error('invited member membership is missing');
+
+    await request(app.getHttpServer())
+      .patch(`/api/memberships/${targetMembership.id}/role`)
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ role: 'CLINIC_ADMIN' })
+      .expect(200);
+    const updated = await prisma.userMembership.findUnique({ where: { id: targetMembership.id } });
+    expect(updated?.role).toBe('CLINIC_ADMIN');
+  });
+
+  // Privilege escalation: a clinic admin cannot mint a SUPER_ADMIN through an
+  // invitation, which would otherwise widen the invitee to organization scope.
+  it('refuses to let a clinic admin invite a super admin', async () => {
+    const email = 'invited.clinic.admin@riaya.local';
+    mail.sendInvitation.mockClear();
+    await request(app.getHttpServer())
+      .post('/api/invitations')
+      .set('Authorization', `Bearer ${ownerToken}`)
+      .send({ email, clinicId, role: 'CLINIC_ADMIN' })
+      .expect(201);
+    const token = tokenFrom(mail.sendInvitation.mock.calls[0][0].acceptUrl as string);
+
+    await request(app.getHttpServer())
+      .post('/api/auth/accept-invite')
+      .send({ token, password: INVITEE_PASSWORD, firstName: 'Clinic', lastName: 'Admin' })
+      .expect(201);
+
+    const login = await request(app.getHttpServer())
+      .post('/api/auth/login')
+      .send({ email, password: INVITEE_PASSWORD })
+      .expect(201);
+    expect(login.body.user.role).toBe('CLINIC_ADMIN');
+
+    const prisma = app.get(PrismaService);
+    const before = await prisma.invitation.count({ where: { clinicId } });
+    const res = await request(app.getHttpServer())
+      .post('/api/invitations')
+      .set('Authorization', `Bearer ${login.body.accessToken}`)
+      .send({ email: 'escalated@riaya.local', clinicId, role: 'SUPER_ADMIN' })
+      .expect(403);
+
+    expect(res.body.code).toBe('INSUFFICIENT_ROLE');
+    await expect(prisma.invitation.count({ where: { clinicId } })).resolves.toBe(before);
   });
 });
