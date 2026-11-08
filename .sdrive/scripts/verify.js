@@ -93,6 +93,9 @@ const CANDIDATE_ROOTS = [
   'lib',
   'pages',
   'server',
+  'backoffice',
+  'web',
+  'realtime',
   'internal',
   'cmd',
   'pkg',
@@ -149,6 +152,9 @@ const CODE_EXTENSIONS = [
   '.md',
   '.yml',
   '.yaml',
+  // Database schemas and environment templates are legitimate plan components.
+  '.prisma',
+  '.example',
 ];
 
 // Config files that are never feature components, even though they are JSON.
@@ -256,6 +262,10 @@ function detectComponents(files) {
     const content = readFileContent(file);
     const relative = path.relative(projectRoot, file).replace(/\\/g, '/');
     const basename = path.basename(file, path.extname(file));
+
+    // Test files are evidence, not plan components; reporting them as unplanned
+    // extras drowns the signal from genuinely new production files.
+    if (/(^|\/)[^/]+\.(?:spec|test)\.[cm]?[jt]sx?$/.test(relative)) return;
 
     // React / Vue / Svelte components
     const componentMatches = content.match(
@@ -546,11 +556,30 @@ function cargoDependencyNames(file) {
 function detectDependencies(sourceRoots = []) {
   const names = new Set();
 
-  const pkgPath = path.join(projectRoot, 'package.json');
+  // A pnpm workspace keeps dependencies in each package's manifest, not only the
+  // root one. Read the root plus every top-level package and `packages/*` member.
+  const packageFiles = new Set([path.join(projectRoot, 'package.json')]);
+  const addPackageFile = (dir) => {
+    const file = path.join(dir, 'package.json');
+    if (fs.existsSync(file)) packageFiles.add(file);
+  };
 
-  if (fs.existsSync(pkgPath)) {
+  for (const entry of fs.readdirSync(projectRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory() || IGNORED_DIRS.has(entry.name)) continue;
+    addPackageFile(path.join(projectRoot, entry.name));
+
+    if (entry.name === 'packages' || entry.name === 'apps') {
+      const groupDir = path.join(projectRoot, entry.name);
+      for (const child of fs.readdirSync(groupDir, { withFileTypes: true })) {
+        if (child.isDirectory()) addPackageFile(path.join(groupDir, child.name));
+      }
+    }
+  }
+
+  for (const file of packageFiles) {
+    if (!fs.existsSync(file)) continue;
     try {
-      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
       Object.keys(pkg.dependencies || {}).forEach((name) => names.add(name));
       Object.keys(pkg.devDependencies || {}).forEach((name) => names.add(name));
     } catch (error) {
@@ -634,6 +663,27 @@ function diffPlanAgainstCode(planItems, code) {
     if (item.resolution) {
       withdrawn.push({ ...item, reason: item.resolution.reason, kind: item.resolution.kind });
       return;
+    }
+
+    // A plan may describe a component as a directory (e.g. `src/i18n`). Match it
+    // against any scanned file inside that directory instead of reporting a
+    // rename to an unrelated same-named file elsewhere.
+    if (item.type === 'component' && !item.name.includes('{')) {
+      const directory = item.name.replace(/\/+$/, '');
+      if (directory && !path.extname(directory)) {
+        const contained = codeComponents.find(
+          (c) => c.isPath === true && c.file.startsWith(`${directory}/`),
+        );
+        if (contained) {
+          matched.push({
+            ...item,
+            file: contained.file,
+            note: 'directory matched by contained file',
+          });
+          claimedFiles.add(contained.file);
+          return;
+        }
+      }
     }
 
     if (item.type === 'component') {
