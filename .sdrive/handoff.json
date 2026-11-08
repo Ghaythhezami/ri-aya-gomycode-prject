@@ -1,28 +1,23 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "version": "v2",
-  "recordedAt": "2026-11-08T09:41:27.845Z",
+  "recordedAt": "2026-11-08T10:11:34.192Z",
   "by": null,
   "steps": [
     {
-      "command": "/sdrive:update-propose",
-      "kind": "slash",
-      "why": "high severity, round 1 of 3: Unplanned settings/custom-role, overview and workspace-shell product work is on the v2 branch."
-    },
-    {
       "command": "/sdrive:apply",
       "kind": "slash",
-      "why": "medium severity, round 1 of 3: pnpm format:check exits 2 and T12.2 is marked complete inaccurately."
+      "why": "medium severity, round 2 of 3: pnpm format:check exits 2 on repository-wide test/tooling files, and T13.2/T17.2 remain open."
     },
     {
       "command": "/sdrive:docs",
       "kind": "slash",
-      "why": "low severity, round 1 of 3: README/CHANGELOG do not cover the user-facing invitation and settings changes."
+      "why": "low severity, round 2 of 3: README/CHANGELOG have no update for the user-facing v2 extension."
     },
     {
       "command": "/sdrive:secure",
       "kind": "slash",
-      "why": "medium severity, round 1 of 3: Two critical dev-only tinypool advisories and five moderate dev-tool advisories remain in the lockfile."
+      "why": "medium severity, round 2 of 3: Two critical dev-only tinypool advisories and five moderate dev-tool advisories remain."
     },
     {
       "command": "sdrive test authentication-onboarding-and-access-control",
