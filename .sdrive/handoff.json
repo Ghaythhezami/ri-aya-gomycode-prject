@@ -1,43 +1,18 @@
 {
   "feature": "authentication-onboarding-and-access-control",
   "version": "v2",
-  "recordedAt": "2026-11-08T09:17:29.315Z",
+  "recordedAt": "2026-11-08T09:33:30.497Z",
   "by": null,
   "steps": [
     {
-      "command": "/sdrive:update-propose",
+      "command": "/sdrive:propose authentication-onboarding-and-access-control",
       "kind": "slash",
-      "why": "high severity, round 1 of 3: Unplanned settings/custom-role, overview and workspace-shell product work is on the v2 branch."
+      "why": "The \"specification\" gate needs the artifact that command writes."
     },
     {
-      "command": "/sdrive:apply",
-      "kind": "slash",
-      "why": "medium severity, round 1 of 3: pnpm format:check exits 2 and T12.2 is marked complete inaccurately."
-    },
-    {
-      "command": "/sdrive:docs",
-      "kind": "slash",
-      "why": "low severity, round 1 of 3: README/CHANGELOG do not cover the user-facing invitation and settings changes."
-    },
-    {
-      "command": "/sdrive:secure",
-      "kind": "slash",
-      "why": "medium severity, round 1 of 3: Two critical dev-only tinypool advisories and five moderate dev-tool advisories remain in the lockfile."
-    },
-    {
-      "command": "sdrive test authentication-onboarding-and-access-control",
-      "kind": "cli",
-      "why": "A fix moves HEAD, so the test record must be re-stamped before review can read it."
-    },
-    {
-      "command": "sdrive approve authentication-onboarding-and-access-control implementation",
+      "command": "sdrive approve authentication-onboarding-and-access-control specification",
       "kind": "human",
-      "why": "New fix tasks leave the implementation sign-off unsatisfied until it is given again."
-    },
-    {
-      "command": "/sdrive:review authentication-onboarding-and-access-control",
-      "kind": "slash",
-      "why": "Review re-audits the new commit and clears the verdict."
+      "why": "Approving is a sign-off, so it stays with you."
     }
   ]
 }

@@ -157,3 +157,83 @@ enforced by the `roles-metadata` test and the e2e suites instead.
 ## Out of Scope (planning note)
 
 No change to v1's tenancy model, scoped-token issuance, registration wizard or workspace switching (CON-605). No SMS/WhatsApp delivery, bulk/CSV import, scheduled reminders, passwordless sign-in, ownership transfer, or deliverability analytics (see `spec.md` §Out of Scope (v2)).
+
+> **Scope update 2026-11-08.** The workspace-switching exclusion above is superseded: workspace switching and clinic creation are planned in P16 for US-031/FR-055–FR-058. v1's tenancy model, scoped-token issuance and registration wizard remain unchanged.
+
+## P14 — Clinic Settings (extension)
+
+The settings surface already exists on the branch; this phase aligns it with the new requirements rather than duplicating it. Every component below is a `modify`/`reuse`, not a `create`.
+
+| Component                                                    | Action | Role                                                                                            |
+| ------------------------------------------------------------ | ------ | ----------------------------------------------------------------------------------------------- |
+| `backoffice/src/pages/SettingsPage.tsx`                      | modify | Eight-section shell with routed sections and numbered side navigation (FR-052, AC-069).         |
+| `backoffice/src/pages/settings/ClinicInformationSection.tsx` | modify | Loads/saves clinic name, address, contact email, phone, default language and timezone (FR-049). |
+| `backoffice/src/pages/settings/WorkingHoursSection.tsx`      | modify | Seven-day working hours and breaks, with duplicate/overlap rejection (FR-050, AC-066, AC-067).  |
+| `backoffice/src/pages/settings/RolesPermissionsSection.tsx`  | modify | Built-in and custom roles; create/edit/delete with a permission subset (FR-051, AC-068).        |
+| `backoffice/src/pages/settings/PlaceholderSection.tsx`       | modify | Departments, appointments, reminders, audit log and appearance placeholders (FR-052, AC-069).   |
+| `backoffice/src/pages/settings/SettingsCard.tsx`             | reuse  | Shared settings card shell.                                                                     |
+| `backoffice/src/pages/settings/types.ts`                     | modify | Shared settings, working-hours and role types.                                                  |
+| `server/src/tenancy/dto/clinic-settings.dto.ts`              | modify | Validates settings fields, working hours and breaks (FR-049, FR-050).                           |
+| `server/src/tenancy/dto/role.dto.ts`                         | modify | Validates custom-role name, base role and permissions (FR-051).                                 |
+| `server/src/tenancy/tenancy.controller.ts`                   | modify | Settings and role routes behind the `manageSettings` capability (NFR-020).                      |
+| `server/src/tenancy/tenancy.service.ts`                      | modify | Settings read/write, working-hours validation and custom-role CRUD (FR-049–FR-051).             |
+| `server/src/database/prisma.service.ts`                      | modify | Exposes the role delegate for custom roles.                                                     |
+| `server/prisma/schema.prisma`                                | modify | Adds the Clinic settings fields and the Role model (data model below).                          |
+| `server/prisma/migrations/20261107110000_clinic_settings`    | reuse  | Existing clinic-settings migration.                                                             |
+| `server/prisma/migrations/20261107130000_custom_roles`       | reuse  | Existing Role migration.                                                                        |
+| `backoffice/src/i18n`                                        | modify | EN/AR/FR strings for settings, validation and placeholders (NFR-022).                           |
+
+**Data model:** `Clinic` gains `contactEmail`, `phone`, `defaultLanguage` and `workingHours`; `address` and `timezone` stay. `Role` is a new clinic-scoped model: `id`, `organizationId`, `clinicId`, `name`, `baseRole`, `permissions`, `createdAt`, `updatedAt`, unique on `(clinicId, name)`.
+
+**API:** `GET/PATCH /api/clinics/settings`, `GET/POST /api/roles`, `PATCH/DELETE /api/roles/:id`.
+
+**Security:** settings and role writes are tenant-scoped and `manageSettings`-gated; a custom role's permissions must be a subset of its base role (NFR-020, NFR-021).
+
+## P15 — Organization Overview (extension)
+
+| Component                                  | Action | Role                                                                                    |
+| ------------------------------------------ | ------ | --------------------------------------------------------------------------------------- |
+| `backoffice/src/pages/OverviewPage.tsx`    | modify | Organization totals and per-clinic table with loading, empty and error states (FR-053). |
+| `server/src/tenancy/tenancy.controller.ts` | modify | `GET /api/organizations/overview` (FR-053, NFR-023).                                    |
+| `server/src/tenancy/tenancy.service.ts`    | modify | Organization-scoped aggregate: clinics, staff, patients, today/upcoming appointments.   |
+
+**Data flow:** the JWT scope supplies `organizationId`; the service never accepts an arbitrary organization id. Each request returns one aggregate plus per-clinic rows, not a full record set per clinic (NFR-023).
+
+## P16 — Workspace Switching and Clinic Creation (extension)
+
+| Component                                      | Action | Role                                                                                          |
+| ---------------------------------------------- | ------ | --------------------------------------------------------------------------------------------- |
+| `backoffice/src/auth/WorkspaceContext.tsx`     | modify | Memberships, active clinic, switch, refresh proof and create-clinic actions (FR-055–FR-058).  |
+| `backoffice/src/layouts/WorkspaceSwitcher.tsx` | modify | Sidebar switcher with active marker, switching state, errors and create entry point (FR-058). |
+| `backoffice/src/layouts/AppShell.tsx`          | modify | Removes the duplicate active-clinic header and wires the routes (FR-058).                     |
+| `backoffice/src/layouts/Breadcrumbs.tsx`       | modify | Breadcrumb support for the new routes.                                                        |
+| `backoffice/src/App.tsx`                       | modify | Settings, overview and workspace routes.                                                      |
+| `server/src/auth/auth.controller.ts`           | modify | `POST /api/auth/switch-workspace` (FR-056).                                                   |
+| `server/src/auth/auth.service.ts`              | modify | Validates membership, issues a scoped token and rotates the refresh cookie (NFR-024).         |
+| `server/src/tenancy/dto/clinic.dto.ts`         | modify | Validates the create-clinic name (FR-057).                                                    |
+| `server/src/tenancy/tenancy.controller.ts`     | modify | `GET /api/memberships` and `POST /api/clinics` (FR-055, FR-057).                              |
+| `server/src/tenancy/tenancy.service.ts`        | modify | Membership list and transactional clinic creation with audit (FR-057, NFR-025).               |
+
+**API:** `GET /api/memberships`, `POST /api/clinics`, `POST /api/auth/switch-workspace`.
+
+**Security:** a switch requires an active membership; a failed switch must not leave a token for the rejected clinic; clinic creation is transactional with its membership and audit row (NFR-024, NFR-025).
+
+## P17 — Verification (extension)
+
+Formatter, linter, typechecker, `sdrive verify`, governance validator and manual checks only; no test runner and no test authoring in this phase.
+
+| Task  | Check                                                                                               |
+| ----- | --------------------------------------------------------------------------------------------------- |
+| T17.1 | Server `tsc --noEmit` and eslint.                                                                   |
+| T17.2 | Repository formatter and `node .sdrive/scripts/validate-governance.js`.                             |
+| T17.3 | `sdrive verify authentication-onboarding-and-access-control`.                                       |
+| T17.4 | Manual: placeholder sections make no API call, empty overview, switch error never routes to signup. |
+
+## Risks (extension)
+
+| Risk                                                              | Mitigation                                                                                        |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Custom roles could grant more than their base role.               | The API rejects permissions outside the base-role capability set (NFR-021, AC-068).               |
+| The organization overview could leak another organization's data. | Filter by the resolved tenant organization; no client-supplied organization id (FR-054, NFR-023). |
+| A failed workspace switch could leave a stale scoped token.       | Validate membership before issuing; prove the refresh before reload (NFR-024, AC-073).            |
+| Placeholder sections could imply unbuilt backend behaviour.       | Label them as unavailable and make no API mutation (FR-052, AC-069).                              |

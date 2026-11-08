@@ -78,6 +78,111 @@
         "name": "server/.env.example",
         "action": "modify",
         "description": "Documents the Mailtrap/SMTP keys by name only, with no value that works as a production default (NFR-015)."
+      },
+      {
+        "name": "backoffice/src/pages/SettingsPage.tsx",
+        "action": "modify",
+        "description": "Adds the eight-section settings shell with routed sections and a numbered side navigation (FR-052, AC-069)."
+      },
+      {
+        "name": "backoffice/src/pages/settings/ClinicInformationSection.tsx",
+        "action": "modify",
+        "description": "Loads and saves the active clinic name, address, contact email, phone, default language and timezone (FR-049, AC-065)."
+      },
+      {
+        "name": "backoffice/src/pages/settings/WorkingHoursSection.tsx",
+        "action": "modify",
+        "description": "Edits the seven-day working hours and breaks, with client-side duplicate/overlap rejection mirroring the server (FR-050, AC-066, AC-067)."
+      },
+      {
+        "name": "backoffice/src/pages/settings/RolesPermissionsSection.tsx",
+        "action": "modify",
+        "description": "Lists built-in and custom roles, and creates/edits/deletes custom roles with a permission subset of the base role (FR-051, AC-068)."
+      },
+      {
+        "name": "backoffice/src/pages/settings/PlaceholderSection.tsx",
+        "action": "modify",
+        "description": "Renders the departments, appointments, reminders, audit log and appearance placeholders without calling a settings mutation (FR-052, AC-069)."
+      },
+      {
+        "name": "backoffice/src/pages/settings/SettingsCard.tsx",
+        "action": "reuse",
+        "description": "Shared card shell for settings panels."
+      },
+      {
+        "name": "backoffice/src/pages/settings/types.ts",
+        "action": "modify",
+        "description": "Shared settings, working-hours and role types."
+      },
+      {
+        "name": "backoffice/src/pages/OverviewPage.tsx",
+        "action": "modify",
+        "description": "Renders organization totals and the per-clinic overview table with loading and error states (FR-053, AC-070)."
+      },
+      {
+        "name": "backoffice/src/auth/WorkspaceContext.tsx",
+        "action": "modify",
+        "description": "Lists memberships, tracks the active clinic, switches workspace, verifies the refresh before reload and creates a clinic (FR-055-FR-058, AC-072-AC-074)."
+      },
+      {
+        "name": "backoffice/src/layouts/WorkspaceSwitcher.tsx",
+        "action": "modify",
+        "description": "Sidebar switcher with active marker, switching state, errors and clinic creation entry point (FR-058, AC-072, AC-075)."
+      },
+      {
+        "name": "backoffice/src/layouts/AppShell.tsx",
+        "action": "modify",
+        "description": "Removes the duplicate active-clinic header display and wires the settings and overview routes (FR-058, AC-072)."
+      },
+      {
+        "name": "backoffice/src/layouts/Breadcrumbs.tsx",
+        "action": "modify",
+        "description": "Breadcrumb support for the new settings and overview routes."
+      },
+      {
+        "name": "backoffice/src/App.tsx",
+        "action": "modify",
+        "description": "Registers the settings, overview and workspace routes."
+      },
+      {
+        "name": "server/src/tenancy/dto/clinic-settings.dto.ts",
+        "action": "modify",
+        "description": "Validates the settings payload, seven-day working hours and break shape (FR-049, FR-050)."
+      },
+      {
+        "name": "server/src/tenancy/dto/role.dto.ts",
+        "action": "modify",
+        "description": "Validates custom-role name, base role and permission list (FR-051)."
+      },
+      {
+        "name": "server/src/tenancy/dto/clinic.dto.ts",
+        "action": "modify",
+        "description": "Validates the create-clinic name (FR-057)."
+      },
+      {
+        "name": "server/src/auth/auth.controller.ts",
+        "action": "modify",
+        "description": "Adds POST /api/auth/switch-workspace (FR-056, AC-073)."
+      },
+      {
+        "name": "server/src/auth/auth.service.ts",
+        "action": "modify",
+        "description": "Validates the membership and issues a scoped token with a rotated refresh cookie for the selected clinic (FR-056, NFR-024)."
+      },
+      {
+        "name": "server/src/database/prisma.service.ts",
+        "action": "modify",
+        "description": "Exposes the role delegate used by the custom-role service."
+      },
+      {
+        "name": "server/prisma/migrations/20261107110000_clinic_settings/migration.sql",
+        "action": "reuse",
+        "description": "Existing migration for the clinic settings columns (FR-049)."
+      },
+      {
+        "name": "server/prisma/migrations/20261107130000_custom_roles/migration.sql",
+        "action": "reuse",
+        "description": "Existing migration for the Role table (FR-051)."
       }
     ],
     "referencedRequirementIds": [
@@ -96,7 +201,23 @@
       "NFR-016",
       "NFR-017",
       "NFR-018",
-      "NFR-019"
+      "NFR-019",
+      "FR-049",
+      "FR-050",
+      "FR-051",
+      "FR-052",
+      "FR-053",
+      "FR-054",
+      "FR-055",
+      "FR-056",
+      "FR-057",
+      "FR-058",
+      "NFR-020",
+      "NFR-021",
+      "NFR-022",
+      "NFR-023",
+      "NFR-024",
+      "NFR-025"
     ]
   },
   "dataModel": {
@@ -143,11 +264,173 @@
             "action": "no_change"
           }
         ]
+      },
+      {
+        "name": "Clinic",
+        "action": "update",
+        "fields": [
+          {
+            "name": "name",
+            "type": "String",
+            "action": "no_change"
+          },
+          {
+            "name": "address",
+            "type": "String",
+            "action": "no_change",
+            "nullable": true
+          },
+          {
+            "name": "contactEmail",
+            "type": "String",
+            "action": "add",
+            "nullable": true
+          },
+          {
+            "name": "phone",
+            "type": "String",
+            "action": "add",
+            "nullable": true
+          },
+          {
+            "name": "defaultLanguage",
+            "type": "PreferredLocale",
+            "action": "add"
+          },
+          {
+            "name": "workingHours",
+            "type": "Json",
+            "action": "add",
+            "nullable": true
+          },
+          {
+            "name": "timezone",
+            "type": "String",
+            "action": "no_change"
+          }
+        ]
+      },
+      {
+        "name": "Role",
+        "action": "create",
+        "fields": [
+          {
+            "name": "id",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "organizationId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "clinicId",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "name",
+            "type": "String",
+            "action": "add"
+          },
+          {
+            "name": "baseRole",
+            "type": "UserRole",
+            "action": "add"
+          },
+          {
+            "name": "permissions",
+            "type": "Json",
+            "action": "add"
+          },
+          {
+            "name": "createdAt",
+            "type": "DateTime",
+            "action": "add"
+          },
+          {
+            "name": "updatedAt",
+            "type": "DateTime",
+            "action": "add"
+          }
+        ]
       }
     ],
     "flowDescription": "An admin issues an invitation: the row is written inside a transaction as PENDING with a hashed single-use token and a deliveryStatus of PENDING, the transaction commits, and only then is the email sent outside it (NFR-016). The send outcome (SENT, or FAILED with a recorded error) is written back, and a failed send still leaves the invitation PENDING with a resend affordance (EC-019). The link carries the token plus organizationId, clinicId and role as convenience claims. The accept page calls GET /api/invitations/:token, which resolves the email-known flag and the scope from the persisted record without consuming the token. On accept the server re-derives the join scope from the record, ignores any disagreeing link claim (FR-047), consumes the token and writes ACCEPTED. Cancel writes CANCELLED, decline writes REJECTED, and each invalidates the token; every mutation writes an audit row in the same transaction. A PENDING row whose expiresAt has passed is reported as EXPIRED at read time and never written."
   },
-  "apiContracts": [],
+  "apiContracts": [
+    {
+      "method": "GET",
+      "path": "/api/clinics/settings",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-049", "NFR-020"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/clinics/settings",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-049", "FR-050", "NFR-020"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/roles",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-051", "NFR-021"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/roles",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-051", "NFR-021"]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/roles/:id",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-051", "NFR-021"]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/roles/:id",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-051", "NFR-020"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/organizations/overview",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-053", "FR-054", "NFR-023"]
+    },
+    {
+      "method": "GET",
+      "path": "/api/memberships",
+      "action": "modify",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-055"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/clinics",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-057", "NFR-025"]
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/switch-workspace",
+      "action": "create",
+      "authenticationRequired": true,
+      "linkedRequirements": ["FR-056", "NFR-024"]
+    }
+  ],
   "securityConsiderations": [
     {
       "requirementId": "NFR-014",
@@ -172,6 +455,22 @@
     {
       "requirementId": "NFR-019",
       "description": "The invitation and member lists are paginated so a read never loads every invitation for an organization in one response."
+    },
+    {
+      "requirementId": "NFR-020",
+      "description": "Settings and role writes are tenant-scoped and gated by manageSettings; every write is audited with actor and before/after values."
+    },
+    {
+      "requirementId": "NFR-021",
+      "description": "Custom-role permissions are validated against the base role capability set, preventing privilege escalation beyond the base role."
+    },
+    {
+      "requirementId": "NFR-023",
+      "description": "The organization overview filters by the tenant organization and never accepts an arbitrary organization id from the client."
+    },
+    {
+      "requirementId": "NFR-024",
+      "description": "A workspace switch requires an active membership and issues a fresh scoped token; the client proves the refresh cookie before reload."
     }
   ],
   "performanceConsiderations": [
@@ -182,6 +481,10 @@
     {
       "requirementId": "NFR-019",
       "strategy": "The list endpoints take a bounded page size and use the existing (clinicId, status) and (expiresAt) indexes so a directory read is an index scan, not a full scan."
+    },
+    {
+      "requirementId": "NFR-023",
+      "strategy": "The overview is one aggregate query with per-clinic rows scoped to the organization; it does not fan out into a full record read per clinic."
     }
   ],
   "dependencies": [
@@ -232,6 +535,22 @@
     {
       "description": "Adding a non-persisted EXPIRED state could drift from the stored status.",
       "mitigation": "EXPIRED is derived only at read time for a PENDING row whose expiresAt has passed, so there is a single source of truth and no scheduler (FR-042, AC-051)."
+    },
+    {
+      "description": "Custom roles could grant more than their base role.",
+      "mitigation": "The API rejects any permission outside the base role capability set (NFR-021, AC-068)."
+    },
+    {
+      "description": "The organization overview could leak another organization's counts.",
+      "mitigation": "The service filters by the resolved tenant organization and returns only that organization (FR-054, NFR-023)."
+    },
+    {
+      "description": "A failed workspace switch could leave a token for the rejected clinic.",
+      "mitigation": "The switch validates membership before issuing a token, and the client proves the refresh before reload (NFR-024, AC-073)."
+    },
+    {
+      "description": "Placeholder settings sections could imply backend behaviour that does not exist.",
+      "mitigation": "The placeholders are labelled as not yet available and make no API mutation (FR-052, AC-069)."
     }
   ]
 }

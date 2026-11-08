@@ -11,15 +11,18 @@
       "Mailtrap is the transactional provider; its SMTP credentials are supplied by environment variables and are never committed or logged (CON-519).",
       "The existing MAIL_SERVICE token and MailService interface are the seam; the console implementation stays available for local/test without a provider.",
       "User.lastLoginAt already exists on the schema and is read, never newly modelled here.",
-      "The organization/clinic/role in the link are a convenience hint only; the persisted invitation row remains the single source of truth (FR-047)."
+      "The organization/clinic/role in the link are a convenience hint only; the persisted invitation row remains the single source of truth (FR-047).",
+      "The 2026-11-08 extension adds clinic settings, organization overview and workspace switching/clinic creation to v2; the earlier workspace-switching exclusion is superseded."
     ],
     "outOfScope": [
-      "Any change to v1's tenancy model, scoped-token issuance, registration wizard or workspace switching.",
+      "Any change to v1's tenancy model, scoped-token issuance or registration wizard; workspace switching and clinic creation are now in scope via US-031/FR-055-FR-058.",
       "Real SMS or WhatsApp delivery of invitation or reset codes.",
       "Bulk/CSV staff import and scheduled reminders for un-accepted invitations.",
       "Passwordless / magic-link sign-in; only the invitation-specific decline link is added.",
       "Ownership transfer between clinics and cross-organization membership moves.",
-      "A deliverability analytics dashboard beyond the single per-invitation delivery outcome."
+      "A deliverability analytics dashboard beyond the single per-invitation delivery outcome.",
+      "Assigning a custom role to a staff member; custom roles are editable definitions in v2 and membership role changes continue to use the four built-in roles.",
+      "Backend behavior for departments, appointments, reminders, audit log and appearance; those sections are UI-only placeholders."
     ]
   },
   "userStories": [
@@ -152,6 +155,77 @@
           "text": "Given a link whose organization, clinic or role claims disagree with the stored invitation record, when it is submitted, then the stored record is authoritative, the mismatch is ignored, and the join uses the recorded clinic and role (FR-047)."
         }
       ]
+    },
+    {
+      "id": "US-029",
+      "title": "Configure my clinic and its staff roles",
+      "role": "clinic owner or admin",
+      "want": "one settings area for clinic details, working hours and staff roles",
+      "benefit": "the clinic's recorded operation matches its real schedule and responsibilities",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-065",
+          "text": "Given an authenticated clinic member with manageSettings, when they open GET /api/clinics/settings, then the response contains the active clinic's name, address, contact email, phone, default language, timezone and seven-day working hours, all scoped to that clinic."
+        },
+        {
+          "id": "AC-066",
+          "text": "Given a settings update with an open day whose start is missing or not before its end, when PATCH /api/clinics/settings is called, then the request is rejected with 400 and no field or working-hours change is written."
+        },
+        {
+          "id": "AC-067",
+          "text": "Given a working day with two identical or overlapping breaks, when the settings are submitted, then the request is rejected with 400 INVALID_BREAKS and no change is written; a valid break is persisted."
+        },
+        {
+          "id": "AC-068",
+          "text": "Given an admin opens roles, when they list, create, update or delete a custom role, then the four built-in roles are returned as non-editable system roles, a custom role is stored with its base role and a permission subset, duplicate names are rejected, and deleting removes it from the clinic."
+        },
+        {
+          "id": "AC-069",
+          "text": "Given an admin opens Settings, then all eight sections are reachable by route: clinic information, working hours and roles/permissions are functional; departments, appointments, reminders, audit log and appearance are clearly labelled placeholders that make no settings mutation."
+        }
+      ]
+    },
+    {
+      "id": "US-030",
+      "title": "See activity across my whole organization",
+      "role": "organization member",
+      "want": "an overview of every clinic in my organization",
+      "benefit": "I can compare activity without switching clinics first",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-070",
+          "text": "Given an authenticated member requests GET /api/organizations/overview, then the response contains organization totals for clinics, staff, patients, today's appointments and upcoming appointments, plus one row for every clinic in that organization."
+        },
+        {
+          "id": "AC-071",
+          "text": "Given a member belongs to organization A, when they request the overview, then no clinic, count or patient from organization B is returned; an organization with no activity returns zero totals rather than an error."
+        }
+      ]
+    },
+    {
+      "id": "US-031",
+      "title": "Switch clinics and create a clinic from the workspace",
+      "role": "staff member with more than one clinic",
+      "want": "to switch clinics or create a clinic from the sidebar",
+      "benefit": "I can work in the right clinic without signing in again",
+      "acceptanceCriteria": [
+        {
+          "id": "AC-072",
+          "text": "Given a member belongs to several clinics, when the sidebar switcher opens, then every active membership is listed, the current clinic is marked active, and the header does not duplicate the active clinic name."
+        },
+        {
+          "id": "AC-073",
+          "text": "Given a member selects another clinic, when the switch succeeds, then the server validates the membership, issues a new scoped access token and rotates the refresh cookie, and the client proves the refresh before reloading; a failed switch shows an error and does not send the user to signup."
+        },
+        {
+          "id": "AC-074",
+          "text": "Given an admin creates a clinic from the workspace, then the clinic is created in the active organization with the source clinic's timezone and currency, the creator receives a membership with their current role, an audit row is written, and the new clinic becomes active."
+        },
+        {
+          "id": "AC-075",
+          "text": "Given the create-clinic dialog is empty or the switch is in flight, then the form rejects an empty name, the switcher shows a \"Switching…\" state and disables repeat switches, and errors are announced to assistive technology."
+        }
+      ]
     }
   ],
   "functionalRequirements": [
@@ -204,6 +278,56 @@
       "id": "FR-048",
       "text": "The system MUST present the invitation lifecycle on the staff directory page - status, resend, cancel, decline outcome and per-member role change - alongside each member's last login.",
       "linkedAcceptanceCriteria": ["AC-050", "AC-057"]
+    },
+    {
+      "id": "FR-049",
+      "text": "The system MUST expose GET /api/clinics/settings and PATCH /api/clinics/settings for the active clinic's name, address, contact email, phone, default language, timezone and seven-day working hours (AC-065).",
+      "linkedAcceptanceCriteria": ["AC-065"]
+    },
+    {
+      "id": "FR-050",
+      "text": "The system MUST validate working hours and breaks - every open day has a start before its end, breaks fall inside the day, and breaks neither duplicate nor overlap - and MUST reject an invalid update with 400 INVALID_WORKING_HOURS or 400 INVALID_BREAKS without writing (AC-066, AC-067).",
+      "linkedAcceptanceCriteria": ["AC-066", "AC-067"]
+    },
+    {
+      "id": "FR-051",
+      "text": "The system MUST list the four built-in roles and the clinic's custom roles, and MUST allow an admin to create, update and delete a custom role with a name, one base role and a permission subset of that base role; built-in roles are immutable and duplicate names are rejected (AC-068).",
+      "linkedAcceptanceCriteria": ["AC-068"]
+    },
+    {
+      "id": "FR-052",
+      "text": "The system MUST provide a settings shell with eight routed sections; clinic information, working hours and roles/permissions are functional, while departments, appointments, reminders, audit log and appearance are placeholder-only and MUST NOT call a settings mutation (AC-069).",
+      "linkedAcceptanceCriteria": ["AC-069"]
+    },
+    {
+      "id": "FR-053",
+      "text": "The system MUST expose GET /api/organizations/overview with organization totals and per-clinic rows for clinics, staff, patients, today's appointments and upcoming appointments (AC-070).",
+      "linkedAcceptanceCriteria": ["AC-070"]
+    },
+    {
+      "id": "FR-054",
+      "text": "The system MUST scope the organization overview to the caller's organization and MUST NOT disclose another organization's clinics or counts (AC-071).",
+      "linkedAcceptanceCriteria": ["AC-071"]
+    },
+    {
+      "id": "FR-055",
+      "text": "The system MUST list the caller's active memberships for the workspace switcher and MUST identify the active clinic from the scoped token (AC-072).",
+      "linkedAcceptanceCriteria": ["AC-072"]
+    },
+    {
+      "id": "FR-056",
+      "text": "The system MUST switch the active clinic through POST /api/auth/switch-workspace, validating an active membership before issuing a new scoped access token and rotating the refresh cookie; the client MUST verify the refresh before reload (AC-073).",
+      "linkedAcceptanceCriteria": ["AC-073"]
+    },
+    {
+      "id": "FR-057",
+      "text": "The system MUST create a clinic through POST /api/clinics inside the active organization, inherit the source clinic's timezone and currency, give the creator a membership with their current role, write an audit row and make the new clinic active (AC-074).",
+      "linkedAcceptanceCriteria": ["AC-074"]
+    },
+    {
+      "id": "FR-058",
+      "text": "The system MUST present the workspace switcher and create-clinic dialog with an active marker, a \"Switching…\" disabled state, error feedback, keyboard/ARIA support and no duplicate active-clinic header (AC-072, AC-075).",
+      "linkedAcceptanceCriteria": ["AC-072", "AC-075"]
     }
   ],
   "nonFunctionalRequirements": [
@@ -236,6 +360,36 @@
       "id": "NFR-019",
       "text": "Directory reads MUST remain bounded: the invitation and member list MUST be paginated and MUST NOT load every invitation for an organization in one response.",
       "linkedAcceptanceCriteria": ["AC-050"]
+    },
+    {
+      "id": "NFR-020",
+      "text": "Settings and role writes MUST be tenant-scoped and MUST be restricted to roles with manageSettings; every write MUST be audited with the actor and before/after values (AC-065, AC-068).",
+      "linkedAcceptanceCriteria": ["AC-065", "AC-068"]
+    },
+    {
+      "id": "NFR-021",
+      "text": "A custom role's permissions MUST be a subset of its base role's capabilities; the API MUST reject an attempt to grant a permission outside that base role and MUST NOT change the role (AC-068).",
+      "linkedAcceptanceCriteria": ["AC-068"]
+    },
+    {
+      "id": "NFR-022",
+      "text": "Every new settings, overview and workspace control MUST render in EN, AR and FR with RTL-correct layout and accessible labels; placeholder sections MUST say they are not yet available (AC-069, AC-075).",
+      "linkedAcceptanceCriteria": ["AC-069", "AC-075"]
+    },
+    {
+      "id": "NFR-023",
+      "text": "The organization overview MUST be bounded to the caller's organization and MUST NOT expose cross-organization counts; the response MUST remain a single aggregate with per-clinic rows rather than loading every clinic's full record set (AC-070, AC-071).",
+      "linkedAcceptanceCriteria": ["AC-070", "AC-071"]
+    },
+    {
+      "id": "NFR-024",
+      "text": "A workspace switch MUST validate an active membership and MUST prove the rotated refresh cookie before the client reloads; an invalid switch MUST NOT leave a token for the rejected clinic (AC-073).",
+      "linkedAcceptanceCriteria": ["AC-073"]
+    },
+    {
+      "id": "NFR-025",
+      "text": "Clinic creation MUST run in a transaction with its membership and audit row, and MUST inherit the source clinic's timezone and currency so schedules and amounts do not silently change (AC-074).",
+      "linkedAcceptanceCriteria": ["AC-074"]
     }
   ],
   "edgeCases": [
@@ -268,6 +422,46 @@
       "id": "EC-024",
       "description": "Two invitations are issued for the same email and clinic.",
       "expectedBehavior": "The earlier token is revoked (FR-031) and only the newest row remains PENDING."
+    },
+    {
+      "id": "EC-025",
+      "description": "A working day is open with a missing or reversed start/end time.",
+      "expectedBehavior": "Reject with 400 INVALID_WORKING_HOURS and write nothing."
+    },
+    {
+      "id": "EC-026",
+      "description": "Two breaks on the same day are identical or overlap.",
+      "expectedBehavior": "Reject with 400 INVALID_BREAKS and write nothing."
+    },
+    {
+      "id": "EC-027",
+      "description": "A custom role requests a permission outside its base role.",
+      "expectedBehavior": "Reject with 400 and create or change no role."
+    },
+    {
+      "id": "EC-028",
+      "description": "A custom role name already exists, or a built-in role is edited or deleted.",
+      "expectedBehavior": "Reject with 409 or 403 respectively and write nothing."
+    },
+    {
+      "id": "EC-029",
+      "description": "The organization has no patients or appointments yet.",
+      "expectedBehavior": "Return zero totals and still render the clinic rows."
+    },
+    {
+      "id": "EC-030",
+      "description": "A member switches to a clinic they do not belong to.",
+      "expectedBehavior": "The server rejects the switch; the client clears the stale active state, shows an error and never routes to signup."
+    },
+    {
+      "id": "EC-031",
+      "description": "A create-clinic request has a blank or whitespace-only name.",
+      "expectedBehavior": "Reject with 400 CLINIC_NAME_REQUIRED and write no clinic or membership."
+    },
+    {
+      "id": "EC-032",
+      "description": "A placeholder settings section is opened directly by URL.",
+      "expectedBehavior": "Render the placeholder with no API call; the route survives a reload."
     }
   ],
   "dependencies": [
@@ -312,6 +506,16 @@
       "id": "RISK-003",
       "description": "A synchronous provider call on the request path could slow invitation creation or fail it.",
       "mitigation": "The send runs outside the invitation transaction (NFR-016) and a failed send is recorded, not thrown (AC-049, EC-019)."
+    },
+    {
+      "id": "RISK-004",
+      "description": "Custom role permissions could exceed the base role and become a privilege-escalation path.",
+      "mitigation": "The API validates that every permission is in the base role's capability set and rejects the write (NFR-021, AC-068)."
+    },
+    {
+      "id": "RISK-005",
+      "description": "The organization overview could disclose another organization's clinics or counts.",
+      "mitigation": "The service filters by the tenant organization and the response is bounded to that organization (FR-054, NFR-023)."
     }
   ]
 }

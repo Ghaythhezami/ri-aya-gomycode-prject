@@ -155,6 +155,7 @@ const CODE_EXTENSIONS = [
   // Database schemas and environment templates are legitimate plan components.
   '.prisma',
   '.example',
+  '.sql',
 ];
 
 // Config files that are never feature components, even though they are JSON.
@@ -335,6 +336,23 @@ function detectEndpoints(files) {
         path: `/api${route}`,
         file: relative,
       });
+    }
+
+    // NestJS controllers: @Controller('base') plus @Get/@Post/@Patch/@Put/@Delete.
+    if (content.includes('@Controller(')) {
+      const base = content.match(/@Controller\(\s*['"`]([^'"`]*)['"`]/)?.[1] ?? '';
+      const nestMatches = content.matchAll(
+        /@(Get|Post|Patch|Put|Delete)\(\s*['"`]([^'"`]*)['"`]\s*\)/g,
+      );
+
+      for (const match of nestMatches) {
+        const methodPath = match[2].replace(/^\/+/, '');
+        endpoints.push({
+          method: match[1].toUpperCase(),
+          path: `/api/${[base.replace(/^\/+|\/+$/g, ''), methodPath].filter(Boolean).join('/')}`,
+          file: relative,
+        });
+      }
     }
   });
 

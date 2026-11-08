@@ -3,7 +3,7 @@ title: Authentication, Onboarding & Access Control (v2) — Invitation Delivery,
 status: backlog
 version: v2
 created: 2026-11-06
-updated: 2026-11-06
+updated: 2026-11-08
 ---
 
 # Authentication, Onboarding & Access Control (v2)
@@ -147,6 +147,7 @@ As an invited person, I want the link to already know my organization, clinic an
 ## Out of Scope (v2)
 
 - Any change to v1's tenancy model, scoped-token issuance, registration wizard or workspace switching — those ship as-is.
+  - **Scope update 2026-11-08:** workspace switching and clinic creation are now in scope (US-031, FR-055–FR-058). v1's tenancy model, scoped-token issuance and registration wizard remain as-is.
 - Real SMS or WhatsApp delivery of invitation or reset codes.
 - Bulk/CSV staff import and scheduled reminders for un-accepted invitations.
 - Passwordless / magic-link sign-in; only the invitation-specific decline link is added.
@@ -161,3 +162,78 @@ As an invited person, I want the link to already know my organization, clinic an
 - **Risk**: changing a member's role is a privilege-escalation path. Mitigation: the capability matrix (`CAPABILITY_ROLES`) gates the endpoint, changes are tenant-scoped via `clinicWhere`, and every change is audited (AC-060).
 - **Risk**: the invitation link now carries organization and clinic ids, which an attacker could tamper with. Mitigation: the link claims are advisory only and the server resolves the persisted invitation record as the source of truth (FR-047, AC-064).
 - **Risk**: a synchronous provider call on the request path could slow invitation creation or fail it. Mitigation: the send runs outside the invitation transaction (NFR-016) and a failed send is recorded, not thrown, so the invitation row is still created (AC-049, EC-019).
+
+## Scope Extension — 2026-11-08: Settings, Organization Overview & Workspace
+
+### User Stories
+
+#### US-029: Configure my clinic and its staff roles
+
+As a clinic owner or admin, I want one settings area for clinic details, working hours and staff roles, so that the clinic's recorded operation matches its real schedule and responsibilities.
+
+**Acceptance Criteria:**
+
+- AC-065: Given an authenticated clinic member with `manageSettings`, when they open `GET /api/clinics/settings`, then the response contains the active clinic's name, address, contact email, phone, default language, timezone and seven-day working hours, all scoped to that clinic.
+- AC-066: Given a settings update with an open day whose start is missing or not before its end, when `PATCH /api/clinics/settings` is called, then the request is rejected with `400` and no field or working-hours change is written.
+- AC-067: Given a working day with two identical or overlapping breaks, when the settings are submitted, then the request is rejected with `400 INVALID_BREAKS` and no change is written; a valid break is persisted.
+- AC-068: Given an admin opens roles, when they list, create, update or delete a custom role, then the four built-in roles are returned as non-editable system roles, a custom role is stored with its base role and a permission subset, duplicate names are rejected, and deleting removes it from the clinic.
+- AC-069: Given an admin opens Settings, then all eight sections are reachable by route: clinic information, working hours and roles/permissions are functional; departments, appointments, reminders, audit log and appearance are clearly labelled placeholders that make no settings mutation.
+
+#### US-030: See activity across my whole organization
+
+As an organization member, I want an overview of every clinic in my organization, so that I can compare activity without switching clinics first.
+
+**Acceptance Criteria:**
+
+- AC-070: Given an authenticated member requests `GET /api/organizations/overview`, then the response contains organization totals for clinics, staff, patients, today's appointments and upcoming appointments, plus one row for every clinic in that organization.
+- AC-071: Given a member belongs to organization A, when they request the overview, then no clinic, count or patient from organization B is returned; an organization with no activity returns zero totals rather than an error.
+
+#### US-031: Switch clinics and create a clinic from the workspace
+
+As a staff member with more than one clinic, I want to switch clinics or create a clinic from the sidebar, so that I can work in the right clinic without signing in again.
+
+**Acceptance Criteria:**
+
+- AC-072: Given a member belongs to several clinics, when the sidebar switcher opens, then every active membership is listed, the current clinic is marked active, and the header does not duplicate the active clinic name.
+- AC-073: Given a member selects another clinic, when the switch succeeds, then the server validates the membership, issues a new scoped access token and rotates the refresh cookie, and the client proves the refresh before reloading; a failed switch shows an error and does not send the user to signup.
+- AC-074: Given an admin creates a clinic from the workspace, then the clinic is created in the active organization with the source clinic's timezone and currency, the creator receives a membership with their current role, an audit row is written, and the new clinic becomes active.
+- AC-075: Given the create-clinic dialog is empty or the switch is in flight, then the form rejects an empty name, the switcher shows a "Switching…" state and disables repeat switches, and errors are announced to assistive technology.
+
+### Functional Requirements
+
+- FR-049: The system MUST expose `GET /api/clinics/settings` and `PATCH /api/clinics/settings` for the active clinic's name, address, contact email, phone, default language, timezone and seven-day working hours (AC-065).
+- FR-050: The system MUST validate working hours and breaks - every open day has a start before its end, breaks fall inside the day, and breaks neither duplicate nor overlap - and MUST reject an invalid update with `400 INVALID_WORKING_HOURS` or `400 INVALID_BREAKS` without writing (AC-066, AC-067).
+- FR-051: The system MUST list the four built-in roles and the clinic's custom roles, and MUST allow an admin to create, update and delete a custom role with a name, one base role and a permission subset of that base role; built-in roles are immutable and duplicate names are rejected (AC-068).
+- FR-052: The system MUST provide a settings shell with eight routed sections; clinic information, working hours and roles/permissions are functional, while departments, appointments, reminders, audit log and appearance are placeholder-only and MUST NOT call a settings mutation (AC-069).
+- FR-053: The system MUST expose `GET /api/organizations/overview` with organization totals and per-clinic rows for clinics, staff, patients, today's appointments and upcoming appointments (AC-070).
+- FR-054: The system MUST scope the organization overview to the caller's organization and MUST NOT disclose another organization's clinics or counts (AC-071).
+- FR-055: The system MUST list the caller's active memberships for the workspace switcher and MUST identify the active clinic from the scoped token (AC-072).
+- FR-056: The system MUST switch the active clinic through `POST /api/auth/switch-workspace`, validating an active membership before issuing a new scoped access token and rotating the refresh cookie; the client MUST verify the refresh before reload (AC-073).
+- FR-057: The system MUST create a clinic through `POST /api/clinics` inside the active organization, inherit the source clinic's timezone and currency, give the creator a membership with their current role, write an audit row and make the new clinic active (AC-074).
+- FR-058: The system MUST present the workspace switcher and create-clinic dialog with an active marker, a "Switching…" disabled state, error feedback, keyboard/ARIA support and no duplicate active-clinic header (AC-072, AC-075).
+
+### Non-Functional Requirements
+
+- NFR-020: Settings and role writes MUST be tenant-scoped and MUST be restricted to roles with `manageSettings`; every write MUST be audited with the actor and before/after values (AC-065, AC-068).
+- NFR-021: A custom role's permissions MUST be a subset of its base role's capabilities; the API MUST reject an attempt to grant a permission outside that base role and MUST NOT change the role (AC-068).
+- NFR-022: Every new settings, overview and workspace control MUST render in EN, AR and FR with RTL-correct layout and accessible labels; placeholder sections MUST say they are not yet available (AC-069, AC-075).
+- NFR-023: The organization overview MUST be bounded to the caller's organization and MUST NOT expose cross-organization counts; the response MUST remain a single aggregate with per-clinic rows rather than loading every clinic's full record set (AC-070, AC-071).
+- NFR-024: A workspace switch MUST validate an active membership and MUST prove the rotated refresh cookie before the client reloads; an invalid switch MUST NOT leave a token for the rejected clinic (AC-073).
+- NFR-025: Clinic creation MUST run in a transaction with its membership and audit row, and MUST inherit the source clinic's timezone and currency so schedules and amounts do not silently change (AC-074).
+
+### Edge Cases & Error States
+
+- EC-025: A working day is open with a missing or reversed start/end time → `400 INVALID_WORKING_HOURS`, no write.
+- EC-026: Two breaks on the same day are identical or overlap → `400 INVALID_BREAKS`, no write.
+- EC-027: A custom role requests a permission outside its base role → `400`, no role is created or changed.
+- EC-028: A custom role name already exists, or a built-in role is edited/deleted → `409`/`403`, no write.
+- EC-029: The organization has no patients or appointments yet → totals are zero and the clinic rows still render.
+- EC-030: A member switches to a clinic they do not belong to → the server rejects the switch; the client clears the stale active state and shows an error, never the signup screen.
+- EC-031: A create-clinic request has a blank or whitespace-only name → `400 CLINIC_NAME_REQUIRED`, no clinic or membership is written.
+- EC-032: A placeholder settings section is opened directly by URL → the placeholder renders with no API call and the route survives a reload.
+
+### Out of Scope (extension)
+
+- Assigning a custom role to a staff member; custom roles are editable definitions in v2, and membership role changes continue to use the four built-in roles.
+- Backend behavior for departments, appointments, reminders, audit log and appearance; those sections are UI-only placeholders.
+- Billing, subscription management, cross-organization membership moves and per-clinic branding beyond the settings fields listed in FR-049.
