@@ -1,0 +1,239 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": "v2",
+  "status": "FAIL",
+  "commit": "2c690a829c7afe94e0937f57e61d46850a036065",
+  "base": "main",
+  "branch": "feature/auth-onboarding",
+  "reviewedBy": "kenule500",
+  "reviewedAt": "2026-11-08T09:15:17.038Z",
+  "coverage": 100,
+  "criteria": [
+    {
+      "id": "C01-spec-convergence",
+      "status": "pass",
+      "detail": "The v2 implementation and acceptance tests match spec.md and spec.json; sdrive verify returns PASS (matched 28, missing 0, renamed 0, extra 0). The scanner fix covers server, backoffice, web, realtime and packages, .prisma, .env.example and workspace package.json files."
+    },
+    {
+      "id": "C02-task-completion",
+      "status": "pass",
+      "detail": "tasks.json: 14 of 14 implementation tasks completed: true (P8 4, P9 3, P10 1, P11 2, P12 4); tasks.md has no unchecked implementation rows. The T12.2 formatter claim is contradicted by the format check and is recorded under C09."
+    },
+    {
+      "id": "C03-traceability",
+      "status": "pass",
+      "detail": "traceability.json has 16 rows covering all 19 acceptance criteria; every row has at least one testId and status complete. The 16 rows are FR-039..FR-048 and NFR-014..NFR-019; no AC is unmapped."
+    },
+    {
+      "id": "C04-coverage",
+      "status": "pass",
+      "detail": "19 of 19 acceptance criteria in scope, 0 withdrawn; 19 test IDs linked and passing: 100% coverage."
+    },
+    {
+      "id": "C05-test-report",
+      "status": "pass",
+      "detail": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v2-2026-11-07.md exists, records 19/19 AC tests, and is newer than spec.md and plan.md (both 2026-11-06)."
+    },
+    {
+      "id": "C06-test-evidence",
+      "status": "pass",
+      "detail": "test-evidence.json exists, exitCode 0, summary.failed 0, summary.total 16 > 0, commit 2c690a8 equals HEAD, branch feature/auth-onboarding. The summary counts the 16 Jest tests; the same command ran the 3 Vitest tests, and the raw log reports 16 + 1 + 2 = 19. The report and raw log reconcile the 19/19; the parser limitation is recorded as finding F5."
+    },
+    {
+      "id": "C07-change-scope",
+      "status": "fail",
+      "detail": "The 92-file diff against main contains substantial product work not present in plan.json or the v2 productItems: settings/custom roles (BP-035), organization overview, workspace shell/switcher, and related DTOs, migrations and tests. Planned component paths are 16; the rest are unplanned. The branch is based on main and has no other feature's commits, but the unplanned scope is a release blocker."
+    },
+    {
+      "id": "C08-test-quality",
+      "status": "pass",
+      "detail": "No .only, xit, xdescribe, it.skip, describe.skip or test.skip in the v2 test files; no empty expect(true)/expect(1) assertions. All 19 AC IDs appear in test names. The -t filters in the evidence command skip only non-AC tests and the report states this."
+    },
+    {
+      "id": "C09-code-quality",
+      "status": "fail",
+      "detail": "TypeScript passes for server and backoffice; eslint passes for both. pnpm format:check exits 2 on repository-wide pre-existing files (.sdrive/templates, backoffice/scripts, server/src/auth/auth.e2e.spec.ts, test/*.mjs) even though the v2 changed files were formatted by the pre-commit hook. The T12.2 formatter task is therefore marked complete inaccurately."
+    },
+    {
+      "id": "C10-security",
+      "status": "not_verified",
+      "detail": "Secrets: the diff scan is clean; matches are test fixtures and test passwords, and server/.env remains ignored while .env.example carries names only. CON-511..CON-519 are wired. Dependencies: pnpm audit reports 2 critical advisories in tinypool (dev-only, pre-existing) and 5 moderate advisories in Vitest/glob/minimatch; nodemailer 10.3.1 has no advisory in this audit. No independent v2 security report exists, so the overall security status is not_verified."
+    },
+    {
+      "id": "C11-testing",
+      "status": "pass",
+      "detail": "The feature's acceptance suites pass 19/19: 16 server Jest tests and 3 backoffice Vitest tests. The full repository suite was not re-run in this review; the test report's 19/19 AC evidence is the basis for this criterion."
+    },
+    {
+      "id": "C12-documentation",
+      "status": "fail",
+      "detail": "README.md and CHANGELOG.md have no diff against main. The feature adds user-visible invitation status/resend/cancel/decline controls and settings screens, so the user-facing documentation is not up to date."
+    },
+    {
+      "id": "C13-nfr-evidence",
+      "status": "pass",
+      "detail": "NFR-014 (SMTP), NFR-015 (.env.example names only), NFR-016 (send outside the transaction), NFR-017 (escaping, no dangerouslySetInnerHTML), NFR-018 (EN/AR/FR and RTL strings) and NFR-019 (bounded invitation/member lists) are covered by the tests and the reviewed code. The v2 spec declares no performance or SEO NFR."
+    },
+    {
+      "id": "C14-definition-of-done",
+      "status": "fail",
+      "detail": "The review cannot clear the feature: change scope fails (C07), code quality fails on the format check (C09), documentation fails (C12), and security is not_verified because of the dev-only critical advisories and the absent v2 security report (C10)."
+    },
+    {
+      "id": "C15-spec-to-code-verification",
+      "status": "pass",
+      "detail": "sdrive verify authentication-onboarding-and-access-control returns PASS: matched 28, missing 0, withdrawn 0, renamed 0, extra 0. The verification.json report is committed at the reviewed HEAD."
+    },
+    {
+      "id": "C16-ci",
+      "status": "not_verified",
+      "detail": "gh run list shows no CI run for feature/auth-onboarding or HEAD 2c690a8. .github/workflows/ci.yml triggers on pushes to main/master and on pull requests only; the branch has no PR and the reviewer may not open one. Historical main runs are green, but they do not cover this HEAD."
+    },
+    {
+      "id": "C17-permission",
+      "status": "pass",
+      "detail": "The first check returned exit 5 because the framework-sync race had the permission file in an intermediate state; the immediate re-run returned allowed for kenule500 (admin), and permissions.json contains /sdrive:review -> [admin, reviewer]. The audit proceeded only after the allowed result."
+    },
+    {
+      "id": "C18-reviewer-independence",
+      "status": "warn",
+      "detail": "feature.assignee is absent and the workspace has one member (kenule500, admin), who also authored the branch. The conflict is recorded. This is a FAIL verdict, so no self-approval is being requested."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "high",
+      "issue": "Unplanned product scope is on the v2 branch. Settings and custom roles (BP-035), the organization overview, the workspace shell/switcher, clinic-settings/role DTOs and migrations, and their tests are not in the v2 plan or productItems. A feature cannot be cleared while it carries another product's work. Either extend v2 through update-propose or move this work to a separate feature.",
+      "location": "backoffice/src/pages/SettingsPage.tsx; backoffice/src/pages/settings/; backoffice/src/pages/OverviewPage.tsx; backoffice/src/App.tsx; backoffice/src/auth/WorkspaceContext.tsx; backoffice/src/layouts/; server/src/tenancy/dto/clinic-settings.dto.ts; server/src/tenancy/dto/role.dto.ts; server/prisma/migrations/20261107110000_clinic_settings; server/prisma/migrations/20261107130000_custom_roles",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "medium",
+      "issue": "pnpm format:check exits 2. The failures are pre-existing files rather than the v2 changed files, but task T12.2 claims the formatter check passed. Run the formatter and commit the result, or correct the task claim.",
+      "location": ".sdrive/templates/turborepo/spec.json; .sdrive/templates/turborepo/tasks.json; backoffice/scripts/; server/src/auth/auth.e2e.spec.ts; test/*.mjs",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "low",
+      "issue": "No README or CHANGELOG update accompanies the user-facing invitation lifecycle and settings changes. The repository's documentation surface is README.md; it should describe the new invite statuses, resend/cancel/decline controls and settings screens.",
+      "location": "README.md",
+      "fixRequired": true,
+      "acIds": []
+    },
+    {
+      "severity": "medium",
+      "issue": "pnpm audit reports 2 critical advisories in tinypool (dev-only, pre-existing) and 5 moderate advisories in Vitest/@vitest/mocker/glob/minimatch. The new nodemailer 10.3.1 dependency has no advisory in this audit. Upgrade the dev test toolchain or record an explicit accepted risk.",
+      "location": "pnpm-lock.yaml; server/node_modules/tinypool",
+      "fixRequired": false,
+      "acIds": []
+    },
+    {
+      "severity": "low",
+      "issue": "test-evidence.json records summary.total 16 while the report records 19 AC tests. The Vitest segment of the same command passed 3 tests and the raw log shows 16 + 1 + 2 = 19. The report reconciles the counts, but the machine summary is incomplete.",
+      "location": ".sdrive/governance/authentication-onboarding-and-access-control/v2/test-evidence.json",
+      "fixRequired": false,
+      "acIds": []
+    }
+  ],
+  "evidence": {
+    "testEvidence": ".sdrive/governance/authentication-onboarding-and-access-control/v2/test-evidence.json - exit 0, 0 failed, 16 Jest tests (plus 3 Vitest tests in the same command; 19/19 AC tests per the report and raw log), commit 2c690a8 === HEAD.",
+    "testReport": ".sdrive/reports/tests/test-report-authentication-onboarding-and-access-control-v2-2026-11-07.md - 19/19 AC tests; newer than spec.md and plan.md.",
+    "verification": "sdrive verify: PASS - matched 28, missing 0, withdrawn 0, renamed 0, extra 0. node .sdrive/scripts/validate-governance.js: all files valid. sdrive check: no blockers. sdrive validate: exit 0.",
+    "audit": "audit:verify - 104 hashed events verified, brokenAt null. Traceability: 19 ACs, 16 rows, all complete with test IDs (100%). Test quality: no .only/xit/skip. Code quality: typecheck and lint pass; format:check exit 2. Security: secrets clean; pnpm audit 2 critical dev-only tinypool, 5 moderate dev tooling; nodemailer no advisory. CI: no run for the branch. Scope: 92 files against main, 16 planned component paths, substantial unplanned product files."
+  },
+  "security": {
+    "status": "not_verified",
+    "reason": "CON-511..CON-519 are wired and the diff secret scan is clean, but the dependency audit reports two critical dev-only tinypool advisories and five moderate dev-tool advisories, and no independent v2 security report exists.",
+    "secrets": "clean",
+    "dependencies": "vulnerable",
+    "baseline": [
+      {
+        "id": "CON-511",
+        "status": "pass",
+        "detail": "JWT access/refresh behaviour is unchanged; the invitation and membership routes are guarded by the existing JWT guard."
+      },
+      {
+        "id": "CON-512",
+        "status": "pass",
+        "detail": "RolesGuard and @Roles() remain on the admin routes; the new invitation and role-change routes use the existing capability checks."
+      },
+      {
+        "id": "CON-513",
+        "status": "pass",
+        "detail": "app.use(helmet()) remains applied globally in server/src/main.ts."
+      },
+      {
+        "id": "CON-514",
+        "status": "pass",
+        "detail": "The global ThrottlerGuard remains registered; the new endpoints inherit the global limit."
+      },
+      {
+        "id": "CON-515",
+        "status": "pass",
+        "detail": "The global ValidationPipe uses whitelist, forbidNonWhitelisted and transform; the new DTOs are validated by it."
+      },
+      {
+        "id": "CON-516",
+        "status": "pass",
+        "detail": "Prisma parameterises the new queries; no new raw SQL or string concatenation was introduced."
+      },
+      {
+        "id": "CON-517",
+        "status": "pass",
+        "detail": "React escapes the rendered values and the mail templates escape every interpolation; no dangerouslySetInnerHTML was added."
+      },
+      {
+        "id": "CON-518",
+        "status": "pass",
+        "detail": "The refresh token remains an HttpOnly SameSite=Lax cookie; the new mutations are POST/PATCH, not GET."
+      },
+      {
+        "id": "CON-519",
+        "status": "pass",
+        "detail": ".env remains git-ignored; server/.env.example documents the new SMTP keys by name only, with no values."
+      }
+    ]
+  },
+  "performance": {
+    "status": "not_applicable",
+    "reason": "The v2 spec declares no performance or SEO NFR. NFR-014..NFR-019 cover SMTP delivery, environment documentation, transaction boundaries, escaping, EN/AR/FR RTL localization and bounded pagination.",
+    "method": "No benchmark target exists; no performance report is required for this version.",
+    "nfr": [],
+    "seo": "not_applicable"
+  },
+  "remediation": {
+    "round": 1,
+    "items": [
+      {
+        "id": "R1",
+        "finding": "Unplanned settings/custom-role, overview and workspace-shell product work is on the v2 branch.",
+        "severity": "high",
+        "fixWith": "/sdrive:update-propose",
+        "task": "T13.1"
+      },
+      {
+        "id": "R2",
+        "finding": "pnpm format:check exits 2 and T12.2 is marked complete inaccurately.",
+        "severity": "medium",
+        "fixWith": "/sdrive:apply",
+        "task": "T13.2"
+      },
+      {
+        "id": "R3",
+        "finding": "README/CHANGELOG do not cover the user-facing invitation and settings changes.",
+        "severity": "low",
+        "fixWith": "/sdrive:docs",
+        "task": "T13.3"
+      },
+      {
+        "id": "R4",
+        "finding": "Two critical dev-only tinypool advisories and five moderate dev-tool advisories remain in the lockfile.",
+        "severity": "medium",
+        "fixWith": "/sdrive:secure",
+        "task": "T13.4"
+      }
+    ]
+  }
+}

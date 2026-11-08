@@ -63,3 +63,14 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 | T12.2 | Run the formatter check and governance validator | NFR-015      | —              | [x]  |
 | T12.3 | Run the spec-to-code verification                | FR-039       | —              | [x]  |
 | T12.4 | Manually confirm the degraded-provider path      | FR-041       | AC-048, AC-049 | [x]  |
+
+## P13 — Review remediation (round 1)
+
+**Depends on:** P12
+
+| ID    | Task                                                                              | Requirements | ACs | Done |
+| ----- | --------------------------------------------------------------------------------- | ------------ | --- | ---- |
+| T13.1 | Resolve the out-of-scope settings/custom-role, overview and workspace-shell work  | —            | —   | [ ]  |
+| T13.2 | Run the repository formatter and make `pnpm format:check` pass                    | —            | —   | [ ]  |
+| T13.3 | Document the invitation lifecycle and settings changes in README                  | —            | —   | [ ]  |
+| T13.4 | Upgrade or formally accept the dev-only critical advisories in the test toolchain | —            | —   | [ ]  |

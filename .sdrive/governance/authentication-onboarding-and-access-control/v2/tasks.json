@@ -145,6 +145,45 @@
           "completed": true
         }
       ]
+    },
+    {
+      "phaseId": "P13",
+      "name": "Review remediation (round 1)",
+      "dependencies": ["P12"],
+      "tasks": [
+        {
+          "id": "T13.1",
+          "title": "Resolve the out-of-scope settings/custom-role, overview and workspace-shell work",
+          "description": "Either move the BP-035 settings/custom-role, organization-overview and workspace-shell changes to a separate feature, or extend the v2 specification through /sdrive:update-propose, then re-test and re-review.",
+          "linkedRequirements": ["FR-045"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        },
+        {
+          "id": "T13.2",
+          "title": "Run the repository formatter and make pnpm format:check pass",
+          "description": "Run pnpm format, commit the result, and re-run pnpm format:check so the T12.2 completion claim is accurate.",
+          "linkedRequirements": ["NFR-015"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        },
+        {
+          "id": "T13.3",
+          "title": "Document the invitation lifecycle and settings changes in README",
+          "description": "Add the user-facing invitation statuses, resend/cancel/decline controls and settings screens to README.md.",
+          "linkedRequirements": ["NFR-018"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        },
+        {
+          "id": "T13.4",
+          "title": "Upgrade or formally accept the dev-only critical advisories in the test toolchain",
+          "description": "Upgrade Vitest/tinypool to versions without the critical advisories, or record an explicit accepted risk, then re-run pnpm audit.",
+          "linkedRequirements": ["NFR-014"],
+          "linkedAcceptanceCriteria": [],
+          "completed": false
+        }
+      ]
     }
   ]
 }
