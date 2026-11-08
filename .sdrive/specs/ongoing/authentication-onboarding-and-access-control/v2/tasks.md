@@ -73,7 +73,7 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 | T13.1 | Resolve the out-of-scope settings/custom-role, overview and workspace-shell work  | —            | —   | [x]  |
 | T13.2 | Run the repository formatter and make `pnpm format:check` pass                    | —            | —   | [x]  |
 | T13.3 | Document the invitation lifecycle and settings changes in README                  | —            | —   | [x]  |
-| T13.4 | Upgrade or formally accept the dev-only critical advisories in the test toolchain | —            | —   | [ ]  |
+| T13.4 | Upgrade or formally accept the dev-only critical advisories in the test toolchain | —            | —   | [x]  |
 
 ## P14 — Clinic Settings (extension)
 
