@@ -196,7 +196,7 @@
           "description": "Keep GET/PATCH /api/clinics/settings tenant-scoped, validate the settings payload, normalize contact details and audit every settings write with before/after values (FR-049, NFR-020).",
           "linkedRequirements": ["FR-049", "NFR-020"],
           "linkedAcceptanceCriteria": ["AC-065"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T14.2",
@@ -204,7 +204,7 @@
           "description": "Validate the seven-day schedule: open days need start before end, breaks must stay inside the day, and identical or overlapping breaks are rejected with INVALID_BREAKS without writing (FR-050).",
           "linkedRequirements": ["FR-050"],
           "linkedAcceptanceCriteria": ["AC-066", "AC-067"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T14.3",
@@ -212,7 +212,7 @@
           "description": "Validate that a custom role baseRole is one of the four built-in roles and every permission is in that base role capability set; reject duplicates and keep built-in roles immutable (FR-051, NFR-021).",
           "linkedRequirements": ["FR-051", "NFR-021"],
           "linkedAcceptanceCriteria": ["AC-068"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T14.4",
@@ -220,7 +220,7 @@
           "description": "Finish the routed settings shell: clinic information, working hours and roles/permissions are functional; departments, appointments, reminders, audit log and appearance are labelled placeholders with no mutation (FR-052).",
           "linkedRequirements": ["FR-052"],
           "linkedAcceptanceCriteria": ["AC-069"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T14.5",
@@ -228,7 +228,7 @@
           "description": "Add EN/AR/FR strings and RTL-safe labels for the settings sections, validation messages and placeholders (NFR-022).",
           "linkedRequirements": ["NFR-022"],
           "linkedAcceptanceCriteria": ["AC-069", "AC-075"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -243,7 +243,7 @@
           "description": "Return organization totals and per-clinic rows for clinics, staff, patients, today appointments and upcoming appointments, filtered by the resolved tenant organization (FR-053, FR-054, NFR-023).",
           "linkedRequirements": ["FR-053", "FR-054", "NFR-023"],
           "linkedAcceptanceCriteria": ["AC-070", "AC-071"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T15.2",
@@ -251,7 +251,7 @@
           "description": "Render totals and the per-clinic overview table with loading, empty and error states, and keep the page localized (FR-053).",
           "linkedRequirements": ["FR-053"],
           "linkedAcceptanceCriteria": ["AC-070"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -266,7 +266,7 @@
           "description": "List the caller active memberships for the sidebar switcher and resolve the active clinic from the scoped token (FR-055).",
           "linkedRequirements": ["FR-055"],
           "linkedAcceptanceCriteria": ["AC-072"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T16.2",
@@ -274,7 +274,7 @@
           "description": "Validate an active membership, issue a new scoped access token and rotate the refresh cookie; the client proves the refresh before reloading and never routes a failed switch to signup (FR-056, NFR-024).",
           "linkedRequirements": ["FR-056", "NFR-024"],
           "linkedAcceptanceCriteria": ["AC-073"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T16.3",
@@ -282,7 +282,7 @@
           "description": "Create a clinic in the active organization inside a transaction with the creator membership and audit row; inherit timezone and currency from the source clinic and make the new clinic active (FR-057, NFR-025).",
           "linkedRequirements": ["FR-057", "NFR-025"],
           "linkedAcceptanceCriteria": ["AC-074"],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T16.4",
@@ -290,7 +290,7 @@
           "description": "Finish the sidebar switcher/create-clinic dialog with active marker, disabled switching state, errors and ARIA, and remove the duplicate active-clinic header display (FR-058).",
           "linkedRequirements": ["FR-058"],
           "linkedAcceptanceCriteria": ["AC-072", "AC-075"],
-          "completed": false
+          "completed": true
         }
       ]
     },
@@ -305,7 +305,7 @@
           "description": "Run the server lint and tsc --noEmit and fix any errors in the new settings, overview and workspace code (NFR-020).",
           "linkedRequirements": ["NFR-020"],
           "linkedAcceptanceCriteria": [],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T17.2",
@@ -321,7 +321,7 @@
           "description": "Run sdrive verify authentication-onboarding-and-access-control and account for every reported gap (NFR-023).",
           "linkedRequirements": ["NFR-023"],
           "linkedAcceptanceCriteria": [],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T17.4",
@@ -329,7 +329,7 @@
           "description": "Confirm the five placeholder sections make no API calls, the overview renders zero totals cleanly, and the switch error never lands on the signup screen (NFR-024).",
           "linkedRequirements": ["NFR-024"],
           "linkedAcceptanceCriteria": ["AC-069", "AC-071", "AC-073"],
-          "completed": false
+          "completed": true
         }
       ]
     }

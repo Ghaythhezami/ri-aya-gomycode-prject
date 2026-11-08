@@ -81,11 +81,11 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 
 | ID    | Task                                      | Requirements    | ACs            | Done |
 | ----- | ----------------------------------------- | --------------- | -------------- | ---- |
-| T14.1 | Align the clinic settings API and audit   | FR-049, NFR-020 | AC-065         | [ ]  |
-| T14.2 | Harden working-hours and break validation | FR-050          | AC-066, AC-067 | [ ]  |
-| T14.3 | Enforce custom-role permission ceilings   | FR-051, NFR-021 | AC-068         | [ ]  |
-| T14.4 | Complete the eight-section settings shell | FR-052          | AC-069         | [ ]  |
-| T14.5 | Localize and label the settings extension | NFR-022         | AC-069, AC-075 | [ ]  |
+| T14.1 | Align the clinic settings API and audit   | FR-049, NFR-020 | AC-065         | [x]  |
+| T14.2 | Harden working-hours and break validation | FR-050          | AC-066, AC-067 | [x]  |
+| T14.3 | Enforce custom-role permission ceilings   | FR-051, NFR-021 | AC-068         | [x]  |
+| T14.4 | Complete the eight-section settings shell | FR-052          | AC-069         | [x]  |
+| T14.5 | Localize and label the settings extension | NFR-022         | AC-069, AC-075 | [x]  |
 
 ## P15 — Organization Overview (extension)
 
@@ -93,8 +93,8 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 
 | ID    | Task                                  | Requirements            | ACs            | Done |
 | ----- | ------------------------------------- | ----------------------- | -------------- | ---- |
-| T15.1 | Scope the organization overview query | FR-053, FR-054, NFR-023 | AC-070, AC-071 | [ ]  |
-| T15.2 | Finish the overview page states       | FR-053                  | AC-070         | [ ]  |
+| T15.1 | Scope the organization overview query | FR-053, FR-054, NFR-023 | AC-070, AC-071 | [x]  |
+| T15.2 | Finish the overview page states       | FR-053                  | AC-070         | [x]  |
 
 ## P16 — Workspace Switching and Clinic Creation (extension)
 
@@ -102,10 +102,10 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 
 | ID    | Task                                            | Requirements    | ACs            | Done |
 | ----- | ----------------------------------------------- | --------------- | -------------- | ---- |
-| T16.1 | Expose active memberships and the active clinic | FR-055          | AC-072         | [ ]  |
-| T16.2 | Implement the switch-workspace token rotation   | FR-056, NFR-024 | AC-073         | [ ]  |
-| T16.3 | Implement create-clinic transaction and audit   | FR-057, NFR-025 | AC-074         | [ ]  |
-| T16.4 | Finish the switcher, create dialog and header   | FR-058          | AC-072, AC-075 | [ ]  |
+| T16.1 | Expose active memberships and the active clinic | FR-055          | AC-072         | [x]  |
+| T16.2 | Implement the switch-workspace token rotation   | FR-056, NFR-024 | AC-073         | [x]  |
+| T16.3 | Implement create-clinic transaction and audit   | FR-057, NFR-025 | AC-074         | [x]  |
+| T16.4 | Finish the switcher, create dialog and header   | FR-058          | AC-072, AC-075 | [x]  |
 
 ## P17 — Verification (extension)
 
@@ -113,7 +113,7 @@ Formatter, linter, typechecker, `sdrive verify`, the governance validator and ma
 
 | ID    | Task                                           | Requirements | ACs                    | Done |
 | ----- | ---------------------------------------------- | ------------ | ---------------------- | ---- |
-| T17.1 | Run the server linter and typechecker          | NFR-020      | —                      | [ ]  |
+| T17.1 | Run the server linter and typechecker          | NFR-020      | —                      | [x]  |
 | T17.2 | Run the formatter and governance validator     | NFR-022      | —                      | [ ]  |
-| T17.3 | Run the spec-to-code verification              | NFR-023      | —                      | [ ]  |
-| T17.4 | Manually confirm placeholders and empty states | NFR-024      | AC-069, AC-071, AC-073 | [ ]  |
+| T17.3 | Run the spec-to-code verification              | NFR-023      | —                      | [x]  |
+| T17.4 | Manually confirm placeholders and empty states | NFR-024      | AC-069, AC-071, AC-073 | [x]  |

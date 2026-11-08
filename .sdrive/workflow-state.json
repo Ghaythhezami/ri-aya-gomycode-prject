@@ -89,7 +89,7 @@
         {
           "id": "v2",
           "phase": "ongoing",
-          "currentStep": "specification",
+          "currentStep": "implementation",
           "gates": {
             "specification": "approved",
             "planning": "approved",
@@ -146,6 +146,12 @@
               "actor": "kenule500",
               "previousValue": "pending",
               "timestamp": "2026-11-08T09:35:33.555Z"
+            },
+            {
+              "event": "implementation_started",
+              "by": "implementation-agent",
+              "timestamp": "2026-11-08T09:41:18.446Z",
+              "summary": "Aligned the existing settings, custom-role, organization-overview and workspace implementation with the 2026-11-08 v2 extension. Completed P14-P16 and T17.1/T17.3/T17.4; the formatter task T17.2 and review remediation T13.2-T13.4 remain open."
             }
           ]
         }

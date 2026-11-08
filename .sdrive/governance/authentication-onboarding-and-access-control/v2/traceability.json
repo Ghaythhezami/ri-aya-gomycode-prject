@@ -136,7 +136,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-050",
@@ -144,7 +144,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-051",
@@ -152,7 +152,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-052",
@@ -160,7 +160,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-053",
@@ -168,7 +168,7 @@
       "planSection": "Organization Overview",
       "taskIds": ["T15.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-054",
@@ -176,7 +176,7 @@
       "planSection": "Organization Overview",
       "taskIds": ["T15.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-055",
@@ -184,7 +184,7 @@
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-056",
@@ -192,7 +192,7 @@
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-057",
@@ -200,7 +200,7 @@
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "FR-058",
@@ -208,7 +208,7 @@
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.4"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-020",
@@ -216,7 +216,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.1", "T14.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-021",
@@ -224,7 +224,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-022",
@@ -232,7 +232,7 @@
       "planSection": "Clinic Settings",
       "taskIds": ["T14.5"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-023",
@@ -240,7 +240,7 @@
       "planSection": "Organization Overview",
       "taskIds": ["T15.1"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-024",
@@ -248,7 +248,7 @@
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.2"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     },
     {
       "requirementId": "NFR-025",
@@ -256,7 +256,7 @@
       "planSection": "Workspace Switching and Clinic Creation",
       "taskIds": ["T16.3"],
       "testIds": [],
-      "status": "not_started"
+      "status": "complete"
     }
   ]
 }
