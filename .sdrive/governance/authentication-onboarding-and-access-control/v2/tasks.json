@@ -270,7 +270,7 @@
             "NFR-018"
           ],
           "linkedAcceptanceCriteria": [],
-          "completed": false
+          "completed": true
         },
         {
           "id": "T13.4",
