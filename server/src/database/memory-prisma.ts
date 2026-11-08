@@ -727,14 +727,27 @@ export class MemoryPrisma {
       this.invitations.set(row.id, row);
       return row;
     },
-    findUnique: async ({ where }: { where: { id?: string; tokenHash?: string } }) => {
-      if (where.id) return this.invitations.get(where.id) ?? null;
-      if (where.tokenHash) {
-        return (
-          [...this.invitations.values()].find((item) => item.tokenHash === where.tokenHash) ?? null
-        );
+    findUnique: async ({
+      where,
+      include,
+    }: {
+      where: { id?: string; tokenHash?: string };
+      include?: { clinic?: boolean; organization?: boolean };
+    }) => {
+      let found = null;
+      if (where.id) found = this.invitations.get(where.id) ?? null;
+      else if (where.tokenHash) {
+        found =
+          [...this.invitations.values()].find((item) => item.tokenHash === where.tokenHash) ?? null;
       }
-      return null;
+      if (!found) return null;
+      return {
+        ...found,
+        clinic: include?.clinic ? (this.clinics.get(found.clinicId) ?? null) : undefined,
+        organization: include?.organization
+          ? (this.organizations.get(found.organizationId) ?? null)
+          : undefined,
+      };
     },
     findFirst: async ({
       where,

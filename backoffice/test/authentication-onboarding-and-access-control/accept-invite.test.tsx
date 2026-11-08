@@ -83,6 +83,36 @@ describe('Accept-invitation states (AC-036)', () => {
     expect(screen.getByRole('button', { name: /sign in and accept/i })).toBeInTheDocument();
   });
 
+  it('AC-062: an existing invitee sees the linked clinic and supplies only login details', async () => {
+    mocks.get.mockResolvedValue({ data: scope({ emailKnown: true }) });
+
+    renderPage();
+
+    expect(await screen.findByText('Bright Org')).toBeInTheDocument();
+    expect(screen.getByText('Bright Clinic')).toBeInTheDocument();
+    expect(screen.getByText('Doctor')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('invitee@riaya.local')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in and accept/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/clinic name/i)).not.toBeInTheDocument();
+  });
+
+  it('AC-063: a new invitee sees the linked clinic and cannot choose another one', async () => {
+    mocks.get.mockResolvedValue({ data: scope() });
+
+    renderPage();
+
+    expect(await screen.findByText('Bright Org')).toBeInTheDocument();
+    expect(screen.getByText('Bright Clinic')).toBeInTheDocument();
+    expect(screen.getByText('Doctor')).toBeInTheDocument();
+    expect(screen.getByLabelText('First name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Last name')).toBeInTheDocument();
+    expect(screen.getByLabelText('Password')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /accept invitation/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/clinic name/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/clinic id/i)).not.toBeInTheDocument();
+  });
+
   it('declines without creating an account', async () => {
     mocks.get.mockResolvedValue({ data: scope() });
     mocks.post.mockResolvedValue({ data: { success: true } });

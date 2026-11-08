@@ -112,6 +112,29 @@ describe('Staff invitation feedback', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent(/already a member/i);
   });
 
+  it('AC-050: renders exactly one lifecycle label for each invitation row', async () => {
+    mocks.invitations = ['PENDING', 'ACCEPTED', 'REJECTED', 'CANCELLED', 'EXPIRED'].map(
+      (displayStatus, index) => ({
+        id: `inv-status-${index}`,
+        email: `status.${displayStatus.toLowerCase()}@riaya.local`,
+        role: 'DOCTOR',
+        status: displayStatus === 'EXPIRED' ? 'PENDING' : displayStatus,
+        displayStatus,
+        deliveryStatus: 'SENT',
+        expiresAt: new Date(Date.now() + 60_000).toISOString(),
+        createdAt: new Date().toISOString(),
+      }),
+    );
+
+    renderPage();
+
+    expect(await screen.findByText('Pending')).toBeInTheDocument();
+    expect(screen.getByText('Accepted')).toBeInTheDocument();
+    expect(screen.getByText('Declined')).toBeInTheDocument();
+    expect(screen.getByText('Cancelled')).toBeInTheDocument();
+    expect(screen.getByText('Expired')).toBeInTheDocument();
+  });
+
   it('reports a failed delivery instead of claiming success', async () => {
     mocks.post.mockResolvedValue({ data: { deliveryStatus: 'FAILED' } });
 
