@@ -1140,6 +1140,15 @@
       "event": "gate_approved",
       "prevHash": "109fe37323025f3ced097f5d5a9c8e3f03be90a41bbd36278155fa5099dcbfd7",
       "hash": "4a13b4a7605c7ed43ad9deb279b0cd4ac9dfd2b8af7e8d901fc37a5b6ae817af"
+    },
+    {
+      "timestamp": "2026-11-09T12:31:48.217Z",
+      "actor": "kenule500",
+      "feature": "authentication-onboarding-and-access-control",
+      "version": "v2",
+      "event": "feature_archived",
+      "prevHash": "4a13b4a7605c7ed43ad9deb279b0cd4ac9dfd2b8af7e8d901fc37a5b6ae817af",
+      "hash": "ae242b3d809b1fdfedaaf97bc8577377fecec79dbefbfb149476cad42a505e7c"
     }
   ]
 }
