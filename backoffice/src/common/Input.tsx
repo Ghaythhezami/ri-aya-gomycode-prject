@@ -16,7 +16,7 @@ import { useTranslation } from 'react-i18next';
  * target floor, and the focus ring is drawn by the global `*:focus-visible` rule.
  */
 const CONTROL =
-  'min-h-10 w-full rounded-md border border-border-strong bg-surface px-3 text-text placeholder:text-muted aria-[invalid=true]:border-error';
+  'min-h-10 w-full rounded-md border border-border-strong/70 bg-surface px-3.5 py-2 text-text shadow-(--shadow-soft) transition placeholder:text-muted hover:border-navy focus:border-primary focus:ring-4 focus:ring-primary/10 focus:outline-none disabled:bg-surface-muted aria-[invalid=true]:border-error aria-[invalid=true]:ring-error/10';
 
 export function Input({
   className = '',

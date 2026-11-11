@@ -179,13 +179,13 @@ export function StaffDirectoryPage() {
   return (
     <div className="space-y-6">
       <header>
-        <h1 className="text-xl font-semibold text-text">{t('staff.title')}</h1>
-        <p className="mt-1 text-sm text-muted">{t('staff.subtitle')}</p>
+        <h1 className="text-3xl font-bold tracking-tight text-navy">{t('staff.title')}</h1>
+        <p className="mt-2 text-muted">{t('staff.subtitle')}</p>
       </header>
 
       <form
         onSubmit={invite}
-        className="flex flex-wrap items-end gap-3 rounded-md border border-border bg-surface p-4"
+        className="relative flex flex-wrap items-end gap-3 overflow-hidden rounded-xl border border-border bg-surface p-5 shadow-(--shadow-soft)"
       >
         <div className="min-w-56 flex-1">
           <Field label={t('staff.email')}>
@@ -197,7 +197,7 @@ export function StaffDirectoryPage() {
             <select
               value={role}
               onChange={(e) => setRole(e.target.value)}
-              className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
+              className="min-h-11 rounded-md border border-border-strong/70 bg-surface px-3 text-text shadow-(--shadow-soft)"
             >
               <option value="CLINIC_ADMIN">{t('roles.CLINIC_ADMIN')}</option>
               <option value="DOCTOR">{t('roles.DOCTOR')}</option>
@@ -226,14 +226,14 @@ export function StaffDirectoryPage() {
         </p>
       )}
 
-      <section className="rounded-md border border-border bg-surface">
-        <h2 className="border-b border-border px-4 py-3 text-sm font-medium text-text">
+      <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-(--shadow-soft)">
+        <h2 className="border-b border-border px-5 py-4 text-base font-semibold text-navy">
           {t('staff.members')}
         </h2>
         {loading ? (
           <div className="space-y-2 p-4" aria-busy="true">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-10 animate-pulse rounded bg-bg" />
+              <div key={i} className="skeleton h-10 rounded-md" />
             ))}
           </div>
         ) : members.length === 0 ? (
@@ -241,31 +241,34 @@ export function StaffDirectoryPage() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase text-muted">
-                <th className="px-4 py-2">{t('staff.member')}</th>
-                <th className="px-4 py-2">{t('staff.role')}</th>
-                <th className="px-4 py-2">{t('staff.lastLogin')}</th>
-                <th className="px-4 py-2">{t('staff.status')}</th>
+              <tr className="bg-surface-muted/70 text-start text-xs font-semibold tracking-wide text-muted uppercase">
+                <th className="px-5 py-3 text-start">{t('staff.member')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.role')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.lastLogin')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.status')}</th>
               </tr>
             </thead>
             <tbody>
               {members.map((member) => {
                 const isSelf = member.userId === user?.id;
                 return (
-                  <tr key={member.membershipId} className="border-t border-border">
-                    <td className="px-4 py-2 text-text">
+                  <tr
+                    key={member.membershipId}
+                    className="border-t border-border transition hover:bg-surface-muted/60"
+                  >
+                    <td className="px-5 py-3 text-text">
                       <div>
                         {member.firstName} {member.lastName}
                       </div>
                       <div className="text-xs text-muted">{member.email}</div>
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-5 py-3">
                       {canManage && !isSelf ? (
                         <select
                           aria-label={t('staff.role')}
                           value={member.role}
                           onChange={(e) => void changeRole(member.membershipId, e.target.value)}
-                          className="min-h-11 rounded-md border border-border bg-surface px-3 text-text"
+                          className="min-h-11 rounded-md border border-border-strong/70 bg-surface px-3 text-text shadow-(--shadow-soft)"
                         >
                           {[
                             ...(member.role === 'SUPER_ADMIN' ? ['SUPER_ADMIN'] : []),
@@ -285,7 +288,7 @@ export function StaffDirectoryPage() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-muted">
+                    <td className="px-5 py-3 text-muted">
                       {member.lastLoginAt
                         ? formatDate(
                             new Date(member.lastLoginAt),
@@ -294,8 +297,8 @@ export function StaffDirectoryPage() {
                           )
                         : t('staff.never')}
                     </td>
-                    <td className="px-4 py-2">
-                      <span className="rounded bg-bg px-2 py-0.5 text-xs text-muted">
+                    <td className="px-5 py-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-primary">
                         {t(`staff.memberStatus.${member.status}`)}
                       </span>
                     </td>
@@ -307,14 +310,14 @@ export function StaffDirectoryPage() {
         )}
       </section>
 
-      <section className="rounded-md border border-border bg-surface">
-        <h2 className="border-b border-border px-4 py-3 text-sm font-medium text-text">
+      <section className="overflow-hidden rounded-xl border border-border bg-surface shadow-(--shadow-soft)">
+        <h2 className="border-b border-border px-5 py-4 text-base font-semibold text-navy">
           {t('staff.pending')}
         </h2>
         {loading ? (
           <div className="space-y-2 p-4" aria-busy="true">
             {[0, 1, 2].map((i) => (
-              <div key={i} className="h-10 animate-pulse rounded bg-bg" />
+              <div key={i} className="skeleton h-10 rounded-md" />
             ))}
           </div>
         ) : invitations.length === 0 ? (
@@ -322,37 +325,40 @@ export function StaffDirectoryPage() {
         ) : (
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase text-muted">
-                <th className="px-4 py-2">{t('staff.email')}</th>
-                <th className="px-4 py-2">{t('staff.role')}</th>
-                <th className="px-4 py-2">{t('staff.status')}</th>
-                <th className="px-4 py-2">{t('staff.expires')}</th>
-                <th className="px-4 py-2">{t('staff.actions')}</th>
+              <tr className="bg-surface-muted/70 text-start text-xs font-semibold tracking-wide text-muted uppercase">
+                <th className="px-5 py-3 text-start">{t('staff.email')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.role')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.status')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.expires')}</th>
+                <th className="px-5 py-3 text-start">{t('staff.actions')}</th>
               </tr>
             </thead>
             <tbody>
               {invitations.map((inv) => {
                 const isPending = inv.displayStatus === 'PENDING';
                 return (
-                  <tr key={inv.id} className="border-t border-border">
-                    <td className="px-4 py-2 text-text">{inv.email}</td>
-                    <td className="px-4 py-2 text-muted">{t(`roles.${inv.role}`)}</td>
-                    <td className="px-4 py-2">
-                      <span className="rounded bg-bg px-2 py-0.5 text-xs text-muted">
+                  <tr
+                    key={inv.id}
+                    className="border-t border-border transition hover:bg-surface-muted/60"
+                  >
+                    <td className="px-5 py-3 text-text">{inv.email}</td>
+                    <td className="px-5 py-3 text-muted">{t(`roles.${inv.role}`)}</td>
+                    <td className="px-5 py-3">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-2.5 py-0.5 text-xs font-semibold text-primary">
                         {t(`staff.statusLabel.${inv.displayStatus}`)}
                       </span>
                       {inv.displayStatus === 'PENDING' && inv.deliveryStatus === 'FAILED' && (
-                        <span className="ml-2 text-xs text-error">{t('staff.deliveryFailed')}</span>
+                        <span className="ms-2 text-xs text-error">{t('staff.deliveryFailed')}</span>
                       )}
                     </td>
-                    <td className="px-4 py-2 text-muted">
+                    <td className="px-5 py-3 text-muted">
                       {formatDate(
                         new Date(inv.expiresAt),
                         negotiateLocale(i18n.resolvedLanguage),
                         active?.clinicTimezone,
                       )}
                     </td>
-                    <td className="px-4 py-2">
+                    <td className="px-5 py-3">
                       {isPending && (
                         <div className="flex gap-2">
                           <Button type="button" variant="ghost" onClick={() => resend(inv.id)}>

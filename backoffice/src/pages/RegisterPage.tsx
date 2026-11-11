@@ -4,8 +4,20 @@ import { useTranslation } from 'react-i18next';
 import { api } from '../lib/api';
 import { useAuth } from '../auth/AuthContext';
 import { markFirstRun } from '../lib/firstRun';
+import {
+  ArrowLeft,
+  ArrowRight,
+  Building2,
+  Check,
+  Lock,
+  Mail,
+  Stethoscope,
+  UserRound,
+} from 'lucide-react';
 import { Button } from '../common/Button';
-import { Field, Input } from '../common/Input';
+import { Field } from '../common/Input';
+import { AuthAlert, AuthInput, AuthSubmit } from '../common/AuthInput';
+import { AuthLayout } from '../layouts/AuthLayout';
 
 type Step = 1 | 2 | 3;
 
@@ -91,31 +103,69 @@ export function RegisterPage() {
     }
   }
 
-  return (
-    <div className="mx-auto flex min-h-screen max-w-lg flex-col justify-center px-6 py-12">
-      <h1 className="text-2xl font-semibold text-text">{t('register.title')}</h1>
-      <p className="mt-1 text-sm text-muted">{t('register.subtitle')}</p>
+  const steps = [
+    { n: 1 as Step, icon: Mail },
+    { n: 2 as Step, icon: UserRound },
+    { n: 3 as Step, icon: Building2 },
+  ];
 
-      <ol className="mt-6 flex items-center gap-2 text-xs" aria-label={t('register.progress')}>
-        {[1, 2, 3].map((n) => (
-          <li
-            key={n}
-            aria-current={step === n ? 'step' : undefined}
-            className={`flex-1 rounded-full px-3 py-1 text-center ${
-              step === n
-                ? 'bg-primary text-white'
-                : step > n
-                  ? 'bg-accent text-primary'
-                  : 'bg-bg text-muted'
-            }`}
-          >
-            {t(`register.step${n}`)}
-          </li>
-        ))}
+  return (
+    <AuthLayout
+      eyebrow={t('auth.signupEyebrow')}
+      title={t('register.title')}
+      subtitle={t('register.subtitle')}
+      footer={
+        <>
+          {t('register.haveAccount')}{' '}
+          <Link className="font-semibold text-primary hover:underline" to="/login">
+            {t('auth.signIn')}
+          </Link>
+        </>
+      }
+    >
+      <ol className="mb-8 flex items-center" aria-label={t('register.progress')}>
+        {steps.map(({ n, icon: Icon }, index) => {
+          const current = step === n;
+          const done = step > n;
+          return (
+            <li
+              key={n}
+              aria-current={current ? 'step' : undefined}
+              className="flex flex-1 items-center gap-2 last:flex-none"
+            >
+              <span
+                className={`grid size-9 shrink-0 place-items-center rounded-full text-sm font-semibold transition ${
+                  current
+                    ? 'brand-gradient text-white shadow-(--shadow-glow)'
+                    : done
+                      ? 'bg-accent text-primary'
+                      : 'bg-surface-muted text-muted'
+                }`}
+              >
+                {done ? (
+                  <Check size={16} aria-hidden="true" />
+                ) : (
+                  <Icon size={16} aria-hidden="true" />
+                )}
+              </span>
+              <span
+                className={`text-sm font-medium ${current ? 'text-navy' : 'text-muted'} hidden sm:inline`}
+              >
+                {t(`register.step${n}`)}
+              </span>
+              {index < steps.length - 1 ? (
+                <span
+                  aria-hidden="true"
+                  className={`mx-2 h-0.5 flex-1 rounded-full ${done ? 'bg-primary' : 'bg-border'}`}
+                />
+              ) : null}
+            </li>
+          );
+        })}
       </ol>
 
       <form
-        className="mt-6 space-y-4"
+        className="space-y-5"
         onSubmit={(event) => {
           event.preventDefault();
           if (step < 3) {
@@ -126,53 +176,92 @@ export function RegisterPage() {
         }}
       >
         {step === 1 && (
-          <>
+          <div key="step-1" className="rise space-y-5">
             <Field label={t('register.email')}>
-              <Input type="email" value={form.email} onChange={set('email')} required />
+              <AuthInput
+                icon={<Mail size={18} aria-hidden="true" />}
+                type="email"
+                autoComplete="email"
+                placeholder={t('auth.emailPlaceholder')}
+                value={form.email}
+                onChange={set('email')}
+                required
+              />
             </Field>
-            <Field label={t('register.password')}>
-              <Input type="password" value={form.password} onChange={set('password')} required />
+            <Field label={t('register.password')} help={t('register.passwordHint')}>
+              <AuthInput
+                icon={<Lock size={18} aria-hidden="true" />}
+                type="password"
+                autoComplete="new-password"
+                value={form.password}
+                onChange={set('password')}
+                required
+              />
             </Field>
-            <p className="text-xs text-muted">{t('register.passwordHint')}</p>
-          </>
+          </div>
         )}
 
         {step === 2 && (
-          <>
+          <div key="step-2" className="rise grid gap-5 sm:grid-cols-2">
             <Field label={t('register.firstName')}>
-              <Input value={form.firstName} onChange={set('firstName')} required />
+              <AuthInput
+                icon={<UserRound size={18} aria-hidden="true" />}
+                autoComplete="given-name"
+                value={form.firstName}
+                onChange={set('firstName')}
+                required
+              />
             </Field>
             <Field label={t('register.lastName')}>
-              <Input value={form.lastName} onChange={set('lastName')} required />
+              <AuthInput
+                icon={<UserRound size={18} aria-hidden="true" />}
+                autoComplete="family-name"
+                value={form.lastName}
+                onChange={set('lastName')}
+                required
+              />
             </Field>
-          </>
+          </div>
         )}
 
         {step === 3 && (
-          <>
+          <div key="step-3" className="rise space-y-5">
             <Field label={t('register.organizationName')}>
-              <Input value={form.organizationName} onChange={set('organizationName')} required />
+              <AuthInput
+                icon={<Building2 size={18} aria-hidden="true" />}
+                autoComplete="organization"
+                value={form.organizationName}
+                onChange={set('organizationName')}
+                required
+              />
             </Field>
             <Field label={t('register.clinicName')}>
-              <Input value={form.clinicName} onChange={set('clinicName')} required />
+              <AuthInput
+                icon={<Stethoscope size={18} aria-hidden="true" />}
+                value={form.clinicName}
+                onChange={set('clinicName')}
+                required
+              />
             </Field>
-          </>
+          </div>
         )}
 
-        {error && (
-          <p role="alert" className="text-sm text-error">
-            {error}
-          </p>
-        )}
+        {error && <AuthAlert>{error}</AuthAlert>}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 pt-1">
           {step > 1 && (
-            <Button type="button" variant="secondary" onClick={() => setStep((step - 1) as Step)}>
+            <Button
+              type="button"
+              variant="secondary"
+              size="lg"
+              className="min-h-13 rounded-lg px-6"
+              onClick={() => setStep((step - 1) as Step)}
+            >
+              <ArrowLeft size={18} aria-hidden="true" className="rtl-flip" />
               {t('register.back')}
             </Button>
           )}
-          <Button
-            type="submit"
+          <AuthSubmit
             disabled={
               submitting ||
               (step === 1 && !stepOneValid) ||
@@ -181,16 +270,10 @@ export function RegisterPage() {
             }
           >
             {step === 3 ? t('register.create') : t('register.next')}
-          </Button>
+            <ArrowRight size={18} aria-hidden="true" className="rtl-flip" />
+          </AuthSubmit>
         </div>
       </form>
-
-      <p className="mt-6 text-sm text-muted">
-        {t('register.haveAccount')}{' '}
-        <Link className="text-primary underline" to="/login">
-          {t('auth.signIn')}
-        </Link>
-      </p>
-    </div>
+    </AuthLayout>
   );
 }

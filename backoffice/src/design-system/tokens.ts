@@ -27,6 +27,12 @@ export const color = {
   warning: '#92400e',
   error: '#b91c1c',
   accent: '#ddf6f3',
+  teal: '#17a589',
+  blue: '#1565c0',
+  'blue-soft': '#e8f1fc',
+  'navy-deep': '#0b1626',
+  mint: '#5fd3bf',
+  'surface-muted': '#f3f6fa',
 } as const;
 
 export const font = {
@@ -37,6 +43,8 @@ export const radius = {
   sm: '8px',
   md: '12px',
   lg: '16px',
+  xl: '20px',
+  '2xl': '28px',
   full: '9999px',
 } as const;
 
@@ -58,6 +66,9 @@ export const space = {
 export const elevation = {
   card: '0 8px 24px rgba(21, 40, 63, 0.06)',
   overlay: '0 16px 40px rgba(21, 40, 63, 0.16)',
+  soft: '0 1px 2px rgba(21, 40, 63, 0.04), 0 4px 16px rgba(21, 40, 63, 0.05)',
+  float: '0 24px 60px -12px rgba(21, 40, 63, 0.18)',
+  glow: '0 10px 24px -8px rgba(21, 101, 192, 0.55)',
 } as const;
 
 export const tokens = { color, font, radius, space, elevation } as const;

@@ -13,6 +13,8 @@ import {
   Palette,
   PanelLeftClose,
   PanelLeftOpen,
+  Plus,
+  Search,
   Settings,
   Stethoscope,
   Users,
@@ -71,12 +73,12 @@ function NavItems({
               aria-label={collapsed ? label : undefined}
               title={collapsed ? label : undefined}
               className={({ isActive }) =>
-                `relative flex min-h-11 items-center gap-3 rounded-md text-sm transition ${
+                `group relative flex min-h-11 items-center gap-3 rounded-md text-sm transition ${
                   collapsed ? 'justify-center px-0' : 'px-3'
                 } ${
                   isActive
-                    ? 'bg-primary font-semibold text-white'
-                    : 'text-white/75 hover:bg-surface/10'
+                    ? 'nav-active font-semibold text-white'
+                    : 'text-white/70 hover:bg-surface/10 hover:text-white'
                 }`
               }
             >
@@ -85,10 +87,14 @@ function NavItems({
                   {isActive ? (
                     <span
                       aria-hidden="true"
-                      className="absolute inset-y-2 start-0 w-1 rounded-full bg-white"
+                      className="absolute inset-y-2.5 start-1 w-1 rounded-full bg-white/90"
                     />
                   ) : null}
-                  <Icon size={18} aria-hidden="true" />
+                  <Icon
+                    size={18}
+                    aria-hidden="true"
+                    className={`shrink-0 transition ${isActive ? '' : 'group-hover:scale-110'}`}
+                  />
                   {!collapsed ? <span>{label}</span> : null}
                 </>
               )}
@@ -173,28 +179,29 @@ export function AppShell() {
   const toggleLabel = t(collapsed ? 'shell.expandSidebar' : 'shell.collapseSidebar');
 
   return (
-    <div className="min-h-screen bg-bg">
+    <div className="app-bg min-h-screen">
       <a href="#main" className="skip-link">
         {t('shell.skipToContent')}
       </a>
 
       <aside
-        className={`fixed inset-y-0 start-0 hidden flex-col bg-navy text-white transition-[width] lg:flex ${
+        className={`sidebar-bg fixed inset-y-0 start-0 z-30 hidden flex-col text-white transition-[width] duration-300 lg:flex ${
           collapsed ? 'w-20' : 'w-64'
         }`}
       >
         <div
           className={`flex items-center gap-3 py-5 ${collapsed ? 'justify-center px-2' : 'px-5'}`}
         >
-          <img
-            src="/logo.png"
-            alt="RI'AYA"
-            className="h-11 w-11 rounded-xl bg-black object-cover"
-          />
+          <span className="grid size-11 shrink-0 place-items-center rounded-md bg-surface shadow-(--shadow-glow)">
+            <img src="/riaya-mark.png" alt="RI'AYA" className="size-8 object-contain" />
+          </span>
           {!collapsed ? (
-            <div>
-              <p className="text-sm font-semibold">{t('app.name')}</p>
-              <p className="text-xs text-white/60">{t('app.workspace')}</p>
+            <div className="min-w-0">
+              <p className="text-base font-bold tracking-tight">{t('app.name')}</p>
+              <p className="flex items-center gap-1.5 text-xs text-white/60">
+                <span className="live-dot size-1.5 rounded-full bg-mint" />
+                {t('app.workspace')}
+              </p>
             </div>
           ) : null}
         </div>
@@ -210,7 +217,7 @@ export function AppShell() {
             aria-expanded={!collapsed}
             aria-label={toggleLabel}
             title={toggleLabel}
-            className={`flex min-h-10 w-full items-center gap-3 rounded-md text-sm text-white/70 hover:bg-surface/10 ${
+            className={`flex min-h-10 w-full items-center gap-3 rounded-md text-sm text-white/60 transition hover:bg-surface/10 hover:text-white ${
               collapsed ? 'justify-center px-0' : 'px-3'
             }`}
           >
@@ -237,18 +244,19 @@ export function AppShell() {
         >
           <button
             type="button"
-            className="absolute inset-0 bg-navy/50"
+            className="absolute inset-0 bg-navy/50 backdrop-blur-sm"
             aria-label={t('shell.closeMenu')}
             onClick={() => closeDrawer(true)}
           />
-          <aside ref={drawerRef} className="relative flex h-full w-64 flex-col bg-navy text-white">
+          <aside
+            ref={drawerRef}
+            className="sidebar-bg relative flex h-full w-72 flex-col text-white shadow-(--shadow-overlay)"
+          >
             <div className="flex items-center justify-between px-4 py-4">
               <div className="flex items-center gap-3">
-                <img
-                  src="/logo.png"
-                  alt="RI'AYA"
-                  className="h-10 w-10 rounded-xl bg-black object-cover"
-                />
+                <span className="grid size-10 place-items-center rounded-md bg-surface">
+                  <img src="/riaya-mark.png" alt="RI'AYA" className="size-7 object-contain" />
+                </span>
                 <p className="text-sm font-semibold">{t('app.name')}</p>
               </div>
               <button
@@ -270,12 +278,12 @@ export function AppShell() {
         </div>
       ) : null}
 
-      <div className={collapsed ? 'lg:ps-20' : 'lg:ps-64'}>
-        <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border bg-surface/90 px-4 backdrop-blur lg:px-8">
+      <div className={`transition-[padding] duration-300 ${collapsed ? 'lg:ps-20' : 'lg:ps-64'}`}>
+        <header className="glass sticky top-0 z-20 flex min-h-16 items-center justify-between gap-3 border-b border-border/80 px-4 lg:px-8">
           <button
             ref={menuButtonRef}
             type="button"
-            className="grid size-11 place-items-center rounded-md border border-border lg:hidden"
+            className="grid size-11 place-items-center rounded-md border border-border bg-surface shadow-(--shadow-soft) lg:hidden"
             onClick={openDrawer}
             aria-label={t('shell.openMenu')}
           >
@@ -286,14 +294,27 @@ export function AppShell() {
             {t('shell.comingSoon')}
           </span>
 
-          <input
-            disabled
-            className="min-h-11 hidden max-w-xl flex-1 rounded-full border border-border bg-bg px-4 text-sm sm:block"
-            placeholder={t('shell.search')}
-            aria-label={t('shell.search')}
-            aria-describedby="shell-coming-soon"
-            title={t('shell.comingSoon')}
-          />
+          <div className="relative hidden max-w-xl flex-1 sm:block">
+            <Search
+              size={16}
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-y-0 start-4 my-auto text-muted"
+            />
+            <input
+              disabled
+              className="min-h-11 w-full rounded-full border border-border bg-surface-muted/80 ps-11 pe-16 text-sm placeholder:text-muted"
+              placeholder={t('shell.search')}
+              aria-label={t('shell.search')}
+              aria-describedby="shell-coming-soon"
+              title={t('shell.comingSoon')}
+            />
+            <kbd
+              aria-hidden="true"
+              className="absolute inset-y-0 end-3 my-auto h-6 rounded-sm border border-border bg-surface px-1.5 text-[11px] leading-6 font-medium text-muted"
+            >
+              Ctrl K
+            </kbd>
+          </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
             <button
@@ -302,9 +323,13 @@ export function AppShell() {
               aria-label={t('nav.notifications')}
               aria-describedby="shell-coming-soon"
               title={t('shell.comingSoon')}
-              className="grid size-10 place-items-center rounded-md border border-border text-muted opacity-70"
+              className="relative grid size-10 place-items-center rounded-full border border-border bg-surface text-muted opacity-80 shadow-(--shadow-soft)"
             >
               <Bell size={18} aria-hidden="true" />
+              <span
+                aria-hidden="true"
+                className="absolute end-2 top-2 size-2 rounded-full bg-error ring-2 ring-surface"
+              />
             </button>
             <button
               type="button"
@@ -312,17 +337,22 @@ export function AppShell() {
               aria-label={t('shell.chat')}
               aria-describedby="shell-coming-soon"
               title={t('shell.comingSoon')}
-              className="grid size-10 place-items-center rounded-md border border-border text-muted opacity-70"
+              className="relative grid size-10 place-items-center rounded-full border border-border bg-surface text-muted opacity-80 shadow-(--shadow-soft)"
             >
               <MessageSquare size={18} aria-hidden="true" />
             </button>
             <LanguageSwitcher />
-            <Button className="hidden sm:inline-flex">{t('shell.newAppointment')}</Button>
+            <span className="hidden sm:block">
+              <Button className="rounded-full">
+                <Plus size={16} aria-hidden="true" />
+                {t('shell.newAppointment')}
+              </Button>
+            </span>
             <Dropdown
               label={t('shell.userMenu')}
               trigger={
                 <>
-                  <span className="grid size-8 place-items-center rounded-full bg-accent text-xs font-semibold text-primary">
+                  <span className="brand-gradient grid size-8 place-items-center rounded-full text-xs font-semibold text-white">
                     {initials}
                   </span>
                   <span className="hidden max-w-24 truncate sm:inline">{user?.firstName}</span>
@@ -343,7 +373,7 @@ export function AppShell() {
           </div>
         </header>
 
-        <main id="main" tabIndex={-1} className="p-4 lg:p-8">
+        <main id="main" tabIndex={-1} className="mx-auto max-w-[1440px] p-4 outline-none lg:p-8">
           <Breadcrumbs />
           <Outlet />
         </main>

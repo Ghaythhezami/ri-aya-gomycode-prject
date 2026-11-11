@@ -1,4 +1,4 @@
-export const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5173';
+export const workspace = process.env.NEXT_PUBLIC_BACKOFFICE_URL ?? 'http://localhost:5174';
 
 export const links = {
   workspace,

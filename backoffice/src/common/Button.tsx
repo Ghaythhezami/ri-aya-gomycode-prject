@@ -4,9 +4,10 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 type Size = 'sm' | 'md' | 'lg';
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-primary text-white hover:bg-primary-dark disabled:opacity-60',
-  secondary: 'bg-surface text-text border border-border hover:bg-bg disabled:opacity-60',
-  ghost: 'bg-transparent text-text hover:bg-accent disabled:opacity-60',
+  primary: 'btn-brand text-white hover:brightness-105 disabled:opacity-60',
+  secondary:
+    'bg-surface text-text border border-border shadow-(--shadow-soft) hover:border-primary/30 hover:text-primary disabled:opacity-60',
+  ghost: 'bg-transparent text-text hover:bg-accent hover:text-primary disabled:opacity-60',
   danger: 'bg-error text-white hover:opacity-90 disabled:opacity-60',
 };
 
@@ -25,7 +26,7 @@ export function Button({
 }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: Variant; size?: Size }) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 rounded-md font-medium transition ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-md font-semibold transition disabled:cursor-not-allowed ${variants[variant]} ${sizes[size]} ${className}`}
       {...props}
     />
   );
