@@ -75,7 +75,9 @@ for (const file of walk(src)) {
         for (const pattern of PHYSICAL) {
           const match = line.match(pattern);
           if (match) {
-            errors.push(`${at} physical-direction utility "${match[0]}" — use a logical equivalent`);
+            errors.push(
+              `${at} physical-direction utility "${match[0]}" — use a logical equivalent`,
+            );
             break;
           }
         }
@@ -86,7 +88,9 @@ for (const file of walk(src)) {
 if (errors.length > 0) {
   console.error(`\n✖ Token lint failed — ${errors.length} violation(s):\n`);
   for (const error of errors) console.error(`  • ${error}`);
-  console.error('\nColours belong in src/design-system/tokens.ts and the @theme block in src/index.css.\n');
+  console.error(
+    '\nColours belong in src/design-system/tokens.ts and the @theme block in src/index.css.\n',
+  );
   process.exit(1);
 }
 

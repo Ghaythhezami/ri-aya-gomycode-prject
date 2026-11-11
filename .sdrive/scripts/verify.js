@@ -93,6 +93,9 @@ const CANDIDATE_ROOTS = [
   'lib',
   'pages',
   'server',
+  'backoffice',
+  'web',
+  'realtime',
   'internal',
   'cmd',
   'pkg',
@@ -100,13 +103,6 @@ const CANDIDATE_ROOTS = [
   'apps',
   'packages',
   'crates',
-  // Applications of a pnpm/Nx monorepo. `packages` was the only workspace root a
-  // scanner looked in, so a plan naming `backoffice/src/pages/LoginPage.tsx`
-  // reported it missing while the file sat on disk in a scanned extension.
-  'web',
-  'backoffice',
-  'frontend',
-  'client',
   'components',
   'messages',
   'locales',
@@ -156,18 +152,15 @@ const CODE_EXTENSIONS = [
   '.md',
   '.yml',
   '.yaml',
-  // Schema and migration sources. A plan for a database feature declares entities and
-  // fields that exist ONLY in these files, and detectEntities/detectFields already have
-  // Prisma patterns - but the walk never collected `.prisma`, so every model and every
-  // one of its fields was reported "missing" in a file that plainly declared them.
+  // Database schemas and environment templates are legitimate plan components.
   '.prisma',
+  '.example',
   '.sql',
 ];
 
 // Config files that are never feature components, even though they are JSON.
-// `package.json` is deliberately absent: a plan may legitimately declare it as a
-// component (adding a script or a dependency), and that claim is checkable.
 const IGNORED_FILES = new Set([
+  'package.json',
   'package-lock.json',
   'tsconfig.json',
   'jsconfig.json',
@@ -202,102 +195,14 @@ function readConstitutionSources() {
     .filter((top) => top && CANDIDATE_ROOTS.includes(top));
 }
 
-// Packages a monorepo declares as workspaces, read from the root manifest so they are
-// scanned like any other source root.
-//
-// CANDIDATE_ROOTS is a fixed list of conventional folder names, which a workspace
-// package need not use. This project is a pnpm workspace of `web`, `server` and
-// `backoffice`, and the fixed list knew only `server`: a feature implemented entirely in
-// `backoffice/` had all 44 of its planned components reported missing while every one
-// of them sat on disk. Reading the declared workspaces (plus pnpm-workspace.yaml and
-// lerna.json for pnpm and Lerna repos) makes the scanner follow the repo's real layout
-// instead of guessing at names.
-function readWorkspacePackages() {
-  const globs = [];
-
-  const rootManifest = path.join(projectRoot, 'package.json');
-
-  if (fs.existsSync(rootManifest)) {
-    try {
-      const pkg = JSON.parse(fs.readFileSync(rootManifest, 'utf8'));
-      const workspaces = pkg.workspaces;
-
-      // `"workspaces": ["packages/*"]`, or the Yarn form
-      // `"workspaces": { "packages": ["packages/*"] }`.
-      const entries = Array.isArray(workspaces) ? workspaces : (workspaces?.packages ?? []);
-
-      entries.forEach((entry) => globs.push(entry));
-    } catch (error) {
-      // An unreadable root manifest is not fatal: the conventional roots still apply.
-    }
-  }
-
-  const pnpmWorkspace = path.join(projectRoot, 'pnpm-workspace.yaml');
-
-  if (fs.existsSync(pnpmWorkspace)) {
-    for (const line of readFileContent(pnpmWorkspace).split(/\r?\n/)) {
-      const match = line.match(/^\s*-\s*['"]?([^'"#]+?)['"]?\s*$/);
-
-      if (match) globs.push(match[1]);
-    }
-  }
-
-  const lernaConfig = path.join(projectRoot, 'lerna.json');
-
-  if (fs.existsSync(lernaConfig)) {
-    try {
-      const lerna = JSON.parse(readFileContent(lernaConfig));
-
-      (lerna.packages || []).forEach((entry) => globs.push(entry));
-    } catch (error) {
-      // Same reasoning as above.
-    }
-  }
-
-  const packages = new Set();
-
-  for (const glob of globs) {
-    const pattern = String(glob).trim();
-    const top = pattern.split(/[/\\]/)[0].replace(/\*+$/, '');
-
-    if (!top || top === '.' || IGNORED_DIRS.has(top) || IGNORED_FILES.has(top)) continue;
-
-    const topDir = path.join(projectRoot, top);
-
-    if (!fs.existsSync(topDir) || !fs.statSync(topDir).isDirectory()) continue;
-
-    // A plain entry is the package itself. A wildcard entry (`packages/*`) names a parent
-    // whose children are the packages, so the parent must not be scanned as a root of
-    // its own or every file under it would be read twice.
-    if (!/[*?]/.test(pattern)) {
-      packages.add(top);
-      continue;
-    }
-
-    for (const entry of fs.readdirSync(topDir, { withFileTypes: true })) {
-      if (!entry.isDirectory()) continue;
-      if (IGNORED_DIRS.has(entry.name) || entry.name.startsWith('.')) continue;
-
-      const child = path.join(top, entry.name);
-
-      // A workspace member is a package; the wildcard may also match a data folder.
-      if (fs.existsSync(path.join(projectRoot, child, 'package.json'))) packages.add(child);
-    }
-  }
-
-  return [...packages];
-}
-
 function detectSourceRoots() {
   const fromConstitution = readConstitutionSources();
-  const fromWorkspaces = readWorkspacePackages();
   const detected = CANDIDATE_ROOTS.filter((r) => fs.existsSync(path.join(projectRoot, r)));
 
-  // Union the constitution's declared roots, the packages the root manifest declares as
-  // workspaces, and the conventional roots that actually exist. Relying on the
-  // constitution alone misses real source folders (e.g. lib/, messages/) that the
-  // document simply did not list.
-  const roots = [...new Set([...fromConstitution, ...fromWorkspaces, ...detected])];
+  // Union the constitution's declared roots with the conventional roots that
+  // actually exist. Relying on the constitution alone misses real source
+  // folders (e.g. lib/, messages/) that the document simply did not list.
+  const roots = [...new Set([...fromConstitution, ...detected])];
 
   return roots.filter((r) => fs.existsSync(path.join(projectRoot, r)));
 }
@@ -359,40 +264,18 @@ function detectComponents(files) {
     const relative = path.relative(projectRoot, file).replace(/\\/g, '/');
     const basename = path.basename(file, path.extname(file));
 
-    // React / Vue / Svelte components. The exported symbol can live anywhere in the
-    // package: this project keeps its primitives in `backoffice/src/common/`, and a
-    // `components/` path gate hid `Textarea`, `EmptyState` and `ErrorState` there, so a
-    // plan naming them by symbol was told they do not exist.
-    //
-    // Every exported PascalCase symbol is recorded, not just the first. A module often
-    // exports several primitives (this project's `States.tsx` exports `Shell`,
-    // `EmptyState` and `ErrorState`); taking only the first match reported the rest as
-    // missing even though they exist in the scanned file.
-    const componentMatches = content.matchAll(
-      /(?:export\s+)?(?:function|const|class)\s+([A-Z][A-Za-z0-9_]+)/g,
+    // Test files are evidence, not plan components; reporting them as unplanned
+    // extras drowns the signal from genuinely new production files.
+    if (/(^|\/)[^/]+\.(?:spec|test)\.[cm]?[jt]sx?$/.test(relative)) return;
+
+    // React / Vue / Svelte components
+    const componentMatches = content.match(
+      /(?:export\s+)?(?:function|const|class)\s+([A-Z][A-Za-z0-9_]+)/,
     );
 
-    const exportedNames = new Set();
-
-    for (const match of componentMatches) {
-      if (exportedNames.has(match[1])) continue;
-
-      exportedNames.add(match[1]);
+    if (componentMatches && /components?\//i.test(relative)) {
       components.push({
-        name: match[1],
-        file: relative,
-        basename,
-      });
-    }
-
-    // A type inferred from a schema is a named export like any other, but the plan
-    // names it as a symbol and it has no `type Name = {` body to match. Record it
-    // under its own name so an entity declared as `z.infer<typeof x>` is found.
-    for (const match of content.matchAll(
-      /(?:export\s+)?type\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:z\.)?infer\s*</g,
-    )) {
-      components.push({
-        name: match[1],
+        name: componentMatches[1],
         file: relative,
         basename,
       });
@@ -407,19 +290,6 @@ function detectComponents(files) {
       basename,
       isPath: true,
     });
-
-    // ...and by bare file name. A plan writes `tokens`, `check-token-parity` or
-    // `i18n-catalogues` for a module that exports no PascalCase symbol; without this the
-    // only recorded name was the full path, and the file was reported as a rename of
-    // itself rather than a match.
-    if (basename) {
-      components.push({
-        name: basename,
-        file: relative,
-        basename,
-        isPath: true,
-      });
-    }
   });
 
   return components;
@@ -466,6 +336,23 @@ function detectEndpoints(files) {
         path: `/api${route}`,
         file: relative,
       });
+    }
+
+    // NestJS controllers: @Controller('base') plus @Get/@Post/@Patch/@Put/@Delete.
+    if (content.includes('@Controller(')) {
+      const base = content.match(/@Controller\(\s*['"`]([^'"`]*)['"`]/)?.[1] ?? '';
+      const nestMatches = content.matchAll(
+        /@(Get|Post|Patch|Put|Delete)\(\s*['"`]([^'"`]*)['"`]\s*\)/g,
+      );
+
+      for (const match of nestMatches) {
+        const methodPath = match[2].replace(/^\/+/, '');
+        endpoints.push({
+          method: match[1].toUpperCase(),
+          path: `/api/${[base.replace(/^\/+|\/+$/g, ''), methodPath].filter(Boolean).join('/')}`,
+          file: relative,
+        });
+      }
     }
   });
 
@@ -532,47 +419,9 @@ function detectEntities(files) {
         file: relative,
       });
     }
-
-    // Schemas whose type is inferred rather than written out:
-    //
-    //   export const loginSchema = z.object({ ... });
-    //   export type LoginInput = z.infer<typeof loginSchema>;
-    //
-    // The type alias has no `{ ... }` body, so the block above never sees it. A plan
-    // that models its data as zod schemas declared these entities as missing while
-    // the schema sat in a scanned file. Only an inferred type is recorded, so a plain
-    // `export type X = string` does not become a phantom entity.
-    const inferredTypes = content.matchAll(
-      /(?:export\s+)?type\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:z\.)?infer\s*</g,
-    );
-    for (const match of inferredTypes) {
-      entities.push({
-        name: match[1],
-        file: relative,
-      });
-    }
   });
 
   return entities;
-}
-
-// The contents of the brace-delimited object that opens at `openIndex`, with nested
-// braces included. Returns null when the braces do not balance.
-function objectBodyAt(content, openIndex) {
-  let depth = 0;
-
-  for (let i = openIndex; i < content.length; i += 1) {
-    const char = content[i];
-
-    if (char === '{') depth += 1;
-    else if (char === '}') {
-      depth -= 1;
-
-      if (depth === 0) return content.slice(openIndex + 1, i);
-    }
-  }
-
-  return null;
 }
 
 function detectFields(files) {
@@ -672,50 +521,6 @@ function detectFields(files) {
         });
       }
     }
-
-    // zod schema fields: `email: z.string().min(1),` inside a
-    // `const xSchema = z.object({ ... })` body. The inferred type has no body of its
-    // own, so without this every planned field of a schema-modelled entity was
-    // reported missing even though the schema declared it.
-    // A schema's fields belong to whatever type infers from it
-    // (`LoginInput = z.infer<typeof loginSchema>`), falling back to the schema's own
-    // exported name when the file declares no inferred type.
-    const inferredFromSchema = new Map();
-    for (const match of content.matchAll(
-      /(?:export\s+)?type\s+([A-Z][A-Za-z0-9_]*)\s*=\s*(?:z\.)?infer\s*<\s*typeof\s+(\w+)\s*>/g,
-    )) {
-      inferredFromSchema.set(match[2], match[1]);
-    }
-
-    // The body is extracted by counting braces rather than with a lazy pattern: a
-    // field's own options (`z.email({ message })`) contain a `}`, and a lazy match
-    // stops at the first one, truncating the schema and hiding every later field.
-    for (const declaration of content.matchAll(
-      /(?:export\s+)?(?:const|let|var)\s+(\w+)\s*(?::[^=]+)?=\s*z\s*\.\s*object\s*\(\s*\{/g,
-    )) {
-      const schemaSource = objectBodyAt(content, declaration.index + declaration[0].length - 1);
-
-      if (schemaSource === null) continue;
-
-      const schemaName = declaration[1];
-      const entity = inferredFromSchema.get(schemaName) ?? schemaName;
-
-      // Drop nested option objects, e.g. `.min(1, { message: ... })`. Their keys are
-      // not schema fields, and leaving them in makes a key look like part of the
-      // preceding field's value.
-      const body = schemaSource.replace(/(?:\.\w+\s*\([^()]*)?\{[^{}]*\}/g, (segment) =>
-        segment.slice(0, segment.indexOf('{')),
-      );
-      const fieldMatches = body.matchAll(/(?:^|[,{])\s*['"]?(\w+)['"]?\s*\??\s*:/gm);
-
-      for (const field of fieldMatches) {
-        fields.push({
-          entity,
-          name: field[1],
-          file: relative,
-        });
-      }
-    }
   });
 
   return fields;
@@ -769,48 +574,34 @@ function cargoDependencyNames(file) {
 function detectDependencies(sourceRoots = []) {
   const names = new Set();
 
-  const pkgPath = path.join(projectRoot, 'package.json');
+  // A pnpm workspace keeps dependencies in each package's manifest, not only the
+  // root one. Read the root plus every top-level package and `packages/*` member.
+  const packageFiles = new Set([path.join(projectRoot, 'package.json')]);
+  const addPackageFile = (dir) => {
+    const file = path.join(dir, 'package.json');
+    if (fs.existsSync(file)) packageFiles.add(file);
+  };
 
-  if (fs.existsSync(pkgPath)) {
+  for (const entry of fs.readdirSync(projectRoot, { withFileTypes: true })) {
+    if (!entry.isDirectory() || IGNORED_DIRS.has(entry.name)) continue;
+    addPackageFile(path.join(projectRoot, entry.name));
+
+    if (entry.name === 'packages' || entry.name === 'apps') {
+      const groupDir = path.join(projectRoot, entry.name);
+      for (const child of fs.readdirSync(groupDir, { withFileTypes: true })) {
+        if (child.isDirectory()) addPackageFile(path.join(groupDir, child.name));
+      }
+    }
+  }
+
+  for (const file of packageFiles) {
+    if (!fs.existsSync(file)) continue;
     try {
-      const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+      const pkg = JSON.parse(fs.readFileSync(file, 'utf8'));
       Object.keys(pkg.dependencies || {}).forEach((name) => names.add(name));
       Object.keys(pkg.devDependencies || {}).forEach((name) => names.add(name));
     } catch (error) {
       // A broken package.json is not a dependency answer; keep looking elsewhere.
-    }
-  }
-
-  // A monorepo declares its libraries in each workspace manifest, not only in the root
-  // one. With the root read alone, every dependency of `server/`, `web/` and
-  // `backoffice/` - Prisma, Nest, React - was reported missing while sitting in the
-  // project's own manifests. Each source root is scanned, plus one level below it so
-  // `packages/*` members are included.
-  const manifestRoots = [projectRoot];
-
-  for (const root of sourceRoots) {
-    const rootDir = path.join(projectRoot, root);
-
-    if (!fs.existsSync(rootDir)) continue;
-
-    manifestRoots.push(rootDir);
-
-    for (const entry of fs.readdirSync(rootDir, { withFileTypes: true })) {
-      if (entry.isDirectory()) manifestRoots.push(path.join(rootDir, entry.name));
-    }
-  }
-
-  for (const dir of manifestRoots) {
-    const manifestPath = path.join(dir, 'package.json');
-
-    if (!fs.existsSync(manifestPath)) continue;
-
-    try {
-      const pkg = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-      Object.keys(pkg.dependencies || {}).forEach((name) => names.add(name));
-      Object.keys(pkg.devDependencies || {}).forEach((name) => names.add(name));
-    } catch (error) {
-      // An unreadable member manifest is not a dependency answer; skip it, not fatal.
     }
   }
 
@@ -847,35 +638,6 @@ function detectDependencies(sourceRoots = []) {
   return [...names];
 }
 
-/**
- * Resolve a component name a plan declared to a real path on disk.
- *
- * The walk collects files by extension, so a plan that names a `.prisma` file, a
- * `migrations/` directory or any other path outside that list had no matching code
- * component and was reported missing even when the path existed. Existence on disk
- * is a weaker claim than "the scanner found content", but it is exactly what the plan
- * asserts, and it is checkable.
- *
- * Brace globs (`messages/{fr,pt}.json`) name several files and are resolved by the
- * caller, so they are not handled here.
- */
-function resolveDeclaredPathOnDisk(name) {
-  if (!name || typeof name !== 'string' || name.includes('{')) return null;
-
-  const normalised = name.replace(/^\.?\//, '').replace(/\\/g, '/');
-  const candidate = path.join(projectRoot, normalised);
-
-  // Never let a plan escape the project root with `..`.
-  const relative = path.relative(projectRoot, candidate);
-  if (!relative || relative.startsWith('..') || path.isAbsolute(relative)) return null;
-
-  try {
-    return fs.existsSync(candidate) ? relative.replace(/\\/g, '/') : null;
-  } catch {
-    return null;
-  }
-}
-
 function diffPlanAgainstCode(planItems, code) {
   const matched = [];
   const missing = [];
@@ -900,21 +662,6 @@ function diffPlanAgainstCode(planItems, code) {
     return match[2].split(',').map((part) => `${match[1]}${part.trim()}${match[3]}`);
   };
 
-  // A path the plan names that exists on disk, even though it is not scanned as
-  // source (manifests, YAML/JSON config). Kept separate from componentMatches so a
-  // missing source file is never excused by a same-named file elsewhere.
-  const isExistingDeclaredFile = (name) => {
-    if (!name || name.includes('{') || /\s/.test(name)) return false;
-
-    const target = path.join(projectRoot, name);
-
-    try {
-      return fs.existsSync(target) && fs.statSync(target).isFile();
-    } catch (error) {
-      return false;
-    }
-  };
-
   // A plan item matches a code component when the names are equal, when the
   // plan names the file path directly, or when the plan uses a brace glob that
   // expands to the file path.
@@ -936,27 +683,35 @@ function diffPlanAgainstCode(planItems, code) {
       return;
     }
 
+    // A plan may describe a component as a directory (e.g. `src/i18n`). Match it
+    // against any scanned file inside that directory instead of reporting a
+    // rename to an unrelated same-named file elsewhere.
+    if (item.type === 'component' && !item.name.includes('{')) {
+      const directory = item.name.replace(/\/+$/, '');
+      if (directory && !path.extname(directory)) {
+        const contained = codeComponents.find(
+          (c) => c.isPath === true && c.file.startsWith(`${directory}/`),
+        );
+        if (contained) {
+          matched.push({
+            ...item,
+            file: contained.file,
+            note: 'directory matched by contained file',
+          });
+          claimedFiles.add(contained.file);
+          return;
+        }
+      }
+    }
+
     if (item.type === 'component') {
       // Plans may reference a component either by exported symbol name
       // ("Hero") or by file path ("components/home/hero.tsx"). Match both.
       const found = codeComponents.find((c) => componentMatches(item, c));
-      const onDisk = found ? null : resolveDeclaredPathOnDisk(item.name);
 
       if (found) {
         matched.push({ ...item, file: found.file });
         claimedFiles.add(found.file);
-      } else if (onDisk) {
-        // The plan named a path that exists but the walk does not collect it: a
-        // `.prisma` schema, a migrations directory, a manifest, or a folder. Report it
-        // as matched against the real path rather than as a missing component.
-        matched.push({ ...item, file: onDisk });
-        claimedFiles.add(onDisk);
-      } else if (isExistingDeclaredFile(item.name)) {
-        // Plans name manifests and configs too (pnpm-workspace.yaml, a package.json
-        // under a workspace package). These exist on disk but are never scanned as
-        // source, so an existing path is proof of presence.
-        matched.push({ ...item, file: item.name });
-        claimedFiles.add(item.name);
       } else {
         // A rename claims that a similar file IS this plan item under another name.
         // The old test compared the first five characters of the whole path against
@@ -1028,10 +783,7 @@ function diffPlanAgainstCode(planItems, code) {
       if (item.depType && item.depType !== 'library') {
         matched.push({ ...item, note: `${item.depType} dependency; not manifest-verifiable` });
       } else if (
-        // Plans name dependencies the way people say them - "Prisma", "React" - while a
-        // manifest records the package name in lower case. The comparison has to ignore
-        // case, or a dependency that is plainly installed is reported missing.
-        codeDependencies.some((name) => name.toLowerCase() === item.name.toLowerCase()) ||
+        codeDependencies.includes(item.name) ||
         VIRTUAL_DEPENDENCIES.has(item.name.toLowerCase())
       ) {
         matched.push(item);

@@ -22,7 +22,8 @@ const SECTIONS: Record<string, string> = {
 export function Breadcrumbs() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const sectionKey = SECTIONS[pathname];
+  const firstSegment = `/${pathname.split('/')[1] ?? ''}`;
+  const sectionKey = SECTIONS[pathname] ?? SECTIONS[firstSegment];
 
   return (
     <nav aria-label={t('breadcrumbs.label')} className="mb-4">

@@ -178,18 +178,7 @@
           "action": {
             "enum": ["add", "update", "remove", "no_change"]
           },
-          "notes": { "type": "string" },
-          "resolution": {
-            "type": "object",
-            "description": "Set when this dependency was descoped rather than installed. `sdrive verify` reports it as withdrawn instead of missing, and `reason` is mandatory. The same escape hatch the other plan item types already carry, so a dependency a plan considered and rejected does not hold verification at fail forever.",
-            "properties": {
-              "kind": { "enum": ["deferred", "superseded"] },
-              "reason": { "type": "string", "minLength": 20 },
-              "at": { "type": "string" }
-            },
-            "required": ["kind", "reason"],
-            "additionalProperties": false
-          }
+          "notes": { "type": "string" }
         },
         "required": ["name", "type", "action"]
       }

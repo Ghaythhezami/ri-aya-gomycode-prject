@@ -1,0 +1,262 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 2,
+  "rows": [
+    {
+      "requirementId": "FR-039",
+      "acceptanceCriteriaIds": ["AC-046", "AC-049"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1", "T8.2"],
+      "testIds": ["TEST-046", "TEST-049"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-040",
+      "acceptanceCriteriaIds": ["AC-047"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.2"],
+      "testIds": ["TEST-047"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-041",
+      "acceptanceCriteriaIds": ["AC-048", "AC-049"],
+      "planSection": "Invitation Lifecycle & Status",
+      "taskIds": ["T8.3"],
+      "testIds": ["TEST-048", "TEST-049"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-042",
+      "acceptanceCriteriaIds": ["AC-050", "AC-051", "AC-052"],
+      "planSection": "Invitation Lifecycle & Status",
+      "taskIds": ["T8.3", "T8.4"],
+      "testIds": ["TEST-050", "TEST-051", "TEST-052"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-043",
+      "acceptanceCriteriaIds": ["AC-053", "AC-054", "AC-055"],
+      "planSection": "Cancel, Decline & Role Change",
+      "taskIds": ["T8.5"],
+      "testIds": ["TEST-053", "TEST-054", "TEST-055"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-044",
+      "acceptanceCriteriaIds": ["AC-056", "AC-057"],
+      "planSection": "Cancel, Decline & Role Change",
+      "taskIds": ["T8.6"],
+      "testIds": ["TEST-056", "TEST-057"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-045",
+      "acceptanceCriteriaIds": ["AC-058", "AC-059", "AC-060"],
+      "planSection": "Cancel, Decline & Role Change",
+      "taskIds": ["T8.7"],
+      "testIds": ["TEST-058", "TEST-059", "TEST-060"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-046",
+      "acceptanceCriteriaIds": ["AC-061", "AC-062", "AC-063"],
+      "planSection": "Link-Carried Scope & Fast Accept",
+      "taskIds": ["T8.8"],
+      "testIds": ["TEST-061", "TEST-062", "TEST-063"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-047",
+      "acceptanceCriteriaIds": ["AC-064"],
+      "planSection": "Link-Carried Scope & Fast Accept",
+      "taskIds": ["T8.8"],
+      "testIds": ["TEST-064"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-048",
+      "acceptanceCriteriaIds": ["AC-050", "AC-057"],
+      "planSection": "Staff Directory Lifecycle UI",
+      "taskIds": ["T8.9", "T8.10"],
+      "testIds": ["TEST-050", "TEST-057"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-014",
+      "acceptanceCriteriaIds": ["AC-046"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1"],
+      "testIds": ["TEST-046"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-015",
+      "acceptanceCriteriaIds": ["AC-046"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1"],
+      "testIds": ["TEST-046"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-016",
+      "acceptanceCriteriaIds": ["AC-049"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.1", "T8.2"],
+      "testIds": ["TEST-049"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-017",
+      "acceptanceCriteriaIds": ["AC-047"],
+      "planSection": "Invitation Email Delivery (Mailtrap)",
+      "taskIds": ["T8.2"],
+      "testIds": ["TEST-047"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-018",
+      "acceptanceCriteriaIds": ["AC-050"],
+      "planSection": "Staff Directory Lifecycle UI",
+      "taskIds": ["T8.9", "T8.10"],
+      "testIds": ["TEST-050"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-019",
+      "acceptanceCriteriaIds": ["AC-050"],
+      "planSection": "Staff Directory Lifecycle UI",
+      "taskIds": ["T8.4", "T8.9"],
+      "testIds": ["TEST-050"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-049",
+      "acceptanceCriteriaIds": ["AC-065"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.1"],
+      "testIds": ["TEST-065"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-050",
+      "acceptanceCriteriaIds": ["AC-066", "AC-067"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.2"],
+      "testIds": ["TEST-066", "TEST-067"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-051",
+      "acceptanceCriteriaIds": ["AC-068"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.3"],
+      "testIds": ["TEST-068"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-052",
+      "acceptanceCriteriaIds": ["AC-069"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.4"],
+      "testIds": ["TEST-069"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-053",
+      "acceptanceCriteriaIds": ["AC-070"],
+      "planSection": "Organization Overview",
+      "taskIds": ["T15.1"],
+      "testIds": ["TEST-070"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-054",
+      "acceptanceCriteriaIds": ["AC-071"],
+      "planSection": "Organization Overview",
+      "taskIds": ["T15.1"],
+      "testIds": ["TEST-071"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-055",
+      "acceptanceCriteriaIds": ["AC-072"],
+      "planSection": "Workspace Switching and Clinic Creation",
+      "taskIds": ["T16.1"],
+      "testIds": ["TEST-072"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-056",
+      "acceptanceCriteriaIds": ["AC-073"],
+      "planSection": "Workspace Switching and Clinic Creation",
+      "taskIds": ["T16.2"],
+      "testIds": ["TEST-073"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-057",
+      "acceptanceCriteriaIds": ["AC-074"],
+      "planSection": "Workspace Switching and Clinic Creation",
+      "taskIds": ["T16.3"],
+      "testIds": ["TEST-074"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "FR-058",
+      "acceptanceCriteriaIds": ["AC-072", "AC-075"],
+      "planSection": "Workspace Switching and Clinic Creation",
+      "taskIds": ["T16.4"],
+      "testIds": ["TEST-072", "TEST-075"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-020",
+      "acceptanceCriteriaIds": ["AC-065", "AC-068"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.1", "T14.3"],
+      "testIds": ["TEST-065", "TEST-068"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-021",
+      "acceptanceCriteriaIds": ["AC-068"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.3"],
+      "testIds": ["TEST-068"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-022",
+      "acceptanceCriteriaIds": ["AC-069", "AC-075"],
+      "planSection": "Clinic Settings",
+      "taskIds": ["T14.5"],
+      "testIds": ["TEST-069", "TEST-075"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-023",
+      "acceptanceCriteriaIds": ["AC-070", "AC-071"],
+      "planSection": "Organization Overview",
+      "taskIds": ["T15.1"],
+      "testIds": ["TEST-070", "TEST-071"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-024",
+      "acceptanceCriteriaIds": ["AC-073"],
+      "planSection": "Workspace Switching and Clinic Creation",
+      "taskIds": ["T16.2"],
+      "testIds": ["TEST-073"],
+      "status": "complete"
+    },
+    {
+      "requirementId": "NFR-025",
+      "acceptanceCriteriaIds": ["AC-074"],
+      "planSection": "Workspace Switching and Clinic Creation",
+      "taskIds": ["T16.3"],
+      "testIds": ["TEST-074"],
+      "status": "complete"
+    }
+  ]
+}

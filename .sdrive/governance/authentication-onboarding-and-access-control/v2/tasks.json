@@ -1,0 +1,512 @@
+{
+  "feature": "authentication-onboarding-and-access-control",
+  "version": 2,
+  "phases": [
+    {
+      "phaseId": "P8",
+      "name": "Invitation email delivery (Mailtrap)",
+      "dependencies": [],
+      "tasks": [
+        {
+          "id": "T8.1",
+          "title": "Add the SMTP transport behind MAIL_SERVICE",
+          "description": "Add nodemailer and a SmtpMailService that reads host, port, user and password only from environment variables, and make MailModule select SMTP or console from configuration without changing the MAIL_SERVICE token. Widens the MailService interface so a send reports a delivery outcome; the raw token is never logged (AC-046).",
+          "linkedRequirements": [
+            "FR-039",
+            "NFR-014",
+            "NFR-015",
+            "NFR-016"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-046",
+            "AC-049"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T8.2",
+          "title": "Render localized invitation and reset templates",
+          "description": "Add EN/AR/FR invitation and password-reset templates that interpolate the clinic name, the role and the accept link built from BACKOFFICE_URL, escaping every value with no dangerouslySetInnerHTML (NFR-017), and have SmtpMailService render them.",
+          "linkedRequirements": [
+            "FR-039",
+            "FR-040",
+            "NFR-016",
+            "NFR-017"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-047"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T8.3",
+          "title": "Persist the invitation status and delivery outcome",
+          "description": "Add the InvitationStatus and DeliveryStatus enums and the status, deliveryStatus, deliveryError and updatedAt columns to the Invitation model with the backfill migration; record the send outcome after the invitation transaction commits, derive EXPIRED at read time for an unconsumed expired row, and never present a failed send as delivered (FR-041, FR-042, AC-048, AC-051).",
+          "linkedRequirements": [
+            "FR-041",
+            "FR-042"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-048",
+            "AC-050",
+            "AC-051"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T8.4",
+          "title": "Paginate and widen the invitation list",
+          "description": "Make GET /api/invitations return every status (not just pending) with derived EXPIRED and a bounded page size using the existing indexes, so the directory never loads every invitation for the organization at once (NFR-019).",
+          "linkedRequirements": [
+            "NFR-019",
+            "FR-042"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-050",
+            "AC-051",
+            "AC-052"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P9",
+      "name": "Cancel, decline and role change",
+      "dependencies": [
+        "P8"
+      ],
+      "tasks": [
+        {
+          "id": "T8.5",
+          "title": "Add the invitation cancel endpoint",
+          "description": "Add PATCH /api/invitations/:id/cancel that cancels a PENDING invitation in the caller's clinic, invalidating the token and writing CANCELLED; refuse a non-pending invitation with a stable code; audit the actor, the invitation and the previous/new status in the same transaction (FR-043).",
+          "linkedRequirements": [
+            "FR-043"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-053",
+            "AC-054",
+            "AC-055"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T8.6",
+          "title": "Add the invitation decline endpoint",
+          "description": "Add POST /api/invitations/:token/decline that lets the invitee decline a valid invitation, setting REJECTED and invalidating the token; a declined row stays for the record and the same email and clinic can be invited again (FR-044, EC-020).",
+          "linkedRequirements": [
+            "FR-044"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-056",
+            "AC-057"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T8.7",
+          "title": "Add the membership role-change endpoint",
+          "description": "Add PATCH /api/memberships/:id/role gated by CAPABILITY_ROLES and scoped with clinicWhere, updating the membership role and auditing the before/after role, and refusing any change that would leave the organization with zero SUPER_ADMIN members by reusing the v1 invariant (FR-045).",
+          "linkedRequirements": [
+            "FR-045"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-058",
+            "AC-059",
+            "AC-060"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P10",
+      "name": "Link-carried scope and fast accept",
+      "dependencies": [
+        "P9"
+      ],
+      "tasks": [
+        {
+          "id": "T8.8",
+          "title": "Carry and resolve the link scope with the record as source of truth",
+          "description": "Include the target organization id, clinic id and role in the invitation link and add GET /api/invitations/:token that resolves the scope and the email-known flag without consuming the token; on accept re-derive the join scope from the persisted record so a link whose claims disagree is ignored rather than honoured (FR-046, FR-047).",
+          "linkedRequirements": [
+            "FR-046",
+            "FR-047"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-061",
+            "AC-062",
+            "AC-063",
+            "AC-064"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P11",
+      "name": "Staff directory lifecycle UI",
+      "dependencies": [
+        "P10"
+      ],
+      "tasks": [
+        {
+          "id": "T8.9",
+          "title": "Present the invitation lifecycle on the staff directory",
+          "description": "Extend StaffDirectoryPage with a status column (one of PENDING, ACCEPTED, REJECTED, CANCELLED, EXPIRED), resend and cancel actions, filters, pagination and each member's last login, reading the widened list endpoint (FR-048, NFR-019).",
+          "linkedRequirements": [
+            "FR-048",
+            "NFR-018",
+            "NFR-019"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-050",
+            "AC-057"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T8.10",
+          "title": "Localise the lifecycle strings and add the role-change and decline controls",
+          "description": "Add EN/AR/FR strings for status labels, resend, cancel, decline and role change with RTL-correct layout and no hard-coded user-facing strings, wire the per-member role change on the directory and the decline action on AcceptInvitePage, which asks only for profile and password (NFR-018).",
+          "linkedRequirements": [
+            "NFR-018",
+            "FR-048"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-050",
+            "AC-057"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P12",
+      "name": "Verification",
+      "dependencies": [
+        "P8",
+        "P9",
+        "P10",
+        "P11"
+      ],
+      "tasks": [
+        {
+          "id": "T12.1",
+          "title": "Run the server linter and typechecker",
+          "description": "Run pnpm --filter server lint and pnpm --filter server typecheck and resolve every finding without disabling a rule.",
+          "linkedRequirements": [
+            "NFR-014"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T12.2",
+          "title": "Run the formatter check and governance validator",
+          "description": "Run pnpm format:check and node .sdrive/scripts/validate-governance.js; both must pass.",
+          "linkedRequirements": [
+            "NFR-015"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T12.3",
+          "title": "Run the spec-to-code verification",
+          "description": "Run pnpm sdrive verify authentication-onboarding-and-access-control 2 and account for every reported gap.",
+          "linkedRequirements": [
+            "FR-039"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T12.4",
+          "title": "Manually confirm the degraded-provider path",
+          "description": "With the SMTP credentials unset, confirm an invitation is still created as PENDING with a failed delivery outcome and that the directory offers resend without presenting it as sent (AC-049, EC-019).",
+          "linkedRequirements": [
+            "FR-041"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-048",
+            "AC-049"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P13",
+      "name": "Review remediation (round 1)",
+      "dependencies": [
+        "P12"
+      ],
+      "tasks": [
+        {
+          "id": "T13.1",
+          "title": "Resolve the out-of-scope settings/custom-role, overview and workspace-shell work",
+          "description": "The v2 specification was extended on 2026-11-08 with settings/custom roles, organization overview and workspace switching/clinic creation; the scope mismatch is resolved. Re-test and re-review remain part of the remediation.",
+          "linkedRequirements": [
+            "FR-045"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        },
+        {
+          "id": "T13.2",
+          "title": "Run the repository formatter and make pnpm format:check pass",
+          "description": "Run pnpm format, commit the result, and re-run pnpm format:check so the T12.2 completion claim is accurate.",
+          "linkedRequirements": [
+            "NFR-015"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        },
+        {
+          "id": "T13.3",
+          "title": "Document the invitation lifecycle and settings changes in README",
+          "description": "Add the user-facing invitation statuses, resend/cancel/decline controls and settings screens to README.md.",
+          "linkedRequirements": [
+            "NFR-018"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        },
+        {
+          "id": "T13.4",
+          "title": "Upgrade or formally accept the dev-only critical advisories in the test toolchain",
+          "description": "Upgrade Vitest/tinypool to versions without the critical advisories, or record an explicit accepted risk, then re-run pnpm audit.",
+          "linkedRequirements": [
+            "NFR-014"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P14",
+      "name": "Clinic Settings (extension)",
+      "dependencies": [
+        "P13"
+      ],
+      "tasks": [
+        {
+          "id": "T14.1",
+          "title": "Align the clinic settings API and audit",
+          "description": "Keep GET/PATCH /api/clinics/settings tenant-scoped, validate the settings payload, normalize contact details and audit every settings write with before/after values (FR-049, NFR-020).",
+          "linkedRequirements": [
+            "FR-049",
+            "NFR-020"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-065"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T14.2",
+          "title": "Harden working-hours and break validation",
+          "description": "Validate the seven-day schedule: open days need start before end, breaks must stay inside the day, and identical or overlapping breaks are rejected with INVALID_BREAKS without writing (FR-050).",
+          "linkedRequirements": [
+            "FR-050"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-066",
+            "AC-067"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T14.3",
+          "title": "Enforce custom-role permission ceilings",
+          "description": "Validate that a custom role baseRole is one of the four built-in roles and every permission is in that base role capability set; reject duplicates and keep built-in roles immutable (FR-051, NFR-021).",
+          "linkedRequirements": [
+            "FR-051",
+            "NFR-021"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-068"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T14.4",
+          "title": "Complete the eight-section settings shell",
+          "description": "Finish the routed settings shell: clinic information, working hours and roles/permissions are functional; departments, appointments, reminders, audit log and appearance are labelled placeholders with no mutation (FR-052).",
+          "linkedRequirements": [
+            "FR-052"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-069"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T14.5",
+          "title": "Localize and label the settings extension",
+          "description": "Add EN/AR/FR strings and RTL-safe labels for the settings sections, validation messages and placeholders (NFR-022).",
+          "linkedRequirements": [
+            "NFR-022"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-069",
+            "AC-075"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P15",
+      "name": "Organization Overview (extension)",
+      "dependencies": [
+        "P14"
+      ],
+      "tasks": [
+        {
+          "id": "T15.1",
+          "title": "Scope the organization overview query",
+          "description": "Return organization totals and per-clinic rows for clinics, staff, patients, today appointments and upcoming appointments, filtered by the resolved tenant organization (FR-053, FR-054, NFR-023).",
+          "linkedRequirements": [
+            "FR-053",
+            "FR-054",
+            "NFR-023"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-070",
+            "AC-071"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T15.2",
+          "title": "Finish the overview page states",
+          "description": "Render totals and the per-clinic overview table with loading, empty and error states, and keep the page localized (FR-053).",
+          "linkedRequirements": [
+            "FR-053"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-070"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P16",
+      "name": "Workspace Switching and Clinic Creation (extension)",
+      "dependencies": [
+        "P15"
+      ],
+      "tasks": [
+        {
+          "id": "T16.1",
+          "title": "Expose active memberships and the active clinic",
+          "description": "List the caller active memberships for the sidebar switcher and resolve the active clinic from the scoped token (FR-055).",
+          "linkedRequirements": [
+            "FR-055"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-072"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T16.2",
+          "title": "Implement the switch-workspace token rotation",
+          "description": "Validate an active membership, issue a new scoped access token and rotate the refresh cookie; the client proves the refresh before reloading and never routes a failed switch to signup (FR-056, NFR-024).",
+          "linkedRequirements": [
+            "FR-056",
+            "NFR-024"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-073"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T16.3",
+          "title": "Implement create-clinic transaction and audit",
+          "description": "Create a clinic in the active organization inside a transaction with the creator membership and audit row; inherit timezone and currency from the source clinic and make the new clinic active (FR-057, NFR-025).",
+          "linkedRequirements": [
+            "FR-057",
+            "NFR-025"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-074"
+          ],
+          "completed": true
+        },
+        {
+          "id": "T16.4",
+          "title": "Finish the switcher, create dialog and header",
+          "description": "Finish the sidebar switcher/create-clinic dialog with active marker, disabled switching state, errors and ARIA, and remove the duplicate active-clinic header display (FR-058).",
+          "linkedRequirements": [
+            "FR-058"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-072",
+            "AC-075"
+          ],
+          "completed": true
+        }
+      ]
+    },
+    {
+      "phaseId": "P17",
+      "name": "Verification (extension)",
+      "dependencies": [
+        "P14",
+        "P15",
+        "P16"
+      ],
+      "tasks": [
+        {
+          "id": "T17.1",
+          "title": "Run the server linter and typechecker",
+          "description": "Run the server lint and tsc --noEmit and fix any errors in the new settings, overview and workspace code (NFR-020).",
+          "linkedRequirements": [
+            "NFR-020"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        },
+        {
+          "id": "T17.2",
+          "title": "Run the formatter and governance validator",
+          "description": "Run the repository formatter so pnpm format:check passes, then run node .sdrive/scripts/validate-governance.js (NFR-022).",
+          "linkedRequirements": [
+            "NFR-022"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        },
+        {
+          "id": "T17.3",
+          "title": "Run the spec-to-code verification",
+          "description": "Run sdrive verify authentication-onboarding-and-access-control and account for every reported gap (NFR-023).",
+          "linkedRequirements": [
+            "NFR-023"
+          ],
+          "linkedAcceptanceCriteria": [],
+          "completed": true
+        },
+        {
+          "id": "T17.4",
+          "title": "Manually confirm placeholders and empty states",
+          "description": "Confirm the five placeholder sections make no API calls, the overview renders zero totals cleanly, and the switch error never lands on the signup screen (NFR-024).",
+          "linkedRequirements": [
+            "NFR-024"
+          ],
+          "linkedAcceptanceCriteria": [
+            "AC-069",
+            "AC-071",
+            "AC-073"
+          ],
+          "completed": true
+        }
+      ]
+    }
+  ]
+}

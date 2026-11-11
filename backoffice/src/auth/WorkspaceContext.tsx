@@ -25,6 +25,9 @@ interface WorkspaceValue {
   loading: boolean;
   switching: boolean;
   switchTo: (clinicId: string) => Promise<void>;
+  createClinic: (name: string) => Promise<void>;
+  /** Keep the switcher label in step after the clinic is renamed in settings. */
+  renameClinic: (clinicId: string, name: string) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceValue | null>(null);
@@ -101,6 +104,13 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
           clinicId,
         });
         setAccessToken(data.accessToken);
+
+        // Prove the rotated refresh cookie can restore this session BEFORE a
+        // reload. If the cookie is lost or blocked, reloading would bounce the
+        // user to the sign-in/signup screen instead of opening the new clinic.
+        const refreshed = await api.post<{ accessToken: string }>('/api/auth/refresh');
+        setAccessToken(refreshed.data.accessToken);
+
         setActiveClinicId(clinicId);
         // Reload so every screen refetches under the new scope.
         window.location.reload();
@@ -111,14 +121,38 @@ export function WorkspaceProvider({ children }: { children: ReactNode }) {
     [activeClinicId],
   );
 
+  /**
+   * Create a clinic in the active organization, then open it immediately. The
+   * server returns the new membership, so the switcher has the clinic before the
+   * reload that the workspace switch performs.
+   */
+  const createClinic = useCallback(
+    async (name: string) => {
+      const { data } = await api.post<Membership>('/api/clinics', { name });
+      setMemberships((prev) =>
+        prev.some((membership) => membership.clinicId === data.clinicId) ? prev : [...prev, data],
+      );
+      await switchTo(data.clinicId);
+    },
+    [switchTo],
+  );
+
+  const renameClinic = useCallback((clinicId: string, name: string) => {
+    setMemberships((prev) =>
+      prev.map((membership) =>
+        membership.clinicId === clinicId ? { ...membership, clinicName: name } : membership,
+      ),
+    );
+  }, []);
+
   const value = useMemo<WorkspaceValue>(() => {
     const active =
       memberships.find((membership) => membership.clinicId === activeClinicId) ??
       memberships[0] ??
       null;
 
-    return { memberships, active, loading, switching, switchTo };
-  }, [memberships, activeClinicId, loading, switching, switchTo]);
+    return { memberships, active, loading, switching, switchTo, createClinic, renameClinic };
+  }, [memberships, activeClinicId, loading, switching, switchTo, createClinic, renameClinic]);
 
   return <WorkspaceContext.Provider value={value}>{children}</WorkspaceContext.Provider>;
 }

@@ -21,7 +21,6 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../auth/AuthContext';
 import { canSee } from '../auth/roles';
-import { useWorkspace } from '../auth/WorkspaceContext';
 import { Button } from '../common/Button';
 import { Dropdown } from '../common/Dropdown';
 import { Breadcrumbs } from './Breadcrumbs';
@@ -103,7 +102,6 @@ function NavItems({
 export function AppShell() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { active } = useWorkspace();
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [collapsed, setCollapsed] = useState(readSidebarCollapsed);
@@ -225,21 +223,8 @@ export function AppShell() {
           </button>
         </div>
 
-        <div
-          className={`border-t border-white/10 py-4 text-xs text-white/60 ${
-            collapsed ? 'px-2 text-center' : 'px-4'
-          }`}
-        >
-          {active ? (
-            <div className="truncate" title={`${active.clinicName} — ${active.organizationName}`}>
-              <p className="truncate font-medium text-white">{active.clinicName}</p>
-              {!collapsed ? <p className="truncate">{active.organizationName}</p> : null}
-            </div>
-          ) : (
-            <p className="truncate" title={t('shell.noWorkspace')}>
-              {t('shell.noWorkspace')}
-            </p>
-          )}
+        <div className="border-t border-white/10 p-2">
+          <WorkspaceSwitcher collapsed={collapsed} />
         </div>
       </aside>
 
@@ -275,9 +260,12 @@ export function AppShell() {
                 <X size={18} aria-hidden="true" />
               </button>
             </div>
-            <nav className="space-y-1 overflow-y-auto px-3">
+            <nav className="flex-1 space-y-1 overflow-y-auto px-3">
               <NavItems onNavigate={followNavigation} />
             </nav>
+            <div className="border-t border-white/10 p-2">
+              <WorkspaceSwitcher onNavigate={followNavigation} />
+            </div>
           </aside>
         </div>
       ) : null}
@@ -328,7 +316,6 @@ export function AppShell() {
             >
               <MessageSquare size={18} aria-hidden="true" />
             </button>
-            <WorkspaceSwitcher />
             <LanguageSwitcher />
             <Button className="hidden sm:inline-flex">{t('shell.newAppointment')}</Button>
             <Dropdown
