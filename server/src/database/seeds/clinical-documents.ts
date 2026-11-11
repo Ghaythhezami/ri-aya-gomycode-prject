@@ -1049,11 +1049,31 @@ async function pickPatients(
     const current = best.get(a.patient.id);
     if (!current || r < current.rank) best.set(a.patient.id, { patient: a.patient, rank: r });
   }
-  return [...best.values()]
+  const ranked = [...best.values()]
     .sort((x, y) => x.rank - y.rank || x.patient.code.localeCompare(y.patient.code))
-    .slice(0, count)
     .map((entry) => entry.patient);
+
+  // The stories stay on the same people across daily demo resets (patient codes are stable;
+  // appointments are not), so a tester can come back to "Fatima Hassan's labs" tomorrow.
+  const pinned = await prisma.patient.findMany({
+    where: { clinicId, status: 'ACTIVE', code: { in: [...PINNED_PATIENT_CODES] } },
+    select: { id: true, code: true, firstName: true, lastName: true, dateOfBirth: true },
+  });
+  const byCode = new Map(pinned.map((p) => [p.code, p]));
+  const chosen: PatientRef[] = [];
+  for (const code of PINNED_PATIENT_CODES) {
+    const p = byCode.get(code);
+    if (p) chosen.push(p);
+  }
+  for (const p of ranked) {
+    if (chosen.length >= count) break;
+    if (!chosen.some((c) => c.id === p.id)) chosen.push(p);
+  }
+  return chosen.slice(0, count);
 }
+
+/** One per story, in story order (diabetes, knee, appendicitis, thyroid, respiratory). */
+export const PINNED_PATIENT_CODES = ['P-005', 'P-007', 'P-009', 'P-027', 'P-033'] as const;
 
 export async function seedClinicalDocuments(
   prisma: PrismaClient,
